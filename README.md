@@ -20,6 +20,31 @@ No build step or package installation is required. The pages are self-contained 
 | `cine-sem.html` | CINEOSIS · SEMIOSIS |
 | `bcall.html` | BEFLIX Call |
 | `bcall-01.html` | BEFLIX Call 01 |
+| `bcall-02.html` | BEFLIX Call 02 |
+| `bcall-03.html` | BEFLIX Call 03 |
+| `bcall-04.html` | BEFLIX Call 04 |
+| `icaro-flip.html` | Icaro Flip — full frame timeline and mobile editing reference |
+| `OP-01/operator.html` | Operator 01 — split face/command quine prototype |
+| `OP-02/operator-edge.html` | Operator 02 — sparse binary edge-codec prototype |
+| `OP-03/operator-edge.html` | Operator 03 — adaptive edge call using the shared hardened Worker |
+| `OP-04/operator-studio.html` | Operator 04 — shared film EDL, synchronized frame edits, presence, and voice |
+| `OP-04/icaro-flip.html` | Icaro Flip reference colocated with Operator 04 |
+| `OPERATOR/beflix-call.html` | BEFLIX Call Operator — room signaling, reconnect, and chat |
+| `PRETEXT/icaro-quine/index.html` | Icaro Quine — canonical PRETEXT architecture reference |
+
+## Publishing
+
+Pushes to `main` are deployed by `.github/workflows/deploy-pages.yml`. The workflow can also be run manually from the repository's **Actions** tab.
+
+Before publishing, the workflow verifies that `index.html` exists, every root-level HTML study has both a full-page link and an iframe preview, both Operator clients parse, and the room protocol and edge-codec tests pass. A missing gallery entry or broken client fails the deployment instead of silently publishing an incomplete site.
+
+One repository setting is required before the first deployment:
+
+1. Open **Settings → Pages** on GitHub.
+2. Under **Build and deployment**, set **Source** to **GitHub Actions**.
+3. Push to `main`, or run the **Deploy GitHub Pages** workflow manually.
+
+The deployment URL is `https://hartswf0.github.io/prompt-language/`. The workflow's `github-pages` environment records the exact URL after a successful deployment.
 
 ## Prime prompt
 

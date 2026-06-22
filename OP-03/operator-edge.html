@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="beflix-worker-url" content="https://beflix-call.hartswf0.workers.dev">
+<title>OPERATOR EDGE</title>
+<style>
+  :root{ --k:#000; --w:#fff; --pad:env(safe-area-inset-bottom,0px); }
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; margin:0; }
+  body{ background:var(--w); color:var(--k); font:13px/1.4 ui-monospace,"SF Mono",Menlo,Consolas,monospace; display:flex; flex-direction:column; overflow:hidden; -webkit-font-smoothing:none; -webkit-text-size-adjust:100%; }
+  .status{ flex:0 0 auto; display:flex; align-items:center; gap:10px; padding:10px 14px; padding-top:max(10px,env(safe-area-inset-top)); background:var(--k); color:var(--w); border-bottom:3px solid var(--k); }
+  .ind{ width:12px;height:12px;border:3px solid var(--w);background:transparent;flex:0 0 auto; }
+  .status.s-self .ind{ background:var(--w); }
+  .status.s-live .ind{ background:var(--w); animation:blink 1.1s steps(1) infinite; }
+  .status.s-conn .ind{ background:linear-gradient(90deg,var(--w) 50%,transparent 50%); animation:blink .7s steps(1) infinite; }
+  .status.s-frozen .ind{ background:linear-gradient(135deg,var(--w) 50%,transparent 50%); }
+  @keyframes blink{0%,60%{opacity:1}61%,100%{opacity:.15}}
+  .status .where{ font-weight:700;font-size:13px;letter-spacing:.04em;text-transform:uppercase; }
+  .status .what{ font-size:12px;opacity:.85; }
+  @media (max-width:560px){ .status .what{ display:none; } }
+  .status .spacer{ flex:1 1 auto; }
+  .status .rate{ font-size:11px;white-space:nowrap;letter-spacing:.04em; }
+  .logbtn{ margin-left:8px;padding:4px 9px;font-size:10px;letter-spacing:.1em;background:transparent;color:var(--w);border:2px solid var(--w);border-radius:0;min-height:auto; }
+  .logbtn:hover{ background:var(--w);color:var(--k); }
+  .chat{ position:absolute; right:14px; bottom:14px; z-index:6; width:min(340px,82%); max-height:60%; background:var(--w); border:3px solid var(--k); box-shadow:6px 6px 0 var(--k); display:flex; flex-direction:column; }
+  .chat.hidden{ display:none; }
+  .chat-head{ flex:0 0 auto; padding:7px 10px; font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; border-bottom:3px solid var(--k); }
+  .chat-log{ flex:1 1 auto; overflow-y:auto; padding:8px 10px; font-size:12px; line-height:1.45; min-height:60px; }
+  .chat-log .cm{ margin:3px 0; word-break:break-word; }
+  .chat-log .cm .cw{ font-weight:700; text-transform:uppercase; font-size:10px; letter-spacing:.06em; }
+  .chat-input{ flex:0 0 auto; display:flex; border-top:3px solid var(--k); }
+  .chat-input input{ flex:1 1 auto; border:none; background:var(--w); color:var(--k); padding:10px; font:12px/1.4 ui-monospace,monospace; min-height:44px; }
+  .chat-input input:focus{ outline:2px solid var(--k); outline-offset:-2px; }
+  .chat-input button{ border:none; border-left:3px solid var(--k); box-shadow:none; border-radius:0; min-height:44px; padding:0 14px; }
+
+  .grid{ flex:1 1 auto; min-height:0; display:grid; grid-template-columns:1fr 1fr; gap:3px; background:var(--k); padding:3px; }
+  @media (max-width:560px){ .grid{ grid-template-columns:1fr; grid-template-rows:1fr 1fr; } }
+  .peer{ display:flex; flex-direction:column; min-height:0; background:var(--w); position:relative; }
+  .peer h2{ margin:0; flex:0 0 auto; padding:6px 10px; font-size:11px; letter-spacing:.1em; text-transform:uppercase; font-weight:700; border-bottom:3px solid var(--k); display:flex; align-items:center; gap:8px; }
+  .peer h2 .tag{ margin-left:auto; font-size:10px; opacity:.6; }
+  /* THE FACE IS TEXT. This <pre> is the face, rendered as glyph line-art.
+     No separate image canvas — the text IS the video, per your spec. */
+  .face{ flex:1 1 auto; min-height:0; margin:0; overflow:hidden; display:flex; align-items:center; justify-content:center; background:var(--w); }
+  pre.facetext{ margin:0; color:var(--k); font:700 var(--cell,8px)/0.92 ui-monospace,Menlo,Consolas,monospace; white-space:pre; user-select:none; -webkit-user-select:none; }
+  .peer .placeholder{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; text-align:center; font-size:12px; opacity:.5; padding:1rem; pointer-events:none; }
+
+  .bar{ flex:0 0 auto; display:flex; gap:10px; align-items:center; padding:12px 14px; padding-bottom:calc(12px + var(--pad)); background:var(--w); border-top:3px solid var(--k); flex-wrap:wrap; }
+  button{ font:inherit;font-size:14px;font-weight:700;color:var(--k);background:var(--w);border:3px solid var(--k);border-radius:0;padding:11px 16px;min-height:46px;cursor:pointer;box-shadow:4px 4px 0 var(--k);transition:transform .05s,box-shadow .05s,background .1s,color .1s; }
+  button:hover:not(:disabled){ background:var(--k);color:var(--w); }
+  button:active:not(:disabled){ transform:translate(4px,4px);box-shadow:0 0 0 var(--k); }
+  button:disabled{ opacity:.3;cursor:default;box-shadow:none; }
+  button.primary{ background:var(--k);color:var(--w); }
+  button.primary:hover:not(:disabled){ background:var(--w);color:var(--k); }
+  .bar .spacer{ flex:1 1 auto; }
+  .seg{ display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em; }
+  select{ font:inherit;font-size:13px;font-weight:700;color:var(--k);background:var(--w);border:3px solid var(--k);border-radius:0;padding:8px 10px;min-height:42px; }
+  dialog{ background:var(--w);color:var(--k);border:3px solid var(--k);border-radius:0;box-shadow:12px 12px 0 var(--k);padding:0;width:min(560px,94vw);max-height:90vh;overflow:auto;font:inherit; }
+  dialog::backdrop{ background:rgba(0,0,0,.7); }
+  .sh-head{ padding:16px 18px 6px;display:flex;align-items:center;gap:10px;border-bottom:3px solid var(--k); }
+  .sh-head h2{ margin:0;font-size:16px;font-weight:700;text-transform:uppercase;letter-spacing:.06em; }
+  .sh-head .x{ margin-left:auto;min-height:auto;padding:4px 10px;box-shadow:none; }
+  .sh-body{ padding:16px 18px 18px; }
+  .steps{ display:flex;margin:4px 0 18px;border:3px solid var(--k); }
+  .steps .step{ flex:1;text-align:center;padding:9px 4px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;background:var(--w);border-right:3px solid var(--k); }
+  .steps .step:last-child{ border-right:none; }
+  .steps .step.active{ background:var(--k);color:var(--w); }
+  .steps .step.done .n::after{ content:" \2713"; }
+  .steps .step .n{ display:block;font-size:15px;font-weight:700;margin-bottom:2px; }
+  .field{ margin:14px 0; }
+  .field>label{ display:block;font-size:11px;letter-spacing:.07em;text-transform:uppercase;font-weight:700;margin-bottom:6px; }
+  .field input,.field textarea{ width:100%;background:var(--w);color:var(--k);border:3px solid var(--k);border-radius:0;padding:10px;font:11px/1.4 ui-monospace,monospace; }
+  .field input{ min-height:46px;font-size:14px; }
+  .field textarea{ height:74px;resize:vertical; }
+  .copy-row{ display:flex;gap:8px; } .copy-row input,.copy-row textarea{ flex:1; }
+  .row{ display:flex;gap:8px;margin-top:8px; }
+  .note{ font-size:12px;line-height:1.5;margin:4px 0 0; }
+  .waiting{ font-size:12px;font-weight:700;margin-top:10px;padding:8px 10px;border:3px solid var(--k); }
+  .role-pick{ display:flex;gap:10px; } .role-pick button{ flex:1;flex-direction:column;align-items:center;padding:16px 10px;gap:5px; }
+  .role-pick .rt{ font-weight:700;font-size:15px; } .role-pick .rd{ font-size:11px;font-weight:400; }
+  details.relay{ margin-top:10px;border-top:3px solid var(--k);padding-top:12px; }
+  details.relay summary{ cursor:pointer;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em; }
+  .relay-state{ margin-top:8px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em; }
+  .recover{ position:absolute;left:50%;bottom:14px;transform:translateX(-50%);z-index:5;max-width:92%;text-align:center;background:var(--k);color:var(--w);border:3px solid var(--k);box-shadow:6px 6px 0 var(--k);padding:12px 16px;display:none; }
+  .recover .msg{ font-size:13px;font-weight:700;text-transform:uppercase; } .recover .act{ margin-top:8px;font-size:12px;opacity:.9; }
+  .hidden{ display:none; }
+  pre#logbody{ background:var(--w);color:var(--k);border:3px solid var(--k);padding:10px;height:280px;overflow:auto;font:11px/1.45 ui-monospace,monospace;white-space:pre-wrap;word-break:break-word;margin:12px 0; }
+</style>
+</head>
+<body>
+
+<div class="status" id="status">
+  <span class="ind"></span>
+  <span class="where" id="st-where">Off</span>
+  <span class="what" id="st-what">Press Start, then Connect</span>
+  <span class="spacer"></span>
+  <span class="rate" id="st-rate"></span>
+  <button class="logbtn" id="logopen" type="button">LOG</button>
+</div>
+
+<div class="grid" id="grid">
+  <div class="peer">
+    <h2>YOU <span class="tag" id="tag-you">self</span></h2>
+    <div class="face"><pre class="facetext" id="face-you"></pre></div>
+  </div>
+  <div class="peer">
+    <h2>THEM <span class="tag" id="tag-them">waiting</span></h2>
+    <div class="face"><pre class="facetext" id="face-them"></pre><div class="placeholder" id="ph-them">no one connected</div></div>
+  </div>
+  <div class="recover" id="recover" role="alert"><div class="msg" id="rec-msg">Lost signal</div><div class="act" id="rec-act">Waiting&hellip;</div></div>
+  <div class="chat hidden" id="chat">
+    <div class="chat-head">CHAT <span style="opacity:.6;font-weight:400;text-transform:none">— your words draw your face</span></div>
+    <div class="chat-log" id="chat-log" aria-live="polite"></div>
+    <div class="chat-input"><input id="chat-text" type="text" maxlength="500" placeholder="Type \u2014 your letters become your ink&hellip;" autocomplete="off"><button id="chat-send" type="button">Send</button></div>
+  </div>
+</div>
+
+<div class="bar">
+  <button id="cam" class="primary" type="button">Start</button>
+  <button id="connect" type="button" disabled>Connect</button>
+  <button id="chattoggle" type="button">Chat</button>
+  <button id="hang" type="button" hidden>End</button>
+  <span class="spacer"></span>
+  <span class="seg"><label for="detail">quality</label><select id="detail"><option value="hi">High</option><option value="mid" selected>Medium</option><option value="lo">Low</option></select></span>
+</div>
+
+<dialog id="sheet">
+  <div class="sh-head"><h2 id="sh-title">Connect</h2><button class="x" id="sh-x" type="button">&times;</button></div>
+  <div class="sh-body">
+    <div class="steps" id="steps"><div class="step active" data-step="1"><span class="n">1</span>Role</div><div class="step" data-step="2"><span class="n">2</span>Codes</div><div class="step" data-step="3"><span class="n">3</span>Live</div></div>
+    <div id="pane-role">
+      <div id="server-mode">
+        <p class="note">Share a <strong>room code</strong>. You both enter it; the call connects automatically and reconnects on its own.</p>
+        <div class="field"><label for="room-code">Room code</label><div class="copy-row"><input id="room-code" type="text" maxlength="64" placeholder="32-character private code" autocomplete="off"><button id="room-gen" type="button">New</button></div></div>
+        <div class="row"><button id="room-join" class="primary" type="button" style="flex:1">Join room</button></div>
+        <p class="waiting hidden" id="room-wait">Waiting for the other person&hellip;</p>
+      </div>
+      <details class="relay" id="server-box">
+        <summary>Server &amp; reliability</summary>
+        <p class="note">Room codes + reconnect need a signaling server (the included Cloudflare Worker). Paste its URL. The same server can mint relay (TURN) credentials for strict networks. Blank = manual copy-paste.</p>
+        <label for="server-url" style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-top:12px;">Server URL</label>
+        <input id="server-url" type="text" placeholder="https://operator.YOU.workers.dev" autocomplete="off" style="width:100%;background:var(--w);color:var(--k);border:3px solid var(--k);border-radius:0;padding:10px;font:11px/1.4 ui-monospace,monospace;margin-top:8px;min-height:44px;">
+        <div class="relay-state" id="server-state">No server set</div>
+        <p class="note" style="margin-top:14px;">No server? Manual codes:</p>
+        <div class="role-pick"><button id="be-host" type="button"><span class="rt">I'll start</span><span class="rd">create first code</span></button><button id="be-guest" type="button"><span class="rt">I'll join</span><span class="rd">they send first</span></button></div>
+        <label for="relay-cfg" style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-top:14px;">Manual relay config</label>
+        <textarea id="relay-cfg" placeholder='[{"urls":"stun:stun.l.google.com:19302"}]'></textarea>
+        <div class="relay-state" id="relay-state">Direct only</div>
+      </details>
+    </div>
+    <div id="pane-host" class="hidden">
+      <div class="field"><label>Step A &mdash; send this to them</label><div class="copy-row"><textarea id="host-out" readonly placeholder="creating&hellip;"></textarea><button id="host-copy" type="button">Copy</button></div></div>
+      <div class="field"><label>Step B &mdash; paste their reply, then Connect</label><textarea id="host-in" placeholder="their reply"></textarea><div class="row"><button id="host-apply" class="primary" type="button">Connect</button></div></div>
+      <p class="waiting hidden" id="host-wait">Connecting&hellip;</p>
+    </div>
+    <div id="pane-guest" class="hidden">
+      <div class="field"><label>Step A &mdash; paste their code</label><textarea id="guest-in" placeholder="their code"></textarea><div class="row"><button id="guest-make" class="primary" type="button">Make reply</button></div></div>
+      <div class="field hidden" id="guest-out-field"><label>Step B &mdash; send this back</label><div class="copy-row"><textarea id="guest-out" readonly></textarea><button id="guest-copy" type="button">Copy</button></div><p class="waiting" id="guest-wait">Then wait &mdash; connects automatically.</p></div>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="logsheet">
+  <div class="sh-head"><h2>Log</h2><button class="x" id="logclose" type="button">&times;</button></div>
+  <div class="sh-body">
+    <p class="note">Events + per-frame cost. <strong>ICE disconnected</strong>=brief blip; <strong>ICE failed</strong>=needs relay. Bottom shows live encode time and bytes/frame.</p>
+    <pre id="logbody">(no events)</pre>
+    <div class="row"><button id="logcopy" type="button">Copy log</button><button id="logframe" type="button">Copy current frame (text)</button></div>
+  </div>
+</dialog>
+
+<canvas id="cap" width="128" height="96" hidden></canvas>
+<video id="vid" autoplay playsinline muted hidden></video>
+
+<script>
+(function () {
+'use strict';
+/* ====================================================================
+   OPERATOR EDGE — string-video engine optimized for ONE thing:
+   a face legible as text on the least network.
+   - Edges (Sobel), not fills, carry facial recognition and are sparse.
+   - Wire format is a FIXED-GRAMMAR BINARY packet (ArrayBuffer): no string
+     parsing on the hot path.
+   - The FACE itself is text (<pre> of glyph line-art) — the video IS a string.
+   - A pasteable text frame is reconstructed LAZILY (only on demand), so it
+     costs ~0 per frame.
+   - Old-phone-safe: one Sobel pass + browser-native downscale, no shaders.
+   ==================================================================== */
+var W=128,H=96,N=W*H;
+var RAMP=[' ','.',':','-','=','+','#','@'];
+
+// ---- bounded log ----
+var LOG_MAX=200, logBuf=[], logT0=Date.now();
+function log(tag,msg){var t=((Date.now()-logT0)/1000).toFixed(2);var line='['+t+'s] '+tag+(msg!==undefined?(' '+msg):'');logBuf.push(line);if(logBuf.length>LOG_MAX)logBuf.shift();if(window.console&&console.log)console.log('OPERATOR '+line);var p=document.getElementById('logbody');if(p&&document.getElementById('logsheet').open){p.textContent=logBuf.join('\n');p.scrollTop=p.scrollHeight;}}
+
+// ==================== EDGE CODEC (verified standalone) ====================
+function edgeGrid(luma){
+  var g=new Uint8Array(N), mag=new Float32Array(N), mx=0, y,x;
+  for(y=1;y<H-1;y++){var r0=(y-1)*W,r1=y*W,r2=(y+1)*W;
+    for(x=1;x<W-1;x++){
+      var a=luma[r0+x-1],b=luma[r0+x],c=luma[r0+x+1],d=luma[r1+x-1],f=luma[r1+x+1],h=luma[r2+x-1],i=luma[r2+x],j=luma[r2+x+1];
+      var gx=-a-2*d-h+c+2*f+j, gy=-a-2*b-c+h+2*i+j, m=(gx<0?-gx:gx)+(gy<0?-gy:gy);
+      mag[r1+x]=m; if(m>mx)mx=m;
+    }
+  }
+  if(mx<1)return g;
+  var thresh=mx*EDGE_THRESH, span=mx-thresh||1, k;
+  for(k=0;k<N;k++){var mm=mag[k];g[k]=mm<thresh?0:Math.min(7,1+((mm-thresh)/span*6+0.5|0));}
+  return g;
+}
+// adaptive detail: EDGE_THRESH is lowered when bandwidth is healthy (more edges
+// -> tonal fill-shading), raised when the network is weak (sparse pure outline).
+// Set by the bandwidth governor each second. Range ~0.10 (rich) .. 0.30 (lean).
+var EDGE_THRESH=0.18;
+function packEdge(grid,seq){
+  var out=[0xBE,0x01,seq&0xFF,(seq>>8)&0xFF,0x00];
+  var i=0,guard=0;
+  while(i<N&&guard++<N+10){
+    if(grid[i]===0){var run=0;while(i<N&&grid[i]===0&&run<254){run++;i++;}out.push(0x00,run);}
+    else{var start=i,run2=0;while(i<N&&grid[i]!==0&&run2<254){run2++;i++;}out.push(0x01,run2);
+      for(var kk=0;kk<run2;kk+=2){var hi=grid[start+kk]&0x0F,lo=(kk+1<run2)?(grid[start+kk+1]&0x0F):0;out.push((hi<<4)|lo);}}
+  }
+  out.push(0xFF);
+  return new Uint8Array(out);
+}
+function unpackEdge(bytes){
+  if(bytes[0]!==0xBE||bytes[1]!==0x01)return null;
+  var seq=bytes[2]|(bytes[3]<<8), grid=new Uint8Array(N), p=5, cell=0, guard=0;
+  while(p<bytes.length&&bytes[p]!==0xFF&&cell<N&&guard++<N+10){
+    var tok=bytes[p++];
+    if(tok===0x00){var run=bytes[p++];cell+=run;}
+    else if(tok===0x01){var run2=bytes[p++];for(var kk=0;kk<run2;kk+=2){var by=bytes[p++];if(cell<N)grid[cell++]=(by>>4)&0x0F;if(kk+1<run2&&cell<N)grid[cell++]=by&0x0F;}}
+    else break;
+  }
+  return {seq:seq,grid:grid};
+}
+
+// ---- render the edge grid AS TEXT (the face is a string) ----
+// ---- WORD-INK render: the peer's words ARE the ink that draws their face.
+// Walk lit edge cells in reading order; place each next letter from the
+// word-stream (cycling). Strong edges -> uppercase (denser). When no words
+// exist yet, fall back to the glyph ramp so a face still shows.
+function renderFace(grid, ink){
+  var out='',y,x,rb,p=0,have=ink&&ink.length>0;
+  for(y=0;y<H;y+=2){ rb=y*W;
+    for(x=0;x<W;x++){
+      var e=grid[rb+x];
+      if(e===0){ out+=' '; }
+      else if(have){ var ch=ink[p%ink.length]; p++; out+=(e>=6)?ch.toUpperCase():ch; }
+      else { out+=RAMP[e]; }
+    }
+    out+='\n';
+  }
+  return out;
+}
+function gridToText(grid){ return renderFace(grid,null); } // glyph-ramp view for "copy frame"
+function paintFace(grid, preEl, ink){ preEl.textContent=renderFace(grid, ink); }
+function fitFace(preEl){
+  var wrap=preEl.parentElement, r=wrap.getBoundingClientRect();
+  var byW=(r.width*0.98)/(128*0.6), byH=(r.height*0.98)/(48*0.92);
+  var cell=Math.max(3,Math.min(byW,byH));
+  preEl.style.setProperty('--cell',cell.toFixed(2)+'px');
+}
+
+// ==================== CAPTURE (auto-level luma -> edges) ====================
+var vid=document.getElementById('vid'),cap=document.getElementById('cap');
+var capCtx=cap.getContext('2d',{willReadFrequently:true});
+var stream=null,capturing=false;
+var lumaBuf=new Float32Array(N); // reused, no per-frame alloc
+function sampleLuma(){
+  capCtx.drawImage(vid,0,0,W,H); // browser-native downscale (HW accelerated)
+  var img=capCtx.getImageData(0,0,W,H).data,i,p,l,mn=255,mx=0;
+  for(i=0;i<N;i++){p=i*4;l=img[p]*0.299+img[p+1]*0.587+img[p+2]*0.114;lumaBuf[i]=l;if(l<mn)mn=l;if(l>mx)mx=l;}
+  // auto-level into 0..255 so edges are consistent in any light
+  var range=mx-mn||1;
+  for(i=0;i<N;i++) lumaBuf[i]=(lumaBuf[i]-mn)/range*255;
+  return lumaBuf;
+}
+
+// ==================== TRANSPORT (BINARY) ====================
+var link=null,forceKeyframe=false; // forceKeyframe unused in full-frame edge mode but kept for control proto
+function makeLoopback(onFrame){return{kind:'loopback',sendVisual:function(buf){onFrame(buf);},sendControl:function(){},bufferedAmount:function(){return 0;}};}
+function makeWebRTC(pc,onFrame,isHost){
+  var visual=null,control=null;
+  function wire(ch){
+    if(ch.label==='visual'){ visual=ch; visual.binaryType='arraybuffer'; ch.onmessage=function(e){onFrame(e.data);}; }
+    else if(ch.label==='control'){ control=ch; ch.onmessage=function(e){ onControl(e.data); }; }
+  }
+  if(isHost){ var v=pc.createDataChannel('visual',{ordered:false,maxRetransmits:0}); v.binaryType='arraybuffer'; wire(v); wire(pc.createDataChannel('control',{ordered:true})); }
+  else pc.ondatachannel=function(e){wire(e.channel);};
+  return { kind:'webrtc',
+    sendVisual:function(buf){ if(!visual||visual.readyState!=='open')return; if(visual.bufferedAmount>256*1024)return; visual.send(buf); },
+    sendControl:function(m){ if(control&&control.readyState==='open')control.send(m); },
+    bufferedAmount:function(){ return visual?visual.bufferedAmount:0; } };
+}
+
+// Control-channel protocol (data-only, never executed):
+//   "K"        -> peer requests keyframe
+//   "M <text>" -> a chat message: becomes their ink AND a chat line.
+function onControl(data){
+  if(typeof data!=='string'||!data.length) return;
+  if(data==='K'){ forceKeyframe=true; return; }
+  if(data.charAt(0)==='M'&&data.charAt(1)===' '){
+    var text=data.slice(2); if(text.length>500)text=text.slice(0,500);
+    themMsgs.push(text); while(themMsgs.length>200)themMsgs.shift();
+    addWords(themInk, text);              // their words become their ink
+    renderChat('them', text);
+    log('CHAT','recv '+text.length);
+  }
+}
+function sendChat(){
+  var inp=document.getElementById('chat-text'); var text=(inp.value||'').trim();
+  if(!text) return; if(text.length>500)text=text.slice(0,500);
+  youMsgs.push(text); while(youMsgs.length>200)youMsgs.shift();
+  addWords(youInk, text);                 // your words become YOUR ink (draws you)
+  renderChat('me', text);
+  if(link&&link.kind==='webrtc') link.sendControl('M '+text);
+  inp.value='';
+  log('CHAT','sent '+text.length);
+}
+function renderChat(who,text){
+  var box=document.getElementById('chat-log'); if(!box)return;
+  var d=document.createElement('div'); d.className='cm'+(who==='me'?' me':'');
+  var w=document.createElement('span'); w.className='cw'; w.textContent=(who==='me'?'you ':'them ');
+  var t=document.createElement('span'); t.textContent=text;
+  d.appendChild(w); d.appendChild(t); box.appendChild(d); box.scrollTop=box.scrollHeight;
+  while(box.children.length>200) box.removeChild(box.firstChild);
+}
+var lastSeq=-1, gotRemote=false, lastRxMs=0;
+var themGrid=null; // last decoded grid (for lazy text/paste)
+
+// ---- WORD-STREAM: the ink supply. Everything typed, in order, as letters.
+// These are the same words shown in chat. Message == video, one substrate.
+var youInk=[], themInk=[];        // flat letter arrays (the ink)
+var youMsgs=[], themMsgs=[];      // word-level history for the chat panel + sync
+var INK_MAX=4000;                 // bounded ink supply
+function addWords(target, text){
+  var words=(''+text).toLowerCase().split(/\s+/);
+  for(var w=0;w<words.length;w++){ var word=words[w];
+    for(var i=0;i<word.length;i++){ var ch=word[i]; if(/[a-z0-9]/.test(ch)) target.push(ch); }
+  }
+  while(target.length>INK_MAX) target.shift();
+}
+function receiveFrame(data){
+  var bytes = data instanceof ArrayBuffer ? new Uint8Array(data) : (data.buffer?new Uint8Array(data):null);
+  if(!bytes){ return; }
+  var dec=unpackEdge(bytes); if(!dec)return;
+  // drop out-of-order / stale (seq wraps at 65536; accept newer within window)
+  if(lastSeq>=0){ var d=(dec.seq-lastSeq+65536)&65535; if(d===0||d>32768) return; }
+  lastSeq=dec.seq; gotRemote=true; lastRxMs=Date.now();
+  themGrid=dec.grid;
+  document.getElementById('ph-them').classList.add('hidden');
+  document.getElementById('tag-them').textContent=connType?('live '+(connType==='relay'?'(relay)':'(direct)')):'live';
+  paintFace(dec.grid, faceThem, themInk);
+  if(uiState==='FROZEN') setUIState(link&&link.kind==='webrtc'?'CONNECTED':'SELF');
+}
+
+// ==================== SENDER (your stream) ====================
+var seq=0,sendTimer=null,youGrid=null;
+var win={bytes:0,frames:0,t0:0,enc:0,encN:0};
+var DETAIL={hi:{fps:12},mid:{fps:8},lo:{fps:4}};
+function detail(){return DETAIL[document.getElementById('detail').value];}
+function tick(){
+  if(!capturing||vid.readyState<2||!vid.videoWidth)return;
+  var t0=performance.now();
+  var luma=sampleLuma();
+  var grid=edgeGrid(luma);
+  var thisSeq=(++seq)&65535;
+  var packed=packEdge(grid,thisSeq);
+  var encMs=performance.now()-t0;
+  youGrid=grid;
+  win.frames++; win.bytes+=packed.length; win.enc+=encMs; win.encN++; if(!win.t0)win.t0=performance.now();
+  // send the BINARY buffer (zero string work on the wire)
+  if(link){ if(link.kind==='loopback') link.sendVisual(packed.buffer.slice(0)); else link.sendVisual(packed.buffer); }
+  // render YOUR face as text from the SAME grid
+  paintFace(grid, faceYou, youInk);
+}
+function startSending(){stopSending();seq=0;sendTimer=setInterval(tick,1000/detail().fps);}
+function stopSending(){if(sendTimer){clearInterval(sendTimer);sendTimer=null;}}
+
+var faceYou=document.getElementById('face-you'), faceThem=document.getElementById('face-them');
+
+/* ==================== STATE MACHINE ==================== */
+var connType='';
+var STATES={
+  OFFLINE:{cls:'',where:'Off',what:'Press Start, then Connect'},
+  SELF:{cls:'s-self',where:'Self-view',what:'You \u2014 your face, as text. Not connected.'},
+  CONNECTING:{cls:'s-conn',where:'Connecting',what:'Setting up the call'},
+  CONNECTED:{cls:'s-live',where:'Connected',what:'On a call \u2014 video is travelling as edge-bytes'},
+  FROZEN:{cls:'s-frozen',where:'No signal',what:'Lost the connection'}
+};
+var uiState='OFFLINE';
+var statusEl=document.getElementById('status'),whereEl=document.getElementById('st-where'),whatEl=document.getElementById('st-what');
+function setUIState(name){
+  if(!STATES[name])return; if(name!==uiState)log('STATE',uiState+' -> '+name); uiState=name; var s=STATES[name];
+  statusEl.className='status '+s.cls; whereEl.textContent=s.where;
+  whatEl.textContent=(name==='CONNECTED'&&connType)?('On a call \u2014 '+(connType==='relay'?'via relay':'direct')):s.what;
+  document.getElementById('recover').style.display=(name==='FROZEN')?'block':'none';
+  document.getElementById('connect').hidden=(name==='CONNECTED');
+  document.getElementById('hang').hidden=(name!=='CONNECTED'&&name!=='FROZEN');
+  document.getElementById('connect').disabled=(name==='OFFLINE');
+  document.getElementById('tag-you').textContent=(name==='CONNECTED')?'sending':'self';
+}
+function showRecover(onCall,title){document.getElementById('rec-msg').textContent=title||(onCall?'Lost signal':'Camera stopped');document.getElementById('rec-act').textContent=onCall?(title?'Network dropped \u2014 restoring automatically\u2026':'Recovering. If frozen, press End.'):'Press Start to retry.';}
+function flashRecover(msg,act){document.getElementById('rec-msg').textContent=msg;document.getElementById('rec-act').textContent=act;var r=document.getElementById('recover');r.style.display='block';setTimeout(function(){if(uiState!=='FROZEN')r.style.display='none';},6000);}
+
+// ==================== STATUS TICK (1Hz bounded) ====================
+setInterval(function(){
+  if(win.t0){var el=(performance.now()-win.t0)/1000;if(el>=0.5){
+    var bps=Math.round(win.bytes/el),kb=bps>1024?(bps/1024).toFixed(1)+' KB/s':bps+' B/s',fps=(win.frames/el).toFixed(0);
+    var enc=win.encN?(win.enc/win.encN).toFixed(1):'0';
+    // BANDWIDTH GOVERNOR: backpressure on the channel = network can't keep up
+    // -> raise threshold (leaner outline). Headroom -> lower (richer/shaded).
+    var buf=link?link.bufferedAmount():0;
+    if(buf>96*1024) EDGE_THRESH=Math.min(0.30, EDGE_THRESH+0.03);      // congested: lean out
+    else if(buf<8*1024) EDGE_THRESH=Math.max(0.10, EDGE_THRESH-0.02);  // headroom: add tone
+    var mode=EDGE_THRESH<=0.13?'shaded':EDGE_THRESH>=0.24?'outline':'mid';
+    document.getElementById('st-rate').textContent=capturing?(fps+' fps \u00b7 '+kb+' \u00b7 '+enc+'ms \u00b7 '+mode):'';
+    win.bytes=0;win.frames=0;win.t0=performance.now();win.enc=0;win.encN=0;
+  }}
+  if(uiState==='CONNECTED'&&lastRxMs>0&&!graceTimer){var since=Date.now()-lastRxMs;if(since>6000){log('FRAME-FREEZE',(since/1000).toFixed(1)+'s');showRecover(true);setUIState('FROZEN');}}
+},1000);
+
+// ==================== CAMERA ====================
+document.getElementById('cam').addEventListener('click',function(){
+  if(capturing)return;
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){flashRecover('No camera API','Use Chrome, Safari, Firefox, or Edge.');return;}
+  whereEl.textContent='Starting';whatEl.textContent='Asking for camera\u2026';
+  navigator.mediaDevices.getUserMedia({video:{width:320,height:240,facingMode:'user'},audio:false}).then(function(s){
+    stream=s;vid.srcObject=s;capturing=true;
+    document.getElementById('cam').textContent='Camera on';document.getElementById('cam').disabled=true;
+    link=makeLoopback(function(buf){ /* self-view rendered in tick; loopback echo unused */ });
+    var begin=function(){ fitFace(faceYou); fitFace(faceThem); startSending(); setUIState('SELF'); };
+    var p=vid.play(); if(p&&p.then){p.then(begin).catch(begin);}else begin();
+  }).catch(function(err){var n=err&&err.name||'error';var why=n==='NotAllowedError'?'Permission denied. Allow the camera, then press Start.':n==='NotFoundError'?'No camera found.':'Could not start camera ('+n+'). Phones need https.';flashRecover('Camera blocked',why);setUIState('OFFLINE');});
+});
+document.getElementById('detail').addEventListener('change',function(){if(sendTimer)startSending();});
+
+// ==================== ICE / RELAY / SERVER ====================
+var DEFAULT_ICE=[{urls:'stun:stun.l.google.com:19302'}];
+function getIceServers(){var raw=(document.getElementById('relay-cfg').value||'').trim();if(!raw)return DEFAULT_ICE.slice();try{var a=JSON.parse(raw);if(Array.isArray(a)&&a.length)return a;}catch(e){}return DEFAULT_ICE.slice();}
+function relayConfigured(){var raw=(document.getElementById('relay-cfg').value||'').trim();if(!raw)return{ok:false,reason:'none'};try{var a=JSON.parse(raw);if(!Array.isArray(a))return{ok:false,reason:'notarray'};var t=a.some(function(s){var u=s.urls;u=Array.isArray(u)?u.join(' '):(''+u);return u.indexOf('turn:')===0||u.indexOf('turns:')===0;});return{ok:true,turn:t};}catch(e){return{ok:false,reason:'badjson'};}}
+function refreshRelayState(){var r=relayConfigured(),el=document.getElementById('relay-state');if(!r.ok&&r.reason==='none')el.textContent='Direct only';else if(!r.ok)el.textContent='Invalid \u2014 direct only';else if(!r.turn)el.textContent='STUN only (direct)';else el.textContent='Relay ready';}
+document.getElementById('relay-cfg').addEventListener('input',refreshRelayState);
+var SERVER_STORAGE_KEY='beflix.workerUrl';
+var serverInput=document.getElementById('server-url');
+function normalizeServerUrl(value){var raw=(value||'').trim().replace(/\/+$/,'');var secure=/^https:\/\/[A-Za-z0-9.-]+(?::\d+)?(?:\/[^?#]*)?$/.test(raw);var local=/^http:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?(?:\/[^?#]*)?$/.test(raw);return secure||local?raw:'';}
+function storedServerUrl(){try{return localStorage.getItem(SERVER_STORAGE_KEY)||'';}catch(e){return '';}}
+function initialServerUrl(){var query='';try{query=new URLSearchParams(location.search).get('server')||'';}catch(e){}var meta=document.querySelector('meta[name="beflix-worker-url"]');return normalizeServerUrl(query)||normalizeServerUrl(storedServerUrl())||normalizeServerUrl(meta&&meta.content);}
+serverInput.value=initialServerUrl();
+function serverUrl(){return normalizeServerUrl(serverInput.value);}
+function refreshServerState(){var raw=(serverInput.value||'').trim(),u=serverUrl(),el=document.getElementById('server-state');if(!raw)el.textContent='No server set \u2014 manual codes only';else if(!u)el.textContent='Use a valid https:// Worker URL';else el.textContent='Server saved \u2014 room codes enabled';}
+serverInput.addEventListener('input',function(){var u=serverUrl();try{if(u)localStorage.setItem(SERVER_STORAGE_KEY,u);else if(!serverInput.value.trim())localStorage.removeItem(SERVER_STORAGE_KEY);}catch(e){}refreshServerState();});
+refreshServerState();
+function fetchIceServers(){var u=serverUrl();if(u){return fetch(u+'/turn',{headers:{Accept:'application/json'}}).then(function(r){if(!r.ok)throw new Error('TURN endpoint returned '+r.status);return r.json();}).then(function(d){if(d&&Array.isArray(d.iceServers)&&d.iceServers.length){log('TURN','server gave '+d.iceServers.length);return d.iceServers;}return getIceServers();}).catch(function(e){log('TURN','fail '+e.message);return getIceServers();});}return Promise.resolve(getIceServers());}
+
+// ==================== CONNECT + GRACE ====================
+var sheet=document.getElementById('sheet'),pc=null,isHostPeer=false;
+var GRACE_MS=8000,graceTimer=null,restarting=false;
+function clearGrace(){if(graceTimer){clearTimeout(graceTimer);graceTimer=null;}}
+function startGrace(){if(graceTimer)return;log('GRACE','start');showRecover(true,'Reconnecting');setUIState('FROZEN');tryIceRestart();graceTimer=setTimeout(function(){graceTimer=null;var st=pc?pc.iceConnectionState:'none';log('GRACE','expired ice='+st);if(st==='connected'||st==='completed')recoverFromGrace();else{document.getElementById('rec-msg').textContent='Lost signal';document.getElementById('rec-act').textContent='Could not reconnect. Press End.';}},GRACE_MS);}
+function recoverFromGrace(){clearGrace();log('RECOVER','resuming');setUIState('CONNECTED');detectConnType();}
+function tryIceRestart(){if(restarting||!pc||!isHostPeer)return;restarting=true;log('ICE-RESTART','host');try{if(pc.restartIce)pc.restartIce();if(room.code&&room.peerId&&serverUrl()){pc.createOffer({iceRestart:true}).then(function(o){return pc.setLocalDescription(o);}).then(function(){roomSend({type:'offer',sdp:pc.localDescription});if(!room.pollTimer)startRoomPoll();log('ICE-RESTART','re-offer');}).catch(function(e){log('ICE-RESTART','err '+e.message);});}}catch(e){log('ICE-RESTART','err '+e.message);}setTimeout(function(){restarting=false;},GRACE_MS);}
+function newPeer(asHost,ice){connType='';isHostPeer=!!asHost;clearGrace();var servers=ice||getIceServers();pc=new RTCPeerConnection({iceServers:servers});log('PEER','role='+(asHost?'host':'guest')+' ice='+servers.length);
+  pc.oniceconnectionstatechange=function(){var st=pc.iceConnectionState;log('ICE',st);if(st==='connected'||st==='completed'){if(graceTimer){recoverFromGrace();return;}setStep(3);setTimeout(function(){sheet.close();},700);lastSeq=-1;gotRemote=false;lastRxMs=0;startSending();setUIState('CONNECTED');detectConnType();}else if(st==='failed'){clearGrace();var r=relayConfigured();flashRecover('Could not connect',(r.ok&&r.turn)?'Relay could not complete. Codes may be old \u2014 try again.':'Direct failed (strict network). Add a relay, then retry.');}else if(st==='disconnected'){if(uiState==='CONNECTED')startGrace();}};
+  pc.onicegatheringstatechange=function(){log('GATHER',pc.iceGatheringState);};
+  return pc;}
+function waitIce(){return new Promise(function(res){if(pc.iceGatheringState==='complete')return res();pc.onicegatheringstatechange=function(){log('GATHER',pc.iceGatheringState);if(pc.iceGatheringState==='complete')res();};setTimeout(res,2500);});}
+function detectConnType(){if(!pc||!pc.getStats)return;pc.getStats(null).then(function(stats){var local={},chosen=null;stats.forEach(function(r){if(r.type==='candidate-pair'&&(r.selected||r.nominated)&&r.state==='succeeded')chosen=r.localCandidateId;if(r.type==='local-candidate')local[r.id]=r;});connType=(chosen&&local[chosen])?(local[chosen].candidateType==='relay'?'relay':'direct'):'direct';log('CONN-TYPE',connType);if(uiState==='CONNECTED')setUIState('CONNECTED');}).catch(function(){});}
+function setStep(n){var els=document.querySelectorAll('#steps .step'),i;for(i=0;i<els.length;i++){var s=+els[i].getAttribute('data-step');els[i].classList.toggle('active',s===n);els[i].classList.toggle('done',s<n);}}
+function showPane(id){['pane-role','pane-host','pane-guest'].forEach(function(p){document.getElementById(p).classList.toggle('hidden',p!==id);});}
+function resetSheet(){setStep(1);showPane('pane-role');document.getElementById('sh-title').textContent='Connect';document.getElementById('host-wait').classList.add('hidden');document.getElementById('guest-out-field').classList.add('hidden');document.getElementById('room-wait').classList.add('hidden');refreshRelayState();refreshServerState();}
+document.getElementById('connect').addEventListener('click',function(){resetSheet();sheet.showModal();});
+document.getElementById('sh-x').addEventListener('click',function(){sheet.close();cancelPeer();});
+sheet.addEventListener('cancel',function(){cancelPeer();});
+function cancelPeer(){if(pc&&uiState!=='CONNECTED'){leaveRoom();try{pc.close();}catch(e){}pc=null;clearGrace();if(capturing)setUIState('SELF');}}
+document.getElementById('be-host').addEventListener('click',function(){setUIState('CONNECTING');setStep(2);showPane('pane-host');document.getElementById('sh-title').textContent='You start';log('ROLE','host(manual)');fetchIceServers().then(function(ice){newPeer(true,ice);link=makeWebRTC(pc,receiveFrame,true);return pc.createOffer().then(function(o){return pc.setLocalDescription(o);}).then(waitIce).then(function(){document.getElementById('host-out').value=JSON.stringify(pc.localDescription);});}).catch(function(e){flashRecover('Setup failed',e.message);});});
+document.getElementById('host-copy').addEventListener('click',function(){copyField('host-out',this);});
+document.getElementById('host-apply').addEventListener('click',function(){var raw=document.getElementById('host-in').value.trim();if(!raw){flashRecover('Nothing to connect','Paste their reply first.');return;}var d;try{d=JSON.parse(raw);}catch(e){flashRecover('Code looks wrong','Copy their whole reply again.');return;}document.getElementById('host-wait').classList.remove('hidden');pc.setRemoteDescription(d).catch(function(e){flashRecover('Could not connect','Reply invalid. Ask them to resend.');});});
+document.getElementById('be-guest').addEventListener('click',function(){setUIState('CONNECTING');setStep(2);showPane('pane-guest');document.getElementById('sh-title').textContent='You join';log('ROLE','guest(manual)');fetchIceServers().then(function(ice){newPeer(false,ice);link=makeWebRTC(pc,receiveFrame,false);});});
+document.getElementById('guest-make').addEventListener('click',function(){var raw=document.getElementById('guest-in').value.trim();if(!raw){flashRecover('Nothing to read','Paste their code first.');return;}var d;try{d=JSON.parse(raw);}catch(e){flashRecover('Code looks wrong','Copy their whole code again.');return;}pc.setRemoteDescription(d).then(function(){return pc.createAnswer();}).then(function(a){return pc.setLocalDescription(a);}).then(waitIce).then(function(){document.getElementById('guest-out').value=JSON.stringify(pc.localDescription);document.getElementById('guest-out-field').classList.remove('hidden');}).catch(function(e){flashRecover('Could not read code','Ask them to resend.');});});
+document.getElementById('guest-copy').addEventListener('click',function(){copyField('guest-out',this);});
+function copyField(id,btn){var ta=document.getElementById(id);ta.select();var done=function(){var o=btn.textContent;btn.textContent='Copied';setTimeout(function(){btn.textContent=o;},1200);};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(ta.value).then(done,function(){try{document.execCommand('copy');done();}catch(e){}});}else{try{document.execCommand('copy');done();}catch(e){}}}
+
+// room signaling against the shared hardened Worker
+var room={code:'',peerId:'',after:0,pollTimer:null,polling:false,role:'',epoch:0,offerStarted:false,ice:null,errors:0,rejoining:false,pendingRemote:[]};
+var POLL_CONNECTING_MS=700,POLL_CONNECTED_MS=2500,POLL_MAX_BACKOFF_MS=10000;
+function roomReset(){if(room.pollTimer)clearTimeout(room.pollTimer);room={code:'',peerId:'',after:0,pollTimer:null,polling:false,role:'',epoch:0,offerStarted:false,ice:null,errors:0,rejoining:false,pendingRemote:[]};}
+document.getElementById('room-gen').addEventListener('click',function(){var bytes=new Uint8Array(16);crypto.getRandomValues(bytes);var token='';for(var i=0;i<bytes.length;i++)token+=('0'+bytes[i].toString(16)).slice(-2);document.getElementById('room-code').value=token;});
+document.getElementById('room-join').addEventListener('click',function(){var u=serverUrl();if(!u){flashRecover('No server set','Open Server settings and use the deployed Worker URL, or use manual codes.');return;}var code=(document.getElementById('room-code').value||'').trim().replace(/[^A-Za-z0-9_-]/g,'');if(code.length<16){flashRecover('Room code too short','Use at least 16 characters, or tap New for a secure code.');return;}setUIState('CONNECTING');setStep(2);document.getElementById('room-wait').classList.remove('hidden');log('ROOM','joining '+code);roomReset();room.code=code;joinRoom(false);});
+function joinRoom(recovery){var u=serverUrl(),code=room.code;if(!u||!code)return Promise.reject(new Error('Missing server or room code'));room.rejoining=!!recovery;return fetch(u+'/room/'+encodeURIComponent(code)+'/join',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}).then(function(r){return r.json().then(function(body){if(!r.ok){var error=new Error(body.error||('join-'+r.status));error.status=r.status;throw error;}return body;});}).then(function(j){room.peerId=j.peerId;room.after=j.seq||0;room.role=j.role;room.epoch=j.epoch||1;log('ROOM','joined '+room.role+' ('+j.peers+')');return fetchIceServers();}).then(function(ice){room.ice=ice;room.rejoining=false;initializeRoomPeer();startRoomPoll();}).catch(function(e){log('ROOM','join err '+e.message);room.rejoining=false;flashRecover('Could not join',e.message==='room-full'?'Room already has two active people.':e.message);if(!recovery)roomReset();});}
+function initializeRoomPeer(){if(pc){try{pc.close();}catch(e){}}var asHost=room.role==='host';room.offerStarted=false;room.pendingRemote=[];newPeer(asHost,room.ice);link=makeWebRTC(pc,receiveFrame,asHost);pc.onicecandidate=function(e){if(e.candidate)roomSend({type:'ice',candidate:e.candidate}).catch(function(){});};}
+function maybeStartHostOffer(peerCount){if(room.role!=='host'||peerCount<2||room.offerStarted||!pc)return Promise.resolve();room.offerStarted=true;return pc.createOffer().then(function(o){return pc.setLocalDescription(o);}).then(function(){return roomSend({type:'offer',sdp:pc.localDescription});}).then(function(){log('ROOM','offer posted after second peer joined');}).catch(function(e){room.offerStarted=false;log('ROOM','offer failed '+e.message);throw e;});}
+function roomSend(msg){var u=serverUrl();if(!u||!room.code||!room.peerId)return Promise.reject(new Error('Room is not joined'));return fetch(u+'/room/'+encodeURIComponent(room.code)+'/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({peerId:room.peerId,msg:msg})}).then(function(r){if(!r.ok)throw new Error('send-'+r.status);return r.json();}).catch(function(e){log('ROOM','send fail '+e.message);throw e;});}
+function startRoomPoll(){if(room.polling)return;room.polling=true;pollRoom();}
+function scheduleRoomPoll(){if(!room.polling)return;var normal=uiState==='CONNECTED'?POLL_CONNECTED_MS:POLL_CONNECTING_MS;var delay=room.errors?Math.min(POLL_MAX_BACKOFF_MS,normal*Math.pow(2,Math.min(room.errors,4))):normal;room.pollTimer=setTimeout(pollRoom,delay);}
+function pollRoom(){if(!room.polling||!room.peerId)return;var u=serverUrl(),requestedAfter=room.after;fetch(u+'/room/'+encodeURIComponent(room.code)+'/poll?peerId='+encodeURIComponent(room.peerId)+'&after='+requestedAfter).then(function(r){return r.json().then(function(body){if(!r.ok){var error=new Error(body.error||('poll-'+r.status));error.status=r.status;throw error;}return body;});}).then(function(j){room.errors=0;var changed=room.epoch&&j.epoch!==room.epoch,roleChanged=j.role&&j.role!==room.role;if(changed||roleChanged){log('ROOM','session changed; rebuilding as '+j.role);room.epoch=j.epoch;room.role=j.role;room.after=0;initializeRoomPeer();}return maybeStartHostOffer(j.peers).then(function(){var chain=Promise.resolve();(j.messages||[]).forEach(function(entry){chain=chain.then(function(){return handleSignal(entry.msg);});});return chain.then(function(){if(typeof j.seq==='number')room.after=Math.max(room.after,j.seq);});});}).catch(function(e){log('ROOM','poll err '+e.message);if(e.status===403&&!room.rejoining){room.polling=false;if(room.pollTimer)clearTimeout(room.pollTimer);log('ROOM','lease expired; rejoining');joinRoom(true);return;}room.errors++;}).then(scheduleRoomPoll);}
+function handleSignal(msg){if(!msg||!msg.type||!pc)return Promise.resolve();if(msg.type==='offer'){log('ROOM','offer recv');return pc.setRemoteDescription(msg.sdp).then(drainRemoteCandidates).then(function(){return pc.createAnswer();}).then(function(a){return pc.setLocalDescription(a);}).then(function(){return roomSend({type:'answer',sdp:pc.localDescription});}).then(function(){log('ROOM','answer posted');}).catch(function(e){log('ROOM','offer err '+e.message);throw e;});}if(msg.type==='answer'){log('ROOM','answer recv');return pc.setRemoteDescription(msg.sdp).then(drainRemoteCandidates).catch(function(e){log('ROOM','answer err '+e.message);throw e;});}if(msg.type==='ice'){if(!pc.remoteDescription||!pc.remoteDescription.type){room.pendingRemote.push(msg.candidate);return Promise.resolve();}return pc.addIceCandidate(msg.candidate).catch(function(e){log('ROOM','candidate err '+e.message);});}return Promise.resolve();}
+function drainRemoteCandidates(){var queued=room.pendingRemote.splice(0),chain=Promise.resolve();queued.forEach(function(candidate){chain=chain.then(function(){return pc.addIceCandidate(candidate).catch(function(e){log('ROOM','queued candidate err '+e.message);});});});return chain;}
+function leaveRoom(){if(!room.code||!room.peerId){roomReset();return;}var url=serverUrl()+'/room/'+encodeURIComponent(room.code)+'/leave',body=JSON.stringify({peerId:room.peerId});room.polling=false;if(room.pollTimer)clearTimeout(room.pollTimer);fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:body,keepalive:true}).catch(function(){});roomReset();}
+
+// end call
+document.getElementById('hang').addEventListener('click',function(){log('HANGUP','user');clearGrace();leaveRoom();if(pc){try{pc.close();}catch(e){}pc=null;}link=makeLoopback(function(){});connType='';lastSeq=-1;gotRemote=false;lastRxMs=0;themGrid=null;faceThem.textContent='';document.getElementById('ph-them').classList.remove('hidden');document.getElementById('tag-them').textContent='waiting';document.getElementById('recover').style.display='none';setUIState('SELF');});
+
+// log panel
+var logsheet=document.getElementById('logsheet');
+document.getElementById('logopen').addEventListener('click',function(){document.getElementById('logbody').textContent=logBuf.length?logBuf.join('\n'):'(no events)';logsheet.showModal();});
+document.getElementById('logclose').addEventListener('click',function(){logsheet.close();});
+document.getElementById('logcopy').addEventListener('click',function(){copyText(logBuf.join('\n'),this);});
+document.getElementById('logframe').addEventListener('click',function(){ // LAZY text view: reconstruct current frame as text only NOW
+  var g=themGrid||youGrid; if(!g){copyText('(no frame yet)',this);return;} copyText(gridToText(g),this);
+});
+function copyText(txt,btn){var done=function(){var o=btn.textContent;btn.textContent='Copied';setTimeout(function(){btn.textContent=o;},1200);};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done,function(){});}else done();}
+
+window.addEventListener('resize',function(){ fitFace(faceYou); fitFace(faceThem); });
+
+// chat wiring
+document.getElementById('chattoggle').addEventListener('click',function(){ document.getElementById('chat').classList.toggle('hidden'); var i=document.getElementById('chat-text'); if(!document.getElementById('chat').classList.contains('hidden'))i.focus(); });
+document.getElementById('chat-send').addEventListener('click', sendChat);
+document.getElementById('chat-text').addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); sendChat(); } });
+
+setUIState('OFFLINE');
+log('BOOT','operator edge ready');
+})();
+</script>
+
+</body>
+</html>

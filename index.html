@@ -88,6 +88,26 @@
       background: #fff;
     }
 
+    .launch {
+      min-height: 75vh;
+      display: grid;
+      place-content: center;
+      gap: 1rem;
+      padding: clamp(2rem, 8vw, 8rem);
+      color: #fff;
+      background: #000;
+      font-size: clamp(1.25rem, 3vw, 3rem);
+      font-weight: 700;
+    }
+
+    .launch p { max-width: 28ch; }
+
+    .launch a {
+      color: #000;
+      background: #fff;
+      border-color: #fff;
+    }
+
     @media (max-width: 50rem) {
       article { grid-template-columns: 1fr; }
       .label { border-right: 0; border-bottom: 4px solid #000; }
@@ -128,6 +148,65 @@
     <article>
       <div class="label"><h2>BEFLIX Call 01</h2><a href="bcall-01.html">Open full page</a></div>
       <iframe src="bcall-01.html" title="Preview of BEFLIX Call 01" sandbox="allow-scripts" loading="lazy" referrerpolicy="no-referrer"></iframe>
+    </article>
+    <article>
+      <div class="label"><h2>BEFLIX Call 02</h2><a href="bcall-02.html">Open full page</a></div>
+      <iframe src="bcall-02.html" title="Preview of BEFLIX Call 02" sandbox="allow-scripts" loading="lazy" referrerpolicy="no-referrer"></iframe>
+    </article>
+    <article>
+      <div class="label"><h2>BEFLIX Call 03</h2><a href="bcall-03.html">Open full page</a></div>
+      <iframe src="bcall-03.html" title="Preview of BEFLIX Call 03" sandbox="allow-scripts" loading="lazy" referrerpolicy="no-referrer"></iframe>
+    </article>
+    <article>
+      <div class="label"><h2>BEFLIX Call 04</h2><a href="bcall-04.html">Open full page</a></div>
+      <iframe src="bcall-04.html" title="Preview of BEFLIX Call 04" sandbox="allow-scripts" loading="lazy" referrerpolicy="no-referrer"></iframe>
+    </article>
+    <article>
+      <div class="label"><h2>Icaro Flip — Film Timeline</h2><a href="icaro-flip.html">Open full page</a></div>
+      <iframe src="icaro-flip.html" title="Preview of Icaro Flip film timeline" sandbox="allow-scripts" loading="lazy" referrerpolicy="no-referrer"></iframe>
+    </article>
+    <article>
+      <div class="label"><h2>Operator 01 — Split Quine</h2><a href="OP-01/operator.html">Launch prototype</a></div>
+      <div class="launch">
+        <p>Dual surfaces show each face beside the PRETEXT commands that construct it.</p>
+        <a href="OP-01/operator.html">Launch Operator 01</a>
+      </div>
+    </article>
+    <article>
+      <div class="label"><h2>Operator 02 — Edge Codec</h2><a href="OP-02/operator-edge.html">Launch prototype</a></div>
+      <div class="launch">
+        <p>A sparse binary edge codec prioritizes recognizable faces on minimal bandwidth.</p>
+        <a href="OP-02/operator-edge.html">Launch Operator 02</a>
+      </div>
+    </article>
+    <article>
+      <div class="label"><h2>Operator 03 — Adaptive Edge Call</h2><a href="OP-03/operator-edge.html">Launch prototype</a></div>
+      <div class="launch">
+        <p>Adaptive edge video and text chat use the shared hardened room service.</p>
+        <a href="OP-03/operator-edge.html">Launch Operator 03</a>
+      </div>
+    </article>
+    <article>
+      <div class="label"><h2>Operator 04 — Shared Film Workspace</h2><a href="OP-04/operator-studio.html">Launch studio</a></div>
+      <div class="launch">
+        <p>A frame-addressed EDL, independent collaborator playheads, synchronized drawing, text-video, and voice.</p>
+        <a href="OP-04/operator-studio.html">Launch Operator 04</a>
+        <a href="OP-04/icaro-flip.html">Open timeline reference</a>
+      </div>
+    </article>
+    <article>
+      <div class="label"><h2>BEFLIX Call Operator</h2><a href="OPERATOR/beflix-call.html">Launch operator</a></div>
+      <div class="launch">
+        <p>The operator uses your camera and must run as a full page.</p>
+        <a href="OPERATOR/beflix-call.html">Launch BEFLIX Call</a>
+      </div>
+    </article>
+    <article>
+      <div class="label"><h2>Icaro Quine Reference</h2><a href="PRETEXT/icaro-quine/index.html">Launch reference</a></div>
+      <div class="launch">
+        <p>The program becomes the visible material of its own image.</p>
+        <a href="PRETEXT/icaro-quine/index.html">Launch Icaro Quine</a>
+      </div>
     </article>
   </main>
 </body>

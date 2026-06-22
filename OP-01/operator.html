@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>OPERATOR — quine call</title>
+<style>
+  /* Stark monochrome. #000 / #fff only. Stacked layout for performance:
+     each surface owns its rectangle; no per-frame compositing between them. */
+  :root{ --k:#000; --w:#fff; --pad:env(safe-area-inset-bottom,0px); }
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; margin:0; }
+  body{
+    background:var(--w); color:var(--k);
+    font:13px/1.4 ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+    display:flex; flex-direction:column; overflow:hidden;
+    -webkit-font-smoothing:none; -webkit-text-size-adjust:100%;
+  }
+  .status{
+    flex:0 0 auto; display:flex; align-items:center; gap:10px;
+    padding:10px 14px; padding-top:max(10px,env(safe-area-inset-top));
+    background:var(--k); color:var(--w); border-bottom:3px solid var(--k);
+  }
+  .ind{ width:12px;height:12px;border:3px solid var(--w);background:transparent;flex:0 0 auto; }
+  .status.s-self .ind{ background:var(--w); }
+  .status.s-live .ind{ background:var(--w); animation:blink 1.1s steps(1) infinite; }
+  .status.s-conn .ind{ background:linear-gradient(90deg,var(--w) 50%,transparent 50%); animation:blink .7s steps(1) infinite; }
+  .status.s-frozen .ind{ background:linear-gradient(135deg,var(--w) 50%,transparent 50%); }
+  @keyframes blink{0%,60%{opacity:1}61%,100%{opacity:.15}}
+  .status .where{ font-weight:700;font-size:13px;letter-spacing:.04em;text-transform:uppercase; }
+  .status .what{ font-size:12px;opacity:.85; }
+  @media (max-width:560px){ .status .what{ display:none; } }
+  .status .spacer{ flex:1 1 auto; }
+  .status .rate{ font-size:11px;white-space:nowrap;letter-spacing:.04em; }
+  .logbtn{ margin-left:8px;padding:4px 9px;font-size:10px;letter-spacing:.1em;background:transparent;color:var(--w);border:2px solid var(--w);border-radius:0;min-height:auto; }
+  .logbtn:hover{ background:var(--w);color:var(--k); }
+
+  /* THE QUINE GRID: 2 columns (you | them), each column = face over code.
+     Default desktop: side by side. Narrow: stack vertically. */
+  .grid{
+    flex:1 1 auto; min-height:0; display:grid;
+    grid-template-columns:1fr 1fr; gap:3px; background:var(--k); padding:3px;
+  }
+  @media (max-width:560px){ .grid{ grid-template-columns:1fr; grid-template-rows:1fr 1fr; } }
+
+  .peer{ display:flex; flex-direction:column; min-height:0; background:var(--w); position:relative; }
+  .peer h2{
+    margin:0; flex:0 0 auto; padding:6px 10px; font-size:11px; letter-spacing:.1em;
+    text-transform:uppercase; font-weight:700; border-bottom:3px solid var(--k);
+    background:var(--w); color:var(--k); display:flex; align-items:center; gap:8px;
+  }
+  .peer h2 .tag{ margin-left:auto; font-size:10px; opacity:.6; }
+  /* face: the rasterized BEFLIX. canvas, crisp pixels. */
+  .face-wrap{ flex:1 1 55%; min-height:0; position:relative; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+  canvas.face{ image-rendering:pixelated; image-rendering:crisp-edges; max-width:100%; max-height:100%; }
+  /* code: the SAME BEFLIX stream, typeset by Pretext. the quine surface. */
+  .code-wrap{ flex:1 1 45%; min-height:0; border-top:3px solid var(--k); position:relative; overflow:hidden; background:var(--w); }
+  canvas.code{ display:block; width:100%; height:100%; }
+  .quine-note{ position:absolute; left:6px; top:4px; font-size:9px; letter-spacing:.08em; text-transform:uppercase; opacity:.4; pointer-events:none; }
+  .peer .placeholder{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; text-align:center; font-size:12px; opacity:.5; padding:1rem; }
+
+  .bar{
+    flex:0 0 auto; display:flex; gap:10px; align-items:center;
+    padding:12px 14px; padding-bottom:calc(12px + var(--pad));
+    background:var(--w); border-top:3px solid var(--k); flex-wrap:wrap;
+  }
+  button{
+    font:inherit;font-size:14px;font-weight:700;color:var(--k);background:var(--w);
+    border:3px solid var(--k);border-radius:0;padding:11px 16px;min-height:46px;cursor:pointer;
+    box-shadow:4px 4px 0 var(--k); transition:transform .05s,box-shadow .05s,background .1s,color .1s;
+  }
+  button:hover:not(:disabled){ background:var(--k);color:var(--w); }
+  button:active:not(:disabled){ transform:translate(4px,4px);box-shadow:0 0 0 var(--k); }
+  button:disabled{ opacity:.3;cursor:default;box-shadow:none; }
+  button.primary{ background:var(--k);color:var(--w); }
+  button.primary:hover:not(:disabled){ background:var(--w);color:var(--k); }
+  button.danger{ color:var(--k); }
+  .bar .spacer{ flex:1 1 auto; }
+  .seg{ display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em; }
+  select{ font:inherit;font-size:13px;font-weight:700;color:var(--k);background:var(--w);border:3px solid var(--k);border-radius:0;padding:8px 10px;min-height:42px; }
+
+  dialog{ background:var(--w);color:var(--k);border:3px solid var(--k);border-radius:0;box-shadow:12px 12px 0 var(--k);padding:0;width:min(560px,94vw);max-height:90vh;overflow:auto;font:inherit; }
+  dialog::backdrop{ background:rgba(0,0,0,.7); }
+  .sh-head{ padding:16px 18px 6px;display:flex;align-items:center;gap:10px;border-bottom:3px solid var(--k); }
+  .sh-head h2{ margin:0;font-size:16px;font-weight:700;text-transform:uppercase;letter-spacing:.06em; }
+  .sh-head .x{ margin-left:auto;min-height:auto;padding:4px 10px;box-shadow:none; }
+  .sh-body{ padding:16px 18px 18px; }
+  .steps{ display:flex;margin:4px 0 18px;border:3px solid var(--k); }
+  .steps .step{ flex:1;text-align:center;padding:9px 4px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;background:var(--w);border-right:3px solid var(--k); }
+  .steps .step:last-child{ border-right:none; }
+  .steps .step.active{ background:var(--k);color:var(--w); }
+  .steps .step.done .n::after{ content:" \2713"; }
+  .steps .step .n{ display:block;font-size:15px;font-weight:700;margin-bottom:2px; }
+  .field{ margin:14px 0; }
+  .field>label{ display:block;font-size:11px;letter-spacing:.07em;text-transform:uppercase;font-weight:700;margin-bottom:6px; }
+  .field input,.field textarea{ width:100%;background:var(--w);color:var(--k);border:3px solid var(--k);border-radius:0;padding:10px;font:11px/1.4 ui-monospace,monospace; }
+  .field input{ min-height:46px;font-size:14px; }
+  .field textarea{ height:74px;resize:vertical; }
+  .copy-row{ display:flex;gap:8px; } .copy-row input,.copy-row textarea{ flex:1; }
+  .row{ display:flex;gap:8px;margin-top:8px; }
+  .note{ font-size:12px;line-height:1.5;margin:4px 0 0; }
+  .waiting{ font-size:12px;font-weight:700;margin-top:10px;padding:8px 10px;border:3px solid var(--k); }
+  .role-pick{ display:flex;gap:10px; } .role-pick button{ flex:1;flex-direction:column;align-items:center;padding:16px 10px;gap:5px; }
+  .role-pick .rt{ font-weight:700;font-size:15px; } .role-pick .rd{ font-size:11px;font-weight:400; }
+  details.relay{ margin-top:10px;border-top:3px solid var(--k);padding-top:12px; }
+  details.relay summary{ cursor:pointer;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em; }
+  .relay-state{ margin-top:8px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em; }
+  .recover{ position:absolute;left:50%;bottom:14px;transform:translateX(-50%);z-index:5;max-width:92%;text-align:center;background:var(--k);color:var(--w);border:3px solid var(--k);box-shadow:6px 6px 0 var(--k);padding:12px 16px;display:none; }
+  .recover .msg{ font-size:13px;font-weight:700;text-transform:uppercase; } .recover .act{ margin-top:8px;font-size:12px;opacity:.9; }
+  .hidden{ display:none; }
+  pre#logbody{ background:var(--w);color:var(--k);border:3px solid var(--k);padding:10px;height:280px;overflow:auto;font:11px/1.45 ui-monospace,monospace;white-space:pre-wrap;word-break:break-word;margin:12px 0; }
+</style>
+</head>
+<body>
+
+<div class="status" id="status">
+  <span class="ind"></span>
+  <span class="where" id="st-where">Off</span>
+  <span class="what" id="st-what">Press Start, then Connect</span>
+  <span class="spacer"></span>
+  <span class="rate" id="st-rate"></span>
+  <button class="logbtn" id="logopen" type="button">LOG</button>
+</div>
+
+<div class="grid" id="grid">
+  <div class="peer" id="peer-you">
+    <h2>YOU <span class="tag" id="tag-you">self</span></h2>
+    <div class="face-wrap"><canvas class="face" id="face-you" width="128" height="96"></canvas></div>
+    <div class="code-wrap">
+      <span class="quine-note">the code that draws you</span>
+      <canvas class="code" id="code-you"></canvas>
+    </div>
+  </div>
+  <div class="peer" id="peer-them">
+    <h2>THEM <span class="tag" id="tag-them">waiting</span></h2>
+    <div class="face-wrap">
+      <canvas class="face" id="face-them" width="128" height="96"></canvas>
+      <div class="placeholder" id="ph-them">no one connected</div>
+    </div>
+    <div class="code-wrap">
+      <span class="quine-note">the code that draws them</span>
+      <canvas class="code" id="code-them"></canvas>
+    </div>
+  </div>
+  <div class="recover" id="recover" role="alert">
+    <div class="msg" id="rec-msg">Lost signal</div>
+    <div class="act" id="rec-act">Waiting&hellip;</div>
+  </div>
+</div>
+
+<div class="bar">
+  <button id="cam" class="primary" type="button">Start</button>
+  <button id="connect" type="button" disabled>Connect</button>
+  <button id="hang" class="danger" type="button" hidden>End</button>
+  <span class="spacer"></span>
+  <span class="seg">
+    <label for="detail">quality</label>
+    <select id="detail"><option value="hi">High</option><option value="mid" selected>Medium</option><option value="lo">Low</option></select>
+  </span>
+</div>
+
+<dialog id="sheet">
+  <div class="sh-head"><h2 id="sh-title">Connect</h2><button class="x" id="sh-x" type="button">&times;</button></div>
+  <div class="sh-body">
+    <div class="steps" id="steps">
+      <div class="step active" data-step="1"><span class="n">1</span>Role</div>
+      <div class="step" data-step="2"><span class="n">2</span>Codes</div>
+      <div class="step" data-step="3"><span class="n">3</span>Live</div>
+    </div>
+    <div id="pane-role">
+      <div id="server-mode">
+        <p class="note">Share a <strong>room code</strong>. You both enter it; the call connects automatically and reconnects on its own.</p>
+        <div class="field"><label for="room-code">Room code</label>
+          <div class="copy-row"><input id="room-code" type="text" maxlength="64" placeholder="blue-otter-42" autocomplete="off"><button id="room-gen" type="button">New</button></div>
+        </div>
+        <div class="row"><button id="room-join" class="primary" type="button" style="flex:1">Join room</button></div>
+        <p class="waiting hidden" id="room-wait">Waiting for the other person&hellip;</p>
+      </div>
+      <details class="relay" id="server-box">
+        <summary>Server &amp; reliability</summary>
+        <p class="note">Room codes + reconnect need a signaling server (the included Cloudflare Worker). Paste its URL. The same server can mint relay (TURN) credentials for strict networks. Blank = manual copy-paste.</p>
+        <label for="server-url" style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-top:12px;">Server URL</label>
+        <input id="server-url" type="text" placeholder="https://operator.YOU.workers.dev" autocomplete="off" style="width:100%;background:var(--w);color:var(--k);border:3px solid var(--k);border-radius:0;padding:10px;font:11px/1.4 ui-monospace,monospace;margin-top:8px;min-height:44px;">
+        <div class="relay-state" id="server-state">No server set</div>
+        <p class="note" style="margin-top:14px;">No server? Manual codes:</p>
+        <div class="role-pick">
+          <button id="be-host" type="button"><span class="rt">I'll start</span><span class="rd">create first code</span></button>
+          <button id="be-guest" type="button"><span class="rt">I'll join</span><span class="rd">they send first</span></button>
+        </div>
+        <label for="relay-cfg" style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-top:14px;">Manual relay config</label>
+        <textarea id="relay-cfg" placeholder='[{"urls":"stun:stun.l.google.com:19302"}]'></textarea>
+        <div class="relay-state" id="relay-state">Direct only</div>
+      </details>
+    </div>
+    <div id="pane-host" class="hidden">
+      <div class="field"><label>Step A &mdash; send this to them</label><div class="copy-row"><textarea id="host-out" readonly placeholder="creating&hellip;"></textarea><button id="host-copy" type="button">Copy</button></div></div>
+      <div class="field"><label>Step B &mdash; paste their reply, then Connect</label><textarea id="host-in" placeholder="their reply code"></textarea><div class="row"><button id="host-apply" class="primary" type="button">Connect</button></div></div>
+      <p class="waiting hidden" id="host-wait">Connecting&hellip;</p>
+    </div>
+    <div id="pane-guest" class="hidden">
+      <div class="field"><label>Step A &mdash; paste their code</label><textarea id="guest-in" placeholder="their code"></textarea><div class="row"><button id="guest-make" class="primary" type="button">Make reply</button></div></div>
+      <div class="field hidden" id="guest-out-field"><label>Step B &mdash; send this back</label><div class="copy-row"><textarea id="guest-out" readonly></textarea><button id="guest-copy" type="button">Copy</button></div><p class="waiting" id="guest-wait">Then wait &mdash; connects automatically.</p></div>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="logsheet">
+  <div class="sh-head"><h2>Log</h2><button class="x" id="logclose" type="button">&times;</button></div>
+  <div class="sh-body">
+    <p class="note">Connection events, in order. <strong>ICE disconnected</strong>=brief blip (auto-recovers); <strong>ICE failed</strong>=needs relay; <strong>PRETEXT</strong>=which layout backend is active.</p>
+    <pre id="logbody">(no events)</pre>
+    <div class="row"><button id="logcopy" type="button">Copy log</button><button id="logclear" type="button">Clear</button></div>
+  </div>
+</dialog>
+
+<canvas id="cap" width="128" height="96" hidden></canvas>
+<video id="vid" autoplay playsinline muted hidden></video>
+
+<!-- Local layout port. It uses its bounded monospace shim unless a real
+     window.Pretext bundle is loaded before this file. -->
+<script src="./pretext-port.js"></script>
+
+<script>
+(function () {
+'use strict';
+
+/* ====================================================================
+   OPERATOR — quine call.
+   The BEFLIX command stream is the SINGLE source of truth. It is both the
+   wire payload (sent over the data channel) AND the visible text (typeset by
+   the Pretext port). Each peer's stream is rendered two ways from the SAME
+   string: rasterized to a face (canvas) and typeset as code (canvas via
+   Pretext). What is transmitted == what is displayed. That identity is the
+   quine property, enforced by construction.
+   Codec / PRETEXT-envelope / transport / room-signaling carried verbatim from
+   the verified build (bit-exact, bounded, data-only parse, grace-recovery).
+   ==================================================================== */
+
+var PT = window.PretextPort || { backend:'none' };
+var W=128,H=96,N=W*H;
+var RAMP=[' ','.',':','-','=','+','#','@'];
+
+// ---- diagnostic log (bounded) ----
+var LOG_MAX=200, logBuf=[], logT0=Date.now();
+function log(tag,msg){var t=((Date.now()-logT0)/1000).toFixed(2);var line='['+t+'s] '+tag+(msg!==undefined?(' '+msg):'');logBuf.push(line);if(logBuf.length>LOG_MAX)logBuf.shift();if(window.console&&console.log)console.log('OPERATOR '+line);var p=document.getElementById('logbody');if(p){p.textContent=logBuf.join('\n');p.scrollTop=p.scrollHeight;}}
+
+// ==================== ENCODER (verified) ====================
+function dominant(g){var c=new Uint32Array(8),i;for(i=0;i<N;i++)c[g[i]]++;var b=0,bv=-1,v;for(v=0;v<8;v++)if(c[v]>bv){bv=c[v];b=v;}return b;}
+function extractRects(g,bg){var byRow=[],y,x,base,v,x1;for(y=0;y<H;y++)byRow.push([]);for(y=0;y<H;y++){base=y*W;x=0;while(x<W){v=g[base+x];x1=x;while(x1+1<W&&g[base+x1+1]===v)x1++;if(v!==bg)byRow[y].push([x,x1,v]);x=x1+1;}}var rects=[],open={},key,r,here,seen,j;for(y=0;y<H;y++){here=byRow[y];seen={};for(j=0;j<here.length;j++){r=here[j];key=r[0]+':'+r[1]+':'+r[2];seen[key]=1;if(open[key]&&open[key].y1===y-1)open[key].y1=y;else{if(open[key])rects.push(open[key]);open[key]={x0:r[0],x1:r[1],v:r[2],y0:y,y1:y};}}for(key in open)if(open.hasOwnProperty(key)&&!seen[key]){rects.push(open[key]);delete open[key];}}for(key in open)if(open.hasOwnProperty(key))rects.push(open[key]);return rects;}
+function encodeKeyframe(g){var bg=dominant(g),rects=extractRects(g,bg),cmds=['CLR '+bg],i,r;for(i=0;i<rects.length;i++){r=rects[i];cmds.push('PNT '+r.x0+' '+r.y0+' '+(r.x1-r.x0+1)+' '+(r.y1-r.y0+1)+' '+r.v);}return cmds;}
+function estimateMotion(p,c){var bdx=0,bdy=0,be=Infinity,dx,dy;for(dy=-3;dy<=3;dy++)for(dx=-3;dx<=3;dx++){var e=0,y,x,sy,sx,s=3;for(y=0;y<H;y+=s){sy=y-dy;if(sy<0||sy>=H){e+=200;continue;}for(x=0;x<W;x+=s){sx=x-dx;if(sx<0||sx>=W){e+=8;continue;}var d=c[y*W+x]-p[sy*W+sx];e+=d<0?-d:d;if(e>=be)break;}if(e>=be)break;}if(e<be){be=e;bdx=dx;bdy=dy;}}return[bdx,bdy];}
+function shiftGrid(g,dx,dy){var o=new Uint8Array(N),y,x,sy,sx;for(y=0;y<H;y++){sy=y-dy;if(sy<0||sy>=H)continue;for(x=0;x<W;x++){sx=x-dx;if(sx<0||sx>=W)continue;o[y*W+x]=g[sy*W+sx];}}return o;}
+function encodeDelta(p,c){var mv=estimateMotion(p,c),pr=shiftGrid(p,mv[0],mv[1]),resid=new Uint8Array(N),i,diff=0;for(i=0;i<N;i++){if(c[i]!==pr[i]){resid[i]=c[i];diff++;}else resid[i]=255;}var rects=extractRects(resid,255),cmds=['SHF '+mv[0]+' '+mv[1]],r;for(i=0;i<rects.length;i++){r=rects[i];cmds.push('PNT '+r.x0+' '+r.y0+' '+(r.x1-r.x0+1)+' '+(r.y1-r.y0+1)+' '+r.v);}return{cmds:cmds,residualCount:diff};}
+
+// ==================== DECODER (verified, data-only) ====================
+function decode(cmds,base){var g=base?base.slice():new Uint8Array(N);for(var li=0;li<cmds.length;li++){var t=cmds[li];if(!t)continue;if(t.charCodeAt(0)===67&&t.length>1&&t.charCodeAt(1)===32)continue;var p=t.split(/\s+/),op=p[0];if(op==='CLR')g.fill(clampV(p[1]));else if(op==='PNT'){var x=ipt(p[1]),y=ipt(p[2]),w=ipt(p[3]),h=ipt(p[4]),v=clampV(p[5]);if(w<=0||h<=0||w>W||h>H)continue;var xe=Math.min(W,x+w),ye=Math.min(H,y+h),yy,xx,rb;for(yy=Math.max(0,y);yy<ye;yy++){rb=yy*W;for(xx=Math.max(0,x);xx<xe;xx++)g[rb+xx]=v;}}else if(op==='LIN')bres(g,ipt(p[1]),ipt(p[2]),ipt(p[3]),ipt(p[4]),clampV(p[5]));else if(op==='SHF'){var sd=shiftGrid(g,ipt(p[1]),ipt(p[2]));g.set(sd);}}return g;}
+function ipt(s){var n=parseInt(s,10);return n===n?n:0;}
+function clampV(s){var v=ipt(s);return v<0?0:v>7?7:v;}
+function bres(g,x1,y1,x2,y2,v){var dx=Math.abs(x2-x1),dy=Math.abs(y2-y1),sx=x1<x2?1:-1,sy=y1<y2?1:-1,err=dx-dy,x=x1,y=y1,gd=0;while(gd++<N){if(x>=0&&x<W&&y>=0&&y<H)g[y*W+x]=v;if(x===x2&&y===y2)break;var e2=2*err;if(e2>-dy){err-=dy;x+=sx;}if(e2<dx){err+=dx;y+=sy;}}}
+
+// ==================== PRETEXT ENVELOPE (verified) ====================
+function checksum(cmds){var h=0x811c9dc5>>>0,s=cmds.join('\n'),i;for(i=0;i<s.length;i++){h^=s.charCodeAt(i);h=(h+((h<<1)+(h<<4)+(h<<7)+(h<<8)+(h<<24)))>>>0;}return('0000000'+h.toString(16)).slice(-8);}
+function serialize(e){return['PRETEXT 1','SND '+e.snd,'SEQ '+e.seq,'TS '+e.ts,'KIND '+e.kind,'BASE '+e.base,'DIM '+W+' '+H,'CNT '+e.cmds.length].concat(e.cmds,['SUM '+checksum(e.cmds),'END']).join('\n');}
+function parse(text){var L=text.split('\n');if(L[0]!=='PRETEXT 1')return{ok:false};var e={cmds:[]},i=1,expect=-1;for(;i<L.length;i++){var t=L[i],sp=t.indexOf(' '),tag=sp<0?t:t.slice(0,sp),rest=sp<0?'':t.slice(sp+1);if(tag==='SND')e.snd=rest;else if(tag==='KIND')e.kind=rest;else if(tag==='SEQ')e.seq=ipt(rest);else if(tag==='TS')e.ts=ipt(rest);else if(tag==='BASE')e.base=ipt(rest);else if(tag==='DIM'){var d=rest.split(/\s+/);if(ipt(d[0])!==W||ipt(d[1])!==H)return{ok:false};}else if(tag==='CNT'){expect=ipt(rest);i++;break;}else return{ok:false};}if(expect<0||expect>5000)return{ok:false};for(var k=0;k<expect;k++,i++){if(i>=L.length)return{ok:false};e.cmds.push(L[i]);}if(L[i]===undefined||L[i].slice(0,4)!=='SUM ')return{ok:false};if(L[i].slice(4)!==checksum(e.cmds))return{ok:false};i++;if(L[i]!=='END')return{ok:false};return{ok:true,env:e};}
+
+// ==================== QUINE RENDERERS ====================
+// Each peer has: a face canvas (rasterized grid) and a code canvas (the SAME
+// command lines, typeset by the Pretext port). One stream, two renderings.
+
+function rasterToCanvas(grid, canvas){
+  var c=canvas.getContext('2d');
+  var img=c.createImageData(W,H), d=img.data, i, v, p;
+  for(i=0;i<N;i++){ v=255-Math.round(grid[i]/7*255); p=i*4; d[p]=d[p+1]=d[p+2]=v; d[p+3]=255; }
+  c.putImageData(img,0,0);
+}
+
+// Typeset the rolling command window onto the code canvas using the port.
+// LINE_FONT must match what we measure with. Monospace so the shim is exact.
+var CODE_FONT='11px ui-monospace, Menlo, Consolas, monospace';
+var CODE_LH=14, CODE_PAD=6, CODE_WINDOW=120; // last 120 command lines visible
+function typesetToCanvas(lines, canvas){
+  // size backing store to element box * dpr
+  var dpr=Math.min(2, window.devicePixelRatio||1);
+  var rect=canvas.getBoundingClientRect();
+  var cw=Math.max(40, rect.width|0), ch=Math.max(40, rect.height|0);
+  if(canvas.width!==cw*dpr||canvas.height!==ch*dpr){ canvas.width=cw*dpr; canvas.height=ch*dpr; }
+  var ctx=canvas.getContext('2d');
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,cw,ch);
+  ctx.fillStyle='#fff'; ctx.fillRect(0,0,cw,ch);
+  ctx.fillStyle='#000'; ctx.font=CODE_FONT; ctx.textBaseline='top';
+
+  // join the rolling window, prepare once, lay out at the canvas width.
+  var text=lines.join('\n');
+  if(!text) return;
+  var maxW=cw-CODE_PAD*2;
+  var prepared=PT.prepareWithSegments(text, CODE_FONT, {whiteSpace:'pre-wrap'});
+  // how many lines fit; we want the TAIL (most recent) visible
+  var visibleRows=Math.max(1, Math.floor((ch-CODE_PAD*2)/CODE_LH));
+  // collect ranges, keep only the last visibleRows
+  var ranges=[];
+  PT.walkLineRanges(prepared, maxW, function(r){ ranges.push(r); });
+  var startIdx=Math.max(0, ranges.length-visibleRows);
+  var y=CODE_PAD, i;
+  for(i=startIdx;i<ranges.length;i++){
+    var line=PT.materializeLineRange(prepared, ranges[i]);
+    ctx.fillText(line.text, CODE_PAD, y);
+    y+=CODE_LH;
+  }
+}
+
+// ==================== CAPTURE (auto-level luma, verified) ====================
+var vid=document.getElementById('vid'),cap=document.getElementById('cap');
+var capCtx=cap.getContext('2d',{willReadFrequently:true});
+var stream=null,capturing=false,prevGrid=null;
+function sampleGrid(){
+  capCtx.drawImage(vid,0,0,W,H);
+  var img=capCtx.getImageData(0,0,W,H).data,luma=new Uint8Array(N),i,p,l,mn=255,mx=0;
+  for(i=0;i<N;i++){p=i*4;l=(img[p]*0.299+img[p+1]*0.587+img[p+2]*0.114)|0;luma[i]=l;if(l<mn)mn=l;if(l>mx)mx=l;}
+  var g=new Uint8Array(N),range=mx-mn;
+  if(range>=8){for(i=0;i<N;i++){var v=Math.round((luma[i]-mn)/range*7);g[i]=7-v;if(g[i]>7)g[i]=7;if(g[i]<0)g[i]=0;}}
+  if(prevGrid)for(i=0;i<N;i++)g[i]=(g[i]+prevGrid[i]+1)>>1;
+  return g;
+}
+
+// ==================== TRANSPORT ====================
+var link=null,forceKeyframe=false;
+function makeLoopback(onFrame){return{kind:'loopback',sendVisual:function(t){onFrame(t);},sendControl:function(){},bufferedAmount:function(){return 0;}};}
+function makeWebRTC(pc,onFrame,isHost){var visual=null,control=null;function wire(ch){if(ch.label==='visual'){visual=ch;ch.onmessage=function(e){onFrame(e.data);};}else if(ch.label==='control'){control=ch;ch.onmessage=function(e){if(e.data==='K')forceKeyframe=true;};}}if(isHost){wire(pc.createDataChannel('visual',{ordered:false,maxRetransmits:0}));wire(pc.createDataChannel('control',{ordered:true}));}else pc.ondatachannel=function(e){wire(e.channel);};return{kind:'webrtc',sendVisual:function(t){if(!visual||visual.readyState!=='open')return;if(visual.bufferedAmount>256*1024)return;visual.send(t);},sendControl:function(m){if(control&&control.readyState==='open')control.send(m);},bufferedAmount:function(){return visual?visual.bufferedAmount:0;}};}
+
+// ==================== RECEIVER (their stream) ====================
+var rxBase=null,rxBaseSeq=-1,lastPresentTs=0,gotRemote=false;
+var themLines=[]; // rolling visible command window for THEM
+function pushThemLines(cmds){ for(var i=0;i<cmds.length;i++){ themLines.push(cmds[i]); } while(themLines.length>CODE_WINDOW) themLines.shift(); }
+function receiveFrame(text){
+  var res=parse(text); if(!res.ok)return; var e=res.env;
+  if(e.ts<lastPresentTs)return; gotRemote=true;
+  if(e.kind==='KEY'){ var g=decode(e.cmds,null); rxBase=g; rxBaseSeq=e.seq; lastPresentTs=e.ts; pushThemLines(e.cmds); commitThem(g); }
+  else { if(rxBase===null||e.base!==rxBaseSeq){ if(link)link.sendControl('K'); return; } var gd=decode(e.cmds,rxBase); rxBase=gd; rxBaseSeq=e.seq; lastPresentTs=e.ts; pushThemLines(e.cmds); commitThem(gd); }
+}
+function commitThem(grid){
+  document.getElementById('ph-them').classList.add('hidden');
+  document.getElementById('tag-them').textContent=connType?('live '+(connType==='relay'?'(relay)':'(direct)')):'live';
+  rasterToCanvas(grid, document.getElementById('face-them'));
+  typesetToCanvas(themLines, document.getElementById('code-them'));
+  if(uiState==='FROZEN') setUIState(link&&link.kind==='webrtc'?'CONNECTED':'SELF');
+}
+
+// ==================== SENDER (your stream) ====================
+var SND_ID='OP'+Math.floor(Math.random()*9000+1000),seq=0,sinceKey=1e9,sendTimer=null;
+var youLines=[]; // rolling visible command window for YOU
+var win={bytes:0,frames:0,t0:0};
+var DETAIL={hi:{fps:10,gop:30},mid:{fps:6,gop:30},lo:{fps:4,gop:45}};
+function detail(){return DETAIL[document.getElementById('detail').value];}
+function tick(){
+  if(!capturing||vid.readyState<2||!vid.videoWidth)return;
+  var g=sampleGrid(),gop=detail().gop,cmds,kind,base;
+  var wantKey=prevGrid===null||sinceKey>=gop||forceKeyframe;
+  if(wantKey){cmds=encodeKeyframe(g);kind='KEY';base=-1;sinceKey=0;forceKeyframe=false;}
+  else{var d=encodeDelta(prevGrid,g);if(d.cmds.length>N/12){cmds=encodeKeyframe(g);kind='KEY';base=-1;sinceKey=0;}else{cmds=d.cmds;kind='DELTA';base=seq;sinceKey++;}}
+  var thisSeq=++seq;
+  var wire=serialize({snd:SND_ID,seq:thisSeq,ts:Date.now(),kind:kind,base:base,cmds:cmds});
+  prevGrid=g; win.frames++; win.bytes+=wire.length; if(!win.t0)win.t0=performance.now();
+  if(link)link.sendVisual(wire);
+  // QUINE: render YOUR face and YOUR code from the SAME commands we just sent.
+  for(var i=0;i<cmds.length;i++) youLines.push(cmds[i]);
+  while(youLines.length>CODE_WINDOW) youLines.shift();
+  rasterToCanvas(g, document.getElementById('face-you'));
+  typesetToCanvas(youLines, document.getElementById('code-you'));
+}
+function startSending(){stopSending();prevGrid=null;seq=0;sinceKey=1e9;sendTimer=setInterval(tick,1000/detail().fps);}
+function stopSending(){if(sendTimer){clearInterval(sendTimer);sendTimer=null;}}
+
+/* ==================== STATE MACHINE ==================== */
+var connType='';
+var STATES={
+  OFFLINE:{cls:'',where:'Off',what:'Press Start, then Connect'},
+  SELF:{cls:'s-self',where:'Self-view',what:'You \u2014 not connected. The code under your face is what would be sent.'},
+  CONNECTING:{cls:'s-conn',where:'Connecting',what:'Setting up the call'},
+  CONNECTED:{cls:'s-live',where:'Connected',what:'On a call \u2014 both streams are their own source code'},
+  FROZEN:{cls:'s-frozen',where:'No signal',what:'Lost the connection'}
+};
+var uiState='OFFLINE';
+var statusEl=document.getElementById('status'),whereEl=document.getElementById('st-where'),whatEl=document.getElementById('st-what');
+function setUIState(name){
+  if(!STATES[name])return; if(name!==uiState)log('STATE',uiState+' -> '+name); uiState=name; var s=STATES[name];
+  statusEl.className='status '+s.cls; whereEl.textContent=s.where;
+  whatEl.textContent=(name==='CONNECTED'&&connType)?('On a call \u2014 '+(connType==='relay'?'via relay':'direct')):s.what;
+  document.getElementById('recover').style.display=(name==='FROZEN')?'block':'none';
+  document.getElementById('connect').hidden=(name==='CONNECTED');
+  document.getElementById('hang').hidden=(name!=='CONNECTED'&&name!=='FROZEN');
+  document.getElementById('connect').disabled=(name==='OFFLINE');
+  document.getElementById('tag-you').textContent=(name==='CONNECTED')?'sending':'self';
+}
+function showRecover(onCall,title){document.getElementById('rec-msg').textContent=title||(onCall?'Lost signal':'Camera stopped');document.getElementById('rec-act').textContent=onCall?(title?'Network dropped \u2014 restoring automatically\u2026':'Recovering. If frozen, press End.'):'Press Start to retry.';}
+function flashRecover(msg,act){document.getElementById('rec-msg').textContent=msg;document.getElementById('rec-act').textContent=act;var r=document.getElementById('recover');r.style.display='block';setTimeout(function(){if(uiState!=='FROZEN')r.style.display='none';},6000);}
+
+// ==================== STATUS TICK (1Hz bounded) ====================
+setInterval(function(){
+  if(win.t0){var el=(performance.now()-win.t0)/1000;if(el>=0.5){var bps=Math.round(win.bytes/el),kb=bps>1024?(bps/1024).toFixed(1)+' KB/s':bps+' B/s',fps=(win.frames/el).toFixed(0);document.getElementById('st-rate').textContent=capturing?(fps+' fps \u00b7 '+kb+' \u00b7 PT:'+PT.backend):('PT:'+PT.backend);win.bytes=0;win.frames=0;win.t0=performance.now();}}
+  if(uiState==='CONNECTED'&&lastPresentTs>0&&!graceTimer){var since=Date.now()-lastPresentTs;if(since>6000){log('FRAME-FREEZE',(since/1000).toFixed(1)+'s');showRecover(true);setUIState('FROZEN');}}
+},1000);
+
+// ==================== CAMERA ====================
+document.getElementById('cam').addEventListener('click',function(){
+  if(capturing)return;
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){flashRecover('No camera API','Use Chrome, Safari, Firefox, or Edge.');return;}
+  whereEl.textContent='Starting';whatEl.textContent='Asking for camera\u2026';
+  navigator.mediaDevices.getUserMedia({video:{width:320,height:240,facingMode:'user'},audio:false}).then(function(s){
+    stream=s;vid.srcObject=s;capturing=true;
+    document.getElementById('cam').textContent='Camera on';document.getElementById('cam').disabled=true;
+    link=makeLoopback(function(text){ /* loopback shows YOU only; rendered in tick */ });
+    var begin=function(){startSending();setUIState('SELF');log('PRETEXT','layout backend = '+PT.backend);};
+    var p=vid.play(); if(p&&p.then){p.then(begin).catch(begin);}else begin();
+  }).catch(function(err){var n=err&&err.name||'error';var why=n==='NotAllowedError'?'Permission denied. Allow the camera, then press Start.':n==='NotFoundError'?'No camera found.':'Could not start camera ('+n+'). Phones need https.';flashRecover('Camera blocked',why);setUIState('OFFLINE');});
+});
+document.getElementById('detail').addEventListener('change',function(){if(sendTimer)startSending();});
+
+// ==================== ICE / RELAY / SERVER ====================
+var DEFAULT_ICE=[{urls:'stun:stun.l.google.com:19302'}];
+function getIceServers(){var raw=(document.getElementById('relay-cfg').value||'').trim();if(!raw)return DEFAULT_ICE.slice();try{var a=JSON.parse(raw);if(Array.isArray(a)&&a.length)return a;}catch(e){}return DEFAULT_ICE.slice();}
+function relayConfigured(){var raw=(document.getElementById('relay-cfg').value||'').trim();if(!raw)return{ok:false,reason:'none'};try{var a=JSON.parse(raw);if(!Array.isArray(a))return{ok:false,reason:'notarray'};var t=a.some(function(s){var u=s.urls;u=Array.isArray(u)?u.join(' '):(''+u);return u.indexOf('turn:')===0||u.indexOf('turns:')===0;});return{ok:true,turn:t};}catch(e){return{ok:false,reason:'badjson'};}}
+function refreshRelayState(){var r=relayConfigured(),el=document.getElementById('relay-state');if(!r.ok&&r.reason==='none')el.textContent='Direct only';else if(!r.ok)el.textContent='Invalid \u2014 direct only';else if(!r.turn)el.textContent='STUN only (direct)';else el.textContent='Relay ready';}
+document.getElementById('relay-cfg').addEventListener('input',refreshRelayState);
+function serverUrl(){return (document.getElementById('server-url').value||'').trim().replace(/\/+$/,'');}
+function refreshServerState(){var u=serverUrl(),el=document.getElementById('server-state');if(!u)el.textContent='No server set';else if(!/^https?:\/\//.test(u))el.textContent='URL must start with https://';else el.textContent='Server set \u2014 room codes enabled';}
+document.getElementById('server-url').addEventListener('input',refreshServerState);
+function fetchIceServers(){var u=serverUrl();if(u&&/^https?:\/\//.test(u)){return fetch(u+'/turn').then(function(r){return r.json();}).then(function(d){if(d&&Array.isArray(d.iceServers)&&d.iceServers.length){log('TURN','server gave '+d.iceServers.length+' iceServers');return d.iceServers;}return getIceServers();}).catch(function(e){log('TURN','fetch failed: '+e.message);return getIceServers();});}return Promise.resolve(getIceServers());}
+
+// ==================== CONNECT FLOW + GRACE ====================
+var sheet=document.getElementById('sheet'),pc=null,isHostPeer=false;
+var GRACE_MS=8000,graceTimer=null,restarting=false;
+function clearGrace(){if(graceTimer){clearTimeout(graceTimer);graceTimer=null;}}
+function startGrace(){if(graceTimer)return;log('GRACE','start');showRecover(true,'Reconnecting');setUIState('FROZEN');tryIceRestart();graceTimer=setTimeout(function(){graceTimer=null;var st=pc?pc.iceConnectionState:'none';log('GRACE','expired ice='+st);if(st==='connected'||st==='completed')recoverFromGrace();else{document.getElementById('rec-msg').textContent='Lost signal';document.getElementById('rec-act').textContent='Could not reconnect. Press End.';}},GRACE_MS);}
+function recoverFromGrace(){clearGrace();log('RECOVER','resuming');forceKeyframe=true;setUIState('CONNECTED');detectConnType();}
+function tryIceRestart(){if(restarting||!pc||!isHostPeer)return;restarting=true;log('ICE-RESTART','host');try{if(pc.restartIce)pc.restartIce();if(room.code&&room.peerId&&serverUrl()){pc.createOffer({iceRestart:true}).then(function(o){return pc.setLocalDescription(o);}).then(function(){roomSend({type:'offer',sdp:pc.localDescription});if(!room.pollTimer)startRoomPoll();log('ICE-RESTART','re-offer posted');}).catch(function(e){log('ICE-RESTART','err '+e.message);});}}catch(e){log('ICE-RESTART','err '+e.message);}setTimeout(function(){restarting=false;},GRACE_MS);}
+
+function newPeer(asHost,ice){connType='';isHostPeer=!!asHost;clearGrace();var servers=ice||getIceServers();pc=new RTCPeerConnection({iceServers:servers});log('PEER','role='+(asHost?'host':'guest')+' iceServers='+servers.length);
+  pc.oniceconnectionstatechange=function(){var st=pc.iceConnectionState;log('ICE',st);if(st==='connected'||st==='completed'){if(graceTimer){recoverFromGrace();return;}setStep(3);setTimeout(function(){sheet.close();},700);rxBase=null;rxBaseSeq=-1;lastPresentTs=0;gotRemote=false;startSending();setUIState('CONNECTED');detectConnType();}else if(st==='failed'){clearGrace();var r=relayConfigured();flashRecover('Could not connect',(r.ok&&r.turn)?'Relay could not complete. Codes may be old \u2014 try again.':'Direct failed (strict network). Add a relay, then retry.');}else if(st==='disconnected'){if(uiState==='CONNECTED')startGrace();}};
+  pc.onicegatheringstatechange=function(){log('GATHER',pc.iceGatheringState);};
+  pc.onsignalingstatechange=function(){log('SIGNAL',pc.signalingState);};
+  return pc;}
+function waitIce(){return new Promise(function(res){if(pc.iceGatheringState==='complete')return res();pc.onicegatheringstatechange=function(){log('GATHER',pc.iceGatheringState);if(pc.iceGatheringState==='complete')res();};setTimeout(res,2500);});}
+function detectConnType(){if(!pc||!pc.getStats)return;pc.getStats(null).then(function(stats){var local={},chosen=null;stats.forEach(function(r){if(r.type==='candidate-pair'&&(r.selected||r.nominated)&&r.state==='succeeded')chosen=r.localCandidateId;if(r.type==='local-candidate')local[r.id]=r;});connType=(chosen&&local[chosen])?(local[chosen].candidateType==='relay'?'relay':'direct'):'direct';log('CONN-TYPE',connType);if(uiState==='CONNECTED')setUIState('CONNECTED');}).catch(function(){});}
+
+function setStep(n){var els=document.querySelectorAll('#steps .step'),i;for(i=0;i<els.length;i++){var s=+els[i].getAttribute('data-step');els[i].classList.toggle('active',s===n);els[i].classList.toggle('done',s<n);}}
+function showPane(id){['pane-role','pane-host','pane-guest'].forEach(function(p){document.getElementById(p).classList.toggle('hidden',p!==id);});}
+function resetSheet(){setStep(1);showPane('pane-role');document.getElementById('sh-title').textContent='Connect';['host-out','host-in','guest-in','guest-out','room-code'].forEach(function(id){var el=document.getElementById(id);});document.getElementById('host-wait').classList.add('hidden');document.getElementById('guest-out-field').classList.add('hidden');document.getElementById('room-wait').classList.add('hidden');refreshRelayState();refreshServerState();}
+document.getElementById('connect').addEventListener('click',function(){resetSheet();sheet.showModal();});
+document.getElementById('sh-x').addEventListener('click',function(){sheet.close();cancelPeer();});
+sheet.addEventListener('cancel',function(){cancelPeer();});
+function cancelPeer(){if(pc&&uiState!=='CONNECTED'){try{pc.close();}catch(e){}pc=null;clearGrace();roomReset();if(capturing)setUIState('SELF');}}
+
+// manual host/guest
+document.getElementById('be-host').addEventListener('click',function(){setUIState('CONNECTING');setStep(2);showPane('pane-host');document.getElementById('sh-title').textContent='You start';log('ROLE','host(manual)');fetchIceServers().then(function(ice){newPeer(true,ice);link=makeWebRTC(pc,receiveFrame,true);return pc.createOffer().then(function(o){return pc.setLocalDescription(o);}).then(waitIce).then(function(){document.getElementById('host-out').value=JSON.stringify(pc.localDescription);log('OFFER',pc.localDescription.sdp.length+' chars');});}).catch(function(e){flashRecover('Setup failed',e.message);});});
+document.getElementById('host-copy').addEventListener('click',function(){copyField('host-out',this);});
+document.getElementById('host-apply').addEventListener('click',function(){var raw=document.getElementById('host-in').value.trim();if(!raw){flashRecover('Nothing to connect','Paste their reply first.');return;}var d;try{d=JSON.parse(raw);}catch(e){flashRecover('Code looks wrong','Copy their whole reply again.');return;}document.getElementById('host-wait').classList.remove('hidden');pc.setRemoteDescription(d).catch(function(e){flashRecover('Could not connect','Reply invalid. Ask them to resend.');});});
+document.getElementById('be-guest').addEventListener('click',function(){setUIState('CONNECTING');setStep(2);showPane('pane-guest');document.getElementById('sh-title').textContent='You join';log('ROLE','guest(manual)');fetchIceServers().then(function(ice){newPeer(false,ice);link=makeWebRTC(pc,receiveFrame,false);});});
+document.getElementById('guest-make').addEventListener('click',function(){var raw=document.getElementById('guest-in').value.trim();if(!raw){flashRecover('Nothing to read','Paste their code first.');return;}var d;try{d=JSON.parse(raw);}catch(e){flashRecover('Code looks wrong','Copy their whole code again.');return;}pc.setRemoteDescription(d).then(function(){return pc.createAnswer();}).then(function(a){return pc.setLocalDescription(a);}).then(waitIce).then(function(){document.getElementById('guest-out').value=JSON.stringify(pc.localDescription);document.getElementById('guest-out-field').classList.remove('hidden');}).catch(function(e){flashRecover('Could not read code','Ask them to resend.');});});
+document.getElementById('guest-copy').addEventListener('click',function(){copyField('guest-out',this);});
+function copyField(id,btn){var ta=document.getElementById(id);ta.select();var done=function(){var o=btn.textContent;btn.textContent='Copied';setTimeout(function(){btn.textContent=o;},1200);};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(ta.value).then(done,function(){try{document.execCommand('copy');done();}catch(e){}});}else{try{document.execCommand('copy');done();}catch(e){}}}
+
+// room signaling (fixed handshake: join cursor=0, consume-only advance, dedup, candidate buffering)
+var room={code:'',peerId:'',after:0,pollTimer:null,polls:0,role:'',seen:{},localCands:[],pendingRemote:[],haveRemote:false};
+var MAX_POLLS=600,POLL_MS=600;
+function roomReset(){if(room.pollTimer){clearInterval(room.pollTimer);room.pollTimer=null;}room={code:'',peerId:'',after:0,pollTimer:null,polls:0,role:'',seen:{},localCands:[],pendingRemote:[],haveRemote:false};}
+document.getElementById('room-gen').addEventListener('click',function(){var a=['blue','red','gold','green','black','white','swift','calm','bright','dark'],b=['otter','fox','hawk','wolf','crane','lynx','heron','moth','pike','wren'];document.getElementById('room-code').value=a[Math.random()*a.length|0]+'-'+b[Math.random()*b.length|0]+'-'+(Math.random()*90+10|0);});
+document.getElementById('room-join').addEventListener('click',function(){var u=serverUrl();if(!u||!/^https?:\/\//.test(u)){flashRecover('No server set','Open Server settings and paste your Worker URL, or use manual codes.');return;}var code=(document.getElementById('room-code').value||'').trim();if(code.length<4){flashRecover('Code too short','At least 4 characters (or tap New).');return;}setUIState('CONNECTING');setStep(2);document.getElementById('room-wait').classList.remove('hidden');log('ROOM','joining '+code);roomReset();room.code=code;
+  fetch(u+'/room/'+encodeURIComponent(code)+'/join',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}).then(function(r){return r.json();}).then(function(j){if(j.error)throw new Error(j.error==='room-full'?'Room already has two people.':j.error);room.peerId=j.peerId;room.after=j.seq||0;room.role=(j.peers>=2)?'guest':'host';log('ROOM','joined as '+room.role+' ('+j.peers+')');return fetchIceServers();}).then(function(ice){var asHost=(room.role==='host');newPeer(asHost,ice);link=makeWebRTC(pc,receiveFrame,asHost);room.localCands=[];room.haveRemote=false;pc.onicecandidate=function(e){if(!e.candidate)return;if(room.haveRemote)roomSend({type:'ice',candidate:e.candidate});else room.localCands.push(e.candidate);};if(asHost){pc.createOffer().then(function(o){return pc.setLocalDescription(o);}).then(function(){roomSend({type:'offer',sdp:pc.localDescription});log('ROOM','offer posted');});}startRoomPoll();}).catch(function(e){log('ROOM','join error '+e.message);flashRecover('Could not join',e.message+' Check URL and code.');roomReset();});});
+function roomSend(msg){var u=serverUrl();if(!u||!room.code||!room.peerId)return;fetch(u+'/room/'+encodeURIComponent(room.code)+'/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({peerId:room.peerId,msg:msg})}).catch(function(e){log('ROOM','send fail '+e.message);});}
+function startRoomPoll(){if(room.pollTimer)return;room.polls=0;room.pollTimer=setInterval(function(){room.polls++;if(room.polls>MAX_POLLS){clearInterval(room.pollTimer);room.pollTimer=null;log('ROOM','poll limit');return;}if(uiState==='CONNECTED'&&room.polls%5!==0)return;var u=serverUrl();fetch(u+'/room/'+encodeURIComponent(room.code)+'/poll?peerId='+encodeURIComponent(room.peerId)+'&after='+room.after).then(function(r){return r.json();}).then(function(j){if(!j||!j.messages)return;var i,e;for(i=0;i<j.messages.length;i++){e=j.messages[i];if(e.seq<=room.after)continue;if(room.seen[e.seq])continue;room.seen[e.seq]=1;handleSignal(e.msg);if(e.seq>room.after)room.after=e.seq;}}).catch(function(e){log('ROOM','poll err '+e.message);});},POLL_MS);}
+function flushLocalCands(){room.haveRemote=true;if(room.localCands&&room.localCands.length){log('ROOM','flush '+room.localCands.length+' cands');for(var i=0;i<room.localCands.length;i++)roomSend({type:'ice',candidate:room.localCands[i]});room.localCands=[];}if(room.pendingRemote&&room.pendingRemote.length){for(var j=0;j<room.pendingRemote.length;j++)pc.addIceCandidate(room.pendingRemote[j]).catch(function(){});room.pendingRemote=[];}}
+function handleSignal(msg){if(!msg||!msg.type||!pc)return;if(msg.type==='offer'){log('ROOM','offer recv');pc.setRemoteDescription(msg.sdp).then(function(){return pc.createAnswer();}).then(function(a){return pc.setLocalDescription(a);}).then(function(){roomSend({type:'answer',sdp:pc.localDescription});log('ROOM','answer posted');flushLocalCands();}).catch(function(e){log('ROOM','offer err '+e.message);});}else if(msg.type==='answer'){log('ROOM','answer recv');pc.setRemoteDescription(msg.sdp).then(function(){flushLocalCands();}).catch(function(e){log('ROOM','answer err '+e.message);});}else if(msg.type==='ice'){if(room.haveRemote)pc.addIceCandidate(msg.candidate).catch(function(){});else{if(!room.pendingRemote)room.pendingRemote=[];room.pendingRemote.push(msg.candidate);}}}
+
+// end call
+document.getElementById('hang').addEventListener('click',function(){log('HANGUP','user');clearGrace();if(serverUrl()&&room.code&&room.peerId)fetch(serverUrl()+'/room/'+encodeURIComponent(room.code)+'/leave',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({peerId:room.peerId})}).catch(function(){});roomReset();if(pc){try{pc.close();}catch(e){}pc=null;}link=makeLoopback(function(){});connType='';rxBase=null;rxBaseSeq=-1;lastPresentTs=Date.now();gotRemote=false;themLines=[];document.getElementById('ph-them').classList.remove('hidden');document.getElementById('tag-them').textContent='waiting';var ct=document.getElementById('code-them').getContext('2d');ct.clearRect(0,0,9999,9999);var ft=document.getElementById('face-them').getContext('2d');ft.clearRect(0,0,W,H);document.getElementById('recover').style.display='none';setUIState('SELF');});
+
+// log panel
+var logsheet=document.getElementById('logsheet');
+document.getElementById('logopen').addEventListener('click',function(){document.getElementById('logbody').textContent=logBuf.length?logBuf.join('\n'):'(no events)';logsheet.showModal();});
+document.getElementById('logclose').addEventListener('click',function(){logsheet.close();});
+document.getElementById('logcopy').addEventListener('click',function(){var txt=logBuf.join('\n'),btn=this;var done=function(){var o=btn.textContent;btn.textContent='Copied';setTimeout(function(){btn.textContent=o;},1200);};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done,function(){try{document.execCommand('copy');done();}catch(e){}});}else{try{document.execCommand('copy');done();}catch(e){}}});
+document.getElementById('logclear').addEventListener('click',function(){logBuf.length=0;document.getElementById('logbody').textContent='(cleared)';log('LOG','cleared');});
+
+// re-typeset on resize (layout is width-dependent)
+window.addEventListener('resize',function(){ if(youLines.length)typesetToCanvas(youLines,document.getElementById('code-you')); if(themLines.length)typesetToCanvas(themLines,document.getElementById('code-them')); });
+
+setUIState('OFFLINE');
+log('BOOT','operator ready; pretext backend='+PT.backend);
+})();
+</script>
+
+</body>
+</html>

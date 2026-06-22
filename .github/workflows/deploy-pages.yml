@@ -1,0 +1,73 @@
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Validate static site
+        shell: bash
+        run: |
+          test -f index.html
+          test -f OP-01/operator.html
+          test -f OP-01/pretext-port.js
+          test -f OP-02/operator-edge.html
+          test -f OP-02/edge-codec.js
+          test -f OP-03/operator-edge.html
+          test -f OP-04/operator-studio.html
+          test -f OP-04/icaro-flip.html
+          test -f OPERATOR/beflix-call.html
+          test -f PRETEXT/icaro-quine/index.html
+          test -f PRETEXT/icaro-quine/icaro-quine.js
+          while IFS= read -r page; do
+            grep -Fq "href=\"${page}\"" index.html
+            grep -Fq "src=\"${page}\"" index.html
+          done < <(find . -maxdepth 1 -type f -name '*.html' ! -name 'index.html' -printf '%f\n' | sort)
+
+      - name: Test Operator signaling
+        working-directory: OPERATOR
+        run: npm test
+
+      - name: Test edge codec
+        run: node OP-02/edge-codec.js
+
+      - name: Parse Operator 03 client
+        run: node -e 'const fs=require("fs");const h=fs.readFileSync("OP-03/operator-edge.html","utf8");const m=h.match(/<script>([\s\S]*?)<\/script>/);if(!m)throw Error("script missing");new Function(m[1])'
+
+      - name: Parse Operator 04 studio
+        run: node -e 'const fs=require("fs");const h=fs.readFileSync("OP-04/operator-studio.html","utf8");const m=h.match(/<script>([\s\S]*?)<\/script>/);if(!m)throw Error("script missing");new Function(m[1])'
+
+      - name: Test Operator 04 film state
+        run: node --test OP-04/tests/film.test.js
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload static site
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: .
+
+      - name: Deploy GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

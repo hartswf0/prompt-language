@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>OPERATOR STUDIO</title>
+<style>
+  :root{ --k:#000; --w:#fff; --pad:env(safe-area-inset-bottom,0px);
+         --aA:#0033cc; --aB:#c8a800; --aC:#e60000; --aD:#000; }
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; margin:0; }
+  body{ background:var(--w); color:var(--k); font:13px/1.4 ui-monospace,"SF Mono",Menlo,Consolas,monospace; display:flex; flex-direction:column; overflow:hidden; -webkit-font-smoothing:none; -webkit-text-size-adjust:100%; }
+  .status{ flex:0 0 auto; display:flex; align-items:center; gap:10px; padding:10px 14px; padding-top:max(10px,env(safe-area-inset-top)); background:var(--k); color:var(--w); border-bottom:3px solid var(--k); }
+  .ind{ width:12px;height:12px;border:3px solid var(--w);background:transparent;flex:0 0 auto; }
+  .status.s-self .ind{ background:var(--w); }
+  .status.s-live .ind{ background:var(--w); animation:blink 1.1s steps(1) infinite; }
+  .status.s-conn .ind{ background:linear-gradient(90deg,var(--w) 50%,transparent 50%); animation:blink .7s steps(1) infinite; }
+  .status.s-frozen .ind{ background:linear-gradient(135deg,var(--w) 50%,transparent 50%); }
+  @keyframes blink{0%,60%{opacity:1}61%,100%{opacity:.15}}
+  .status .where{ font-weight:700;font-size:13px;letter-spacing:.04em;text-transform:uppercase; }
+  .status .what{ font-size:12px;opacity:.85; }
+  @media (max-width:560px){ .status .what{ display:none; } }
+  .status .spacer{ flex:1 1 auto; }
+  .status .rate{ font-size:11px;white-space:nowrap;letter-spacing:.04em; }
+  .logbtn{ margin-left:8px;padding:4px 9px;font-size:10px;letter-spacing:.1em;background:transparent;color:var(--w);border:2px solid var(--w);border-radius:0;min-height:auto; }
+  .logbtn:hover{ background:var(--w);color:var(--k); }
+  .chat{ position:absolute; right:14px; bottom:14px; z-index:6; width:min(340px,82%); max-height:60%; background:var(--w); border:3px solid var(--k); box-shadow:6px 6px 0 var(--k); display:flex; flex-direction:column; }
+  .chat.hidden{ display:none; }
+  .chat-head{ flex:0 0 auto; padding:7px 10px; font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; border-bottom:3px solid var(--k); }
+  .chat-log{ flex:1 1 auto; overflow-y:auto; padding:8px 10px; font-size:12px; line-height:1.45; min-height:60px; }
+  .chat-log .cm{ margin:3px 0; word-break:break-word; }
+  .chat-log .cm .cw{ font-weight:700; text-transform:uppercase; font-size:10px; letter-spacing:.06em; }
+  .chat-input{ flex:0 0 auto; display:flex; border-top:3px solid var(--k); }
+  .chat-input input{ flex:1 1 auto; border:none; background:var(--w); color:var(--k); padding:10px; font:12px/1.4 ui-monospace,monospace; min-height:44px; }
+  .chat-input input:focus{ outline:2px solid var(--k); outline-offset:-2px; }
+  .chat-input button{ border:none; border-left:3px solid var(--k); box-shadow:none; border-radius:0; min-height:44px; padding:0 14px; }
+
+  .grid{ flex:1 1 auto; min-height:0; display:grid; grid-template-columns:1fr 1fr; gap:3px; background:var(--k); padding:3px; }
+  @media (max-width:560px){ .grid{ grid-template-columns:1fr; grid-template-rows:1fr 1fr; } }
+  .peer{ display:flex; flex-direction:column; min-height:0; background:var(--w); position:relative; }
+  .peer h2{ margin:0; flex:0 0 auto; padding:6px 10px; font-size:11px; letter-spacing:.1em; text-transform:uppercase; font-weight:700; border-bottom:3px solid var(--k); display:flex; align-items:center; gap:8px; }
+  .peer h2 .tag{ margin-left:auto; font-size:10px; opacity:.6; }
+  /* THE FACE IS TEXT. This <pre> is the face, rendered as glyph line-art.
+     No separate image canvas — the text IS the video, per your spec. */
+  .face{ flex:1 1 auto; min-height:0; margin:0; overflow:hidden; display:flex; align-items:center; justify-content:center; background:var(--w); }
+  pre.facetext{ margin:0; color:var(--k); font:700 var(--cell,8px)/0.92 ui-monospace,Menlo,Consolas,monospace; white-space:pre; user-select:none; -webkit-user-select:none; }
+  .peer .placeholder{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; text-align:center; font-size:12px; opacity:.5; padding:1rem; pointer-events:none; }
+
+  .bar{ flex:0 0 auto; display:flex; gap:10px; align-items:center; padding:12px 14px; padding-bottom:calc(12px + var(--pad)); background:var(--w); border-top:3px solid var(--k); flex-wrap:wrap; }
+  button{ font:inherit;font-size:14px;font-weight:700;color:var(--k);background:var(--w);border:3px solid var(--k);border-radius:0;padding:11px 16px;min-height:46px;cursor:pointer;box-shadow:4px 4px 0 var(--k);transition:transform .05s,box-shadow .05s,background .1s,color .1s; }
+  button:hover:not(:disabled){ background:var(--k);color:var(--w); }
+  button:active:not(:disabled){ transform:translate(4px,4px);box-shadow:0 0 0 var(--k); }
+  button:disabled{ opacity:.3;cursor:default;box-shadow:none; }
+  button.primary{ background:var(--k);color:var(--w); }
+  button.primary:hover:not(:disabled){ background:var(--w);color:var(--k); }
+  .bar .spacer{ flex:1 1 auto; }
+  .seg{ display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em; }
+  select{ font:inherit;font-size:13px;font-weight:700;color:var(--k);background:var(--w);border:3px solid var(--k);border-radius:0;padding:8px 10px;min-height:42px; }
+  dialog{ background:var(--w);color:var(--k);border:3px solid var(--k);border-radius:0;box-shadow:12px 12px 0 var(--k);padding:0;width:min(560px,94vw);max-height:90vh;overflow:auto;font:inherit; }
+  dialog::backdrop{ background:rgba(0,0,0,.7); }
+  .sh-head{ padding:16px 18px 6px;display:flex;align-items:center;gap:10px;border-bottom:3px solid var(--k); }
+  .sh-head h2{ margin:0;font-size:16px;font-weight:700;text-transform:uppercase;letter-spacing:.06em; }
+  .sh-head .x{ margin-left:auto;min-height:auto;padding:4px 10px;box-shadow:none; }
+  .sh-body{ padding:16px 18px 18px; }
+  .steps{ display:flex;margin:4px 0 18px;border:3px solid var(--k); }
+  .steps .step{ flex:1;text-align:center;padding:9px 4px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;background:var(--w);border-right:3px solid var(--k); }
+  .steps .step:last-child{ border-right:none; }
+  .steps .step.active{ background:var(--k);color:var(--w); }
+  .steps .step.done .n::after{ content:" \2713"; }
+  .steps .step .n{ display:block;font-size:15px;font-weight:700;margin-bottom:2px; }
+  .field{ margin:14px 0; }
+  .field>label{ display:block;font-size:11px;letter-spacing:.07em;text-transform:uppercase;font-weight:700;margin-bottom:6px; }
+  .field input,.field textarea{ width:100%;background:var(--w);color:var(--k);border:3px solid var(--k);border-radius:0;padding:10px;font:11px/1.4 ui-monospace,monospace; }
+  .field input{ min-height:46px;font-size:14px; }
+  .field textarea{ height:74px;resize:vertical; }
+  .copy-row{ display:flex;gap:8px; } .copy-row input,.copy-row textarea{ flex:1; }
+  .row{ display:flex;gap:8px;margin-top:8px; }
+  .note{ font-size:12px;line-height:1.5;margin:4px 0 0; }
+  .waiting{ font-size:12px;font-weight:700;margin-top:10px;padding:8px 10px;border:3px solid var(--k); }
+  .role-pick{ display:flex;gap:10px; } .role-pick button{ flex:1;flex-direction:column;align-items:center;padding:16px 10px;gap:5px; }
+  .role-pick .rt{ font-weight:700;font-size:15px; } .role-pick .rd{ font-size:11px;font-weight:400; }
+  details.relay{ margin-top:10px;border-top:3px solid var(--k);padding-top:12px; }
+  details.relay summary{ cursor:pointer;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em; }
+  .relay-state{ margin-top:8px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em; }
+  .recover{ position:absolute;left:50%;bottom:14px;transform:translateX(-50%);z-index:5;max-width:92%;text-align:center;background:var(--k);color:var(--w);border:3px solid var(--k);box-shadow:6px 6px 0 var(--k);padding:12px 16px;display:none; }
+  .recover .msg{ font-size:13px;font-weight:700;text-transform:uppercase; } .recover .act{ margin-top:8px;font-size:12px;opacity:.9; }
+  .hidden{ display:none; }
+  pre#logbody{ background:var(--w);color:var(--k);border:3px solid var(--k);padding:10px;height:280px;overflow:auto;font:11px/1.45 ui-monospace,monospace;white-space:pre-wrap;word-break:break-word;margin:12px 0; }
+
+  /* ===== FILM ROOM LAYOUT (mobile-first, no wasted space) ===== */
+  #bar{ flex:0 0 auto; display:flex; gap:6px; align-items:center; padding:6px 10px; padding-top:max(6px,env(safe-area-inset-top)); background:var(--k); color:var(--w); }
+  #bar .ind{ width:11px;height:11px;border:2px solid var(--w);background:transparent;flex:0 0 auto; }
+  #bar .where{ font-weight:700;font-size:11px;letter-spacing:.04em;text-transform:uppercase; }
+  #bar .spacer{ flex:1 1 auto; }
+  #bar .rate{ font-size:9px;white-space:nowrap;opacity:.85;letter-spacing:.02em; }
+  button.ic{ font-size:10px;font-weight:700;letter-spacing:.04em;padding:6px 9px;min-height:34px;border:2px solid var(--w);background:transparent;color:var(--w);box-shadow:none;border-radius:0;text-transform:uppercase; }
+  button.ic:hover:not(:disabled){ background:var(--w);color:var(--k); }
+  button.ic:active:not(:disabled){ transform:none; }
+  button.ic.primary{ background:var(--w);color:var(--k); }
+  button.ic.off{ opacity:.45; text-decoration:line-through; }
+  button.ic:disabled{ opacity:.3; }
+  #bar .status-self .ind{ background:var(--w); }
+  #bar.s-live .ind{ background:var(--w); animation:blink 1.1s steps(1) infinite; }
+  #bar.s-conn .ind{ background:linear-gradient(90deg,var(--w) 50%,transparent 50%); animation:blink .7s steps(1) infinite; }
+  #bar.s-frozen .ind{ background:linear-gradient(135deg,var(--w) 50%,transparent 50%); }
+
+  /* faces: thin presence tiles */
+  #faces{ flex:0 0 58px; display:grid; grid-template-columns:1fr 1fr; gap:2px; background:var(--k); padding:2px 2px 0; }
+  .ftile{ position:relative; background:var(--w); overflow:hidden; display:flex; align-items:center; justify-content:center; }
+  .flabel{ position:absolute; top:0; left:0; right:0; z-index:2; font-size:8px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; padding:1px 5px; background:var(--k); color:var(--w); display:flex; }
+  .flabel .tag{ margin-left:auto; opacity:.6; font-style:normal; }
+  .ftile .placeholder{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; text-align:center; font-size:9px; opacity:.5; padding:.2rem; pointer-events:none; }
+  pre.facetext{ margin:0; color:var(--k); font:700 var(--cell,4px)/0.9 ui-monospace,Menlo,Consolas,monospace; white-space:pre; user-select:none; -webkit-user-select:none; }
+
+  /* timeline: the film + collaborator presence */
+  #timeline{ flex:0 0 74px; display:flex; flex-direction:column; background:var(--w); border-top:3px solid var(--k); border-bottom:3px solid var(--k); }
+  #tl-strip{ flex:1 1 auto; display:flex; gap:5px; padding:5px 6px; overflow-x:auto; align-items:center; -webkit-overflow-scrolling:touch; }
+  #tl-strip::-webkit-scrollbar{ display:none; }
+  .tlc{ position:relative; flex:0 0 auto; width:52px; height:40px; border:3px solid var(--k); background:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  .tlc.me{ outline:3px solid var(--aC); outline-offset:1px; }
+  .tlc.them{ border-color:var(--aA); }
+  canvas.tlthumb{ position:absolute; inset:0; width:100%; height:100%; image-rendering:pixelated; }
+  .tlnum{ position:relative; z-index:2; font-size:11px; font-weight:700; color:var(--k); background:rgba(255,255,255,.7); padding:0 2px; }
+  .tlthem{ position:absolute; z-index:3; bottom:-2px; left:50%; transform:translateX(-50%); background:var(--aA); color:#fff; font-size:7px; font-weight:700; letter-spacing:.05em; padding:0 3px; }
+  .tlthem.live{ animation:blink .6s steps(1) infinite; }
+  #tl-ops{ flex:0 0 auto; display:flex; gap:5px; padding:0 6px 5px; }
+  #tl-ops button{ flex:1; font-size:10px; padding:4px 6px; min-height:28px; box-shadow:2px 2px 0 var(--k); }
+  #tl-ops button:active{ transform:translate(2px,2px); box-shadow:0 0 0 var(--k); }
+  #tl-ops .cnt{ flex:0 0 auto; align-self:center; font-size:9px; font-weight:700; text-transform:uppercase; opacity:.5; margin-left:auto; }
+
+  /* stage: the current frame, fills remaining space */
+  #stage{ flex:1 1 auto; min-height:0; position:relative; background:var(--k); padding:4px; display:flex; align-items:center; justify-content:center; }
+  #board-wrap{ position:relative; background:var(--w); box-shadow:0 0 0 3px var(--k); }
+  canvas#board{ image-rendering:pixelated; image-rendering:crisp-edges; display:block; touch-action:none; cursor:crosshair; background:var(--w); }
+  #board-empty{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:5px; font-size:13px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--k); opacity:.4; padding:1rem; pointer-events:none; }
+  #board-empty span{ font-weight:400; font-size:10px; text-transform:none; letter-spacing:0; opacity:.85; }
+
+  /* collapsible panels — they SHRINK the stage, never cover it */
+  .panel{ flex:0 0 auto; display:none; max-height:44vh; overflow-y:auto; background:var(--w); border-top:3px solid var(--k); padding:12px 14px; }
+  .panel.open{ display:block; }
+  .panel h3{ margin:0 0 8px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; }
+  .panel .note{ font-size:11px; }
+
+  /* always-visible draw toolbar */
+  #tools{ flex:0 0 auto; display:flex; gap:6px; align-items:center; padding:6px 8px; background:var(--w); border-top:3px solid var(--k); overflow-x:auto; }
+  #tools::-webkit-scrollbar{ display:none; }
+  #tools button{ font-size:11px; padding:7px 10px; min-height:38px; box-shadow:2px 2px 0 var(--k); flex:0 0 auto; }
+  #tools button:active{ transform:translate(2px,2px); box-shadow:0 0 0 var(--k); }
+  #tools button.on{ background:var(--k); color:var(--w); }
+  #ink-mini{ display:flex; gap:3px; flex:0 0 auto; }
+  .idot{ width:24px; height:24px; border:2px solid var(--k); cursor:pointer; background:#fff; }
+  .idot.on{ outline:2px solid var(--aC); outline-offset:1px; }
+  #tools input[type=range]{ width:90px; min-width:90px; height:30px; flex:0 0 auto; }
+  input[type=range]{ -webkit-appearance:none; appearance:none; background:transparent; border:3px solid var(--k); outline:none; touch-action:none; height:30px; }
+  input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; height:30px; width:24px; background:var(--k); border:none; cursor:pointer; }
+  input[type=range]::-moz-range-thumb{ height:30px; width:24px; background:var(--k); border:none; cursor:pointer; }
+
+  /* bottom tabs */
+  #tabbar{ flex:0 0 auto; display:flex; border-top:3px solid var(--k); background:var(--w); padding-bottom:var(--pad); }
+  .tab{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; min-height:50px; border:none; border-right:3px solid var(--k); border-radius:0; box-shadow:none; background:var(--w); color:var(--k); font-size:9px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; cursor:pointer; }
+  .tab:last-child{ border-right:none; }
+  .tab b{ font-size:15px; line-height:1; }
+  .tab:active{ transform:none; }
+  .tab.on.tA,.tab.tCall:active{ background:var(--aA); color:var(--w); }
+  .tab.on.tB{ background:var(--aB); color:var(--k); }
+  .tab.on.tC{ background:var(--aC); color:var(--w); }
+  .tab.on.tD{ background:var(--aD); color:var(--w); }
+
+  .toolrow{ display:flex; gap:8px; } .toolrow button{ flex:1; }
+  .mini{ font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--k); opacity:.5; }
+
+  /* chat inside its panel */
+  #panel-chat .chat-log{ height:160px; overflow-y:auto; font-size:12px; line-height:1.45; border:3px solid var(--k); padding:8px; margin-bottom:8px; }
+  #panel-chat .chat-log .cm{ margin:3px 0; word-break:break-word; }
+  #panel-chat .chat-log .cm .cw{ font-weight:700; text-transform:uppercase; font-size:10px; }
+  #panel-chat .chat-input{ display:flex; }
+  #panel-chat .chat-input input{ flex:1; border:3px solid var(--k); padding:10px; font:12px/1.4 ui-monospace,monospace; min-height:44px; }
+  #panel-chat .chat-input button{ border:3px solid var(--k); border-left:0; min-height:44px; box-shadow:none; }
+
+  /* toast + flash */
+  #toast{ position:fixed; left:50%; top:calc(env(safe-area-inset-top) + 50px); transform:translateX(-50%); background:var(--k); color:var(--w); font-weight:700; font-size:12px; letter-spacing:.06em; text-transform:uppercase; padding:9px 16px; border:3px solid var(--k); box-shadow:4px 4px 0 var(--k); opacity:0; pointer-events:none; transition:opacity .12s; z-index:9999; white-space:nowrap; }
+  #toast.on{ opacity:1; }
+  #flash{ position:fixed; inset:0; background:var(--w); opacity:0; pointer-events:none; z-index:9998; transition:opacity .25s; }
+  #flash.on{ opacity:1; transition:opacity .04s; }
+</style>
+</head>
+<body>
+
+<div id="bar">
+  <span class="ind"></span><span class="where" id="st-where">Off</span>
+  <span class="spacer"></span>
+  <span class="rate" id="st-rate"></span>
+  <button id="mic" class="ic" type="button" disabled>MIC</button>
+  <button id="cam" class="ic primary" type="button">Start</button>
+  <button id="connect" class="ic" type="button" disabled>Call</button>
+  <button id="hang" class="ic" type="button" hidden>End</button>
+  <button id="logopen" class="ic" type="button">LOG</button>
+  <select id="detail" style="display:none"><option value="hi">High</option><option value="mid" selected>Med</option><option value="lo">Low</option></select>
+</div>
+
+<div id="faces">
+  <div class="ftile"><span class="flabel">YOU<i class="tag" id="tag-you">self</i></span><pre class="facetext" id="face-you"></pre></div>
+  <div class="ftile"><span class="flabel">THEM<i class="tag" id="tag-them">&mdash;</i></span><pre class="facetext" id="face-them"></pre><div class="placeholder" id="ph-them">no one</div></div>
+</div>
+
+<div id="timeline">
+  <div id="tl-strip"></div>
+  <div id="tl-ops">
+    <button id="op-add" type="button">+Blank</button>
+    <button id="op-dup" type="button">+Copy</button>
+    <button id="op-del" type="button">Delete</button>
+    <span class="cnt" id="tl-count">1 frame</span>
+  </div>
+</div>
+
+<div id="stage">
+  <div id="board-wrap">
+    <canvas id="board" width="128" height="96"></canvas>
+    <div id="board-empty">Frame <span id="be-n">1</span><span>draw &middot; stamp &middot; compose &mdash; together</span></div>
+  </div>
+  <div class="recover" id="recover" role="alert"><div class="msg" id="rec-msg">Lost signal</div><div class="act" id="rec-act">Waiting&hellip;</div></div>
+</div>
+
+<div class="panel" id="panel-make">
+  <h3 style="color:var(--aB)">Make &mdash; adds to frame <span id="mk-fn">1</span></h3>
+  <div class="field"><label>Text</label><input id="mk-text" type="text" maxlength="120" value="HELLO" autocomplete="off"></div>
+  <div class="row">
+    <div style="flex:1"><label class="mini">Size</label><select id="mk-size" style="width:100%;min-height:42px;border:3px solid var(--k);font-weight:700;"><option value="8">8</option><option value="14" selected>14</option><option value="22">22</option><option value="34">34</option></select></div>
+    <div style="flex:1"><label class="mini">Ink</label><select id="mk-ink" style="width:100%;min-height:42px;border:3px solid var(--k);font-weight:700;"><option value="7" selected>7</option><option value="5">5</option><option value="3">3</option></select></div>
+  </div>
+  <div class="row"><div style="flex:1"><label class="mini">X</label><input type="range" id="mk-x" min="0" max="127" value="6" style="width:100%"></div><div style="flex:1"><label class="mini">Y</label><input type="range" id="mk-y" min="0" max="95" value="40" style="width:100%"></div></div>
+  <button class="primary" id="mk-stamp" type="button" style="width:100%">Stamp text</button>
+  <div style="border-top:3px solid var(--k); margin-top:14px; padding-top:12px;">
+    <div class="field"><label>AI compose (BEFLIX)</label><textarea id="ai-idea" placeholder="e.g. a spiral, mountains at dawn, a bouncing ball&hellip;" style="width:100%;border:3px solid var(--k);padding:10px;font:11px/1.4 ui-monospace,monospace;height:64px;"></textarea></div>
+    <button class="primary" id="ai-go" type="button" style="width:100%; background:var(--aB); color:var(--k); border-color:var(--k);">Generate onto frame</button>
+    <details style="margin-top:10px;"><summary class="mini" style="cursor:pointer">AI key (optional)</summary><p class="note">Blank = built-in composer (offline). Or paste an Anthropic key for Claude.</p><input id="ai-key" type="password" placeholder="sk-ant-..." autocomplete="off" style="width:100%;border:3px solid var(--k);padding:10px;font:11px/1.4 ui-monospace,monospace;margin-top:8px;min-height:44px;"></details>
+  </div>
+  <div style="border-top:3px solid var(--k); margin-top:14px; padding-top:12px;">
+    <label class="mini">Bring a face onto this frame</label>
+    <div class="toolrow" style="margin-top:6px"><button id="trace-you" type="button">Drop my face</button><button id="trace-them" type="button">Drop their face</button></div>
+    <button id="wipe-frame" type="button" style="width:100%;margin-top:8px">Clear this frame</button>
+  </div>
+</div>
+
+<div class="panel" id="panel-save">
+  <h3 style="color:var(--aC)">Capture</h3>
+  <button class="primary" id="cap-frame" type="button" style="width:100%">Save this frame (PNG)</button>
+  <button id="cap-sheet" type="button" style="width:100%;margin-top:8px">Save whole film (contact sheet)</button>
+  <button id="cap-text" type="button" style="width:100%;margin-top:8px">Copy film as BEFLIX text</button>
+  <div style="border-top:3px solid var(--k); margin-top:14px; padding-top:12px;">
+    <p class="note">Out of sync with the other person? This pushes your film to them.</p>
+    <button id="cap-resync" type="button" style="width:100%;margin-top:8px">Resync film to them</button>
+  </div>
+</div>
+
+<div class="panel" id="panel-chat">
+  <h3>Chat &mdash; your words draw your face</h3>
+  <div class="chat-log" id="chat-log" aria-live="polite"></div>
+  <div class="chat-input"><input id="chat-text" type="text" maxlength="500" placeholder="Type&hellip;" autocomplete="off"><button id="chat-send" type="button">Send</button></div>
+</div>
+
+<div id="tools">
+  <button id="dt-pen" class="on" type="button">Pen</button>
+  <button id="dt-box" type="button">Box</button>
+  <button id="dt-erase" type="button">Erase</button>
+  <span id="ink-mini"></span>
+  <input type="range" id="brush" min="1" max="14" value="3">
+</div>
+
+<nav id="tabbar">
+  <button class="tab tCall" id="tab-call" type="button"><b>A</b>Call</button>
+  <button class="tab tB" id="tab-make" type="button"><b>B</b>Make</button>
+  <button class="tab tC" id="tab-save" type="button"><b>C</b>Save</button>
+  <button class="tab tD" id="tab-chat" type="button"><b>&equiv;</b>Chat</button>
+</nav>
+
+<audio id="rvoice" autoplay></audio>
+
+<dialog id="sheet">
+  <div class="sh-head"><h2 id="sh-title">Connect</h2><button class="x" id="sh-x" type="button">&times;</button></div>
+  <div class="sh-body">
+    <div class="steps" id="steps"><div class="step active" data-step="1"><span class="n">1</span>Role</div><div class="step" data-step="2"><span class="n">2</span>Codes</div><div class="step" data-step="3"><span class="n">3</span>Live</div></div>
+    <div id="pane-role">
+      <div id="server-mode">
+        <p class="note">Share a <strong>room code</strong>. You both enter it; the call connects automatically and reconnects on its own.</p>
+        <div class="field"><label for="room-code">Room code</label><div class="copy-row"><input id="room-code" type="text" maxlength="64" placeholder="blue-otter-42" autocomplete="off"><button id="room-gen" type="button">New</button></div></div>
+        <div class="row"><button id="room-join" class="primary" type="button" style="flex:1">Join room</button></div>
+        <p class="waiting hidden" id="room-wait">Waiting for the other person&hellip;</p>
+      </div>
+      <details class="relay" id="server-box">
+        <summary>Server &amp; reliability</summary>
+        <p class="note">Room codes + reconnect need a signaling server (the included Cloudflare Worker). Paste its URL. The same server can mint relay (TURN) credentials for strict networks. Blank = manual copy-paste.</p>
+        <label for="server-url" style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-top:12px;">Server URL</label>
+        <input id="server-url" type="text" placeholder="https://operator.YOU.workers.dev" autocomplete="off" style="width:100%;background:var(--w);color:var(--k);border:3px solid var(--k);border-radius:0;padding:10px;font:11px/1.4 ui-monospace,monospace;margin-top:8px;min-height:44px;">
+        <div class="relay-state" id="server-state">No server set</div>
+        <p class="note" style="margin-top:14px;">No server? Manual codes:</p>
+        <div class="role-pick"><button id="be-host" type="button"><span class="rt">I'll start</span><span class="rd">create first code</span></button><button id="be-guest" type="button"><span class="rt">I'll join</span><span class="rd">they send first</span></button></div>
+        <label for="relay-cfg" style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-top:14px;">Manual relay config</label>
+        <textarea id="relay-cfg" placeholder='[{"urls":"stun:stun.l.google.com:19302"}]'></textarea>
+        <div class="relay-state" id="relay-state">Direct only</div>
+      </details>
+    </div>
+    <div id="pane-host" class="hidden">
+      <div class="field"><label>Step A &mdash; send this to them</label><div class="copy-row"><textarea id="host-out" readonly placeholder="creating&hellip;"></textarea><button id="host-copy" type="button">Copy</button></div></div>
+      <div class="field"><label>Step B &mdash; paste their reply, then Connect</label><textarea id="host-in" placeholder="their reply"></textarea><div class="row"><button id="host-apply" class="primary" type="button">Connect</button></div></div>
+      <p class="waiting hidden" id="host-wait">Connecting&hellip;</p>
+    </div>
+    <div id="pane-guest" class="hidden">
+      <div class="field"><label>Step A &mdash; paste their code</label><textarea id="guest-in" placeholder="their code"></textarea><div class="row"><button id="guest-make" class="primary" type="button">Make reply</button></div></div>
+      <div class="field hidden" id="guest-out-field"><label>Step B &mdash; send this back</label><div class="copy-row"><textarea id="guest-out" readonly></textarea><button id="guest-copy" type="button">Copy</button></div><p class="waiting" id="guest-wait">Then wait &mdash; connects automatically.</p></div>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="logsheet">
+  <div class="sh-head"><h2>Log</h2><button class="x" id="logclose" type="button">&times;</button></div>
+  <div class="sh-body">
+    <p class="note">Events + per-frame cost. <strong>ICE disconnected</strong>=brief blip; <strong>ICE failed</strong>=needs relay. Bottom shows live encode time and bytes/frame.</p>
+    <pre id="logbody">(no events)</pre>
+    <div class="row"><button id="logcopy" type="button">Copy log</button><button id="logframe" type="button">Copy current frame (text)</button></div>
+  </div>
+</dialog>
+
+<div id="toast">Ready</div>
+<div id="flash"></div>
+
+<canvas id="cap" width="128" height="96" hidden></canvas>
+<video id="vid" autoplay playsinline muted hidden></video>
+
+<script>
+(function () {
+'use strict';
+/* ====================================================================
+   OPERATOR EDGE — string-video engine optimized for ONE thing:
+   a face legible as text on the least network.
+   - Edges (Sobel), not fills, carry facial recognition and are sparse.
+   - Wire format is a FIXED-GRAMMAR BINARY packet (ArrayBuffer): no string
+     parsing on the hot path.
+   - The FACE itself is text (<pre> of glyph line-art) — the video IS a string.
+   - A pasteable text frame is reconstructed LAZILY (only on demand), so it
+     costs ~0 per frame.
+   - Old-phone-safe: one Sobel pass + browser-native downscale, no shaders.
+   ==================================================================== */
+var W=128,H=96,N=W*H;
+var RAMP=[' ','.',':','-','=','+','#','@'];
+
+// ---- bounded log ----
+var LOG_MAX=200, logBuf=[], logT0=Date.now();
+function log(tag,msg){var t=((Date.now()-logT0)/1000).toFixed(2);var line='['+t+'s] '+tag+(msg!==undefined?(' '+msg):'');logBuf.push(line);if(logBuf.length>LOG_MAX)logBuf.shift();if(window.console&&console.log)console.log('OPERATOR '+line);var p=document.getElementById('logbody');if(p&&document.getElementById('logsheet').open){p.textContent=logBuf.join('\n');p.scrollTop=p.scrollHeight;}}
+
+// ==================== EDGE CODEC (verified standalone) ====================
+function edgeGrid(luma){
+  var g=new Uint8Array(N), mag=new Float32Array(N), mx=0, y,x;
+  for(y=1;y<H-1;y++){var r0=(y-1)*W,r1=y*W,r2=(y+1)*W;
+    for(x=1;x<W-1;x++){
+      var a=luma[r0+x-1],b=luma[r0+x],c=luma[r0+x+1],d=luma[r1+x-1],f=luma[r1+x+1],h=luma[r2+x-1],i=luma[r2+x],j=luma[r2+x+1];
+      var gx=-a-2*d-h+c+2*f+j, gy=-a-2*b-c+h+2*i+j, m=(gx<0?-gx:gx)+(gy<0?-gy:gy);
+      mag[r1+x]=m; if(m>mx)mx=m;
+    }
+  }
+  if(mx<1)return g;
+  var thresh=mx*EDGE_THRESH, span=mx-thresh||1, k;
+  for(k=0;k<N;k++){var mm=mag[k];g[k]=mm<thresh?0:Math.min(7,1+((mm-thresh)/span*6+0.5|0));}
+  return g;
+}
+// adaptive detail: EDGE_THRESH is lowered when bandwidth is healthy (more edges
+// -> tonal fill-shading), raised when the network is weak (sparse pure outline).
+// Set by the bandwidth governor each second. Range ~0.10 (rich) .. 0.30 (lean).
+var EDGE_THRESH=0.18;
+function packEdge(grid,seq){
+  var out=[0xBE,0x01,seq&0xFF,(seq>>8)&0xFF,0x00];
+  var i=0,guard=0;
+  while(i<N&&guard++<N+10){
+    if(grid[i]===0){var run=0;while(i<N&&grid[i]===0&&run<254){run++;i++;}out.push(0x00,run);}
+    else{var start=i,run2=0;while(i<N&&grid[i]!==0&&run2<254){run2++;i++;}out.push(0x01,run2);
+      for(var kk=0;kk<run2;kk+=2){var hi=grid[start+kk]&0x0F,lo=(kk+1<run2)?(grid[start+kk+1]&0x0F):0;out.push((hi<<4)|lo);}}
+  }
+  out.push(0xFF);
+  return new Uint8Array(out);
+}
+function unpackEdge(bytes){
+  if(bytes[0]!==0xBE||bytes[1]!==0x01)return null;
+  var seq=bytes[2]|(bytes[3]<<8), grid=new Uint8Array(N), p=5, cell=0, guard=0;
+  while(p<bytes.length&&bytes[p]!==0xFF&&cell<N&&guard++<N+10){
+    var tok=bytes[p++];
+    if(tok===0x00){var run=bytes[p++];cell+=run;}
+    else if(tok===0x01){var run2=bytes[p++];for(var kk=0;kk<run2;kk+=2){var by=bytes[p++];if(cell<N)grid[cell++]=(by>>4)&0x0F;if(kk+1<run2&&cell<N)grid[cell++]=by&0x0F;}}
+    else break;
+  }
+  return {seq:seq,grid:grid};
+}
+
+// ---- render the edge grid AS TEXT (the face is a string) ----
+// ---- WORD-INK render: the peer's words ARE the ink that draws their face.
+// Walk lit edge cells in reading order; place each next letter from the
+// word-stream (cycling). Strong edges -> uppercase (denser). When no words
+// exist yet, fall back to the glyph ramp so a face still shows.
+function renderFace(grid, ink){
+  var out='',y,x,rb,p=0,have=ink&&ink.length>0;
+  for(y=0;y<H;y+=2){ rb=y*W;
+    for(x=0;x<W;x++){
+      var e=grid[rb+x];
+      if(e===0){ out+=' '; }
+      else if(have){ var ch=ink[p%ink.length]; p++; out+=(e>=6)?ch.toUpperCase():ch; }
+      else { out+=RAMP[e]; }
+    }
+    out+='\n';
+  }
+  return out;
+}
+function gridToText(grid){ return renderFace(grid,null); } // glyph-ramp view for "copy frame"
+function paintFace(grid, preEl, ink){ preEl.textContent=renderFace(grid, ink); }
+function fitFace(preEl){
+  var wrap=preEl.parentElement, r=wrap.getBoundingClientRect();
+  var byW=(r.width*0.98)/(128*0.6), byH=(r.height*0.98)/(48*0.92);
+  var cell=Math.max(3,Math.min(byW,byH));
+  preEl.style.setProperty('--cell',cell.toFixed(2)+'px');
+}
+
+// ==================== CAPTURE (auto-level luma -> edges) ====================
+var vid=document.getElementById('vid'),cap=document.getElementById('cap');
+var capCtx=cap.getContext('2d',{willReadFrequently:true});
+var stream=null,capturing=false;
+var lumaBuf=new Float32Array(N); // reused, no per-frame alloc
+function sampleLuma(){
+  capCtx.drawImage(vid,0,0,W,H); // browser-native downscale (HW accelerated)
+  var img=capCtx.getImageData(0,0,W,H).data,i,p,l,mn=255,mx=0;
+  for(i=0;i<N;i++){p=i*4;l=img[p]*0.299+img[p+1]*0.587+img[p+2]*0.114;lumaBuf[i]=l;if(l<mn)mn=l;if(l>mx)mx=l;}
+  // auto-level into 0..255 so edges are consistent in any light
+  var range=mx-mn||1;
+  for(i=0;i<N;i++) lumaBuf[i]=(lumaBuf[i]-mn)/range*255;
+  return lumaBuf;
+}
+
+// ==================== TRANSPORT (BINARY) ====================
+var link=null,forceKeyframe=false; // forceKeyframe unused in full-frame edge mode but kept for control proto
+function makeLoopback(onFrame){return{kind:'loopback',sendVisual:function(buf){onFrame(buf);},sendControl:function(){},bufferedAmount:function(){return 0;}};}
+function makeWebRTC(pc,onFrame,isHost){
+  var visual=null,control=null;
+  function wire(ch){
+    if(ch.label==='visual'){ visual=ch; visual.binaryType='arraybuffer'; ch.onmessage=function(e){onFrame(e.data);}; }
+    else if(ch.label==='control'){ control=ch; ch.onmessage=function(e){ onControl(e.data); }; }
+  }
+  if(isHost){ var v=pc.createDataChannel('visual',{ordered:false,maxRetransmits:0}); v.binaryType='arraybuffer'; wire(v); wire(pc.createDataChannel('control',{ordered:true})); }
+  else pc.ondatachannel=function(e){wire(e.channel);};
+  return { kind:'webrtc',
+    sendVisual:function(buf){ if(!visual||visual.readyState!=='open')return; if(visual.bufferedAmount>256*1024)return; visual.send(buf); },
+    sendControl:function(m){ if(control&&control.readyState==='open')control.send(m); },
+    bufferedAmount:function(){ return visual?visual.bufferedAmount:0; } };
+}
+
+// Control-channel protocol (data-only, never executed):
+//   "K"        -> peer requests keyframe
+//   "M <text>" -> a chat message: becomes their ink AND a chat line.
+function onControl(data){
+  if(typeof data!=='string'||!data.length) return;
+  if(data==='K'){ forceKeyframe=true; return; }
+  if(data.charAt(0)==='M'&&data.charAt(1)===' '){
+    var text=data.slice(2); if(text.length>500)text=text.slice(0,500);
+    themMsgs.push(text); while(themMsgs.length>200)themMsgs.shift();
+    addWords(themInk, text);              // their words become their ink
+    renderChat('them', text);
+    log('CHAT','recv '+text.length);
+    return;
+  }
+  // SHARED FILM protocol — frame-addressed edits + structure + presence.
+  var sp=data.indexOf(' '), op=data.slice(0,sp), rest=data.slice(sp+1);
+  if(op==='F'){ var nl=data.indexOf('\n'); var n=parseInt(data.slice(2,nl),10); var lines=data.slice(nl+1).split('\n'); if(film[n]){ film[n]=applyCmds(film[n],lines); if(n===myFrame)paintBoard(); renderThumb(n); } return; }
+  if(op==='A'){ addAfter(parseInt(rest,10)); renderTimeline(); return; }
+  if(op==='X'){ delAt(parseInt(rest,10)); renderTimeline(); paintBoard(); return; }
+  if(op==='Y'){ dupAt(parseInt(rest,10)); renderTimeline(); return; }
+  if(op==='C'){ theirFrame=parseInt(rest,10); renderTimeline(); var tg=document.getElementById('tag-them'); if(tg)tg.textContent='#'+(theirFrame+1); return; }
+  if(op==='P'){ var c=rest.split(' '); setTheirPen(parseInt(c[0],10),parseInt(c[1],10),parseInt(c[2],10)); return; }
+  if(op==='Z'){ loadSnapshot(rest); return; }
+}
+function sendChat(){
+  var inp=document.getElementById('chat-text'); var text=(inp.value||'').trim();
+  if(!text) return; if(text.length>500)text=text.slice(0,500);
+  youMsgs.push(text); while(youMsgs.length>200)youMsgs.shift();
+  addWords(youInk, text);                 // your words become YOUR ink (draws you)
+  renderChat('me', text);
+  if(link&&link.kind==='webrtc') link.sendControl('M '+text);
+  inp.value='';
+  log('CHAT','sent '+text.length);
+}
+function renderChat(who,text){
+  var box=document.getElementById('chat-log'); if(!box)return;
+  var d=document.createElement('div'); d.className='cm'+(who==='me'?' me':'');
+  var w=document.createElement('span'); w.className='cw'; w.textContent=(who==='me'?'you ':'them ');
+  var t=document.createElement('span'); t.textContent=text;
+  d.appendChild(w); d.appendChild(t); box.appendChild(d); box.scrollTop=box.scrollHeight;
+  while(box.children.length>200) box.removeChild(box.firstChild);
+}
+var lastSeq=-1, gotRemote=false, lastRxMs=0;
+var themGrid=null; // last decoded grid (for lazy text/paste)
+
+// ---- WORD-STREAM: the ink supply. Everything typed, in order, as letters.
+// These are the same words shown in chat. Message == video, one substrate.
+var youInk=[], themInk=[];        // flat letter arrays (the ink)
+var youMsgs=[], themMsgs=[];      // word-level history for the chat panel + sync
+var INK_MAX=4000;                 // bounded ink supply
+function addWords(target, text){
+  var words=(''+text).toLowerCase().split(/\s+/);
+  for(var w=0;w<words.length;w++){ var word=words[w];
+    for(var i=0;i<word.length;i++){ var ch=word[i]; if(/[a-z0-9]/.test(ch)) target.push(ch); }
+  }
+  while(target.length>INK_MAX) target.shift();
+}
+function receiveFrame(data){
+  var bytes = data instanceof ArrayBuffer ? new Uint8Array(data) : (data.buffer?new Uint8Array(data):null);
+  if(!bytes){ return; }
+  var dec=unpackEdge(bytes); if(!dec)return;
+  // drop out-of-order / stale (seq wraps at 65536; accept newer within window)
+  if(lastSeq>=0){ var d=(dec.seq-lastSeq+65536)&65535; if(d===0||d>32768) return; }
+  lastSeq=dec.seq; gotRemote=true; lastRxMs=Date.now();
+  themGrid=dec.grid;
+  document.getElementById('ph-them').classList.add('hidden');
+  document.getElementById('tag-them').textContent=connType?('live '+(connType==='relay'?'(relay)':'(direct)')):'live';
+  paintFace(dec.grid, faceThem, themInk);
+  if(uiState==='FROZEN') setUIState(link&&link.kind==='webrtc'?'CONNECTED':'SELF');
+}
+
+// ==================== SENDER (your stream) ====================
+var seq=0,sendTimer=null,youGrid=null;
+var win={bytes:0,frames:0,t0:0,enc:0,encN:0};
+var DETAIL={hi:{fps:12},mid:{fps:8},lo:{fps:4}};
+function detail(){return DETAIL[document.getElementById('detail').value];}
+function tick(){
+  if(!capturing||vid.readyState<2||!vid.videoWidth)return;
+  var t0=performance.now();
+  var luma=sampleLuma();
+  var grid=edgeGrid(luma);
+  var thisSeq=(++seq)&65535;
+  var packed=packEdge(grid,thisSeq);
+  var encMs=performance.now()-t0;
+  youGrid=grid;
+  win.frames++; win.bytes+=packed.length; win.enc+=encMs; win.encN++; if(!win.t0)win.t0=performance.now();
+  // send the BINARY buffer (zero string work on the wire)
+  if(link){ if(link.kind==='loopback') link.sendVisual(packed.buffer.slice(0)); else link.sendVisual(packed.buffer); }
+  // render YOUR face as text from the SAME grid
+  paintFace(grid, faceYou, youInk);
+}
+function startSending(){stopSending();seq=0;sendTimer=setInterval(tick,1000/detail().fps);}
+function stopSending(){if(sendTimer){clearInterval(sendTimer);sendTimer=null;}}
+
+var faceYou=document.getElementById('face-you'), faceThem=document.getElementById('face-them');
+
+/* ==================== STATE MACHINE ==================== */
+var connType='';
+var STATES={
+  OFFLINE:{cls:'',where:'Off',what:'Press Start, then Connect'},
+  SELF:{cls:'s-self',where:'Self-view',what:'You \u2014 your face, as text. Not connected.'},
+  CONNECTING:{cls:'s-conn',where:'Connecting',what:'Setting up the call'},
+  CONNECTED:{cls:'s-live',where:'Connected',what:'On a call \u2014 video is travelling as edge-bytes'},
+  FROZEN:{cls:'s-frozen',where:'No signal',what:'Lost the connection'}
+};
+var uiState='OFFLINE';
+var statusEl=document.getElementById('bar'),whereEl=document.getElementById('st-where');
+function setUIState(name){
+  if(!STATES[name])return; if(name!==uiState)log('STATE',uiState+' -> '+name); uiState=name; var s=STATES[name];
+  statusEl.className=s.cls; whereEl.textContent=(name==='CONNECTED'&&connType)?('On call \u00b7 '+(connType==='relay'?'relay':'direct')):s.where;
+  document.getElementById('recover').style.display=(name==='FROZEN')?'block':'none';
+  document.getElementById('connect').hidden=(name==='CONNECTED');
+  document.getElementById('hang').hidden=(name!=='CONNECTED'&&name!=='FROZEN');
+  document.getElementById('connect').disabled=(name==='OFFLINE');
+  document.getElementById('tag-you').textContent=(name==='CONNECTED')?'live':'self';
+}
+function showRecover(onCall,title){document.getElementById('rec-msg').textContent=title||(onCall?'Lost signal':'Camera stopped');document.getElementById('rec-act').textContent=onCall?(title?'Network dropped \u2014 restoring automatically\u2026':'Recovering. If frozen, press End.'):'Press Start to retry.';}
+function flashRecover(msg,act){document.getElementById('rec-msg').textContent=msg;document.getElementById('rec-act').textContent=act;var r=document.getElementById('recover');r.style.display='block';setTimeout(function(){if(uiState!=='FROZEN')r.style.display='none';},6000);}
+
+// ==================== STATUS TICK (1Hz bounded) ====================
+setInterval(function(){
+  if(win.t0){var el=(performance.now()-win.t0)/1000;if(el>=0.5){
+    var bps=Math.round(win.bytes/el),kb=bps>1024?(bps/1024).toFixed(1)+' KB/s':bps+' B/s',fps=(win.frames/el).toFixed(0);
+    var enc=win.encN?(win.enc/win.encN).toFixed(1):'0';
+    // BANDWIDTH GOVERNOR: backpressure on the channel = network can't keep up
+    // -> raise threshold (leaner outline). Headroom -> lower (richer/shaded).
+    var buf=link?link.bufferedAmount():0;
+    if(buf>96*1024) EDGE_THRESH=Math.min(0.30, EDGE_THRESH+0.03);      // congested: lean out
+    else if(buf<8*1024) EDGE_THRESH=Math.max(0.10, EDGE_THRESH-0.02);  // headroom: add tone
+    var mode=EDGE_THRESH<=0.13?'shaded':EDGE_THRESH>=0.24?'outline':'mid';
+    document.getElementById('st-rate').textContent=capturing?(fps+' fps \u00b7 '+kb+' \u00b7 '+enc+'ms \u00b7 '+mode):'';
+    win.bytes=0;win.frames=0;win.t0=performance.now();win.enc=0;win.encN=0;
+  }}
+  if(uiState==='CONNECTED'&&lastRxMs>0&&!graceTimer){var since=Date.now()-lastRxMs;if(since>6000){log('FRAME-FREEZE',(since/1000).toFixed(1)+'s');showRecover(true);setUIState('FROZEN');}}
+},1000);
+
+// ==================== CAMERA ====================
+document.getElementById('cam').addEventListener('click',function(){
+  if(capturing)return;
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){flashRecover('No camera API','Use Chrome, Safari, Firefox, or Edge.');return;}
+  whereEl.textContent='Starting';
+  var vc={width:320,height:240,facingMode:'user'};
+  navigator.mediaDevices.getUserMedia({video:vc,audio:true}).catch(function(){ return navigator.mediaDevices.getUserMedia({video:vc,audio:false}); }).then(function(s){
+    stream=s;vid.srcObject=s;capturing=true;
+    document.getElementById('cam').textContent='Camera on';document.getElementById('cam').disabled=true;
+    var mb=document.getElementById('mic'); if(s.getAudioTracks().length){ mb.disabled=false; mb.textContent='MIC'; } else { mb.textContent='NO MIC'; }
+    link=makeLoopback(function(buf){ /* self-view rendered in tick; loopback echo unused */ });
+    var begin=function(){ fitFace(faceYou); fitFace(faceThem); startSending(); setUIState('SELF'); };
+    var p=vid.play(); if(p&&p.then){p.then(begin).catch(begin);}else begin();
+  }).catch(function(err){var n=err&&err.name||'error';var why=n==='NotAllowedError'?'Permission denied. Allow camera/mic, then press Start.':n==='NotFoundError'?'No camera found.':'Could not start camera ('+n+'). Phones need https.';flashRecover('Camera blocked',why);setUIState('OFFLINE');});
+});
+document.getElementById('detail').addEventListener('change',function(){if(sendTimer)startSending();});
+
+// ==================== ICE / RELAY / SERVER ====================
+var DEFAULT_ICE=[{urls:'stun:stun.l.google.com:19302'}];
+function getIceServers(){var raw=(document.getElementById('relay-cfg').value||'').trim();if(!raw)return DEFAULT_ICE.slice();try{var a=JSON.parse(raw);if(Array.isArray(a)&&a.length)return a;}catch(e){}return DEFAULT_ICE.slice();}
+function relayConfigured(){var raw=(document.getElementById('relay-cfg').value||'').trim();if(!raw)return{ok:false,reason:'none'};try{var a=JSON.parse(raw);if(!Array.isArray(a))return{ok:false,reason:'notarray'};var t=a.some(function(s){var u=s.urls;u=Array.isArray(u)?u.join(' '):(''+u);return u.indexOf('turn:')===0||u.indexOf('turns:')===0;});return{ok:true,turn:t};}catch(e){return{ok:false,reason:'badjson'};}}
+function refreshRelayState(){var r=relayConfigured(),el=document.getElementById('relay-state');if(!r.ok&&r.reason==='none')el.textContent='Direct only';else if(!r.ok)el.textContent='Invalid \u2014 direct only';else if(!r.turn)el.textContent='STUN only (direct)';else el.textContent='Relay ready';}
+document.getElementById('relay-cfg').addEventListener('input',refreshRelayState);
+function serverUrl(){return (document.getElementById('server-url').value||'').trim().replace(/\/+$/,'');}
+function refreshServerState(){var u=serverUrl(),el=document.getElementById('server-state');if(!u)el.textContent='No server set';else if(!/^https?:\/\//.test(u))el.textContent='URL must start with https://';else el.textContent='Server set \u2014 room codes enabled';}
+document.getElementById('server-url').addEventListener('input',refreshServerState);
+function fetchIceServers(){var u=serverUrl();if(u&&/^https?:\/\//.test(u)){return fetch(u+'/turn').then(function(r){return r.json();}).then(function(d){if(d&&Array.isArray(d.iceServers)&&d.iceServers.length){log('TURN','server gave '+d.iceServers.length);return d.iceServers;}return getIceServers();}).catch(function(e){log('TURN','fail '+e.message);return getIceServers();});}return Promise.resolve(getIceServers());}
+
+// ==================== CONNECT + GRACE ====================
+var sheet=document.getElementById('sheet'),pc=null,isHostPeer=false;
+var GRACE_MS=8000,graceTimer=null,restarting=false;
+function clearGrace(){if(graceTimer){clearTimeout(graceTimer);graceTimer=null;}}
+function startGrace(){if(graceTimer)return;log('GRACE','start');showRecover(true,'Reconnecting');setUIState('FROZEN');tryIceRestart();graceTimer=setTimeout(function(){graceTimer=null;var st=pc?pc.iceConnectionState:'none';log('GRACE','expired ice='+st);if(st==='connected'||st==='completed')recoverFromGrace();else{document.getElementById('rec-msg').textContent='Lost signal';document.getElementById('rec-act').textContent='Could not reconnect. Press End.';}},GRACE_MS);}
+function recoverFromGrace(){clearGrace();log('RECOVER','resuming');setUIState('CONNECTED');detectConnType();}
+function tryIceRestart(){if(restarting||!pc||!isHostPeer)return;restarting=true;log('ICE-RESTART','host');try{if(pc.restartIce)pc.restartIce();if(room.code&&room.peerId&&serverUrl()){pc.createOffer({iceRestart:true}).then(function(o){return pc.setLocalDescription(o);}).then(function(){roomSend({type:'offer',sdp:pc.localDescription});if(!room.pollTimer)startRoomPoll();log('ICE-RESTART','re-offer');}).catch(function(e){log('ICE-RESTART','err '+e.message);});}}catch(e){log('ICE-RESTART','err '+e.message);}setTimeout(function(){restarting=false;},GRACE_MS);}
+function newPeer(asHost,ice){connType='';isHostPeer=!!asHost;clearGrace();var servers=ice||getIceServers();pc=new RTCPeerConnection({iceServers:servers});log('PEER','role='+(asHost?'host':'guest')+' ice='+servers.length);
+  // VOICE: send only the AUDIO track (video stays as text). Added before offer/answer so it's in the first SDP.
+  if(stream){ var at=stream.getAudioTracks()[0]; if(at){ try{ pc.addTrack(at, stream); log('VOICE','audio track added'); }catch(e){ log('VOICE','addTrack err '+e.message); } } }
+  pc.ontrack=function(e){ var a=document.getElementById('rvoice'); if(a&&e.streams&&e.streams[0]){ a.srcObject=e.streams[0]; var pp=a.play&&a.play(); if(pp&&pp.catch)pp.catch(function(){}); log('VOICE','remote audio in'); } };
+  pc.oniceconnectionstatechange=function(){var st=pc.iceConnectionState;log('ICE',st);if(st==='connected'||st==='completed'){if(graceTimer){recoverFromGrace();return;}setStep(3);setTimeout(function(){sheet.close();},700);lastSeq=-1;gotRemote=false;lastRxMs=0;startSending();setUIState('CONNECTED');detectConnType();}else if(st==='failed'){clearGrace();var r=relayConfigured();flashRecover('Could not connect',(r.ok&&r.turn)?'Relay could not complete. Codes may be old \u2014 try again.':'Direct failed (strict network). Add a relay, then retry.');}else if(st==='disconnected'){if(uiState==='CONNECTED')startGrace();}};
+  pc.onicegatheringstatechange=function(){log('GATHER',pc.iceGatheringState);};
+  return pc;}
+function waitIce(){return new Promise(function(res){if(pc.iceGatheringState==='complete')return res();pc.onicegatheringstatechange=function(){log('GATHER',pc.iceGatheringState);if(pc.iceGatheringState==='complete')res();};setTimeout(res,2500);});}
+function detectConnType(){if(!pc||!pc.getStats)return;pc.getStats(null).then(function(stats){var local={},chosen=null;stats.forEach(function(r){if(r.type==='candidate-pair'&&(r.selected||r.nominated)&&r.state==='succeeded')chosen=r.localCandidateId;if(r.type==='local-candidate')local[r.id]=r;});connType=(chosen&&local[chosen])?(local[chosen].candidateType==='relay'?'relay':'direct'):'direct';log('CONN-TYPE',connType);if(uiState==='CONNECTED')setUIState('CONNECTED');}).catch(function(){});}
+function setStep(n){var els=document.querySelectorAll('#steps .step'),i;for(i=0;i<els.length;i++){var s=+els[i].getAttribute('data-step');els[i].classList.toggle('active',s===n);els[i].classList.toggle('done',s<n);}}
+function showPane(id){['pane-role','pane-host','pane-guest'].forEach(function(p){document.getElementById(p).classList.toggle('hidden',p!==id);});}
+function resetSheet(){setStep(1);showPane('pane-role');document.getElementById('sh-title').textContent='Connect';document.getElementById('host-wait').classList.add('hidden');document.getElementById('guest-out-field').classList.add('hidden');document.getElementById('room-wait').classList.add('hidden');refreshRelayState();refreshServerState();}
+document.getElementById('connect').addEventListener('click',function(){resetSheet();sheet.showModal();});
+document.getElementById('sh-x').addEventListener('click',function(){sheet.close();cancelPeer();});
+sheet.addEventListener('cancel',function(){cancelPeer();});
+function cancelPeer(){if(pc&&uiState!=='CONNECTED'){try{pc.close();}catch(e){}pc=null;clearGrace();roomReset();if(capturing)setUIState('SELF');}}
+document.getElementById('be-host').addEventListener('click',function(){setUIState('CONNECTING');setStep(2);showPane('pane-host');document.getElementById('sh-title').textContent='You start';log('ROLE','host(manual)');fetchIceServers().then(function(ice){newPeer(true,ice);link=makeWebRTC(pc,receiveFrame,true);return pc.createOffer().then(function(o){return pc.setLocalDescription(o);}).then(waitIce).then(function(){document.getElementById('host-out').value=JSON.stringify(pc.localDescription);});}).catch(function(e){flashRecover('Setup failed',e.message);});});
+document.getElementById('host-copy').addEventListener('click',function(){copyField('host-out',this);});
+document.getElementById('host-apply').addEventListener('click',function(){var raw=document.getElementById('host-in').value.trim();if(!raw){flashRecover('Nothing to connect','Paste their reply first.');return;}var d;try{d=JSON.parse(raw);}catch(e){flashRecover('Code looks wrong','Copy their whole reply again.');return;}document.getElementById('host-wait').classList.remove('hidden');pc.setRemoteDescription(d).catch(function(e){flashRecover('Could not connect','Reply invalid. Ask them to resend.');});});
+document.getElementById('be-guest').addEventListener('click',function(){setUIState('CONNECTING');setStep(2);showPane('pane-guest');document.getElementById('sh-title').textContent='You join';log('ROLE','guest(manual)');fetchIceServers().then(function(ice){newPeer(false,ice);link=makeWebRTC(pc,receiveFrame,false);});});
+document.getElementById('guest-make').addEventListener('click',function(){var raw=document.getElementById('guest-in').value.trim();if(!raw){flashRecover('Nothing to read','Paste their code first.');return;}var d;try{d=JSON.parse(raw);}catch(e){flashRecover('Code looks wrong','Copy their whole code again.');return;}pc.setRemoteDescription(d).then(function(){return pc.createAnswer();}).then(function(a){return pc.setLocalDescription(a);}).then(waitIce).then(function(){document.getElementById('guest-out').value=JSON.stringify(pc.localDescription);document.getElementById('guest-out-field').classList.remove('hidden');}).catch(function(e){flashRecover('Could not read code','Ask them to resend.');});});
+document.getElementById('guest-copy').addEventListener('click',function(){copyField('guest-out',this);});
+function copyField(id,btn){var ta=document.getElementById(id);ta.select();var done=function(){var o=btn.textContent;btn.textContent='Copied';setTimeout(function(){btn.textContent=o;},1200);};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(ta.value).then(done,function(){try{document.execCommand('copy');done();}catch(e){}});}else{try{document.execCommand('copy');done();}catch(e){}}}
+
+// room signaling (fixed handshake)
+var room={code:'',peerId:'',after:0,pollTimer:null,polls:0,role:'',seen:{},localCands:[],pendingRemote:[],haveRemote:false};
+var MAX_POLLS=600,POLL_MS=600;
+function roomReset(){if(room.pollTimer){clearInterval(room.pollTimer);room.pollTimer=null;}room={code:'',peerId:'',after:0,pollTimer:null,polls:0,role:'',seen:{},localCands:[],pendingRemote:[],haveRemote:false};}
+document.getElementById('room-gen').addEventListener('click',function(){var a=['blue','red','gold','green','black','white','swift','calm','bright','dark'],b=['otter','fox','hawk','wolf','crane','lynx','heron','moth','pike','wren'];document.getElementById('room-code').value=a[Math.random()*a.length|0]+'-'+b[Math.random()*b.length|0]+'-'+(Math.random()*90+10|0);});
+document.getElementById('room-join').addEventListener('click',function(){var u=serverUrl();if(!u||!/^https?:\/\//.test(u)){flashRecover('No server set','Open Server settings and paste your Worker URL, or use manual codes.');return;}var code=(document.getElementById('room-code').value||'').trim();if(code.length<4){flashRecover('Code too short','At least 4 chars (or tap New).');return;}setUIState('CONNECTING');setStep(2);document.getElementById('room-wait').classList.remove('hidden');log('ROOM','joining '+code);roomReset();room.code=code;
+  fetch(u+'/room/'+encodeURIComponent(code)+'/join',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}).then(function(r){return r.json();}).then(function(j){if(j.error)throw new Error(j.error==='room-full'?'Room already has two people.':j.error);room.peerId=j.peerId;room.after=j.seq||0;room.role=(j.peers>=2)?'guest':'host';log('ROOM','joined '+room.role+' ('+j.peers+')');return fetchIceServers();}).then(function(ice){var asHost=(room.role==='host');newPeer(asHost,ice);link=makeWebRTC(pc,receiveFrame,asHost);room.localCands=[];room.haveRemote=false;pc.onicecandidate=function(e){if(!e.candidate)return;if(room.haveRemote)roomSend({type:'ice',candidate:e.candidate});else room.localCands.push(e.candidate);};if(asHost){pc.createOffer().then(function(o){return pc.setLocalDescription(o);}).then(function(){roomSend({type:'offer',sdp:pc.localDescription});log('ROOM','offer posted');});}startRoomPoll();}).catch(function(e){log('ROOM','join err '+e.message);flashRecover('Could not join',e.message);roomReset();});});
+function roomSend(msg){var u=serverUrl();if(!u||!room.code||!room.peerId)return;fetch(u+'/room/'+encodeURIComponent(room.code)+'/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({peerId:room.peerId,msg:msg})}).catch(function(e){log('ROOM','send fail '+e.message);});}
+function startRoomPoll(){if(room.pollTimer)return;room.polls=0;room.pollTimer=setInterval(function(){room.polls++;if(room.polls>MAX_POLLS){clearInterval(room.pollTimer);room.pollTimer=null;log('ROOM','poll limit');return;}if(uiState==='CONNECTED'&&room.polls%5!==0)return;var u=serverUrl();fetch(u+'/room/'+encodeURIComponent(room.code)+'/poll?peerId='+encodeURIComponent(room.peerId)+'&after='+room.after).then(function(r){return r.json();}).then(function(j){if(!j||!j.messages)return;var i,e;for(i=0;i<j.messages.length;i++){e=j.messages[i];if(e.seq<=room.after)continue;if(room.seen[e.seq])continue;room.seen[e.seq]=1;handleSignal(e.msg);if(e.seq>room.after)room.after=e.seq;}}).catch(function(e){log('ROOM','poll err '+e.message);});},POLL_MS);}
+function flushLocalCands(){room.haveRemote=true;if(room.localCands&&room.localCands.length){log('ROOM','flush '+room.localCands.length);for(var i=0;i<room.localCands.length;i++)roomSend({type:'ice',candidate:room.localCands[i]});room.localCands=[];}if(room.pendingRemote&&room.pendingRemote.length){for(var j=0;j<room.pendingRemote.length;j++)pc.addIceCandidate(room.pendingRemote[j]).catch(function(){});room.pendingRemote=[];}}
+function handleSignal(msg){if(!msg||!msg.type||!pc)return;if(msg.type==='offer'){log('ROOM','offer recv');pc.setRemoteDescription(msg.sdp).then(function(){return pc.createAnswer();}).then(function(a){return pc.setLocalDescription(a);}).then(function(){roomSend({type:'answer',sdp:pc.localDescription});log('ROOM','answer posted');flushLocalCands();}).catch(function(e){log('ROOM','offer err '+e.message);});}else if(msg.type==='answer'){log('ROOM','answer recv');pc.setRemoteDescription(msg.sdp).then(function(){flushLocalCands();}).catch(function(e){log('ROOM','answer err '+e.message);});}else if(msg.type==='ice'){if(room.haveRemote)pc.addIceCandidate(msg.candidate).catch(function(){});else{if(!room.pendingRemote)room.pendingRemote=[];room.pendingRemote.push(msg.candidate);}}}
+
+// end call
+document.getElementById('hang').addEventListener('click',function(){log('HANGUP','user');clearGrace();if(serverUrl()&&room.code&&room.peerId)fetch(serverUrl()+'/room/'+encodeURIComponent(room.code)+'/leave',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({peerId:room.peerId})}).catch(function(){});roomReset();if(pc){try{pc.close();}catch(e){}pc=null;}link=makeLoopback(function(){});connType='';lastSeq=-1;gotRemote=false;lastRxMs=0;themGrid=null;faceThem.textContent='';document.getElementById('ph-them').classList.remove('hidden');document.getElementById('tag-them').textContent='\u2014';theirFrame=-1;theirPen.on=false;renderTimeline();document.getElementById('recover').style.display='none';setUIState('SELF');});
+
+// log panel
+var logsheet=document.getElementById('logsheet');
+document.getElementById('logopen').addEventListener('click',function(){document.getElementById('logbody').textContent=logBuf.length?logBuf.join('\n'):'(no events)';logsheet.showModal();});
+document.getElementById('logclose').addEventListener('click',function(){logsheet.close();});
+document.getElementById('logcopy').addEventListener('click',function(){copyText(logBuf.join('\n'),this);});
+document.getElementById('logframe').addEventListener('click',function(){ // LAZY text view: reconstruct current frame as text only NOW
+  var g=themGrid||youGrid; if(!g){copyText('(no frame yet)',this);return;} copyText(gridToText(g),this);
+});
+function copyText(txt,btn){var done=function(){var o=btn.textContent;btn.textContent='Copied';setTimeout(function(){btn.textContent=o;},1200);};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done,function(){});}else done();}
+
+window.addEventListener('resize',function(){ fitFace(faceYou); fitFace(faceThem); });
+
+/* ============================================================
+   SHARED FILM — the collaborative object. A timeline of BEFLIX
+   frames (128x96, ink 0-7) both peers edit together, like an EDL.
+   Presence shows who is on which frame (Google-Docs style).
+   Every op is frame-addressed and synced over the control channel:
+     F <n>\n<beflix>   edit frame n
+     A <n>             add blank frame after n
+     X <n>             delete frame n
+     Y <n>             duplicate frame n
+     C <n>             my cursor is now on frame n (presence)
+     P <n> <x> <y>     live pen at frame n ("-1 -1 -1" hides)
+     Z <count>\f<f0>\f<f1>...  full film snapshot (host -> joiner)
+   ============================================================ */
+var film=[ new Uint8Array(N) ];   // start with one blank frame
+var myFrame=0;                    // my cursor (frame index)
+var theirFrame=-1;               // their cursor (presence)
+var theirPen={frame:-1,x:0,y:0,on:false}; var _penHide=null;
+var localAudioTrack=null;         // (hoisted) set when camera+mic start
+var board=document.getElementById('board'), bctx=board.getContext('2d');
+
+function curGrid(){ return film[myFrame]; }
+function clampFrame(n){ return n<0?0:n>=film.length?film.length-1:n; }
+function sendCtl(m){ if(link&&link.kind==='webrtc') link.sendControl(m); }
+
+// ---- BEFLIX applicator (data-only, bound-safe): CLR/PNT/LIN onto a grid ----
+function applyCmds(base, lines){
+  var g=base?base.slice():new Uint8Array(N), li;
+  for(li=0; li<lines.length; li++){
+    var t=lines[li]; if(!t)continue; var p=t.split(/\s+/), op=p[0];
+    if(op==='CLR'){ g.fill(clampInk(p[1])); }
+    else if(op==='PNT'){ var x=ipt(p[1]),y=ipt(p[2]),w=ipt(p[3]),h=ipt(p[4]),v=clampInk(p[5]); if(w<=0||h<=0||w>W||h>H)continue; var xe=Math.min(W,x+w),ye=Math.min(H,y+h),yy,xx,rb; for(yy=Math.max(0,y);yy<ye;yy++){rb=yy*W;for(xx=Math.max(0,x);xx<xe;xx++)g[rb+xx]=v;} }
+    else if(op==='LIN'){ linInto(g, ipt(p[1]),ipt(p[2]),ipt(p[3]),ipt(p[4]), clampInk(p[5])); }
+  }
+  return g;
+}
+function ipt(s){ var n=parseInt(s,10); return n===n?n:0; }
+function clampInk(s){ var v=ipt(s); return v<0?0:v>7?7:v; }
+function linInto(g,x1,y1,x2,y2,v){ var dx=Math.abs(x2-x1),dy=Math.abs(y2-y1),sx=x1<x2?1:-1,sy=y1<y2?1:-1,err=dx-dy,x=x1,y=y1,gu=0; while(gu++<N){ if(x>=0&&x<W&&y>=0&&y<H)g[y*W+x]=v; if(x===x2&&y===y2)break; var e2=2*err; if(e2>-dy){err-=dy;x+=sx;} if(e2<dx){err+=dx;y+=sy;} } }
+function frameToCmds(grid){ var lines=['CLR 0'],y,x; for(y=0;y<H;y++){ x=0; var rb=y*W; while(x<W){ var v=grid[rb+x]; if(v>0){ var sx=x; while(x<W&&grid[rb+x]===v)x++; lines.push('PNT '+sx+' '+y+' '+(x-sx)+' 1 '+v); } else x++; } } return lines; }
+
+// ---- edit a frame (apply + sync) ----
+function editFrame(n, lines){
+  if(!lines.length||!film[n]) return;
+  film[n]=applyCmds(film[n], lines);
+  if(n===myFrame) paintBoard();
+  renderThumb(n);
+  sendCtl('F '+n+'\n'+lines.join('\n'));
+}
+function draw(lines){ editFrame(myFrame, lines); }
+
+// ---- structural ops (cursor-preserving) ----
+function addAfter(n){ film.splice(n+1,0,new Uint8Array(N)); if(theirFrame>n)theirFrame++; if(theirPen.frame>n)theirPen.frame++; }
+function delAt(n){ if(film.length<=1)return false; film.splice(n,1); if(theirFrame>=n)theirFrame=Math.max(0,theirFrame-1); if(myFrame>=n)myFrame=Math.max(0,myFrame-1); return true; }
+function dupAt(n){ film.splice(n+1,0,film[n].slice()); if(theirFrame>n)theirFrame++; }
+
+function doAdd(){ playClack(); addAfter(myFrame); myFrame++; sendCtl('A '+(myFrame-1)); renderTimeline(); paintBoard(); sendCursor(); fireToast('Frame added'); }
+function doDup(){ playClack(); dupAt(myFrame); myFrame++; sendCtl('Y '+(myFrame-1)); renderTimeline(); paintBoard(); sendCursor(); fireToast('Frame copied'); }
+function doDel(){ if(film.length<=1){fireToast('Last frame');return;} playThud(); var n=myFrame; delAt(n); sendCtl('X '+n); renderTimeline(); paintBoard(); sendCursor(); fireToast('Frame deleted'); }
+function gotoFrame(n){ n=clampFrame(n); if(n===myFrame)return; myFrame=n; playTick(); paintBoard(); renderTimeline(); sendCursor(); }
+function sendCursor(){ sendCtl('C '+myFrame); }
+
+// ---- snapshot (host pushes whole film to joiner) ----
+function snapshotFilm(){ var parts=[String(film.length)]; for(var i=0;i<film.length;i++) parts.push(frameToCmds(film[i]).join('\n')); return 'Z '+parts.join('\f'); }
+function loadSnapshot(payload){ var segs=payload.split('\f'); var count=parseInt(segs[0],10)||1; var nf=[]; for(var i=1;i<=count;i++){ var g=new Uint8Array(N); if(segs[i])g=applyCmds(g, segs[i].split('\n')); nf.push(g); } if(!nf.length)nf=[new Uint8Array(N)]; film=nf; myFrame=clampFrame(myFrame); renderTimeline(); paintBoard(); log('FILM','snapshot loaded '+film.length+'f'); }
+
+// ---- presence: their pen ----
+function setTheirPen(frame,x,y){ if(x<0||frame<0){ theirPen.on=false; } else { theirPen.frame=frame; theirPen.x=x; theirPen.y=y; theirPen.on=true; } if(_penHide)clearTimeout(_penHide); _penHide=setTimeout(function(){ theirPen.on=false; paintBoard(); renderTimeline(); },1600); paintBoard(); renderTimeline(); }
+
+/* ---- RENDER current frame as dot-matrix + their cursor ---- */
+var DOTR=[0,0.10,0.20,0.30,0.42,0.55,0.72,0.92];
+function paintBoard(){
+  var grid=curGrid(), any=false;
+  bctx.clearRect(0,0,W,H); bctx.fillStyle='#fff'; bctx.fillRect(0,0,W,H); bctx.fillStyle='#000';
+  for(var y=0;y<H;y++){ var rb=y*W; for(var x=0;x<W;x++){ var v=grid[rb+x]; if(v>0){ any=true; var r=DOTR[v]*0.5; bctx.beginPath(); bctx.arc(x+0.5,y+0.5,Math.max(0.18,r+0.18),0,6.2832); bctx.fill(); } } }
+  if(theirPen.on && theirPen.frame===myFrame){ bctx.fillStyle='#000'; bctx.fillRect(theirPen.x-3,theirPen.y,7,1); bctx.fillRect(theirPen.x,theirPen.y-3,1,7); bctx.strokeStyle='#000'; bctx.lineWidth=0.6; bctx.strokeRect(theirPen.x-4,theirPen.y-4,8,8); }
+  var be=document.getElementById('board-empty'); if(be)be.style.display=any?'none':'flex';
+  var ben=document.getElementById('be-n'); if(ben)ben.textContent=(myFrame+1);
+}
+
+/* ---- TIMELINE: the film + collaborator presence ---- */
+function thumbInto(grid,cv){ var x=cv.getContext('2d'); x.fillStyle='#fff'; x.fillRect(0,0,cv.width,cv.height); x.fillStyle='#000'; for(var gy=0;gy<H;gy+=2){ for(var gx=0;gx<W;gx+=2){ if(grid[gy*W+gx]>0) x.fillRect((gx/W*cv.width)|0,(gy/H*cv.height)|0,1,1); } } }
+function renderTimeline(){
+  var strip=document.getElementById('tl-strip'); if(!strip)return; strip.innerHTML='';
+  for(var i=0;i<film.length;i++){ (function(i){
+    var cell=document.createElement('div'); cell.className='tlc'+(i===myFrame?' me':'')+(i===theirFrame?' them':''); cell.setAttribute('data-idx',i);
+    var cv=document.createElement('canvas'); cv.width=46; cv.height=34; cv.className='tlthumb'; thumbInto(film[i],cv); cell.appendChild(cv);
+    var num=document.createElement('span'); num.className='tlnum'; num.textContent=(i+1); cell.appendChild(num);
+    if(i===theirFrame){ var t=document.createElement('span'); t.className='tlthem'+((theirPen.on&&theirPen.frame===i)?' live':''); t.textContent='THEM'; cell.appendChild(t); }
+    cell.onclick=function(){ gotoFrame(i); };
+    strip.appendChild(cell);
+    if(i===myFrame) cell.scrollIntoView({inline:'center',block:'nearest'});
+  })(i); }
+  var ben=document.getElementById('be-n'); if(ben)ben.textContent=(myFrame+1);
+  var cnt=document.getElementById('tl-count'); if(cnt)cnt.textContent=film.length+(film.length>1?' frames':' frame');
+}
+function renderThumb(n){ var cell=document.querySelector('#tl-strip .tlc[data-idx="'+n+'"]'); if(cell){ var cv=cell.querySelector('canvas'); if(cv)thumbInto(film[n],cv); } }
+
+/* ---- board sizing ---- */
+function fitBoard(){ var stage=document.getElementById('stage'); if(!stage||!stage.clientWidth)return; var pad=10, sc=Math.max(1,Math.floor(Math.min((stage.clientWidth-pad)/W,(stage.clientHeight-pad)/H))); board.style.width=(W*sc)+'px'; board.style.height=(H*sc)+'px'; var wrap=document.getElementById('board-wrap'); wrap.style.width=(W*sc)+'px'; wrap.style.height=(H*sc)+'px'; }
+
+/* ---- DRAWING on the current frame ---- */
+var drawTool='pen', drawInk=7, brush=3, drawing=false, lastPt=null, _curTx=0;
+function boardCoord(e){ var r=board.getBoundingClientRect(); if(!r.width)return[0,0]; return [Math.max(0,Math.min(W-1,Math.floor((e.clientX-r.left)/r.width*W))), Math.max(0,Math.min(H-1,Math.floor((e.clientY-r.top)/r.height*H)))]; }
+function brushCmd(x,y,ink){ var s=brush, r=(s/2)|0; return 'PNT '+(x-r)+' '+(y-r)+' '+s+' '+s+' '+ink; }
+function strokeSeg(x0,y0,x1,y1,ink){ var lines=[],dx=Math.abs(x1-x0),dy=Math.abs(y1-y0),sx=x0<x1?1:-1,sy=y0<y1?1:-1,err=dx-dy,x=x0,y=y0,gu=0; while(gu++<2000){ lines.push(brushCmd(x,y,ink)); if(x===x1&&y===y1)break; var e2=2*err; if(e2>-dy){err-=dy;x+=sx;} if(e2<dx){err+=dx;y+=sy;} } return lines; }
+board.addEventListener('pointerdown',function(e){
+  closePanels(); initAudio(); board.setPointerCapture(e.pointerId); drawing=true; var p=boardCoord(e); lastPt=p; playMicroTick();
+  if(drawTool!=='box'){ var ink=drawTool==='erase'?0:drawInk; draw([brushCmd(p[0],p[1],ink)]); sendCtl('P '+myFrame+' '+p[0]+' '+p[1]); }
+});
+board.addEventListener('pointermove',function(e){
+  if(!drawing)return; var p=boardCoord(e); var now=performance.now();
+  if(now-_curTx>55){ _curTx=now; sendCtl('P '+myFrame+' '+p[0]+' '+p[1]); }
+  if(drawTool==='box')return;
+  var ink=drawTool==='erase'?0:drawInk;
+  if(lastPt&&(lastPt[0]!==p[0]||lastPt[1]!==p[1])){ draw(strokeSeg(lastPt[0],lastPt[1],p[0],p[1],ink)); lastPt=p; }
+});
+board.addEventListener('pointerup',function(e){
+  if(!drawing)return; drawing=false; var p=boardCoord(e);
+  if(drawTool==='box'&&lastPt){ var x0=Math.min(lastPt[0],p[0]),y0=Math.min(lastPt[1],p[1]),x1=Math.max(lastPt[0],p[0]),y1=Math.max(lastPt[1],p[1]);
+    draw(['LIN '+x0+' '+y0+' '+x1+' '+y0+' '+drawInk,'LIN '+x1+' '+y0+' '+x1+' '+y1+' '+drawInk,'LIN '+x1+' '+y1+' '+x0+' '+y1+' '+drawInk,'LIN '+x0+' '+y1+' '+x0+' '+y0+' '+drawInk]); playClack(); }
+  lastPt=null; sendCtl('P '+myFrame+' -1 -1');
+});
+
+/* tool + ink controls (always-visible bar) */
+function setTool(t){ drawTool=t; playTick(); ['pen','box','erase'].forEach(function(k){ var b=document.getElementById('dt-'+k); if(b)b.classList.toggle('on',k===t); }); }
+document.getElementById('dt-pen').addEventListener('click',function(){setTool('pen');});
+document.getElementById('dt-box').addEventListener('click',function(){setTool('box');});
+document.getElementById('dt-erase').addEventListener('click',function(){setTool('erase');});
+document.getElementById('brush').addEventListener('input',function(){ brush=parseInt(this.value,10)||3; playMicroTick(); });
+(function buildInk(){ var box=document.getElementById('ink-mini'); for(var v=7;v>=1;v--){ (function(v){ var d=document.createElement('div'); d.className='idot'+(v===drawInk?' on':''); var r=Math.round(DOTR[v]*16); d.style.backgroundImage='radial-gradient(circle,#000 '+r+'%,transparent '+(r+2)+'%)'; d.onclick=function(){ drawInk=v; playTick(); document.querySelectorAll('#ink-mini .idot').forEach(function(el){el.classList.remove('on');}); d.classList.add('on'); }; box.appendChild(d); })(v); } })();
+
+/* frame ops */
+document.getElementById('op-add').addEventListener('click', doAdd);
+document.getElementById('op-dup').addEventListener('click', doDup);
+document.getElementById('op-del').addEventListener('click', doDel);
+
+/* drop a face onto the current frame */
+document.getElementById('trace-you').addEventListener('click',function(){ if(!youGrid){fireToast('Start camera first');return;} playThud(); draw(frameToCmds(youGrid)); flash(); fireToast('Your face dropped in'); });
+document.getElementById('trace-them').addEventListener('click',function(){ if(!themGrid){fireToast('No one connected');return;} playThud(); draw(frameToCmds(themGrid)); flash(); fireToast('Their face dropped in'); });
+document.getElementById('wipe-frame').addEventListener('click',function(){ playThud(); draw(['CLR 0']); flash(); fireToast('Frame cleared'); });
+
+/* ---- TEXT STAMP onto current frame ---- */
+var _tcv=document.createElement('canvas'); _tcv.width=W; _tcv.height=H; var _tcx=_tcv.getContext('2d',{willReadFrequently:true});
+function textToCmds(text,size,gx,gy,ink){
+  _tcx.clearRect(0,0,W,H); _tcx.fillStyle='#000'; _tcx.font='900 '+size+'px Helvetica,Arial,sans-serif'; _tcx.textBaseline='top'; _tcx.textAlign='left';
+  var maxW=W-gx, words=(''+text).split(' '), line='', cy=gy, lh=Math.ceil(size*1.15), i;
+  for(i=0;i<words.length;i++){ var test=line?line+' '+words[i]:words[i]; if(_tcx.measureText(test).width>maxW&&line){ _tcx.fillText(line,gx,cy); cy+=lh; line=words[i]; } else line=test; }
+  if(line)_tcx.fillText(line,gx,cy);
+  var px=_tcx.getImageData(0,0,W,H).data, grid=new Uint8Array(N),k; for(k=0;k<N;k++){ if(px[k*4+3]>40)grid[k]=ink; }
+  var lines=[],y,x; for(y=0;y<H;y++){ x=0; var rb=y*W; while(x<W){ var v=grid[rb+x]; if(v>0){ var sx=x; while(x<W&&grid[rb+x]===v)x++; lines.push('PNT '+sx+' '+y+' '+(x-sx)+' 1 '+v); } else x++; } } return lines;
+}
+document.getElementById('mk-stamp').addEventListener('click',function(){
+  var t=(document.getElementById('mk-text').value||'').toUpperCase().trim(); if(!t){fireToast('Type some text');return;}
+  var size=parseInt(document.getElementById('mk-size').value,10)||14, ink=parseInt(document.getElementById('mk-ink').value,10)||7;
+  var gx=parseInt(document.getElementById('mk-x').value,10)||0, gy=parseInt(document.getElementById('mk-y').value,10)||40;
+  playThud(); var cmds=textToCmds(t,size,gx,gy,ink); if(cmds.length){ draw(cmds); fireToast('Text stamped'); } else fireToast('Nothing to stamp');
+});
+
+/* ---- AI COMPOSE onto current frame ---- */
+var BEFLIX_SYS='You are a BEFLIX-128 composer for a 128x96 grid, ink 0-7 (0=blank,7=darkest). Output ONLY these commands, one per line, no prose, no markdown: CLR v | PNT x y w h v | LIN x1 y1 x2 y2 v. x in 0..127, y in 0..95. Compose the user idea as one still image, 8-40 commands.';
+document.getElementById('ai-go').addEventListener('click', function(){ aiCompose(); });
+async function aiCompose(){
+  var idea=(document.getElementById('ai-idea').value||'').trim(); if(!idea){fireToast('Describe something');return;}
+  var key=(document.getElementById('ai-key').value||'').trim(); playThud(); fireToast('Composing\u2026');
+  if(key){ try{
+    var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,system:BEFLIX_SYS,messages:[{role:'user',content:idea}]})});
+    if(!res.ok)throw new Error('API '+res.status); var data=await res.json();
+    var txt=(data.content||[]).filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('\n').replace(/```[A-Za-z-]*\n?/g,'').replace(/```/g,'').trim();
+    var lines=txt.split('\n').map(function(s){return s.trim();}).filter(function(s){return /^(CLR|PNT|LIN)\b/.test(s);});
+    if(!lines.length)throw new Error('no commands'); draw(lines); flash(); fireToast('AI composed '+lines.length+' cmds'); return;
+  }catch(e){ log('AI','key failed '+e.message); fireToast('AI failed \u2014 local composer'); } }
+  draw(localCompose(idea)); flash(); fireToast('Composed locally');
+}
+function hashStr(s){ var h=2166136261>>>0,i; for(i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=(h+((h<<1)+(h<<4)+(h<<7)+(h<<8)+(h<<24)))>>>0; } return h>>>0; }
+function localCompose(idea){
+  var seed=hashStr(idea.toLowerCase()); function rnd(){ seed=(seed*1664525+1013904223)>>>0; return seed/4294967296; }
+  var lower=idea.toLowerCase(), lines=['CLR '+(rnd()<0.5?0:1)], n=6+Math.floor(rnd()*10);
+  var motif=/spiral|swirl|galaxy/.test(lower)?'spiral':/mountain|hill|peak/.test(lower)?'mountain':/ball|circle|sun|moon|eye|dot|ring/.test(lower)?'rings':/rain|line|stripe|grid|bar/.test(lower)?'lines':'shapes';
+  if(motif==='spiral'){ var cx=64,cy=48,a=0,r=2,i; for(i=0;i<60;i++){ var x=Math.round(cx+Math.cos(a)*r),y=Math.round(cy+Math.sin(a)*r); lines.push('PNT '+x+' '+y+' 3 3 '+(2+(i%6))); a+=0.5; r+=0.7; } }
+  else if(motif==='mountain'){ var m; for(m=0;m<4;m++){ var bx=Math.floor(rnd()*90),pk=20+Math.floor(rnd()*50),bw=30+Math.floor(rnd()*40),v=3+Math.floor(rnd()*5); lines.push('LIN '+bx+' 90 '+((bx+bw/2)|0)+' '+pk+' '+v); lines.push('LIN '+((bx+bw/2)|0)+' '+pk+' '+(bx+bw)+' 90 '+v); } }
+  else if(motif==='rings'){ var ccx=20+Math.floor(rnd()*88),ccy=20+Math.floor(rnd()*56),rr; for(rr=4;rr<40;rr+=5){ var v2=2+(((rr/5)|0)%6),t; for(t=0;t<360;t+=12){ var rad=t*Math.PI/180,px=Math.round(ccx+Math.cos(rad)*rr),py=Math.round(ccy+Math.sin(rad)*rr); lines.push('PNT '+px+' '+py+' 2 2 '+v2); } } }
+  else if(motif==='lines'){ var L; for(L=0;L<n+6;L++){ if(rnd()<0.5){ var yy=Math.floor(rnd()*96); lines.push('LIN 0 '+yy+' 127 '+yy+' '+(2+Math.floor(rnd()*6))); } else { var xx=Math.floor(rnd()*128); lines.push('LIN '+xx+' 0 '+xx+' 95 '+(2+Math.floor(rnd()*6))); } } }
+  else { var s; for(s=0;s<n;s++){ var w=6+Math.floor(rnd()*40),h=6+Math.floor(rnd()*40),x2=Math.floor(rnd()*(128-w)),y2=Math.floor(rnd()*(96-h)),v3=1+Math.floor(rnd()*7); lines.push(rnd()<0.5?('PNT '+x2+' '+y2+' '+w+' '+h+' '+v3):('LIN '+x2+' '+y2+' '+(x2+w)+' '+(y2+h)+' '+v3)); } }
+  return lines;
+}
+
+/* ---- CAPTURE ---- */
+function renderFrameTo(grid,scale){ var c=document.createElement('canvas'); c.width=W*scale; c.height=H*scale; var x=c.getContext('2d'); x.fillStyle='#fff'; x.fillRect(0,0,c.width,c.height); x.fillStyle='#000'; for(var y=0;y<H;y++){ var rb=y*W; for(var gx=0;gx<W;gx++){ var v=grid[rb+gx]; if(v>0){ var r=DOTR[v]*0.5*scale; x.beginPath(); x.arc(gx*scale+scale/2,y*scale+scale/2,Math.max(0.5,r+scale*0.18),0,6.2832); x.fill(); } } } return c; }
+function dl(canvas,name){ var a=document.createElement('a'); a.download=name; a.href=canvas.toDataURL('image/png'); a.click(); }
+document.getElementById('cap-frame').addEventListener('click',function(){ playThud(); dl(renderFrameTo(curGrid(),8),'operator-frame-'+(myFrame+1)+'.png'); flash(); fireToast('Frame saved'); });
+document.getElementById('cap-sheet').addEventListener('click',function(){ playThud(); var cols=Math.min(5,film.length),rows=Math.ceil(film.length/cols),cw=W*2,ch=H*2; var c=document.createElement('canvas'); c.width=cols*cw; c.height=rows*ch; var x=c.getContext('2d'); x.fillStyle='#fff'; x.fillRect(0,0,c.width,c.height); for(var i=0;i<film.length;i++){ var fc=renderFrameTo(film[i],2); x.drawImage(fc,(i%cols)*cw,Math.floor(i/cols)*ch); } dl(c,'operator-film-sheet.png'); flash(); fireToast('Contact sheet saved'); });
+document.getElementById('cap-text').addEventListener('click',function(){ playTick(); var all=[]; for(var i=0;i<film.length;i++){ all.push('C FRAME '+(i+1)); all=all.concat(frameToCmds(film[i])); all.push('REC 1'); } copyText(all.join('\n'),this); fireToast('Film BEFLIX copied'); });
+document.getElementById('cap-resync').addEventListener('click',function(){ if(!(link&&link.kind==='webrtc')){fireToast('Not connected');return;} playClack(); sendCtl(snapshotFilm()); sendCursor(); fireToast('Film resynced to them'); });
+
+/* ---- VOICE (mic toggle) ---- */
+document.getElementById('mic').addEventListener('click',function(){ if(!stream){fireToast('Start camera first');return;} var at=stream.getAudioTracks()[0]; if(!at){fireToast('No microphone');return;} at.enabled=!at.enabled; this.classList.toggle('off',!at.enabled); this.textContent=at.enabled?'MIC':'MUTE'; playTick(); fireToast(at.enabled?'Mic live':'Muted'); });
+
+/* ---- chat (kept, in a panel) ---- */
+document.getElementById('chat-send').addEventListener('click', sendChat);
+document.getElementById('chat-text').addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); sendChat(); } });
+
+/* ---- NAV: collapsible panels that SHRINK the canvas (never cover it) ---- */
+var PANELS={ 'tab-make':'panel-make', 'tab-save':'panel-save', 'tab-chat':'panel-chat' };
+function closePanels(){ ['panel-make','panel-save','panel-chat'].forEach(function(p){ var el=document.getElementById(p); if(el)el.classList.remove('open'); }); ['tab-make','tab-save','tab-chat'].forEach(function(t){ var b=document.getElementById(t); if(b)b.classList.remove('on'); }); }
+Object.keys(PANELS).forEach(function(tabId){ var b=document.getElementById(tabId); if(!b)return; b.addEventListener('click',function(){ playTick(); var pid=PANELS[tabId]; var pan=document.getElementById(pid); var wasOpen=pan.classList.contains('open'); closePanels(); if(!wasOpen){ pan.classList.add('open'); b.classList.add('on'); if(pid==='panel-chat')document.getElementById('chat-text').focus(); } setTimeout(fitBoard,0); }); });
+document.getElementById('tab-call').addEventListener('click',function(){ playTick(); resetSheet(); sheet.showModal(); });
+
+/* ---- SOUND + HAPTICS ---- */
+var audioCtx=null;
+function initAudio(){ if(!audioCtx){ try{ audioCtx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume(); }
+function tone(f,t,d,v){ if(!audioCtx||audioCtx.state!=='running')return; var o=audioCtx.createOscillator(),g=audioCtx.createGain(); o.type=t; o.frequency.setValueAtTime(f,audioCtx.currentTime); g.gain.setValueAtTime(v,audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+d); o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime+d); }
+function haptic(d){ if(navigator.vibrate){ try{navigator.vibrate(d);}catch(e){} } }
+function playTick(){ tone(800,'square',0.015,0.05); haptic(5); }
+function playMicroTick(){ tone(1200,'square',0.005,0.02); haptic(2); }
+function playClack(){ tone(300,'triangle',0.04,0.1); haptic(15); }
+function playThud(){ tone(100,'sine',0.1,0.2); haptic(30); }
+document.body.addEventListener('pointerdown', initAudio, { once:true });
+
+/* ---- toast + flash ---- */
+function fireToast(msg){ var t=document.getElementById('toast'); t.textContent=msg; t.classList.add('on'); clearTimeout(fireToast._t); fireToast._t=setTimeout(function(){ t.classList.remove('on'); },1400); }
+function flash(){ var f=document.getElementById('flash'); f.classList.add('on'); setTimeout(function(){ f.classList.remove('on'); },60); }
+
+/* ---- connect: host pushes film snapshot so joiner converges ---- */
+window.addEventListener('resize',function(){ fitFace(faceYou); fitFace(faceThem); fitBoard(); });
+fitBoard(); paintBoard(); renderTimeline();
+var _origStart=startSending;
+startSending=function(){ _origStart(); setTimeout(function(){ fitBoard(); paintBoard(); renderTimeline(); if(link&&link.kind==='webrtc'){ if(isHostPeer)sendCtl(snapshotFilm()); sendCursor(); } },300); };
+
+setUIState('OFFLINE');
+log('BOOT','operator film room ready');
+
+})();
+</script>
+
+</body>
+</html>
