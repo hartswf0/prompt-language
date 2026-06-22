@@ -1,0 +1,2474 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CINEOSIS ZORK — THE OPERATIONAL PRAGMATIST</title>
+<style>
+/* =====================================================================
+   POML v2.0 — OPERATIONAL PRAGMATIST RENDER
+   Palette : ABSOLUTE black + white only. No mid-tones, no grays.
+             Tone in the cell viewport is an ILLUSION from 1-bit dither.
+   Depth   : gradients, not glassmorphism (no blur — it destroys density).
+   Type    : heavy condensed grotesque (display) + teletype mono (operate).
+   Signature: registration-bracket BIND marks linking source <-> canvas.
+   ===================================================================== */
+:root{
+  --paper:#ffffff;
+  --ink:#000000;
+  --scale:6;
+  --disp: calc(64 * var(--scale));
+  --mono: ui-monospace, "SFMono-Regular", "Cascadia Code", Menlo, Consolas, monospace;
+  --grot: "Arial Narrow", "Helvetica Neue Condensed", "Helvetica Neue", Arial, sans-serif;
+}
+*{ box-sizing:border-box; }
+html,body{ height:100%; margin:0; }
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:var(--mono); font-size:13px; line-height:1.55;
+  -webkit-font-smoothing:none; overflow:hidden;
+}
+button,input,textarea{ font:inherit; color:inherit; }
+
+.shell{ height:100vh; height:100svh; height:var(--app-h, 100svh); display:flex; flex-direction:column; overflow:hidden;
+  max-width:1320px; margin:0 auto; border-left:2px solid var(--ink); border-right:2px solid var(--ink); }
+
+/* compact masthead: one line, reclaims the prime top space, live score on the right */
+header.masthead{ flex:none; border-bottom:2px solid var(--ink); display:flex; align-items:center; gap:10px; padding:4px 11px; }
+.wordmark{ font-family:var(--grot); font-weight:800; font-stretch:condensed;
+  font-size:18px; letter-spacing:-.01em; text-transform:uppercase; line-height:1; white-space:nowrap; }
+.wordmark .thin{ font-weight:400; }
+.tag{ font-family:var(--grot); font-weight:700; font-stretch:condensed; text-transform:uppercase;
+  letter-spacing:.16em; font-size:9.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0;
+  border-left:2px solid var(--ink); padding-left:9px; }
+.mhscore{ margin-left:auto; font-size:10.5px; letter-spacing:.04em; white-space:nowrap; flex:none; }
+
+/* mobile workspace switcher — only the lower zone switches; the film stays pinned */
+.wsw{ display:none; flex:none; }
+.wsw button{ flex:1; font-family:var(--grot); font-weight:800; font-stretch:condensed; text-transform:uppercase;
+  letter-spacing:.12em; font-size:13px; background:var(--paper); color:var(--ink);
+  border:0; border-right:2px solid var(--ink); padding:11px 0; cursor:pointer; }
+.wsw button:last-child{ border-right:0; }
+.wsw button.on{ background:var(--ink); color:var(--paper); }
+
+/* ---- INSTRUMENT DASHBOARD: fixed, no page scroll, everything visible ----
+   desktop: game (tall, left) | film over [source | stack]                       */
+main{ flex:1; min-height:0; display:grid; gap:0;
+  grid-template-columns: minmax(300px,1.1fr) minmax(260px,1fr) minmax(220px,1fr);
+  grid-template-rows: minmax(0,0.92fr) minmax(0,1.08fr);
+  grid-template-areas:
+    "game film   film"
+    "game source stack"; }
+.panel{ display:flex; flex-direction:column; min-height:0; min-width:0; overflow:hidden; border-left:2px solid var(--ink); }
+.p-game{ grid-area:game; border-left:0; }
+.p-film{ grid-area:film; border-bottom:2px solid var(--ink); }
+.p-source{ grid-area:source; }
+.p-stack{ grid-area:stack; }
+
+.barhead{ flex:none; font-family:var(--grot); font-weight:800; font-stretch:condensed; text-transform:uppercase;
+  letter-spacing:.12em; font-size:10.5px; background:var(--ink); color:var(--paper);
+  padding:3px 8px; display:flex; align-items:center; gap:6px; white-space:nowrap; overflow:hidden; }
+.barhead .right{ margin-left:auto; font-weight:400; letter-spacing:.06em; font-size:10.5px; }
+.barhead button{ font-family:var(--grot); font-weight:700; font-stretch:condensed; text-transform:uppercase;
+  letter-spacing:.1em; font-size:10.5px; background:var(--paper); color:var(--ink);
+  border:0; padding:2px 8px; cursor:pointer; }
+.barhead button:hover{ outline:2px solid var(--paper); outline-offset:-2px; }
+
+.transcript{ flex:1; overflow:auto; padding:11px 13px 8px; min-height:0; background:var(--paper); }
+.t-room{ font-family:var(--grot); font-weight:800; font-stretch:condensed; text-transform:uppercase;
+  letter-spacing:.08em; font-size:15px; margin:14px 0 3px; padding-bottom:2px;
+  border-bottom:2px solid var(--ink); display:inline-block; }
+.t-line{ margin:2px 0; white-space:pre-wrap; }
+.t-sys{ margin:3px 0; }
+.t-sys .k{ background:var(--ink); color:var(--paper); padding:0 5px;
+  font-family:var(--grot); font-weight:700; font-stretch:condensed; letter-spacing:.1em; font-size:10.5px; }
+.t-cmd{ margin:9px 0 1px; font-weight:700; }
+.t-cmd::before{ content:"> "; }
+.t-win,.t-dead{ font-family:var(--grot); font-weight:800; font-stretch:condensed;
+  text-transform:uppercase; letter-spacing:.06em; font-size:15px; margin:8px 0;
+  background:var(--ink); color:var(--paper); display:inline-block; padding:3px 9px; }
+.exits{ font-size:11.5px; letter-spacing:.04em; margin-top:4px; }
+.exits b{ font-weight:400; }
+
+.ref{ font:inherit; background:none; border:0; padding:0 1px; cursor:pointer;
+  color:var(--ink); border-bottom:1px solid var(--ink); }
+.ref:hover{ background:var(--ink); color:var(--paper); }
+.ref:focus-visible{ outline:2px solid var(--ink); outline-offset:1px; }
+
+.prompt{ flex:none; border-top:2px solid var(--ink); display:flex; align-items:center; }
+.prompt .car{ font-family:var(--grot); font-weight:800; padding:0 12px; font-size:16px; user-select:none; }
+.prompt input{ flex:1; border:0; outline:0; background:transparent; padding:11px 12px 11px 0;
+  font-size:14px; caret-color:var(--ink); }
+.prompt input::placeholder{ color:var(--ink); opacity:.45; }
+
+.chip{ font-family:var(--grot); font-weight:700; font-stretch:condensed; text-transform:uppercase;
+  letter-spacing:.08em; font-size:11px; background:var(--paper); color:var(--ink);
+  border:0; border-right:2px solid var(--ink); padding:6px 11px; cursor:pointer; }
+.chip:hover{ background:var(--ink); color:var(--paper); }
+.chip:focus-visible{ outline:2px solid var(--ink); outline-offset:-3px; }
+.chip.sep{ flex:1; border-right:2px solid var(--ink); cursor:default;
+  background:repeating-linear-gradient(90deg,var(--ink) 0 1px, var(--paper) 1px 4px); }
+.chip.sep:hover{ background:repeating-linear-gradient(90deg,var(--ink) 0 1px, var(--paper) 1px 4px); }
+/* compact control deck: compass d-pad + collapsible MORE tray (declutters the foot) */
+.deck{ flex:none; border-top:2px solid var(--ink); display:flex; align-items:stretch; }
+.dpad{ display:grid; grid-template-columns:repeat(3,40px); grid-auto-rows:31px; background:var(--ink); gap:2px; border-right:2px solid var(--ink); }
+.dpad>button,.dpad>span{ background:var(--paper); border:0; margin:0; display:flex; align-items:center; justify-content:center; }
+.dpad>button{ font-family:var(--grot); font-weight:800; font-stretch:condensed; font-size:11px; letter-spacing:.03em; color:var(--ink); cursor:pointer; padding:0; }
+.dpad>button:hover{ background:var(--ink); color:var(--paper); }
+.dpad>button:active{ background:var(--ink); color:var(--paper); }
+.dpad .look svg{ display:block; }
+.deck .more{ flex:1; font-family:var(--grot); font-weight:800; font-stretch:condensed; text-transform:uppercase;
+  letter-spacing:.12em; font-size:12px; background:var(--paper); color:var(--ink); border:0; cursor:pointer; }
+.deck .more:hover{ background:var(--ink); color:var(--paper); }
+.tray{ flex:none; border-top:2px solid var(--ink); display:flex; flex-wrap:wrap; }
+.tray[hidden]{ display:none; }
+
+.film-body{ flex:1; min-height:0; display:flex; overflow:hidden; }
+.crt-wrap{ flex:0 0 auto; display:flex; align-items:stretch; padding:7px; min-width:0; }
+.crt{ position:relative; height:100%; aspect-ratio:1/1; border:2px solid var(--ink); background:var(--paper); }
+.crt canvas{ position:absolute; inset:0; width:100%; height:100%; image-rendering:pixelated; }
+#bindCanvas{ pointer-events:none; }
+.crt .crtlabel{ position:absolute; left:0; bottom:0;
+  font-family:var(--grot); font-weight:700; font-stretch:condensed; letter-spacing:.08em; font-size:9px;
+  background:var(--ink); color:var(--paper); padding:1px 5px; }
+.crt.err{ outline:2px solid var(--ink); outline-offset:2px; }
+
+/* data HUD beside the square display — fills the width, reads as an instrument */
+.hud{ flex:1 1 0; min-width:0; display:flex; flex-direction:column; border-left:2px solid var(--ink); overflow:hidden; }
+.hud-frame{ flex:none; padding:5px 10px 3px; border-bottom:2px solid var(--ink);
+  font-family:var(--mono); font-weight:700; font-size:clamp(26px,4.4vw,46px); line-height:.95; letter-spacing:-.02em; }
+.hud-frame .sl{ font-size:11px; font-weight:400; letter-spacing:.06em; }
+.hud-row{ flex:none; display:flex; justify-content:space-between; gap:8px; padding:3px 10px; font-size:10.5px;
+  border-bottom:1px solid var(--ink); white-space:nowrap; overflow:hidden; }
+.hud-row .hk{ font-family:var(--grot); font-weight:800; font-stretch:condensed; letter-spacing:.1em; }
+.hud-row span:last-child{ overflow:hidden; text-overflow:ellipsis; }
+.hud-bind{ flex:1; min-height:0; padding:5px 10px; font-size:10.5px; overflow:auto; }
+.hud-bind .hk{ font-family:var(--grot); font-weight:800; font-stretch:condensed; letter-spacing:.1em; display:block; margin-bottom:2px; }
+.transport{ flex:none; display:flex; align-items:center; border-top:2px solid var(--ink); }
+.transport button{ font-family:var(--grot); font-weight:700; font-stretch:condensed; text-transform:uppercase;
+  letter-spacing:.05em; font-size:10px; background:var(--paper); color:var(--ink);
+  border:0; border-right:2px solid var(--ink); padding:5px 8px; cursor:pointer; }
+.transport button:hover{ background:var(--ink); color:var(--paper); }
+.transport button[disabled]{ cursor:not-allowed; opacity:.4; }
+.transport input[type=range]{ flex:1; min-width:30px; margin:0 7px; accent-color:var(--ink); }
+
+.srcwrap{ flex:1; min-height:0; overflow:auto; font-size:12px; }
+.srcline{ display:flex; cursor:pointer; }
+.srcline:hover{ box-shadow:inset 2px 0 0 var(--ink); }
+.srcline .ln{ width:34px; flex:none; text-align:right; padding:0 7px 0 0; color:var(--ink);
+  border-right:2px solid var(--ink); user-select:none; opacity:.5; }
+.srcline .code{ padding:0 8px; white-space:pre; }
+.srcline.bindable .ln{ opacity:1; }
+.srcline.bound{ background:var(--ink); color:var(--paper); }
+.srcline.bound .ln{ color:var(--paper); opacity:1; border-right-color:var(--paper); }
+.srcedit{ flex:1; min-height:0; }
+.srcedit textarea{ width:100%; height:100%; border:0; outline:0; resize:none; background:var(--paper);
+  color:var(--ink); padding:8px 10px; font-size:12px; line-height:1.5; white-space:pre; tab-size:2; caret-color:var(--ink); }
+
+.stackwrap{ flex:1; min-height:90px; overflow:auto;
+  display:flex; flex-direction:column-reverse; justify-content:flex-start; position:relative; }
+.ground{ flex:none; height:16px; border-top:2px solid var(--ink);
+  background:linear-gradient(180deg, var(--ink), var(--paper)); position:sticky; bottom:0; }
+.ground::after{ content:"FOOT"; position:absolute; left:7px; top:1px;
+  font-family:var(--grot); font-weight:800; font-stretch:condensed; letter-spacing:.14em; font-size:8px; color:var(--paper); }
+.opbox{ flex:none; margin:3px 8px 0; border:2px solid var(--ink); padding:2px 7px; cursor:pointer;
+  display:flex; gap:8px; align-items:baseline; background:var(--paper); }
+.opbox:hover{ box-shadow:inset 0 0 0 1px var(--ink); }
+.opbox.bound{ background:var(--ink); color:var(--paper); }
+.opbox .kind{ font-family:var(--grot); font-weight:800; font-stretch:condensed; letter-spacing:.06em; font-size:11px; min-width:74px; }
+.opbox .arg{ font-size:10.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.opbox .dl{ margin-left:auto; opacity:.45; font-size:9px; }
+.opbox.bound .dl{ opacity:1; }
+.opbox.depth1{ margin-left:22px; }
+.opbox.depth2{ margin-left:40px; }
+.opbox.active .kind::after{ content:" \2022"; }            /* fired this frame */
+.opbox.preview{ outline:2px dashed var(--ink); outline-offset:-2px; }
+.srcline.preview{ outline:2px dashed var(--ink); outline-offset:-2px; }
+
+::-webkit-scrollbar{ width:12px; height:12px; }
+::-webkit-scrollbar-track{ background:var(--paper); border-left:2px solid var(--ink); }
+::-webkit-scrollbar-thumb{ background:var(--ink); border:3px solid var(--paper); }
+
+/* ---- NARROW SCREENS: a screen-forward player. The 1-bit render is the hero;
+        code & stack become on-demand overlays so nothing crowds the picture. ---- */
+.mob-only{ display:none; }
+.desk-only{ display:inline-flex; }
+.ovl-back{ display:none; }
+.sheet-tabs{ display:none; }
+#tray{ display:none; flex-direction:column; gap:6px; padding:8px; }
+body.sheet-menu #tray{ display:flex; }              /* desktop: inline action tray under the deck */
+/* MENU sheet — sectioned, bold, neo-brutalist (used on desktop tray + mobile sheet) */
+.menu-label{ font-family:var(--grot); font-weight:800; font-stretch:condensed; text-transform:uppercase;
+  letter-spacing:.14em; font-size:10.5px; padding:8px 2px 4px; }
+.menu-grid{ display:grid; grid-template-columns:1fr 1fr; gap:7px; }
+.menu-col{ display:flex; flex-direction:column; gap:7px; }
+.menu-btn{ font-family:var(--grot); font-weight:800; font-stretch:condensed; text-transform:uppercase;
+  letter-spacing:.07em; font-size:13px; background:var(--paper); color:var(--ink); border:2px solid var(--ink);
+  padding:13px 12px; cursor:pointer; box-shadow:3px 3px 0 var(--ink); min-height:48px;
+  display:flex; align-items:center; justify-content:center; text-align:center; }
+.menu-btn:hover{ background:var(--ink); color:var(--paper); }
+.menu-btn:active{ transform:translate(3px,3px); box-shadow:none; }
+.menu-btn.wide{ flex-direction:column; align-items:flex-start; justify-content:center; gap:2px; text-align:left; }
+.menu-btn.wide .sub{ font-family:var(--mono); font-weight:400; font-stretch:normal; letter-spacing:0; text-transform:none; font-size:10px; }
+/* op-stack: mark REC capture rows; code: highlight verbs + comments (pure B/W) */
+.opbox.rec{ border-left:5px solid var(--ink); }
+.opbox.rec .kind, .opbox.clr .kind{ opacity:1; }
+.srcline .verb{ background:var(--ink); color:var(--paper); padding:0 4px; font-weight:700; }
+.srcline.cmt-line .code{ font-style:italic; }
+.srcline.cmt-line .verb{ background:none; color:inherit; padding:0; }
+@media (max-width:760px){
+  .tag{ display:none; }
+  .wsw{ display:none; }
+  .mob-only{ display:inline-flex; }
+  .desk-only{ display:none !important; }
+  main{
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(0,1fr);
+    grid-template-areas:
+      "film"
+      "work"; }
+  .panel{ border-left:0; }
+  .p-film{ grid-area:film; border-bottom:2px solid var(--ink); }
+  .p-game{ grid-area:work; border-bottom:0; position:relative; }   /* host for sheets */
+  /* THE SCREEN — a big hero, capped so code/stack sheets sit in the zone beneath it */
+  .film-body{ flex-direction:column; }
+  .crt-wrap{ flex:none; width:100%; padding:0; display:flex; justify-content:center;
+    background:var(--paper); border-bottom:2px solid var(--ink); }
+  .crt{ width:min(100%, 34svh); height:auto; aspect-ratio:1/1; border:0; }
+  .crt .crtlabel{ font-size:9px; }
+  /* thin transport under the screen; the instrument readouts (EXEC/BIND) drop away */
+  .hud{ flex:none; flex-direction:row; align-items:center; gap:6px; border-left:0; padding:0; }
+  .hud .hud-row, .hud .hud-bind{ display:none; }
+  .hud-frame{ order:2; margin-left:auto; border-bottom:0; font-size:16px; padding:7px 13px; white-space:nowrap; }
+  .hud-frame .sl{ font-size:10px; }
+  .transport{ order:1; flex:1; border-top:0; }
+  .transport button{ padding:9px 13px; font-size:12px; }
+  .transport input[type=range]{ flex:1; margin:0 8px; }
+  /* CODE · STACK · MENU — bottom sheets that rise WITHIN the work area, beneath the film */
+  .p-source, .p-stack{ grid-area:work; z-index:30; border-left:0; border-top:2px solid var(--ink); background:var(--paper);
+    display:flex; transform:translateY(100%); transition:transform .15s ease-out; }
+  .sheet-pane{ position:absolute; inset:0; z-index:30; background:var(--paper); border-top:2px solid var(--ink);
+    display:flex; flex-direction:column; transform:translateY(100%); transition:transform .15s ease-out; }
+  #tray{ display:flex; flex-direction:column; flex:1; overflow-y:auto; padding:12px; gap:5px; }
+  body.sheet-code  .p-source{ transform:translateY(0); }
+  body.sheet-stack .p-stack{ transform:translateY(0); }
+  body.sheet-menu  .sheet-pane{ transform:translateY(0); }
+  /* in-sheet tab bar: switch Stack/Code/Menu or close, without leaving the sheet */
+  .sheet-tabs{ display:flex; flex:none; border-bottom:2px solid var(--ink); }
+  .st-tab{ flex:1; font-family:var(--grot); font-weight:800; font-stretch:condensed; text-transform:uppercase;
+    letter-spacing:.1em; font-size:12px; background:var(--paper); color:var(--ink); border:0;
+    border-right:2px solid var(--ink); padding:12px 0; cursor:pointer; }
+  .st-x{ flex:0 0 46px; background:var(--ink); color:var(--paper); border:0; font-size:14px; font-weight:800; cursor:pointer; }
+  body.sheet-stack .st-tab[data-sheet="stack"],
+  body.sheet-code  .st-tab[data-sheet="code"],
+  body.sheet-menu  .st-tab[data-sheet="menu"]{ background:var(--ink); color:var(--paper); }
+  .p-source .barhead, .p-stack .barhead{ display:none; }   /* the tab bar is the header on mobile */
+  /* readability */
+  .barhead{ font-size:11px; padding:5px 9px; letter-spacing:.09em; }
+  .barhead button{ font-size:11px; padding:3px 9px; }
+  .transcript{ padding:12px 14px 8px; font-size:14px; }
+  .srcwrap{ font-size:13px; } .srcline .ln{ width:30px; }
+  .opbox{ margin:4px 9px 0; } .opbox .kind{ min-width:66px; font-size:12px; } .opbox .arg{ font-size:11px; }
+  .prompt input{ padding:14px 12px 14px 0; font-size:16px; }
+  .chip{ padding:11px 15px; font-size:13px; }
+  .dpad{ grid-template-columns:repeat(3,46px); grid-auto-rows:34px; }
+  /* the bottom bar: compass + STACK / CODE / MENU tabs (replaces MORE/LESS) */
+  .deck .more{ font-size:12px; letter-spacing:.04em; border-right:2px solid var(--ink); }
+  .deck .more:last-child{ border-right:0; }
+  /* keyboard up = short, near-square viewport: the picture yields. Collapse the render +
+     transport + nav to just the room-label strip so transcript + input own the space. */
+  body.kbd .deck, body.kbd .hud, body.kbd .crt-wrap{ display:none; }
+  body.kbd .p-film{ border-bottom:2px solid var(--ink); }
+}
+@media (max-width:420px){
+  .crt{ width:min(100%, 32svh); }
+  .dpad{ grid-template-columns:repeat(3,42px); grid-auto-rows:32px; }
+  .deck .more{ font-size:11px; letter-spacing:0; }
+}
+
+@media (prefers-reduced-motion:reduce){ *{ animation:none !important; } }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <header class="masthead">
+    <span class="wordmark">CINEOSIS<span class="thin">·</span>ZORK</span>
+    <span class="tag">1-BIT Instrument</span>
+    <span class="mhscore" id="scoreReadout">SCORE 0 · MOVES 0</span>
+  </header>
+
+  <main>
+    <!-- FILM — the cell render, always visible -->
+    <section class="panel p-film">
+      <div class="barhead">Cell · <span id="cellRoom">WEST OF HOUSE</span></div>
+      <div class="film-body">
+        <div class="crt-wrap">
+          <div class="crt" id="crt">
+            <canvas id="cellCanvas" width="384" height="384"></canvas>
+            <canvas id="bindCanvas" width="384" height="384"></canvas>
+            <span class="crtlabel" id="crtLabel">1-BIT</span>
+          </div>
+        </div>
+        <div class="hud">
+          <div class="hud-frame"><span id="tCur">0</span><span class="sl">/<span id="tTot">0</span> FRAME</span></div>
+          <div class="hud-row"><span class="hk">EXEC</span><span id="cellStat">&mdash;</span></div>
+          <div class="hud-bind"><span class="hk">BIND</span><span id="bindInfo">click a source line, or the cell</span></div>
+          <div class="transport">
+            <button id="tPlay">Pause</button>
+            <button id="tBack" title="step back">&#9664;</button>
+            <button id="tFwd" title="step forward">&#9654;</button>
+            <input id="tScrub" type="range" min="0" max="0" value="0" step="1" aria-label="frame">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BEFLIX SOURCE — bind surface -->
+    <nav class="wsw" id="wsw">
+      <button data-ws="play" class="on" type="button">Play</button>
+      <button data-ws="code" type="button">Code</button>
+      <button data-ws="stack" type="button">Stack</button>
+    </nav>
+
+    <section class="panel p-source">
+      <div class="sheet-tabs"><button class="st-tab" type="button" data-sheet="stack">Stack</button><button class="st-tab" type="button" data-sheet="code">Code</button><button class="st-tab" type="button" data-sheet="menu">Menu</button><button class="st-x" type="button" data-sheet-close aria-label="Close">&#10005;</button></div>
+      <div class="barhead">Source
+        <button id="editToggle">Edit</button>
+      </div>
+      <div class="srcwrap" id="srcList"></div>
+      <div class="srcedit" id="srcEdit" style="display:none">
+        <textarea id="srcText" spellcheck="false"></textarea>
+      </div>
+    </section>
+
+    <!-- OP STACK — foot-anchored, beside the source -->
+    <section class="panel p-stack">
+      <div class="sheet-tabs"><button class="st-tab" type="button" data-sheet="stack">Stack</button><button class="st-tab" type="button" data-sheet="code">Code</button><button class="st-tab" type="button" data-sheet="menu">Menu</button><button class="st-x" type="button" data-sheet-close aria-label="Close">&#10005;</button></div>
+      <div class="barhead">Op Stack &middot; foot-anchored
+        <span class="right" id="stackCount">0</span>
+      </div>
+      <div class="stackwrap" id="stackWrap">
+        <div class="ground"></div>
+      </div>
+    </section>
+
+    <!-- GAME — transcript + command (the control surface) -->
+    <section class="panel p-game">
+      <div class="barhead">Transcript
+        <button id="btnUndo" title="undo last move">Undo</button>
+        <button id="btnSave" title="save position">Save</button>
+        <button id="btnLoad" title="restore position">Load</button>
+      </div>
+      <div class="transcript" id="transcript" tabindex="0"></div>
+      <div class="prompt">
+        <span class="car">&#9656;</span>
+        <input id="cmd" type="text" autocomplete="off" autocapitalize="off" spellcheck="false"
+               placeholder="open mailbox · take lamp · examine troll">
+      </div>
+      <div class="deck">
+        <div class="dpad">
+          <button data-cmd="u" title="up">UP</button><button data-cmd="n" title="north">N</button><button data-cmd="d" title="down">DN</button>
+          <button data-cmd="w" title="west">W</button><button data-cmd="look" class="look" title="look around"><svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="2.6" fill="currentColor"/></svg></button><button data-cmd="e" title="east">E</button>
+          <span></span><button data-cmd="s" title="south">S</button><span></span>
+        </div>
+        <button id="moreBtn" class="more desk-only" aria-expanded="false">MORE +</button>
+        <button class="more mob-only" type="button" data-sheet="stack">STACK</button>
+        <button class="more mob-only" type="button" data-sheet="code">CODE</button>
+        <button class="more mob-only" type="button" data-sheet="menu">MENU</button>
+      </div>
+      <div class="sheet-pane" id="menuSheet">
+        <div class="sheet-tabs"><button class="st-tab" type="button" data-sheet="stack">Stack</button><button class="st-tab" type="button" data-sheet="code">Code</button><button class="st-tab" type="button" data-sheet="menu">Menu</button><button class="st-x" type="button" data-sheet-close aria-label="Close">&#10005;</button></div>
+        <div class="tray" id="tray"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+"use strict";
+/* =====================================================================
+   PART A — BEFLIX RUNTIME v2  (1-bit ordered-dither plotter)
+   ===================================================================== */
+const G_DEFAULT = 64, MAX_EXEC_MS = 3000, MAX_FRAMES = 600;
+const perf = () => (typeof performance!=="undefined" ? performance.now() : Date.now());
+let RNG = Math.random;                      // overridable for tests
+function setRNG(fn){ RNG = fn; }
+
+class BelixError extends Error{ constructor(m,c){ super(m); this.name="BelixError"; this.code=c; } }
+
+/* dither matrices */
+const B2 = [[0,2],[3,1]];
+const B4 = [[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]];
+const B8 = (function(){ function grow(M){ const n=M.length,R=[]; for(let y=0;y<2*n;y++){R[y]=[];for(let x=0;x<2*n;x++){
+  const base=4*M[y%n][x%n]; const q=(Math.floor(y/n)*2+Math.floor(x/n)); const add=[0,2,3,1][q]; R[y][x]=base+add; }} return R; }
+  return grow(B4); })();
+const DITHER = { bayer2:B2, bayer4:B4, bayer8:B8, threshold:B4, none:B4 };
+function hashNoise(x,y){ const s=Math.sin(x*12.9898+y*78.233)*43758.5453; return s-Math.floor(s); }
+
+/* expression evaluator: numbers, vars, frame, + - * / ( ), funcs */
+const FN = { sin:Math.sin, cos:Math.cos, tan:Math.tan, abs:Math.abs, sqrt:Math.sqrt,
+  floor:Math.floor, ceil:Math.ceil, round:Math.round, sign:Math.sign,
+  min:Math.min, max:Math.max, random:Math.random, pow:Math.pow, hypot:Math.hypot,
+  mod:(a,b)=> b===0?0:((a%b)+b)%b };
+function evalExpr(src, env){
+  if(src==null) return 0;
+  const s=String(src); let i=0;
+  const ws=()=>{ while(i<s.length && (s[i]===' '||s[i]==='\t')) i++; };
+  function expr(){ let v=term(); ws(); while(s[i]==='+'||s[i]==='-'){ const o=s[i++]; const r=term(); v=o==='+'?v+r:v-r; ws(); } return v; }
+  function term(){ let v=factor(); ws(); while(s[i]==='*'||s[i]==='/'){ const o=s[i++]; const r=factor(); v=o==='*'?v*r:(r!==0?v/r:0); ws(); } return v; }
+  function factor(){ ws();
+    if(s[i]==='+'){ i++; return factor(); }
+    if(s[i]==='-'){ i++; return -factor(); }
+    if(s[i]==='('){ i++; const v=expr(); ws(); if(s[i]===')') i++; return v; }
+    const num=/^[0-9]*\.?[0-9]+/.exec(s.slice(i));
+    if(num){ i+=num[0].length; return parseFloat(num[0]); }
+    const id=/^[a-zA-Z_][a-zA-Z0-9_.]*/.exec(s.slice(i));
+    if(id){ i+=id[0].length; ws();
+      if(s[i]==='('){ i++; const a=[]; ws(); if(s[i]!==')'){ a.push(expr()); ws(); while(s[i]===','){ i++; a.push(expr()); ws(); } } if(s[i]===')') i++;
+        const f=FN[id[0]]; return f? f.apply(null,a) : 0; }
+      return lookup(id[0]); }
+    return 0;
+  }
+  function lookup(name){
+    if(name==='frame') return env.frame||0;
+    if(name==='pi') return Math.PI;
+    if(name==='tau') return 2*Math.PI;
+    return (env.vars && env.vars[name]!==undefined) ? env.vars[name] : 0;
+  }
+  ws(); const v=expr(); return isFinite(v)?v:0;
+}
+
+/* compiled expression -> closure (S has {x,y,frame,vars}); used by FIELD per-pixel */
+const _fieldCache=new Map();
+function compileExpr(src){
+  const s=String(src==null?"0":src); let i=0;
+  const ws=()=>{ while(i<s.length && (s[i]===' '||s[i]==='\t')) i++; };
+  function expr(){ let a=term(); ws(); while(s[i]==='+'||s[i]==='-'){ const o=s[i++]; const b=term(); const A=a,B=b; a=o==='+'?(S)=>A(S)+B(S):(S)=>A(S)-B(S); ws(); } return a; }
+  function term(){ let a=factor(); ws(); while(s[i]==='*'||s[i]==='/'){ const o=s[i++]; const b=factor(); const A=a,B=b; a=o==='*'?(S)=>A(S)*B(S):(S)=>{const d=B(S);return d!==0?A(S)/d:0;}; ws(); } return a; }
+  function factor(){ ws();
+    if(s[i]==='+'){ i++; return factor(); }
+    if(s[i]==='-'){ i++; const fn=factor(); return (S)=>-fn(S); }
+    if(s[i]==='('){ i++; const e=expr(); ws(); if(s[i]===')') i++; return e; }
+    const num=/^[0-9]*\.?[0-9]+/.exec(s.slice(i)); if(num){ i+=num[0].length; const v=parseFloat(num[0]); return ()=>v; }
+    const id=/^[a-zA-Z_][a-zA-Z0-9_.]*/.exec(s.slice(i));
+    if(id){ i+=id[0].length; ws();
+      if(s[i]==='('){ i++; const args=[]; ws(); if(s[i]!==')'){ args.push(expr()); ws(); while(s[i]===','){ i++; args.push(expr()); ws(); } } if(s[i]===')') i++;
+        const fn=FN[id[0]]||(()=>0); return (S)=>fn.apply(null, args.map(a=>a(S))); }
+      const nm=id[0]; return (S)=> nm==='x'?S.x : nm==='y'?S.y : nm==='frame'?S.frame : nm==='pi'?Math.PI : nm==='tau'?6.283185307 : (S.vars&&S.vars[nm]!==undefined?S.vars[nm]:0);
+    }
+    return ()=>0;
+  }
+  ws(); const fn=expr(); return (S)=>{ const v=fn(S); return isFinite(v)?v:0; };
+}
+function compileField(src){ let f=_fieldCache.get(src); if(!f){ f=compileExpr(src); _fieldCache.set(src,f); } return f; }
+
+/* arg splitter: respects quotes + paren depth */
+function splitArgs(s){
+  const out=[]; let depth=0,q=null,cur="";
+  for(let i=0;i<s.length;i++){ const c=s[i];
+    if(q){ cur+=c; if(c===q) q=null; continue; }
+    if(c==='"'||c==="'"){ q=c; cur+=c; continue; }
+    if(c==='('){ depth++; cur+=c; continue; }
+    if(c===')'){ depth--; cur+=c; continue; }
+    if(c===',' && depth===0){ out.push(cur.trim()); cur=""; continue; }
+    cur+=c;
+  }
+  if(cur.trim()!=="") out.push(cur.trim());
+  return out;
+}
+
+/* lexer */
+const PRIM_SET = new Set(["FILL","GRAD","PLOT","LINE","RECT","FRAME","DISC","RING","TEXT","DRAW","ANIMATE","MAP","FRAME_COUNT","DITHER","SET","FIELD","POLY","TRI","SCATTER"]);
+function tokenizeLine(line){
+  const t=line.trim();
+  if(!t || t.startsWith("**") || t.startsWith("#") || t.startsWith("//")) return {tag:"IGNORE"};
+  if(t==="*END_READOUT*") return {tag:"END"};
+  let body=t;
+  if(t.startsWith("ANI:")) body=t.slice(4).trim();
+  else if(t.startsWith("BEFLIX_CMD:")) body=t.slice(11).trim();
+
+  const sprDef=body.match(/^SPRITE\s+([A-Za-z_]\w*)/i);
+  if(sprDef) return {tag:"SPRITE_DEF", name:sprDef[1]};
+  const procDef=body.match(/^DEF\s+([A-Za-z_]\w*)\s*\(([^)]*)\)/i);
+  if(procDef) return {tag:"PROC_DEF", name:procDef[1], params:procDef[2].split(",").map(x=>x.trim()).filter(Boolean)};
+
+  const ifInline=body.match(/^IF\s+(.+?)\s*->\s*(.+)$/i);
+  if(ifInline) return {tag:"IF", condition:ifInline[1].trim(), body:ifInline[2].trim()};
+  if(/^IF\b/i.test(body)){ const ib=body.match(/\{(.*)\}\s*$/); const c=body.replace(/^IF\s+/i,"").replace(/\{.*$/,"").trim(); return {tag:"IF_BLOCK", condition:c, inline: ib? ib[1].trim() : null}; }
+  if(/^FOR\b/i.test(body)){ const ib=body.match(/\{(.*)\}\s*$/); return {tag:"FOR", raw:body.replace(/\{.*$/,"").trim(), inline: ib? ib[1].trim() : null}; }
+  if(/^CALL\b/i.test(body)){ const rest=body.replace(/^CALL\s+/i,""); const inner=rest.replace(/^[^(]*\(/,"").replace(/\)\s*$/,""); return {tag:"CALL", fn:rest.split("(")[0].trim(), args:splitArgs(inner)}; }
+
+  const prim=body.match(/^([A-Za-z_][A-Za-z0-9_]*)\s*\((.*)\)\s*$/);
+  if(prim){ const cmd=prim[1].toUpperCase(); if(PRIM_SET.has(cmd)) return {tag:"PRIM", command:cmd, args:splitArgs(prim[2])}; }
+
+  const asg=body.match(/^([a-zA-Z_][a-zA-Z0-9_.]*)\s*([\+\-\*\/]?=)\s*(.+)$/);
+  if(asg) return {tag:"ASSIGN", target:asg[1], op:asg[2], expr:asg[3].trim()};
+
+  const hdr=t.match(/^([A-Z_]+):\s+(.+)$/);
+  if(hdr) return {tag:"HEADER", key:hdr[1], value:hdr[2].trim()};
+  return {tag:"IGNORE"};
+}
+
+function parseForHeader(raw){
+  let m=raw.match(/^FOR\s+([a-zA-Z_]\w*)\s+IN\s+(-?\d+(?:\.\d+)?)\s*\.\.\s*(-?\d+(?:\.\d+)?)/i);
+  if(m) return { range:true, varName:m[1], from:parseFloat(m[2]), to:parseFloat(m[3]) };
+  m=raw.match(/^FOR\s+(\d+)/i);
+  if(m) return { range:false, count:parseInt(m[1],10) };
+  return { range:false, count:1 };
+}
+
+/* parser: every node carries .line */
+function parseBelixSource(source){
+  const lines=source.split("\n");
+  const program={ cellId:"", territory:"", animSource:"", nodes:[], sprites:{}, procs:{} };
+  let cursor=0;
+  function parseBlock(){
+    const body=[];
+    while(cursor<lines.length){
+      const lineNo=cursor+1; const t=lines[cursor].trim(); cursor++;
+      if(t==="}") break;
+      if(!t || t==="{") continue;
+      const node=resolveToken(tokenizeLine(t), lineNo);
+      if(node) body.push(...(Array.isArray(node)?node:[node]));
+    }
+    return body;
+  }
+  function parseInline(str, lineNo){
+    const out=[];
+    // split top-level statements on ';' (respect parens/quotes/braces)
+    const parts=[]; let depth=0,q=null,cur="";
+    for(let i=0;i<str.length;i++){ const c=str[i];
+      if(q){ cur+=c; if(c===q) q=null; continue; }
+      if(c==='"'||c==="'"){ q=c; cur+=c; continue; }
+      if(c==='('||c==='{'){ depth++; cur+=c; continue; }
+      if(c===')'||c==='}'){ depth--; cur+=c; continue; }
+      if(c===';'&&depth===0){ if(cur.trim()) parts.push(cur.trim()); cur=""; continue; }
+      cur+=c;
+    }
+    if(cur.trim()) parts.push(cur.trim());
+    for(const p of parts){ const node=resolveToken(tokenizeLine(p), lineNo); if(node) out.push(...(Array.isArray(node)?node:[node])); }
+    return out;
+  }
+  function resolveToken(tok, lineNo){
+    switch(tok.tag){
+      case "PRIM":   return { kind:tok.command, args:tok.args, line:lineNo };
+      case "ASSIGN": return { kind:"ASSIGN", target:tok.target, op:tok.op, expr:tok.expr, line:lineNo };
+      case "CALL":   return { kind:"CALL", fn:tok.fn, args:tok.args, line:lineNo };
+      case "FOR":    { const h=parseForHeader(tok.raw); const b = tok.inline!=null ? parseInline(tok.inline, lineNo) : parseBlock(); return Object.assign({kind:"FOR", body:b, line:lineNo}, h); }
+      case "IF":     { const inner=resolveToken(tokenizeLine(tok.body), lineNo); const body=inner? [].concat(inner):[]; return { kind:"IF", condition:tok.condition, body, line:lineNo }; }
+      case "IF_BLOCK": { const b = tok.inline!=null ? parseInline(tok.inline, lineNo) : parseBlock(); return { kind:"IF", condition:tok.condition, body:b, line:lineNo }; }
+      default: return null;
+    }
+  }
+  while(cursor<lines.length){
+    const lineNo=cursor+1; const t=lines[cursor].trim(); cursor++;
+    if(!t) continue;
+    const tok=tokenizeLine(t);
+    if(tok.tag==="END") break;
+    if(tok.tag==="IGNORE") continue;
+    if(tok.tag==="HEADER"){
+      if(tok.key==="CELL_ID") program.cellId=tok.value;
+      else if(tok.key==="TERRITORY") program.territory=tok.value;
+      else if(tok.key==="ANIM_SOURCE") program.animSource=tok.value;
+      continue;
+    }
+    if(tok.tag==="SPRITE_DEF"){ const rows=[]; while(cursor<lines.length){ const raw=lines[cursor]; const tt=raw.trim(); cursor++; if(tt==="}") break; if(tt==="{"||tt==="") { if(tt==="}") break; continue; } rows.push(raw.replace(/\t/g,"  ")); } program.sprites[tok.name]={rows}; continue; }
+    if(tok.tag==="PROC_DEF"){ const body=parseBlock(); program.procs[tok.name]={params:tok.params, body}; continue; }
+    const node=resolveToken(tok, lineNo);
+    if(node) program.nodes.push(...(Array.isArray(node)?node:[node]));
+  }
+  return program;
+}
+
+/* sprite registry (tone sprites 0..1) */
+function spriteFromAscii(rows, map){
+  const m=Object.assign({ '#':1, '*':0.85, '+':0.6, ':':0.35, '.':0, ' ':0 }, map||{});
+  const h=rows.length, w=Math.max.apply(null, rows.map(r=>r.length));
+  const tone=new Float32Array(w*h);
+  for(let y=0;y<h;y++){ const r=rows[y]; for(let x=0;x<w;x++){ const ch=r[x]||' '; tone[y*w+x]=m[ch]!==undefined?m[ch]:0; } }
+  return { w, h, tone };
+}
+class SpriteRegistry{
+  constructor(){ this.store=new Map(); }
+  registerStatic(id, spr){ this.store.set(id, { kind:"static", spr }); }
+  registerAnim(id, frames){ this.store.set(id, { kind:"animated", frames }); }
+  getRaw(id){ return this.store.get(id)||null; }
+  get(id){ const e=this.store.get(id); if(!e) return this.placeholder(id); return e.kind==="static"? e.spr : e.frames[0]; }
+  placeholder(id){ const w=8,h=8,tone=new Float32Array(w*h); const hsh=[...String(id)].reduce((a,c)=>a+c.charCodeAt(0),0);
+    const t=0.35+((hsh%5)*0.12); for(let p=0;p<w*h;p++) tone[p]= ((p%2)^(Math.floor(p/w)%2))? t:0; return {w,h,tone}; }
+}
+
+/* execution deadline */
+class ExecutionDeadline{
+  constructor(ms=MAX_EXEC_MS){ this.limit=ms; this.start=perf(); }
+  check(at){ if(perf()-this.start>this.limit) throw new BelixError("BEFLIX timeout after "+this.limit+" ms"+(at?" (at "+at+")":""),"TIMEOUT"); }
+  get elapsed(){ return perf()-this.start; }
+}
+
+/* renderer: tone buffer -> 1-bit dither; tracks per-op bind boxes */
+class Renderer{
+  constructor(g){ this.g=g; this.tone=new Float32Array(g*g); this.dither="bayer4"; this.curLine=-1; this.box=null; this.frameBoxes=[]; }
+  clearFrame(){ this.tone.fill(0); this.frameBoxes=[]; this.dither="bayer4"; }
+  beginOp(line){ this.curLine=line; this.box=null; }
+  endOp(){ if(this.box && this.curLine>=0){ const b=this.box; this.frameBoxes.push({line:this.curLine,x:b.x0,y:b.y0,w:b.x1-b.x0+1,h:b.y1-b.y0+1}); } this.curLine=-1; this.box=null; }
+  _mark(x,y){ if(x<0||y<0||x>=this.g||y>=this.g) return; if(!this.box) this.box={x0:x,y0:y,x1:x,y1:y};
+    else{ if(x<this.box.x0)this.box.x0=x; if(y<this.box.y0)this.box.y0=y; if(x>this.box.x1)this.box.x1=x; if(y>this.box.y1)this.box.y1=y; } }
+  _markRegion(x,y,w,h){ const x2=Math.min(this.g-1,x+w-1), y2=Math.min(this.g-1,y+h-1); x=Math.max(0,Math.round(x)); y=Math.max(0,Math.round(y)); if(x>x2||y>y2) return; this._mark(x,y); this._mark(x2,y2); }
+  set(x,y,t){ x=Math.round(x); y=Math.round(y); if(x<0||y<0||x>=this.g||y>=this.g) return; this.tone[y*this.g+x]=t; this._mark(x,y); }
+  poke(x,y,t){ x=Math.round(x); y=Math.round(y); if(x<0||y<0||x>=this.g||y>=this.g) return; this.tone[y*this.g+x]=t; }
+  fill(t){ this.tone.fill(t); this._markRegion(0,0,this.g,this.g); }
+  grad(x,y,w,h,t0,t1){ x=Math.round(x);y=Math.round(y);w=Math.round(w);h=Math.round(h);
+    for(let yy=0;yy<h;yy++){ const f=h<=1?0:yy/(h-1); const t=t0+(t1-t0)*f; for(let xx=0;xx<w;xx++) this.poke(x+xx,y+yy,t); } this._markRegion(x,y,w,h); }
+  polygon(pts,t){ if(!pts||pts.length<2) return; let miny=Infinity,maxy=-Infinity; for(const p of pts){ if(p.y<miny)miny=p.y; if(p.y>maxy)maxy=p.y; }
+    miny=Math.max(0,Math.floor(miny)); maxy=Math.min(this.g-1,Math.ceil(maxy));
+    for(let y=miny;y<=maxy;y++){ const xs=[]; for(let i=0;i<pts.length;i++){ const a=pts[i], b=pts[(i+1)%pts.length]; if((a.y<=y&&b.y>y)||(b.y<=y&&a.y>y)){ xs.push(a.x+(y-a.y)/(b.y-a.y)*(b.x-a.x)); } } xs.sort((p,q)=>p-q); for(let i=0;i+1<xs.length;i+=2){ const x0=Math.round(xs[i]), x1=Math.round(xs[i+1]); for(let x=x0;x<=x1;x++) this.set(x,y,t); } }
+    for(let i=0;i<pts.length;i++){ const a=pts[i], b=pts[(i+1)%pts.length]; this.line(a.x,a.y,b.x,b.y,t); } }
+  rect(x,y,w,h,t){ x=Math.round(x);y=Math.round(y);w=Math.round(w);h=Math.round(h); for(let yy=0;yy<h;yy++)for(let xx=0;xx<w;xx++)this.set(x+xx,y+yy,t); }
+  frame(x,y,w,h,t){ x=Math.round(x);y=Math.round(y);w=Math.round(w);h=Math.round(h);
+    for(let xx=0;xx<w;xx++){ this.set(x+xx,y,t); this.set(x+xx,y+h-1,t); } for(let yy=0;yy<h;yy++){ this.set(x,y+yy,t); this.set(x+w-1,y+yy,t); } }
+  disc(cx,cy,r,t){ cx=Math.round(cx);cy=Math.round(cy);r=Math.round(r); for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++) if(dx*dx+dy*dy<=r*r) this.set(cx+dx,cy+dy,t); }
+  ring(cx,cy,r,t){ cx=Math.round(cx);cy=Math.round(cy);r=Math.round(r); const steps=Math.max(10,Math.round(6.283*r)); for(let i=0;i<steps;i++){ const a=i/steps*6.283; this.set(cx+Math.cos(a)*r, cy+Math.sin(a)*r, t); } }
+  line(x0,y0,x1,y1,t){ x0=Math.round(x0);y0=Math.round(y0);x1=Math.round(x1);y1=Math.round(y1);
+    let dx=Math.abs(x1-x0),dy=-Math.abs(y1-y0),sx=x0<x1?1:-1,sy=y0<y1?1:-1,err=dx+dy,guard=0;
+    while(guard++<5000){ this.set(x0,y0,t); if(x0===x1&&y0===y1) break; const e2=2*err; if(e2>=dy){err+=dy;x0+=sx;} if(e2<=dx){err+=dx;y0+=sy;} } }
+  text(x,y,str,t,size){ try{ this._text(x,y,str,t,size); }catch(e){} }
+  _text(x,y,str,t,size){ size=Math.max(4,Math.round(size||6)); if(typeof OffscreenCanvas==="undefined") return;
+    const w=Math.ceil(str.length*size*0.62)+2, h=size+2; const c=new OffscreenCanvas(w,h); const cx=c.getContext("2d");
+    if(!cx||!cx.fillText) return; cx.clearRect(0,0,w,h); cx.fillStyle="#000"; cx.textBaseline="top"; cx.font=size+"px ui-monospace, monospace"; cx.fillText(String(str),1,1);
+    const d=cx.getImageData(0,0,w,h).data; for(let yy=0;yy<h;yy++)for(let xx=0;xx<w;xx++){ const a=d[(yy*w+xx)*4+3]; if(a>40) this.set(x+xx,y+yy, t*(a/255)); } }
+  blitSprite(spr,x,y){ if(!spr) return; x=Math.round(x);y=Math.round(y); for(let yy=0;yy<spr.h;yy++)for(let xx=0;xx<spr.w;xx++){ const v=spr.tone[yy*spr.w+xx]; if(v>0.001) this.set(x+xx,y+yy,v); } }
+  capture(){ const g=this.g, img=new ImageData(g,g), M=DITHER[this.dither]||B4, n=M.length, hard=(this.dither==="threshold"||this.dither==="none");
+    for(let y=0;y<g;y++)for(let x=0;x<g;x++){ let t=this.tone[y*g+x]; if(t<0)t=0; if(t>1)t=1;
+      let thr = hard?0.5 : (this.dither==="noise"? hashNoise(x,y) : (M[y%n][x%n]+0.5)/(n*n));
+      const c = (t>thr)?0:255; const i=(y*g+x)*4; img.data[i]=c; img.data[i+1]=c; img.data[i+2]=c; img.data[i+3]=255; }
+    return img; }
+}
+/* interpreter */
+function applyOp(cur,op,val){ switch(op){ case "=":return val; case "+=":return cur+val; case "-=":return cur-val; case "*=":return cur*val; case "/=":return val!==0?cur/val:cur; default:return cur; } }
+
+class BelixRuntime{
+  execute(program, sprites, g){
+    g = g||G_DEFAULT;
+    const deadline=new ExecutionDeadline(), renderer=new Renderer(g);
+    const frames=[], boxesPerFrame=[], spritesUsed=new Set(), animationsUsed=new Set();
+    let frameCount=1, error;
+    for(const node of program.nodes) if(node.kind==="FRAME_COUNT") frameCount=Math.max(1,Math.min(Math.round(evalExpr((node.args||[])[0],{frame:0,vars:{}})||1), MAX_FRAMES));
+    const localStore=new Map();
+    if(program.sprites) for(const nm in program.sprites){ try{ localStore.set(nm,{spr:spriteFromAscii(program.sprites[nm].rows)}); }catch(e){} }
+    const baseS=sprites;
+    const runSprites={ get:(id)=>{ const e=localStore.get(id); return e? e.spr : baseS.get(id); }, getRaw:(id)=> (localStore.get(id)? {kind:"static",spr:localStore.get(id).spr} : baseS.getRaw(id)), placeholder:(id)=> baseS.placeholder(id) };
+    const ctx={ frame:0, frameCount, renderer, sprites:runSprites, deadline, vars:{}, spritesUsed, animationsUsed, procs:program.procs||{}, callDepth:0 };
+    try{
+      for(let f=0; f<frameCount; f++){
+        ctx.frame=f; renderer.clearFrame(); deadline.check("frame "+f);
+        for(const node of program.nodes) this.execNode(node, ctx);
+        frames.push(renderer.capture());
+        boxesPerFrame.push(renderer.frameBoxes.slice());
+      }
+    }catch(err){ error = err instanceof BelixError ? err.message : String(err); }
+    return { cellId:program.cellId, frames, frameCount:frames.length, boxesPerFrame,
+      metadata:{ territory:program.territory, executionTimeMs:deadline.elapsed,
+        spritesUsed:[...spritesUsed], animationsUsed:[...animationsUsed], error } };
+  }
+  execNode(node, ctx){
+    const r=ctx.renderer, A=node.args||[];
+    const env={ frame:ctx.frame, vars:ctx.vars };
+    const n=(i,d)=> (A[i]!==undefined ? evalExpr(A[i], env) : d);
+    const nm=(i)=> (A[i]!==undefined ? String(A[i]).replace(/^['"]|['"]$/g,"").trim() : "");
+    switch(node.kind){
+      case "FRAME_COUNT": break;
+      case "DITHER": r.dither = nm(0)||"bayer4"; break;
+      case "SET": ctx.vars[nm(0)] = n(1,0); break;
+      case "FILL": r.beginOp(node.line); r.fill(n(0,0)); r.endOp(); break;
+      case "GRAD": r.beginOp(node.line); r.grad(n(0,0),n(1,0),n(2,r.g),n(3,r.g),n(4,0),n(5,1)); r.endOp(); break;
+      case "PLOT": r.beginOp(node.line); r.set(n(0,0),n(1,0),n(2,1)); r.endOp(); break;
+      case "LINE": r.beginOp(node.line); r.line(n(0,0),n(1,0),n(2,0),n(3,0),n(4,1)); r.endOp(); break;
+      case "RECT": r.beginOp(node.line); r.rect(n(0,0),n(1,0),n(2,1),n(3,1),n(4,1)); r.endOp(); break;
+      case "FRAME": r.beginOp(node.line); r.frame(n(0,0),n(1,0),n(2,1),n(3,1),n(4,1)); r.endOp(); break;
+      case "DISC": r.beginOp(node.line); r.disc(n(0,0),n(1,0),n(2,1),n(3,1)); r.endOp(); break;
+      case "RING": r.beginOp(node.line); r.ring(n(0,0),n(1,0),n(2,1),n(3,1)); r.endOp(); break;
+      case "TEXT": r.beginOp(node.line); r.text(n(0,0),n(1,0),nm(2),n(3,1),n(4,6)); r.endOp(); break;
+      case "DRAW": { r.beginOp(node.line); ctx.spritesUsed.add(nm(0)); r.blitSprite(ctx.sprites.get(nm(0)), n(1,0), n(2,0)); r.endOp(); break; }
+      case "ANIMATE": { r.beginOp(node.line); const id=nm(0); ctx.animationsUsed.add(id); const e=ctx.sprites.getRaw(id);
+        let s = (e&&e.kind==="animated") ? e.frames[ctx.frame % e.frames.length] : ctx.sprites.get(id); r.blitSprite(s, n(1,0), n(2,0)); r.endOp(); break; }
+      case "MAP": { r.beginOp(node.line); const s=ctx.sprites.get(nm(4)); const x=n(0,0),y=n(1,0),w=n(2,8),h=n(3,8);
+        for(let yy=0;yy<h;yy++)for(let xx=0;xx<w;xx++){ const sx=Math.floor(xx*s.w/w), sy=Math.floor(yy*s.h/h); const v=s.tone[sy*s.w+sx]; if(v>0.001) r.set(x+xx,y+yy,v); } r.endOp(); break; }
+      case "FIELD": { r.beginOp(node.line); const fexp=compileField(A[0]!==undefined?A[0]:"0"); const g=r.g; const S={x:0,y:0,frame:ctx.frame,vars:ctx.vars};
+        for(let y=0;y<g;y++){ S.y=y; for(let x=0;x<g;x++){ S.x=x; r.poke(x,y, fexp(S)); } } r._markRegion(0,0,g,g); r.endOp(); break; }
+      case "SCATTER": { r.beginOp(node.line); const x=n(0,0),y=n(1,0),w=n(2,8),h=n(3,8),den=n(4,0.3),t=n(5,1);
+        for(let yy=0;yy<h;yy++)for(let xx=0;xx<w;xx++){ if(hashNoise((x+xx)*1.7+0.3,(y+yy)*1.3+0.7)<den) r.poke(x+xx,y+yy,t); } r._markRegion(x,y,w,h); r.endOp(); break; }
+      case "POLY": case "TRI": { r.beginOp(node.line); const vals=A.map(a=>evalExpr(a,env)); let tone=1, coords=vals;
+        if(vals.length%2===1){ tone=vals[vals.length-1]; coords=vals.slice(0,-1); }
+        const pts=[]; for(let k=0;k+1<coords.length;k+=2) pts.push({x:coords[k],y:coords[k+1]}); r.polygon(pts,tone); r.endOp(); break; }
+      case "ASSIGN": { const cur=ctx.vars[node.target]||0; ctx.vars[node.target]=applyOp(cur,node.op, evalExpr(node.expr, env)); break; }
+      case "IF": if(this.evalCond(node.condition, ctx)) for(const c of node.body) this.execNode(c, ctx); break;
+      case "FOR":
+        if(node.range){ const from=node.from, to=node.to; for(let v=from; v<=to; v++){ ctx.deadline.check("FOR"); ctx.vars[node.varName]=v; for(const c of node.body) this.execNode(c, ctx); } }
+        else { const cnt=Math.max(0, node.count||1); for(let k=0;k<cnt;k++){ ctx.deadline.check("FOR"); for(const c of node.body) this.execNode(c, ctx); } }
+        break;
+      case "CALL": this.execCall(node.fn, node.args, ctx); break;
+    }
+  }
+  evalCond(cond, ctx){
+    const env={ frame:ctx.frame, vars:ctx.vars }; const c=String(cond).trim();
+    if(c==="DEF"||c==="1"||c==="true") return true; if(c==="0"||c==="false") return false;
+    const m=c.match(/^(.+?)(>=|<=|==|!=|>|<)(.+)$/);
+    if(m){ const a=evalExpr(m[1],env), b=evalExpr(m[3],env); switch(m[2].trim()){ case ">":return a>b; case "<":return a<b; case ">=":return a>=b; case "<=":return a<=b; case "==":return a===b; case "!=":return a!==b; } }
+    return evalExpr(c, env)!==0;
+  }
+  execCall(fn, args, ctx){
+    const proc = ctx.procs && ctx.procs[fn];
+    if(proc){ if((ctx.callDepth||0)>32) return; const saved=ctx.vars; const local=Object.create(saved);
+      proc.params.forEach((p,k)=>{ local[p]= args[k]!==undefined? evalExpr(args[k], {frame:ctx.frame,vars:saved}) : 0; });
+      ctx.vars=local; ctx.callDepth=(ctx.callDepth||0)+1;
+      for(const nd of proc.body) this.execNode(nd, ctx);
+      ctx.callDepth--; ctx.vars=saved; return; }
+    switch(fn){ case "dynamic_recalc": ctx.vars["tile_id"]=Math.sin(ctx.frame*0.2)*10; break; default: break; }
+  }
+}
+
+class CellExecutor{
+  constructor(opts){ opts=opts||{}; this.runtime=new BelixRuntime(); this.sprites=opts.sprites||new SpriteRegistry(); }
+  parse(source){ const p=parseBelixSource(source); if(!p.cellId) throw new BelixError("Missing CELL_ID header","PARSE_ERROR"); return p; }
+  executeCell(source, g){ if(isB128(source)) return runB128(source, { g: g||B128_GRID }); return this.runtime.execute(this.parse(source), this.sprites, g||G_DEFAULT); }
+  recompileCell(source, g){ return this.executeCell(source, g); }
+}
+
+/* animation player (DOM) */
+class AnimationPlayer{
+  constructor(output, canvas, fps, scale){
+    this.output=output; this.idx=0; this.raf=null; this.last=0; this.scale=scale||6; this.fps=fps||12; this.mpf=1000/this.fps;
+    this.g = output.frames.length? output.frames[0].width : G_DEFAULT;
+    canvas.width=this.g*this.scale; canvas.height=this.g*this.scale;
+    const ctx=canvas.getContext("2d"); ctx.imageSmoothingEnabled=false; this.ctx=ctx; this.onFrame=null;
+  }
+  setFps(f){ this.fps=f; this.mpf=1000/f; }
+  play(){ if(this.raf!==null || !this.output.frames.length) return; this.last=perf(); this.raf=requestAnimationFrame(t=>this.tick(t)); }
+  pause(){ if(this.raf!==null) cancelAnimationFrame(this.raf); this.raf=null; }
+  stop(){ this.pause(); this.idx=0; this.render(); this.emit(); }
+  get playing(){ return this.raf!==null; }
+  get total(){ return this.output.frames.length; }
+  get boxes(){ return this.output.boxesPerFrame[this.idx]||[]; }
+  seek(i){ if(!this.output.frames.length) return; const t=this.output.frames.length; this.idx=((i%t)+t)%t; this.render(); this.emit(); }
+  tick(now){ if(now-this.last>=this.mpf){ this.render(); this.idx=(this.idx+1)%this.output.frames.length; this.last=now; this.emit(); } this.raf=requestAnimationFrame(t=>this.tick(t)); }
+  render(){ const fr=this.output.frames[this.idx]; if(!fr) return; const tmp=new OffscreenCanvas(fr.width,fr.height); tmp.getContext("2d").putImageData(fr,0,0);
+    this.ctx.imageSmoothingEnabled=false; this.ctx.clearRect(0,0,this.g*this.scale,this.g*this.scale); this.ctx.drawImage(tmp,0,0,this.g*this.scale,this.g*this.scale); }
+  emit(){ if(this.onFrame) this.onFrame(this.idx, this.total); }
+}
+
+/* =====================================================================
+   BEFLIX-128 — the classic Knowlton accumulate-and-record dialect.
+   One command per line ( C / c begins a comment ):
+     CLR i                 clear the whole field to intensity i (0..7)
+     PNT x y w h i         paint a filled block
+     LIN x1 y1 x2 y2 i     draw a line
+     REC n                 emit the field, as it stands, for n frames
+   The field PERSISTS between records (you draw on top), exactly like the
+   original cells; intensities 0..7 map to tone i/7 and are ordered-dithered
+   to 1-bit at capture. 0 = paper, 7 = full ink. This is the scene standard.
+   ===================================================================== */
+const B128_GRID = 128;
+function isB128(src){ return /^[ \t]*REC[ \t]+\d/im.test(src) || /@BEFLIX-?128/i.test(src); }
+function parseB128(source){
+  const lines = String(source).split(/\r?\n/), ops = []; let cellId = "SCENE", territory = "";
+  for(let i=0;i<lines.length;i++){
+    const ln = lines[i].trim(); if(!ln) continue;
+    if(/^c\b/i.test(ln)){
+      const mc = ln.match(/@CELL\s+([A-Za-z0-9_]+)/i); if(mc) cellId = mc[1];
+      const mt = ln.match(/@TERR\s+([A-Za-z0-9_]+)/i); if(mt) territory = mt[1];
+      continue;
+    }
+    const t = ln.split(/[ \t]+/), cmd = t[0].toUpperCase(), a = t.slice(1).map(Number);
+    if(cmd==="CLR")      ops.push({op:"CLR", i:a[0]|0, line:i+1});
+    else if(cmd==="PNT") ops.push({op:"PNT", x:a[0]|0,y:a[1]|0,w:Math.max(1,a[2]|0),h:Math.max(1,a[3]|0), i:a[4]|0, line:i+1});
+    else if(cmd==="LIN") ops.push({op:"LIN", x1:a[0]|0,y1:a[1]|0,x2:a[2]|0,y2:a[3]|0, i:a[4]|0, line:i+1});
+    else if(cmd==="REC") ops.push({op:"REC", n:Math.max(1,a[0]|0||1), line:i+1});
+    /* unknown verbs are ignored — forward compatible */
+  }
+  return { cellId, territory, ops };
+}
+function runB128(source, opts){
+  opts = opts||{}; const g = opts.g||B128_GRID, dither = opts.dither||"bayer8";
+  const prog = parseB128(source), r = new Renderer(g); r.dither = dither;
+  const deadline = new ExecutionDeadline(), frames = [], boxesPerFrame = [], t0 = perf();
+  const T = i => Math.max(0, Math.min(7, i))/7;
+  for(const o of prog.ops){
+    deadline.check("B128");
+    if(o.op==="CLR")      { r.fill(T(o.i)); }                                              // clear: no bind box
+    else if(o.op==="PNT") { r.beginOp(o.line); r.rect(o.x,o.y,o.w,o.h,T(o.i)); r.endOp(); }
+    else if(o.op==="LIN") { r.beginOp(o.line); r.line(o.x1,o.y1,o.x2,o.y2,T(o.i)); r.endOp(); }
+    else if(o.op==="REC") { const boxes = r.frameBoxes.slice();                            // every line drawn so far
+      for(let k=0;k<o.n && frames.length<MAX_FRAMES;k++){ frames.push(r.capture()); boxesPerFrame.push(boxes); } }
+  }
+  if(!frames.length){ frames.push(r.capture()); boxesPerFrame.push(r.frameBoxes.slice()); }
+  return { cellId:prog.cellId, frames, frameCount:frames.length, boxesPerFrame, ops:prog.ops,
+           metadata:{ territory:prog.territory||prog.cellId, executionTimeMs:perf()-t0, dither, spritesUsed:new Set(), animationsUsed:new Set(), error:null } };
+}
+
+/* shared sprite registry + sprites */
+const SPRITES = new SpriteRegistry();
+SPRITES.registerStatic("BIRD", spriteFromAscii(["##   ##","  ###  ","   #   "]));
+SPRITES.registerStatic("FISH", spriteFromAscii([" ####  ","######>","< #### ".replace("<"," ")]));
+SPRITES.registerStatic("KEY",  spriteFromAscii([" ## ","#  #"," ## ","  # ","  ##"]));
+/* =====================================================================
+   PART B — THE WORLD (items, rooms, BEFLIX cells)
+   ===================================================================== */
+const ITEMS = {
+  mailbox:{ name:"small mailbox", syn:["mailbox","mail box","box","mail"], start:"WEST_OF_HOUSE", takeable:false, container:true,
+    desc:"A small metal mailbox on a wooden post, the kind you find at the end of a country lane." },
+  leaflet:{ name:"leaflet", syn:["leaflet","pamphlet","flyer","paper","note"], start:"mailbox", takeable:true,
+    desc:"A weathered paper leaflet, folded once.",
+    read:"WELCOME TO CINEOSIS. This is no ordinary realm — its forgotten treasures lie scattered below ground and high above it. Your charge: gather every treasure and lock it safe in the trophy case. Mind the dark. Things live there that you would rather not meet." },
+  lamp:{ name:"brass lantern", syn:["lamp","lantern","brass lantern","brass lamp"], start:"LIVING_ROOM", takeable:true, light:true,
+    desc:"A serviceable brass lantern." },
+  sword:{ name:"elvish sword", syn:["sword","blade","elvish sword","elven sword"], start:"LIVING_ROOM", takeable:true,
+    desc:"An ancient elvish blade, said to glimmer when danger is near." },
+  rug:{ name:"oriental rug", syn:["rug","carpet","oriental rug"], start:"LIVING_ROOM", takeable:false,
+    desc:"A large oriental rug. Its centre is curiously raised, as if something lies beneath." },
+  trap_door:{ name:"trap door", syn:["trap door","trapdoor","trap"], start:"LIVING_ROOM", takeable:false,
+    desc:"A heavy wooden trap door set flush into the floor." },
+  window:{ name:"kitchen window", syn:["window"], start:"BEHIND_HOUSE", takeable:false,
+    desc:"A ground-floor window looking into a kitchen." },
+  sack:{ name:"brown sack", syn:["sack","bag","brown sack"], start:"KITCHEN", takeable:true, container:true,
+    desc:"An ordinary brown paper sack." },
+  garlic:{ name:"clove of garlic", syn:["garlic","clove"], start:"sack", takeable:true, edible:true,
+    desc:"A single pungent clove of garlic." },
+  lunch:{ name:"hot pepper sandwich", syn:["lunch","sandwich","food","pepper"], start:"sack", takeable:true, edible:true,
+    desc:"A hot pepper sandwich. It smells faintly dangerous." },
+  bottle:{ name:"glass bottle", syn:["bottle","glass bottle"], start:"KITCHEN", takeable:true, container:true,
+    desc:"A clear glass bottle, stoppered." },
+  water:{ name:"quantity of water", syn:["water"], start:"bottle", takeable:false, drinkable:true,
+    desc:"Ordinary water." },
+  rope:{ name:"coil of rope", syn:["rope","coil"], start:"ATTIC", takeable:true,
+    desc:"A long, sturdy coil of rope." },
+  knife:{ name:"nasty knife", syn:["knife","nasty knife"], start:"ATTIC", takeable:true,
+    desc:"A short, nasty-looking knife. Good for prying, perhaps." },
+  painting:{ name:"painting", syn:["painting","art","canvas","picture"], start:"GALLERY", takeable:true, treasure:true, takePts:4, casePts:6,
+    desc:"A beautiful painting, untouched by the damp. Plainly a treasure." },
+  chalice:{ name:"jewelled chalice", syn:["chalice","cup","goblet","jeweled chalice","jewelled chalice"], start:"EAST_OF_CHASM", takeable:true, treasure:true, takePts:10, casePts:5,
+    desc:"A chalice crusted with gemstones — a true treasure." },
+  egg:{ name:"jewelled egg", syn:["egg","jeweled egg","jewelled egg"], start:"TREE_TOP", takeable:true, treasure:true, takePts:5, casePts:5,
+    desc:"A delicate egg encrusted with jewels — a treasure beyond price." },
+  trophy_case:{ name:"trophy case", syn:["trophy case","case","trophy","cabinet"], start:"LIVING_ROOM", takeable:false, container:true,
+    desc:"A glass-fronted trophy case fixed to the wall. Treasures locked here are safe — and counted." },
+  troll:{ name:"troll", syn:["troll"], start:"TROLL_ROOM", takeable:false,
+    desc:"A nasty troll with a blood-caked axe. He looks hungry, and not for sandwiches." },
+
+  coins:{ name:"bag of coins", syn:["coins","bag of coins","money","bag"], start:"MAZE_2", takeable:true, treasure:true, takePts:10, casePts:5,
+    desc:"A leather bag, heavy with old gold coins. A treasure." },
+  skeleton_key:{ name:"skeleton key", syn:["skeleton key","key"], start:"MAZE_2", takeable:true,
+    desc:"An old iron skeleton key, worn smooth." },
+  stiletto:{ name:"vicious stiletto", syn:["stiletto","dagger"], start:"MAZE_2", takeable:true,
+    desc:"A thin, vicious stiletto — a thief's blade." },
+  torch:{ name:"ivory torch", syn:["torch","ivory torch"], start:"TORCH_ROOM", takeable:true, treasure:true, takePts:14, casePts:6, light:true, alwaysLit:true,
+    desc:"An ivory torch wrapped in burning pitch. It is both a treasure and a steady source of light." },
+  coffin:{ name:"gold coffin", syn:["coffin","gold coffin","casket"], start:"TEMPLE", takeable:true, treasure:true, takePts:10, casePts:15,
+    desc:"An ornate gold coffin, astonishingly heavy. A magnificent treasure." },
+  skull:{ name:"crystal skull", syn:["skull","crystal skull"], start:"__GONE__", takeable:true, treasure:true, takePts:10, casePts:10,
+    desc:"A skull carved from a single block of flawless crystal. A treasure." },
+  thief:{ name:"thief", syn:["thief","robber","gentleman"], start:"TREASURE_ROOM", takeable:false,
+    desc:"A seedy-looking gentleman with a vicious stiletto and quick hands. He eyes your possessions." },
+  cyclops:{ name:"cyclops", syn:["cyclops","giant"], start:"CYCLOPS_ROOM", takeable:false,
+    desc:"A one-eyed giant blocks every exit. He looks both hungry and bad-tempered." },
+  skeleton:{ name:"skeleton", syn:["skeleton","bones","remains"], start:"MAZE_2", takeable:false,
+    desc:"The mouldering skeleton of a luckless adventurer who never found the way out." },
+  railing:{ name:"wooden railing", syn:["railing","rail","banister"], start:"DOME_ROOM", takeable:false,
+    desc:"A sturdy wooden railing rings the rim of the dome. You could tie a rope to it." },
+  altar:{ name:"stone altar", syn:["altar","shrine"], start:"TEMPLE", takeable:false,
+    desc:"A cold stone altar. The air here feels thin, as though a prayer might carry you elsewhere." },
+};
+
+const ROOMS = {
+  WEST_OF_HOUSE:{ name:"West of House", terr:"ABOVE_GROUND", dark:false, fixtures:["mailbox"],
+    exits:{ n:"NORTH_OF_HOUSE", s:"SOUTH_OF_HOUSE", w:"FOREST_1", e:"__BOARDED__" },
+    desc:"You stand in an open field west of a white house, its front door firmly boarded. A small mailbox sits here on a post." },
+  NORTH_OF_HOUSE:{ name:"North of House", terr:"ABOVE_GROUND", dark:false, fixtures:[],
+    exits:{ w:"WEST_OF_HOUSE", e:"BEHIND_HOUSE", n:"CLEARING" },
+    desc:"You face the north wall of the white house. There is no door here, only boarded windows. A narrow path leads north into a dim forest." },
+  SOUTH_OF_HOUSE:{ name:"South of House", terr:"ABOVE_GROUND", dark:false, fixtures:[],
+    exits:{ w:"WEST_OF_HOUSE", e:"BEHIND_HOUSE" },
+    desc:"You are on the south side of the house. A dark forest presses close. There is no way in on this side." },
+  BEHIND_HOUSE:{ name:"Behind House", terr:"ABOVE_GROUND", dark:false, fixtures:["window"],
+    exits:{ n:"NORTH_OF_HOUSE", s:"SOUTH_OF_HOUSE", e:"FOREST_1" },
+    desc:"You stand behind the white house. A ground-floor window here looks into the kitchen." },
+  KITCHEN:{ name:"Kitchen", terr:"ABOVE_GROUND", dark:false, fixtures:["window","sack","bottle"],
+    exits:{ w:"LIVING_ROOM", u:"ATTIC" },
+    desc:"A grimy kitchen. A passage runs west into the rest of the house and a dark stairway climbs up into shadow. On a table sit a brown sack and a glass bottle." },
+  ATTIC:{ name:"Attic", terr:"ABOVE_GROUND", dark:true, fixtures:[],
+    exits:{ d:"KITCHEN" },
+    desc:"The attic is low, close and thick with dust. A coil of rope lies in a corner, and a nasty knife rests on a rafter." },
+  LIVING_ROOM:{ name:"Living Room", terr:"ABOVE_GROUND", dark:false, fixtures:["trophy_case","rug","lamp","sword"],
+    exits:{ e:"KITCHEN" },
+    desc:"A comfortable living room. A glass trophy case is set into the wall, and a worn oriental rug lies in the centre of the floor. By the hearth rest a brass lantern and an elvish sword." },
+  CELLAR:{ name:"Cellar", terr:"UNDER", dark:true, fixtures:[],
+    exits:{ n:"TROLL_ROOM", s:"EAST_OF_CHASM", u:"LIVING_ROOM" },
+    desc:"A damp stone cellar. The trap door has slammed shut overhead. Cold passages run north and south into the dark." },
+  TROLL_ROOM:{ name:"The Troll Room", terr:"UNDER", dark:true, fixtures:["troll"],
+    exits:{ s:"CELLAR", e:"GALLERY", w:"MAZE_1" },
+    desc:"A small chamber hacked from raw stone." },
+  GALLERY:{ name:"Gallery", terr:"UNDER", dark:true, fixtures:[],
+    exits:{ w:"TROLL_ROOM", n:"STUDIO" },
+    desc:"A cramped gallery, miraculously dry. A single painting hangs on the wall." },
+  EAST_OF_CHASM:{ name:"East of Chasm", terr:"UNDER", dark:true, fixtures:[],
+    exits:{ n:"CELLAR", e:"DOME_ROOM" },
+    desc:"A narrow ledge at the lip of a black, bottomless chasm. A jewelled chalice glints on the rock." },
+  FOREST_1:{ name:"Forest", terr:"ABOVE_GROUND", dark:false, fixtures:[],
+    exits:{ e:"WEST_OF_HOUSE", n:"CLEARING", u:"TREE_TOP" },
+    desc:"A dim forest of looming trees. One ancient oak looks climbable. The open field lies east." },
+  CLEARING:{ name:"Forest Clearing", terr:"ABOVE_GROUND", dark:false, fixtures:[],
+    exits:{ s:"FOREST_1", e:"BEHIND_HOUSE", w:"FOREST_1", n:"FOREST_1" },
+    desc:"A small sunlit clearing. Paths wind off in several directions, every one looking much like the last." },
+  TREE_TOP:{ name:"Up a Tree", terr:"ABOVE_GROUND", dark:false, fixtures:[],
+    exits:{ d:"FOREST_1" },
+    desc:"You are wedged high in the branches of the great oak. A songbird's nest sits in a fork, cradling a single jewelled egg." },
+
+  STUDIO:{ name:"Studio", terr:"UNDER", dark:true, fixtures:[],
+    exits:{ s:"GALLERY", u:"KITCHEN" },
+    desc:"A cluttered artist's studio, walls smeared with old paint. A narrow chimney climbs upward — too tight to manage with your arms full." },
+
+  MAZE_1:{ name:"Maze", terr:"UNDER", dark:true, fixtures:[], maze:true,
+    exits:{ w:"TROLL_ROOM", n:"MAZE_1", e:"MAZE_2", s:"MAZE_3", u:"MAZE_1" },
+    desc:"This is a maze of twisty little passages, all alike." },
+  MAZE_2:{ name:"Maze", terr:"UNDER", dark:true, fixtures:["skeleton"], maze:true,
+    exits:{ w:"MAZE_1", e:"MAZE_2", d:"CYCLOPS_ROOM", s:"MAZE_3", n:"MAZE_1" },
+    desc:"This is a maze of twisty little passages, all alike. A mouldering skeleton lies against one wall, its scattered belongings nearby." },
+  MAZE_3:{ name:"Maze", terr:"UNDER", dark:true, fixtures:[], maze:true,
+    exits:{ n:"MAZE_2", s:"MAZE_1", e:"MAZE_3", w:"MAZE_1", u:"TROLL_ROOM" },
+    desc:"This is a maze of twisty little passages, all alike." },
+  CYCLOPS_ROOM:{ name:"Cyclops Room", terr:"UNDER", dark:true, fixtures:["cyclops"],
+    exits:{ w:"MAZE_2" },
+    desc:"A high rough chamber. The east wall is solid rock; the only obvious way out is back into the maze." },
+  TREASURE_ROOM:{ name:"Treasure Room", terr:"UNDER", dark:true, fixtures:["thief"],
+    exits:{ d:"CYCLOPS_ROOM" },
+    desc:"A richly appointed thieves' den, glittering with stolen things. Its owner does not look pleased to see you." },
+
+  DOME_ROOM:{ name:"Dome Room", terr:"UNDER", dark:true, fixtures:["railing"],
+    exits:{ w:"EAST_OF_CHASM" },
+    desc:"You stand at the rim of a great domed shaft. A wooden railing rings the edge; far below, the floor is lost in dark. Descending would need a rope." },
+  TORCH_ROOM:{ name:"Torch Room", terr:"UNDER", dark:true, fixtures:[],
+    exits:{ u:"DOME_ROOM", d:"TEMPLE" },
+    desc:"A small chamber at the foot of the dome. On a pedestal burns an ivory torch. A passage descends further." },
+  TEMPLE:{ name:"Temple", terr:"UNDER", dark:true, fixtures:["altar"],
+    exits:{ u:"TORCH_ROOM" },
+    desc:"A vast, still temple carved from black stone. A gold coffin rests before a stone altar. The air hums faintly, as if the place itself were listening." },
+};
+/* BEFLIX cell bodies (no CELL_ID header — assembled with injected state) */
+const CELLS = {
+GENERIC:`FRAME_COUNT(24)
+DITHER(bayer4)
+GRAD(0,0,64,64, 0.1, 0.5)
+FRAME(2,2,60,60,1)
+TEXT(8,28,"NO CELL",1,9)`,
+
+DARK:`FRAME_COUNT(40)
+DITHER(bayer8)
+FILL(0.9)
+GRAD(0,24,64,16, 0.78, 0.95)
+eye = 1
+IF frame > 22 -> eye = 0
+IF frame > 27 -> eye = 1
+IF eye > 0 -> DISC(25,33,3,0.0)
+IF eye > 0 -> DISC(39,33,3,0.0)
+IF eye > 0 -> DISC(26,33,1,1)
+IF eye > 0 -> DISC(38,33,1,1)
+TEXT(8,52,"PITCH DARK",1,7)`,
+
+DEAD:`FRAME_COUNT(20)
+DITHER(bayer4)
+FILL(0.0)
+RECT(20,20,24,34,0.0)
+DISC(32,20,12,0.0)
+RING(32,20,12,1)
+LINE(20,20,20,54,1)
+LINE(44,20,44,54,1)
+LINE(20,54,44,54,1)
+LINE(20,20,32,8,1)
+LINE(44,20,32,8,1)
+TEXT(26,30,"RIP",1,9)
+RECT(8,57,48,3,1)`,
+
+WON:`FRAME_COUNT(40)
+DITHER(bayer4)
+GRAD(0,0,64,64, 0.0, 0.22)
+r = mod(frame,32)
+LINE(32,32, r*2, 0, 0.5)
+LINE(32,32, 64-r*2, 64, 0.5)
+LINE(32,32, 0, r*2, 0.5)
+LINE(32,32, 64, 64-r*2, 0.5)
+FRAME(16,14,32,40,1)
+FRAME(20,18,24,32,1)
+DISC(28,30,3,1)
+DISC(36,30,3,1)
+DISC(32,40,3,1)
+TEXT(17,56,"VICTORY",1,8)`,
+
+WEST_OF_HOUSE:`FRAME_COUNT(36)
+DITHER(bayer4)
+GRAD(0,0,64,30, 0.05, 0.4)
+RECT(0,46,64,18, 0.22)
+RECT(16,22,34,24, 0.0)
+FRAME(16,22,34,24, 1)
+LINE(16,22,33,8,1)
+LINE(33,8,50,22,1)
+RECT(28,30,11,16,0.0)
+FRAME(28,30,11,16,1)
+FOR i IN 0..4 { LINE(28, 31+i*3, 39, 33+i*3, 1) }
+FRAME(20,26,6,6,1)
+FRAME(40,26,6,6,1)
+RECT(6,40,8,5,0.0)
+FRAME(6,40,8,5,1)
+LINE(10,45,10,52,1)
+DISC(54,9,4,0.0)
+RING(54,9,4,1)
+bx = mod(frame*2, 74) - 6
+DRAW(BIRD, bx, 12)`,
+
+NORTH_OF_HOUSE:`FRAME_COUNT(30)
+DITHER(bayer4)
+GRAD(0,0,64,30,0.05,0.4)
+RECT(0,46,64,18,0.22)
+RECT(8,20,48,26,0.0)
+FRAME(8,20,48,26,1)
+LINE(8,20,32,8,1)
+LINE(32,8,56,20,1)
+FOR w IN 0..2 { FRAME(14+w*16,28,8,8,1) }
+FOR w IN 0..2 { LINE(15+w*16,30,21+w*16,30,1) }
+GRAD(26,46,12,18,0.5,0.12)
+TEXT(2,2,"NORTH",1,7)`,
+
+SOUTH_OF_HOUSE:`FRAME_COUNT(30)
+DITHER(bayer4)
+GRAD(0,0,64,30,0.05,0.4)
+RECT(0,46,64,18,0.25)
+RECT(8,20,48,26,0.0)
+FRAME(8,20,48,26,1)
+LINE(8,20,32,8,1)
+LINE(32,8,56,20,1)
+FOR w IN 0..2 { FRAME(14+w*16,28,8,8,1) }
+FOR t IN 0..6 { DISC(5+t*9, 58, 7, 0.6) }
+TEXT(2,2,"SOUTH",1,7)`,
+
+BEHIND_HOUSE:`FRAME_COUNT(30)
+DITHER(bayer4)
+GRAD(0,0,64,30,0.05,0.4)
+RECT(0,46,64,18,0.22)
+RECT(6,18,52,28,0.0)
+FRAME(6,18,52,28,1)
+LINE(6,18,32,6,1)
+LINE(32,6,58,18,1)
+FRAME(26,28,14,12,1)
+IF window_open > 0 -> RECT(27,29,12,10,0.5)
+IF window_open < 1 -> LINE(33,28,33,40,1)
+IF window_open < 1 -> LINE(26,34,40,34,1)
+TEXT(2,2,"BEHIND",1,7)`,
+
+KITCHEN:`FRAME_COUNT(28)
+DITHER(bayer4)
+FILL(0.08)
+RECT(0,44,64,20,0.3)
+FRAME(44,12,14,14,1)
+RECT(45,13,12,12, 0.45)
+LINE(51,12,51,26,1)
+LINE(44,19,58,19,1)
+RECT(10,40,28,4,0.0)
+FRAME(10,40,28,4,1)
+LINE(12,44,12,52,1)
+LINE(36,44,36,52,1)
+RECT(14,34,10,6,0.55)
+FRAME(14,34,10,6,1)
+RECT(28,32,4,8,0.0)
+FRAME(28,32,4,8,1)
+GRAD(54,28,8,16,0.2,0.9)
+TEXT(2,2,"KITCHEN",1,7)`,
+
+ATTIC:`FRAME_COUNT(24)
+DITHER(bayer8)
+FILL(0.12)
+LINE(2,40,32,8,1)
+LINE(62,40,32,8,1)
+LINE(2,40,62,40,1)
+FOR b IN 0..3 { LINE(10+b*12,40,32,8,0.5) }
+RING(16,46,5,1)
+RING(16,46,3,1)
+LINE(40,30,50,28,1)
+RECT(50,27,5,2,0.0)
+FRAME(50,27,5,2,1)
+FOR d IN 0..5 { PLOT(12+d*9, 20+mod(frame+d*3,18), 1) }
+TEXT(2,52,"ATTIC",1,7)`,
+
+LIVING_ROOM:`FRAME_COUNT(30)
+DITHER(bayer4)
+FILL(0.06)
+RECT(0,44,64,20,0.0)
+GRAD(0,44,64,4,0.6,0.1)
+RECT(6,12,16,24,0.0)
+FRAME(6,12,16,24,1)
+FRAME(8,14,12,20,1)
+LINE(8,21,20,21,1)
+LINE(8,28,20,28,1)
+IF case_n > 0 -> DISC(11,18,1,1)
+IF case_n > 1 -> DISC(15,25,1,1)
+IF case_n > 2 -> DISC(13,31,1,1)
+IF rug_moved < 1 -> RECT(26,46,28,12,0.45)
+IF rug_moved < 1 -> FRAME(26,46,28,12,1)
+IF rug_moved < 1 -> FOR k IN 0..6 { LINE(28+k*4,46,28+k*4,58,0.8) }
+IF rug_moved > 0 -> RECT(30,46,18,10,0.92)
+IF rug_moved > 0 -> FRAME(30,46,18,10,1)
+IF trap_open > 0 -> LINE(30,46,48,56,1)
+RECT(48,28,14,16,0.0)
+FRAME(48,28,14,16,1)
+fy = 42 - mod(frame,3)
+DISC(55,fy,2,0.85)
+DISC(55,fy-2,1,0.3)
+TEXT(2,2,"LIVING ROOM",1,7)`,
+
+CELLAR:`FRAME_COUNT(24)
+DITHER(bayer8)
+GRAD(0,0,64,64,0.35,0.7)
+FOR r IN 0..6 { LINE(0,9+r*9,64,9+r*9,0.88) }
+FOR r IN 0..6 { LINE(mod(r*17,40),9+r*9, mod(r*17,40),18+r*9, 0.88) }
+RECT(26,0,12,9,0.12)
+RECT(26,55,12,9,0.12)
+TEXT(2,2,"CELLAR",1,7)`,
+
+TROLL_ROOM:`FRAME_COUNT(30)
+DITHER(bayer8)
+GRAD(0,0,64,64,0.3,0.65)
+FOR r IN 0..6 { LINE(0,9+r*9,64,9+r*9,0.88) }
+IF troll_dead < 1 -> RECT(24,28,16,26,0.95)
+IF troll_dead < 1 -> DISC(32,24,7,0.95)
+IF troll_dead < 1 -> DISC(29,23,1,0.0)
+IF troll_dead < 1 -> DISC(35,23,1,0.0)
+ax = 40 + sin(frame*0.4)*9
+ay = 18 + cos(frame*0.4)*6
+IF troll_dead < 1 -> LINE(38,30, ax, ay, 1)
+IF troll_dead < 1 -> DISC(ax, ay, 3, 0.95)
+IF troll_dead > 0 -> FOR f IN 0..7 { DISC(8+f*7, 42-mod(frame+f*4,22), 4, 0.4) }
+TEXT(2,2,"TROLL ROOM",1,7)`,
+
+GALLERY:`FRAME_COUNT(22)
+DITHER(bayer4)
+FILL(0.1)
+RECT(0,46,64,18,0.4)
+IF painting_here > 0 -> RECT(20,14,24,24,0.0)
+IF painting_here > 0 -> FRAME(18,12,28,28,1)
+IF painting_here > 0 -> FRAME(20,14,24,24,1)
+IF painting_here > 0 -> LINE(20,14,44,38,0.6)
+IF painting_here > 0 -> LINE(44,14,20,38,0.6)
+IF painting_here < 1 -> FRAME(18,12,28,28,1)
+IF painting_here < 1 -> TEXT(22,24,"GONE",1,8)
+TEXT(2,2,"GALLERY",1,7)`,
+
+EAST_OF_CHASM:`FRAME_COUNT(28)
+DITHER(bayer8)
+GRAD(0,18,64,46, 0.95, 0.18)
+RECT(0,12,64,8,0.5)
+LINE(0,20,64,20,1)
+IF chalice_here > 0 -> RECT(44,8,6,6,0.0)
+IF chalice_here > 0 -> FRAME(44,8,6,6,1)
+IF chalice_here > 0 -> LINE(45,14,49,14,1)
+IF chalice_here > 0 -> LINE(47,14,47,17,1)
+IF chalice_here > 0 -> PLOT(46,9,1)
+TEXT(2,2,"CHASM",1,7)`,
+
+FOREST_1:`FRAME_COUNT(30)
+DITHER(bayer4)
+GRAD(0,0,64,26,0.1,0.35)
+RECT(0,44,64,20,0.3)
+FOR t IN 0..5 { DISC(7+t*11, 36, 8, 0.55) }
+FOR t IN 0..5 { RECT(6+t*11, 36, 3, 12, 0.8) }
+DISC(46,30,12,0.45)
+RECT(44,30,5,18,0.85)
+FOR s IN 0..3 { LINE(10+s*16,0,16+s*16,26,0.16) }
+TEXT(2,2,"FOREST",1,7)`,
+
+CLEARING:`FRAME_COUNT(28)
+DITHER(bayer4)
+GRAD(0,0,64,30,0.02,0.25)
+DISC(32,10,6,0.0)
+RING(32,10,6,1)
+RECT(0,46,64,18,0.25)
+FOR t IN 0..7 { DISC(mod(t*23,60), 50, 5, 0.5) }
+DISC(32,40,14,0.05)
+TEXT(2,2,"CLEARING",1,7)`,
+
+TREE_TOP:`FRAME_COUNT(32)
+DITHER(bayer4)
+GRAD(0,0,64,40, 0.02, 0.22)
+LINE(30,64,30,20,1)
+LINE(34,64,34,20,1)
+LINE(30,30,12,22,1)
+LINE(34,34,52,26,1)
+LINE(30,40,16,40,1)
+FOR l IN 0..6 { DISC(10+l*8, 18+mod(l*7,8), 4, 0.4) }
+RING(40,30,6,1)
+RING(40,31,5,0.7)
+IF egg_here > 0 -> DISC(40,29,3,0.0)
+IF egg_here > 0 -> RING(40,29,3,1)
+IF egg_here > 0 -> PLOT(40,28,1)
+bx = mod(frame*2, 70) - 4
+DRAW(BIRD, bx, 8)
+TEXT(2,52,"TREE TOP",1,7)`,
+
+STUDIO:`FRAME_COUNT(26)
+DITHER(bayer8)
+GRAD(0,0,64,64,0.25,0.55)
+FOR r IN 0..6 { LINE(0,9+r*9,64,9+r*9,0.8) }
+SCATTER(4,4,56,40,0.18,1)
+RECT(44,6,10,40,0.85)
+RECT(46,8,6,38,0.15)
+POLY(40,6, 58,6, 54,2, 44,2, 1)
+TEXT(2,52,"STUDIO",1,7)`,
+
+MAZE_1:`FRAME_COUNT(20)
+DITHER(bayer8)
+FILL(0.2)
+DEF wall(ox, oy) {
+  LINE(ox, oy, ox+18, oy+10, 0.9)
+  LINE(ox+18, oy, ox, oy+10, 0.9)
+}
+CALL wall(2, 6)
+CALL wall(24, 18)
+CALL wall(44, 6)
+CALL wall(14, 38)
+CALL wall(40, 40)
+SCATTER(0,0,64,64,0.08,1)
+TEXT(2,2,"MAZE",1,7)`,
+
+MAZE_2:`FRAME_COUNT(22)
+DITHER(bayer8)
+FILL(0.2)
+DEF wall(ox, oy) {
+  LINE(ox, oy, ox+16, oy+12, 0.9)
+  LINE(ox+16, oy, ox, oy+12, 0.9)
+}
+CALL wall(6, 4)
+CALL wall(40, 10)
+CALL wall(20, 34)
+SCATTER(0,0,64,64,0.08,1)
+RECT(10,44,16,4,0.95)
+LINE(10,44,8,40,0.95)
+DISC(9,38,3,0.95)
+DISC(8,38,1,0.0)
+TEXT(2,2,"MAZE",1,7)`,
+
+MAZE_3:`FRAME_COUNT(20)
+DITHER(bayer8)
+FILL(0.2)
+DEF wall(ox, oy) {
+  LINE(ox, oy, ox+18, oy+10, 0.9)
+  LINE(ox+18, oy, ox, oy+10, 0.9)
+}
+CALL wall(10, 8)
+CALL wall(34, 22)
+CALL wall(6, 40)
+SCATTER(0,0,64,64,0.08,1)
+TEXT(2,2,"MAZE",1,7)`,
+
+CYCLOPS_ROOM:`FRAME_COUNT(28)
+DITHER(bayer8)
+GRAD(0,0,64,64,0.3,0.6)
+IF cyclops_fled < 1 -> RECT(22,20,20,34,0.95)
+IF cyclops_fled < 1 -> DISC(32,16,9,0.95)
+ex = 32 + sin(frame*0.2)*2
+IF cyclops_fled < 1 -> DISC(ex,15,3,0.0)
+IF cyclops_fled < 1 -> DISC(ex,15,1,1)
+IF cyclops_fled > 0 -> POLY(40,8, 60,2, 62,40, 44,52, 1)
+IF cyclops_fled > 0 -> RECT(44,10,14,40,0.1)
+TEXT(2,2,"CYCLOPS",1,7)`,
+
+TREASURE_ROOM:`FRAME_COUNT(30)
+DITHER(bayer4)
+GRAD(0,0,64,64,0.05,0.2)
+FOR g IN 0..9 { DISC(mod(g*13,60)+2, 50+mod(g*7,10), 2, 1) }
+IF thief_dead < 1 -> RECT(40,18,12,30,0.9)
+IF thief_dead < 1 -> DISC(46,14,5,0.9)
+IF thief_dead < 1 -> DISC(44,13,1,0.0)
+tx = 36 + sin(frame*0.5)*4
+IF thief_dead < 1 -> LINE(46,26, tx, 30, 1)
+IF thief_dead > 0 -> SCATTER(34,30,24,18,0.3,1)
+IF thief_dead > 0 -> RECT(44,40,6,6,0.0)
+IF thief_dead > 0 -> FRAME(44,40,6,6,1)
+TEXT(2,2,"TREASURE",1,7)`,
+
+DOME_ROOM:`FRAME_COUNT(26)
+DITHER(bayer8)
+RING(32,30,28,1)
+RING(32,30,22,0.7)
+GRAD(8,34,48,30, 0.95, 0.3)
+LINE(6,34,58,34,1)
+FOR p IN 0..11 { PLOT(8+p*4, 33, 1) }
+IF rope_tied > 0 -> LINE(32,34,32,62,1)
+IF rope_tied > 0 -> LINE(33,34,33,62,0.7)
+TEXT(2,2,"DOME",1,7)`,
+
+TORCH_ROOM:`FRAME_COUNT(30)
+DITHER(bayer8)
+GRAD(0,0,64,64,0.35,0.6)
+RECT(28,30,8,20,0.9)
+FRAME(26,48,12,4,1)
+IF torch_here > 0 -> LINE(32,30,32,18,1)
+fy = 14 - mod(frame,3)
+IF torch_here > 0 -> DISC(32,fy,3,0.0)
+IF torch_here > 0 -> DISC(32,fy-2,5,0.2)
+IF torch_here > 0 -> SCATTER(26,6,12,12,0.4,0.0)
+TEXT(2,2,"TORCH",1,7)`,
+
+TEMPLE:`FRAME_COUNT(30)
+DITHER(bayer8)
+FIELD( 0.25 + 0.18*sin(x*0.18 + y*0.12 + frame*0.15) )
+FOR c IN 0..3 { RECT(6+c*16,12,4,40,0.9) }
+FOR c IN 0..3 { DISC(8+c*16,12,3,0.9) }
+RECT(24,40,16,10,0.95)
+IF coffin_here > 0 -> RECT(26,36,12,6,0.0)
+IF coffin_here > 0 -> FRAME(26,36,12,6,1)
+IF coffin_here > 0 -> LINE(26,39,38,39,1)
+TEXT(2,2,"TEMPLE",1,7)`,
+};
+/* =====================================================================
+   PART C — GAME ENGINE (pure logic; DOM-free, testable)
+   ===================================================================== */
+function newGame(){
+  const loc={};
+  for(const id in ITEMS) loc[id]=ITEMS[id].start;
+  return { here:"WEST_OF_HOUSE", loc, flags:{ sack_open:false }, score:0, moves:0,
+    lampOn:false, lampTurns:160, dead:false, won:false, visited:{}, last:"", darkMoves:0,
+    scoredTake:{}, scoredCase:{} };
+}
+function itemsAt(state, place){ const r=[]; for(const id in state.loc) if(state.loc[id]===place) r.push(id); return r; }
+function lightHere(state){
+  const l=state.loc.lamp; if(state.lampOn && (l==="INV"||l===state.here)) return true;
+  const tr=state.loc.torch; if(tr==="INV"||tr===state.here) return true;   // burning torch
+  return false;
+}
+function isDark(state){ return !!ROOMS[state.here].dark && !lightHere(state); }
+function treasuresInCase(state){ let n=0; for(const id in ITEMS) if(ITEMS[id].treasure && state.loc[id]==="trophy_case") n++; return n; }
+function totalTreasures(){ let n=0; for(const id in ITEMS) if(ITEMS[id].treasure) n++; return n; }
+
+function computeScope(state){
+  const set=new Set();
+  for(const id in state.loc){ const p=state.loc[id]; if(p==="INV"||p===state.here) set.add(id); }
+  for(const f of (ROOMS[state.here].fixtures||[])) set.add(f);
+  if(state.flags.rug_moved) set.add("trap_door");
+  // open container contents in scope
+  for(const id of [...set]){ const it=ITEMS[id]; if(it && it.container){ const open = id==="trophy_case" ? state.flags.case_open : id==="mailbox" ? state.flags.mailbox_open : id==="sack" ? state.flags.sack_open : id==="bottle" ? true : false;
+    if(open) for(const c of itemsAt(state,id)) set.add(c); } }
+  return set;
+}
+function resolveItem(state, text){
+  if(!text) return null; const t=" "+text.toLowerCase().replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim()+" ";
+  const scope=computeScope(state); let best=null, bestLen=0;
+  for(const id of scope){ const it=ITEMS[id]; if(!it) continue;
+    for(const s of it.syn){ if(t.indexOf(" "+s+" ")>=0 && s.length>bestLen){ best=id; bestLen=s.length; } } }
+  return best;
+}
+function scopeNouns(state){
+  const out=[]; const seen=new Set();
+  for(const id of computeScope(state)){ const it=ITEMS[id]; if(!it) continue;
+    for(const s of it.syn){ if(s.length>=3 && !seen.has(s)){ seen.add(s); out.push({word:s, id}); } } }
+  out.sort((a,b)=>b.word.length-a.word.length);
+  return out;
+}
+
+/* dynamic exits (gated by flags) */
+function getExits(state){
+  const e=Object.assign({}, ROOMS[state.here].exits||{});
+  if(state.here==="BEHIND_HOUSE" && state.flags.window_open) e.in="KITCHEN";
+  if(state.here==="KITCHEN" && state.flags.window_open) e.out="BEHIND_HOUSE";
+  if(state.here==="LIVING_ROOM"){ if(state.flags.rug_moved && state.flags.trap_open) e.d="CELLAR"; else delete e.d;
+    if(state.flags.cyclops_fled) e.w="CYCLOPS_ROOM"; }   // strange passage
+  if(state.here==="CYCLOPS_ROOM" && state.flags.cyclops_fled){ e.u="TREASURE_ROOM"; e.e="LIVING_ROOM"; }
+  if(state.here==="DOME_ROOM" && state.flags.rope_tied) e.d="TORCH_ROOM";
+  return e;
+}
+
+const DIRSYN={ n:"n",north:"n", s:"s",south:"s", e:"e",east:"e", w:"w",west:"w",
+  ne:"ne",northeast:"ne", nw:"nw",northwest:"nw", se:"se",southeast:"se", sw:"sw",southwest:"sw",
+  u:"u",up:"u", d:"d",down:"d", in:"in",inside:"in", out:"out",outside:"out" };
+const DIRNAME={ n:"north", s:"south", e:"east", w:"west", ne:"northeast", nw:"northwest", se:"southeast", sw:"southwest", u:"up", d:"down", in:"in", out:"out" };
+
+function rankFor(score){ if(score>=42) return "Master of the Realm"; if(score>=30) return "Adventurer"; if(score>=18) return "Junior Adventurer"; if(score>=6) return "Amateur"; return "Novice"; }
+
+/* assemble full cell source for the current view, injecting state vars */
+function injectVars(state){
+  const f=state.flags; const dark = isDark(state);
+  return [
+    "SET(lit, "+(dark?0:1)+")",
+    "SET(rug_moved, "+(f.rug_moved?1:0)+")",
+    "SET(trap_open, "+(f.trap_open?1:0)+")",
+    "SET(window_open, "+(f.window_open?1:0)+")",
+    "SET(troll_dead, "+(f.troll_dead?1:0)+")",
+    "SET(painting_here, "+(state.loc.painting==="GALLERY"?1:0)+")",
+    "SET(chalice_here, "+(state.loc.chalice==="EAST_OF_CHASM"?1:0)+")",
+    "SET(egg_here, "+(state.loc.egg==="TREE_TOP"?1:0)+")",
+    "SET(case_n, "+treasuresInCase(state)+")",
+    "SET(lamp_on, "+(state.lampOn?1:0)+")",
+    "SET(cyclops_fled, "+(f.cyclops_fled?1:0)+")",
+    "SET(thief_dead, "+(f.thief_dead?1:0)+")",
+    "SET(rope_tied, "+(f.rope_tied?1:0)+")",
+    "SET(torch_here, "+(state.loc.torch==="TORCH_ROOM"?1:0)+")",
+    "SET(coffin_here, "+(state.loc.coffin==="TEMPLE"?1:0)+")",
+  ].join("\n");
+}
+/* =====================================================================
+   BEFLIX-128 SCENES — each room is authored in the standard dialect and
+   emitted reactively (light, creatures, treasures, doors). Builds up with
+   the accumulate+record model; 0 = paper, 7 = ink, ground plane ~ y100.
+   ===================================================================== */
+function B128(){ const L=[]; return {
+  c:(s)=>{ L.push("C "+s); },
+  clr:(i)=>{ L.push("CLR "+(i|0)); },
+  pnt:(x,y,w,h,i)=>{ L.push("PNT "+(x|0)+" "+(y|0)+" "+Math.max(1,w|0)+" "+Math.max(1,h|0)+" "+(i|0)); },
+  lin:(a,b,c,d,i)=>{ L.push("LIN "+(a|0)+" "+(b|0)+" "+(c|0)+" "+(d|0)+" "+(i|0)); },
+  rec:(n)=>{ L.push("REC "+Math.max(1,n|0)); },
+  out:()=>L.join("\n") }; }
+function treasuresHere(state){ const t=[]; for(const id in ITEMS) if(ITEMS[id].treasure && state.loc[id]===state.here) t.push(id); return t; }
+
+/* ---- stamps (each draws into builder b) ---- */
+function stGround(b,y){ b.lin(0,y,127,y,4); b.pnt(0,y+1,128,127-y,1); }
+function stSky(b){ b.pnt(0,0,128,16,1); }
+function stGrass(b,y){ for(let x=4;x<126;x+=11){ b.lin(x,y,x-1,y-4,2); b.lin(x+3,y,x+3,y-3,2); } }
+function stStars(b){ for(const [x,y] of [[18,8],[40,5],[66,10],[92,6],[110,12],[30,14]]) b.pnt(x,y,1,1,2); }
+function stHouse(b,wall){            // wall: "front"|"north"|"south"|"back"
+  b.pnt(30,52,68,50,1);                         // wall mass (faint)
+  b.lin(30,52,30,102,4); b.lin(98,52,98,102,4); b.lin(30,102,98,102,4);
+  b.lin(30,52,64,30,5); b.lin(64,30,98,52,5);   // roof
+  b.lin(30,52,98,52,4);
+  if(wall==="front"){ b.pnt(56,74,16,28,2); b.lin(56,74,56,102,5); b.lin(72,74,72,102,5); b.lin(56,74,72,74,5);
+    for(let yy=78;yy<102;yy+=4) b.lin(57,yy,71,yy,4); }               // boarded door
+  else if(wall==="back"){ b.pnt(54,66,20,16,0); b.lin(54,66,74,66,5); b.lin(54,66,54,82,5); b.lin(74,66,74,82,5); b.lin(54,82,74,82,5); b.lin(64,66,64,82,4); b.lin(54,74,74,74,4); }  // window
+  else { for(const wx of [42,72]){ b.pnt(wx,64,14,12,0); b.lin(wx,64,wx+14,64,5); b.lin(wx,64,wx,76,5); b.lin(wx+14,64,wx+14,76,5); b.lin(wx,76,wx+14,76,5); for(let yy=66;yy<76;yy+=3) b.lin(wx,yy,wx+14,yy,4); } } // boarded windows
+}
+function stForest(b,dense){ const xs = dense?[8,26,44,70,90,108,120]:[14,52,98]; for(const x of xs){ b.pnt(x,46,5,56,3); b.pnt(x-13,16,30,34,2); b.lin(x-13,30,x+17,24,2); } }
+function stWall(b){ b.lin(0,30,127,30,4); b.lin(0,14,20,30,3); b.lin(127,14,107,30,3); for(let x=14;x<118;x+=22) b.lin(x,30,x,42,2); b.lin(0,42,127,42,2); }
+function stFloor(b,y){ b.lin(0,y,127,y,5); b.lin(0,127,16,y,3); b.lin(127,127,111,y,3); }
+function stPassage(b,x,y,w,h){ b.pnt(x,y,w,h,6); b.lin(x,y,x+w,y,5); b.lin(x,y,x,y+h,5); b.lin(x+w,y,x+w,y+h,5); }
+function stWindowLit(b,x,y,w,h){ b.pnt(x,y,w,h,2); b.lin(x,y,x+w,y,5); b.lin(x,y,x,y+h,5); b.lin(x+w,y,x+w,y+h,5); b.lin(x,y+h,x+w,y+h,5); b.lin(x+(w>>1),y,x+(w>>1),y+h,4); b.lin(x,y+(h>>1),x+w,y+(h>>1),4); }
+function stTable(b,x,y,w){ b.pnt(x,y,w,4,4); b.lin(x+2,y+4,x+2,y+16,4); b.lin(x+w-2,y+4,x+w-2,y+16,4); }
+function stFire(b,x,y,fl){ b.pnt(x,y,22,26,0); b.lin(x,y,x,y+26,5); b.lin(x+22,y,x+22,y+26,5); b.lin(x,y,x+22,y,5); b.pnt(x+6,y+16+fl,10,10,6); b.pnt(x+9,y+18+fl,4,7,7); }
+function stCase(b,x,y,full){ b.pnt(x,y,26,34,1); b.lin(x,y,x,y+34,5); b.lin(x+26,y,x+26,y+34,5); b.lin(x,y,x+26,y,5); b.lin(x,y+34,x+26,y+34,5); b.lin(x,y+17,x+26,y+17,4); if(full){ b.pnt(x+4,y+6,6,6,7); b.pnt(x+15,y+8,5,5,7); b.pnt(x+6,y+22,5,7,7); b.pnt(x+15,y+22,6,6,7); b.pnt(x+5,y+7,1,1,0); } }
+function stChasm(b,y){ b.lin(0,y,127,y,5); for(let yy=y+2;yy<104;yy+=3){ const t=Math.max(1,4-Math.floor((yy-y)/8)); b.lin(0,yy,127,yy,t); } }
+function stPedestal(b,cx,y){ b.pnt(cx-8,y+10,16,5,4); b.pnt(cx-4,y,8,11,3); b.pnt(cx-9,y+14,18,3,3); }
+function stTorch(b,cx,y,fl){ b.pnt(cx-1,y,2,16,5); b.pnt(cx-4,y-8+fl,8,10,6); b.pnt(cx-2,y-6+fl,4,6,7); b.pnt(cx-1,y-9+fl,2,3,7); }
+function stColumns(b){ for(const x of [18,56,94]){ b.lin(x,24,x,100,5); b.lin(x+12,24,x+12,100,5); b.pnt(x+1,24,11,76,1); b.pnt(x-3,20,18,5,5); b.pnt(x-3,100,18,4,5); } }
+function stAltar(b,cx,y){ b.pnt(cx-16,y,32,14,2); b.lin(cx-16,y,cx+16,y,5); b.lin(cx-16,y,cx-16,y+14,5); b.lin(cx+16,y,cx+16,y+14,5); b.pnt(cx-18,y+14,36,4,4); }
+function stTroll(b,fl){ b.pnt(40,54,26,46,6); b.pnt(45,40,18,16,6); b.pnt(48,44,3,2,0); b.pnt(56,44,3,2,0); b.lin(50,48,57,48,0); b.lin(66,58,84+fl,40-fl,6); b.lin(82+fl,36-fl,92+fl,44-fl,7); b.lin(84+fl,34-fl,90+fl,34-fl,7); }
+function stThief(b){ b.pnt(52,46,12,36,6); b.pnt(54,38,9,10,6); b.pnt(56,41,2,2,0); b.lin(63,52,76,44,7); b.lin(76,44,74,40,7); }
+function stCyclops(b,blink){ b.pnt(46,28,24,54,6); b.pnt(49,18,18,14,6); b.pnt(54,23,8,5,0); if(!blink){ b.pnt(57,24,3,3,7); } b.lin(46,82,46,100,6); b.lin(70,82,70,100,6); }
+function stCoins(b){ for(const [x,y] of [[20,90],[30,92],[26,86],[96,90],[104,88],[100,94]]){ b.pnt(x,y,5,4,7); b.pnt(x+1,y+1,1,1,0); } }
+function stGlint(b,x,y){ b.pnt(x,y,6,6,7); b.pnt(x+1,y+1,1,1,0); b.pnt(x-2,y+2,1,1,5); b.pnt(x+7,y+3,1,1,5); }
+function stNest(b,cx,y){ b.pnt(cx-10,y,20,7,3); b.lin(cx-10,y,cx+10,y,4); }
+function stRafters(b){ for(let x=8;x<120;x+=22){ b.lin(x,16,x+18,30,3); } b.lin(0,16,127,16,4); }
+
+/* ---- per-room scenes ---- */
+/* ---- cinematic motion: localized self-clearing focal animation (no trails over the paper field) ---- */
+function anim(b, drawFn, seq, hold){ for(const v of seq){ drawFn(v); b.rec(hold||2); } }
+const FLK=[1,2,3,2,1,0];
+// exits drawn as faint openings at the frame edge — the branches, shown not told
+function stExits(b, state){
+  let ex; try{ ex=getExits(state)||{}; }catch(e){ ex={}; }
+  const S={ n:[56,6,16,5], s:[56,117,16,5], e:[122,55,5,18], w:[1,55,5,18], u:[12,6,12,5], d:[104,117,16,5],
+            "in":[101,40,5,16], out:[1,40,5,16], ne:[108,6,13,5], nw:[7,6,13,5], se:[108,117,13,5], sw:[7,117,13,5] };
+  for(const d in ex){ const m=S[d]; if(m){ b.pnt(m[0],m[1],m[2],m[3],5); b.pnt(m[0]+1,m[1]+1,Math.max(1,m[2]-2),Math.max(1,m[3]-2),3); } }
+}
+
+const SCENES128 = {
+  WEST_OF_HOUSE:(b,s)=>{ const leaf=s.loc.leaflet===s.here;
+    b.clr(0); stSky(b); stGround(b,100); stGrass(b,100); stHouse(b,"front");
+    b.pnt(14,84,8,8,4); b.lin(14,84,22,84,5); b.lin(14,84,14,92,5); b.lin(22,84,22,92,5); b.lin(14,92,22,92,5); b.lin(18,92,18,100,4);
+    stExits(b,s); b.rec(3);
+    anim(b, cx=>{ b.pnt(0,0,128,15,1); b.pnt(cx,4,15,4,0); b.pnt(cx+3,3,8,2,0); if(leaf){ b.pnt(16,81,5,3,7); } }, [8,22,38,54,70,86], 3); },
+
+  NORTH_OF_HOUSE:(b,s)=>{ b.clr(0); stSky(b); stGround(b,100); stGrass(b,100); stHouse(b,"north"); stForest(b,false); b.lin(100,100,118,60,2); stExits(b,s); b.rec(3);
+    anim(b, cx=>{ b.pnt(0,0,128,15,1); b.pnt(cx,5,14,3,0); }, [6,26,46,68,92], 3); },
+
+  SOUTH_OF_HOUSE:(b,s)=>{ b.clr(0); stSky(b); stGround(b,100); stGrass(b,100); stHouse(b,"south"); stForest(b,true); stExits(b,s); b.rec(3);
+    anim(b, cx=>{ b.pnt(0,0,128,15,1); b.pnt(cx,4,16,4,0); }, [10,32,54,78,102], 3); },
+
+  BEHIND_HOUSE:(b,s)=>{ const win=s.flags.window_open;
+    b.clr(0); stSky(b); stGround(b,100); stGrass(b,100); stHouse(b,"back"); stExits(b,s);
+    if(win){ stWindowLit(b,54,60,20,22); } else { stWindowLit(b,54,66,20,16); } b.rec(3);
+    anim(b, gi=>{ if(win){ b.pnt(56,62,16,18,gi); } else { b.pnt(56,68,16,12,gi); } }, [2,3,4,3,2], 2); },
+
+  FOREST_1:(b,s)=>{ b.clr(0); stSky(b); stGround(b,102); stGrass(b,102); stForest(b,true); stExits(b,s); b.rec(3);
+    anim(b, q=>{ b.pnt(0,16,128,26,1); stForest(b,true); b.pnt(58+(q%3),40-(q&1),3,3,2); }, [0,1,2,3,4], 2); },
+
+  CLEARING:(b,s)=>{ b.clr(0); stSky(b); stStars(b); stGround(b,100); stGrass(b,100); stForest(b,false);
+    b.pnt(48,96,32,6,4); for(let x=50;x<80;x+=5) b.lin(x,96,x,102,5); stExits(b,s); b.rec(3);
+    anim(b, cx=>{ b.pnt(0,0,128,15,1); stStars(b); b.pnt(cx,5,14,3,0); }, [10,36,62,88], 3); },
+
+  TREE_TOP:(b,s)=>{ const egg=treasuresHere(s).includes("egg");
+    b.clr(0); stSky(b); b.lin(0,70,127,86,4); b.lin(0,74,127,90,3); b.pnt(0,90,128,38,2); b.lin(20,60,60,40,4); b.lin(60,40,64,20,4); stNest(b,64,38); stExits(b,s); b.rec(3);
+    if(egg) anim(b, gi=>{ b.pnt(60,31,7,7,0); b.pnt(61,32,5,5,gi); b.pnt(62,33,1,1,0); }, [5,7,6,7,5], 2);
+    else anim(b, cx=>{ b.pnt(0,0,128,15,1); b.pnt(cx,5,14,3,0); }, [12,44,76], 3); },
+
+  KITCHEN:(b,s)=>{ b.clr(0); stWall(b); stFloor(b,104); stWindowLit(b,84,40,28,22); stTable(b,40,72,30); b.pnt(96,18,12,86,1); b.lin(96,18,96,104,4); stExits(b,s); b.rec(3);
+    anim(b, gi=>{ b.pnt(86,42,24,18,gi); }, [2,3,4,3,2], 2); },
+
+  ATTIC:(b,s)=>{ b.clr(0); stWall(b); stFloor(b,104); stRafters(b); b.lin(30,40,70,52,4); b.pnt(78,84,18,4,4); b.lin(48,60,60,60,5); stExits(b,s); b.rec(3);
+    anim(b, q=>{ b.pnt(46,18,20,44,0); const lx=52+(q%3); b.lin(lx,18,lx-6,60,[1,2,1][q%3]); }, [0,1,2,1], 2); },
+
+  LIVING_ROOM:(b,s)=>{ const full=treasuresInCase(s)>0;
+    b.clr(0); stWall(b); stFloor(b,104); stCase(b,92,58,full);
+    if(s.flags.trap_open){ stPassage(b,48,96,30,8); } else { b.pnt(44,96,40,8,3); b.lin(44,96,84,96,4); b.lin(44,100,84,100,4); }
+    if(s.loc.lamp===s.here){ b.pnt(66,90,5,8,5); b.pnt(67,88,3,3,7); } if(s.loc.sword===s.here){ b.lin(74,88,82,80,6); }
+    stExits(b,s); stFire(b,14,60,1); b.rec(3);
+    anim(b, fl=>stFire(b,14,60,fl), FLK, 2); },
+
+  CELLAR:(b,s)=>{ b.clr(0); stWall(b); stFloor(b,104); stPassage(b,12,40,16,46); stPassage(b,100,46,16,40); b.lin(40,104,60,70,3); stExits(b,s); b.rec(3);
+    anim(b, q=>{ b.pnt(68,40,6,64,0); const ey=98-(q*10); if(ey>40) b.pnt(70,ey,2,2,[6,7,5][q%3]); b.lin(40,104,60,70,3); }, [0,1,2,3,4], 2); },
+
+  TROLL_ROOM:(b,s)=>{ b.clr(0); stWall(b); stFloor(b,104); stPassage(b,8,46,14,42); stPassage(b,106,46,14,42); stExits(b,s);
+    if(!s.flags.troll_dead){ stTroll(b,1); b.rec(3); anim(b, ph=>{ b.pnt(38,30,62,72,0); stTroll(b,ph); }, [2,3,2,1,0], 2); }
+    else { b.lin(70,96,92,88,5); b.lin(88,86,96,90,6); b.pnt(78,92,8,8,1); b.rec(3); anim(b, k=>{ b.pnt(40,90,28,12,0); if(k) b.pnt(46,93,16,6,1); }, [1,0,1,0], 3); } },
+
+  GALLERY:(b,s)=>{ const paint=treasuresHere(s).includes("painting");
+    b.clr(0); stWall(b); stFloor(b,104); b.pnt(46,30,36,30,1); b.lin(44,28,84,28,6); b.lin(44,28,44,62,6); b.lin(84,28,84,62,6); b.lin(44,62,84,62,6);
+    if(paint){ b.lin(46,30,82,60,3); b.lin(82,30,46,60,3); } stExits(b,s); b.rec(3);
+    if(paint) anim(b, gi=>{ b.pnt(60,40,8,8,0); b.lin(46,30,82,60,3); b.lin(82,30,46,60,3); b.pnt(62,42,5,5,gi); }, [5,7,6,7,5], 2);
+    else anim(b, q=>{ b.pnt(60,42,6,6,[1,2,1][q%3]); }, [0,1,2,1], 3); },
+
+  EAST_OF_CHASM:(b,s)=>{ const chal=treasuresHere(s).includes("chalice");
+    b.clr(0); stWall(b); b.pnt(0,66,128,5,4); stPassage(b,8,40,14,26); stExits(b,s); b.rec(2);
+    anim(b, ph=>{ b.pnt(0,71,128,33,0); b.lin(0,71,127,71,5); for(let yy=73;yy<104;yy+=3){ const dd=Math.max(1,4-Math.floor((yy-71)/8)); b.lin(0,yy+(ph%3),127,yy+(ph%3),dd); } if(chal){ b.pnt(60,60,5,5,[5,7,6][ph%3]); } }, [0,1,2,0,1], 2); },
+
+  STUDIO:(b,s)=>{ b.clr(0); stWall(b); stFloor(b,104); b.lin(40,60,30,100,4); b.lin(56,60,66,100,4); b.lin(40,60,56,60,4); b.pnt(38,40,22,22,1); b.lin(38,40,60,40,5); b.lin(38,40,38,62,5); b.lin(60,40,60,62,5); b.lin(38,62,60,62,5);
+    b.pnt(96,16,14,40,0); b.lin(96,16,96,56,5); b.lin(110,16,110,56,5); stExits(b,s); b.rec(3);
+    anim(b, q=>{ b.pnt(98,17,11,39,0); const ey=54-(q*8); if(ey>17) b.pnt(101,ey,2,2,[2,3,2][q%3]); }, [0,1,2,3], 2); },
+
+  MAZE_1:(b,s)=>{ b.clr(0); stWall(b); stFloor(b,104); stPassage(b,10,40,16,44); stPassage(b,100,30,18,40); b.lin(40,20,40,104,4); b.lin(70,40,70,104,4); b.lin(40,60,70,60,4); stExits(b,s); b.rec(3);
+    anim(b, q=>{ b.pnt(52,56,6,6,0); b.pnt(54+(q%3),58,2,2,[2,3,2][q%3]); }, [0,1,2,1], 3); },
+
+  MAZE_2:(b,s)=>{ b.clr(0); stWall(b); stFloor(b,104); stPassage(b,8,30,16,40); stPassage(b,54,60,16,44); stPassage(b,104,40,16,40); b.lin(30,40,30,104,4); b.lin(88,20,88,90,4); stExits(b,s); b.rec(3);
+    anim(b, q=>{ b.pnt(68,48,6,8,0); b.pnt(70,50+(q%3),2,2,[2,3,2][q%3]); }, [0,1,2,1], 3); },
+
+  MAZE_3:(b,s)=>{ b.clr(0); stWall(b); stFloor(b,104); stPassage(b,12,52,16,40); stPassage(b,98,52,18,42); b.lin(50,20,80,40,4); b.lin(50,80,80,60,4); b.pnt(56,80,8,7,5); b.pnt(58,86,4,12,5); stExits(b,s); b.rec(3);
+    anim(b, k=>{ b.pnt(56,80,8,7,5); if(k){ b.pnt(58,82,1,1,0); b.pnt(61,82,1,1,0); } }, [1,0,1,1,0], 3); },
+
+  CYCLOPS_ROOM:(b,s)=>{ b.clr(0); stWall(b); stFloor(b,104); stPassage(b,8,52,14,40); stExits(b,s);
+    if(!s.flags.cyclops_fled){ stCyclops(b,false); b.rec(3); anim(b, blink=>{ b.pnt(46,16,24,16,0); stCyclops(b,!!blink); }, [0,0,1,0,0], 2); }
+    else { stPassage(b,96,30,24,60); b.lin(96,30,118,24,5); b.lin(96,90,120,96,5); b.rec(4); } },
+
+  TREASURE_ROOM:(b,s)=>{ b.clr(0); stWall(b); stFloor(b,104); stCoins(b); b.pnt(58,92,14,10,7); stExits(b,s);
+    if(!s.flags.thief_dead){ stThief(b); b.rec(3); anim(b, q=>{ b.pnt(60,40,20,16,0); b.lin(63,52,76-(q%4),44+(q%4),7); }, [0,1,2,3], 2); }
+    else { b.rec(3); anim(b, gi=>{ b.pnt(50,94,3,3,gi); b.pnt(56,96,3,3,gi); }, [5,7,5,7], 3); } },
+
+  DOME_ROOM:(b,s)=>{ b.clr(0); b.pnt(0,14,128,90,1); for(let i=0;i<7;i++){ b.lin(64,18, 16+Math.round(96*i/6), 60, 3); } b.lin(0,60,127,60,4); b.pnt(20,58,88,4,4); for(let x=24;x<104;x+=10) b.lin(x,58,x,52,4); stExits(b,s);
+    if(s.flags.rope_tied){ b.lin(62,60,62,104,5); b.lin(64,60,64,104,4); b.rec(3); anim(b, q=>{ b.pnt(60,60,6,44,0); b.lin(62,60,62,104,5); b.lin(64,60,64,104,4); const ky=60+((q*10)%44); b.pnt(61,ky,4,3,6); }, [0,1,2,3,4], 2); }
+    else { b.rec(3); anim(b, q=>{ b.pnt(62,18,4,42,1); const ry=18+((q*8)%40); b.pnt(63,ry,2,2,[3,4,3][q%3]); }, [0,1,2,3], 2); } },
+
+  TORCH_ROOM:(b,s)=>{ const torch=treasuresHere(s).includes("torch");
+    b.clr(0); stWall(b); stFloor(b,104); stPedestal(b,64,72); stExits(b,s);
+    if(torch){ stTorch(b,64,56,1); b.rec(3); anim(b, fi=>{ b.pnt(56,44,16,20,0); b.pnt(56,46,16,16,[1,2,1][fi%3]); stTorch(b,64,56,FLK[fi%6]); }, [0,1,2,3,4,5], 2); }
+    else { b.rec(4); } },
+
+  TEMPLE:(b,s)=>{ const cof=treasuresHere(s).includes("coffin");
+    b.clr(0); stWall(b); stFloor(b,104); stColumns(b); stAltar(b,64,80);
+    if(cof){ b.pnt(50,72,28,8,4); b.lin(50,72,78,72,6); } stExits(b,s); b.rec(3);
+    anim(b, q=>{ b.pnt(53,68,4,8,0); b.pnt(73,68,4,8,0); b.pnt(54,72-(q&1),2,4,6); b.pnt(74,71+(q&1),2,4,6); if(cof){ b.pnt(62,70,4,2,[5,7,6][q%3]); } }, [0,1,2,3], 2); }
+};
+function SCENE_GENERIC(b,s){ b.clr(0); stWall(b); stFloor(b,104); stPassage(b,10,46,16,42); stPassage(b,102,46,16,42); stExits(b,s); b.rec(3);
+  anim(b, q=>{ b.pnt(61,50,6,6,0); b.pnt(62,52,2,2,[2,3,2][q%3]); }, [0,1,2,1], 3); }
+function SCENE_DARK(b,s){ // grue eyes blink and creep nearer in the black
+  anim(b, t=>{ b.clr(7); const dx=[0,1,2,2][t%4], dy=[0,0,1,1][t%4], open=(t%4!==2), li=open?7:2;
+    b.pnt(50-dx,52-dy,6,3,li); b.pnt(70+dx,52-dy,6,3,li); if(open){ b.pnt(52-dx,52-dy,2,2,0); b.pnt(72+dx,52-dy,2,2,0); } }, [0,1,2,3,0,1], 3); }
+function SCENE_DEAD(b,s){ anim(b, t=>{ b.clr(7); b.lin(40,40,88,88,6); b.lin(88,40,40,88,6); b.lin(44,30,84,30,5);
+  b.pnt(50,44,28,40,0); b.lin(50,44,78,44,6); b.lin(50,44,50,84,6); b.lin(78,44,78,84,6);
+  b.pnt(56,54,4,5,(t&1)?7:4); b.pnt(68,54,4,5,(t&1)?7:4); b.lin(58,70,70,70,7); for(let x=58;x<71;x+=3) b.lin(x,68,x,72,7); }, [0,1,0,1,0], 5); }
+function SCENE_WON(b,s){ b.clr(0); stGround(b,100); b.lin(40,40,64,18,6); b.lin(64,18,88,40,6); b.lin(40,40,88,40,6); b.pnt(42,40,44,40,2); stCase(b,52,52,true); b.rec(3);
+  const pts=[[20,20],[100,18],[30,70],[104,72],[64,12]];
+  anim(b, t=>{ pts.forEach((p,i)=>{ b.pnt(p[0],p[1],6,6,0); const gi=[5,7,6][(t+i)%3]; b.pnt(p[0],p[1],5,5,gi); b.pnt(p[0]+1,p[1]+1,1,1,0); }); }, [0,1,2,0,1], 3); }
+
+function cellSource(state){
+  const b=B128(); let id, terr;
+  if(state.dead){ id="DEAD"; terr="VOID"; }
+  else if(state.won){ id="VICTORY"; terr="VICTORY"; }
+  else if(isDark(state)){ id="DARK"; terr=ROOMS[state.here].terr||"UNDER"; }
+  else { id=state.here; terr=ROOMS[state.here].terr||id; }
+  b.c("@CELL "+id+" @TERR "+terr);
+  b.c("BEFLIX-128 \u00b7 "+ (ROOMS[state.here]?ROOMS[state.here].name:id));
+  if(state.dead) SCENE_DEAD(b,state);
+  else if(state.won) SCENE_WON(b,state);
+  else if(isDark(state)) SCENE_DARK(b,state);
+  else (SCENES128[state.here]||SCENE_GENERIC)(b,state);
+  return b.out();
+}
+
+/* room description block */
+function describeRoom(state, brief){
+  const lines=[]; const room=ROOMS[state.here];
+  if(isDark(state)){
+    lines.push({room:room.name});
+    lines.push({text:"It is pitch dark. You can see nothing. Something unseen may be waiting."});
+    return lines;
+  }
+  lines.push({room:room.name});
+  if(!brief || !state.visited[state.here]) lines.push({text:room.desc});
+  // notable loose items in the room
+  const loose=itemsAt(state, state.here).filter(id=>{ const it=ITEMS[id]; return it && it.takeable; });
+  for(const id of loose) lines.push({text:"There is a "+ITEMS[id].name+" here."});
+  // open container reveals
+  for(const fx of (room.fixtures||[])){ const it=ITEMS[fx]; if(it&&it.container){ const open = fx==="mailbox"?state.flags.mailbox_open : fx==="sack"?state.flags.sack_open : fx==="trophy_case"?state.flags.case_open : false;
+    if(open){ const inside=itemsAt(state,fx); if(inside.length) lines.push({text:"The "+it.name+" contains: "+inside.map(i=>ITEMS[i].name).join(", ")+"."}); } } }
+  if(state.flags.rug_moved && !state.flags.trap_open && state.here==="LIVING_ROOM") lines.push({text:"A closed trap door is set into the floor where the rug lay."});
+  const ex=getExits(state); const dirs=Object.keys(ex).filter(d=>ex[d]!=="__BOARDED__").map(d=>DIRNAME[d]);
+  if(dirs.length) lines.push({exits:dirs});
+  return lines;
+}
+/* the command processor */
+function handleCommand(state, raw){
+  const out=[]; let change=false;
+  const push=(o)=>out.push(typeof o==="string"?{text:o}:o);
+  if(state.dead){ push("You are no longer among the living. Type RESTART to begin again."); if(/^\s*restart\s*$/i.test(raw)){ return {restart:true}; } return {lines:out,change}; }
+  if(state.won){ if(/^\s*restart\s*$/i.test(raw)){ return {restart:true}; } push("You have already triumphed. Type RESTART to play again."); return {lines:out,change}; }
+
+  let s=String(raw).toLowerCase().trim();
+  if(!s){ push("I beg your pardon?"); return {lines:out,change}; }
+  if(s==="g"||s==="again"){ if(!state.last){ push("There is nothing to repeat."); return {lines:out,change}; } s=state.last; }
+  else state.last=s;
+
+  // multi-word normalisations
+  s=s.replace(/\blook at\b/g,"examine").replace(/\blook inside\b/g,"search").replace(/\blook in\b/g,"search")
+     .replace(/\bpick up\b/g,"take").replace(/\bput down\b/g,"drop")
+     .replace(/\bturn on\b/g,"lampon").replace(/\bturn off\b/g,"lampoff")
+     .replace(/\bswitch on\b/g,"lampon").replace(/\bswitch off\b/g,"lampoff");
+  let toks=s.split(/\s+/).filter(w=>!["the","a","an","at","to","my","of"].includes(w));
+  if(!toks.length){ push("I beg your pardon?"); return {lines:out,change}; }
+  let verb=toks[0]; const rest=toks.slice(1).join(" ");
+
+  // direction shortcut
+  if(DIRSYN[verb] && toks.length===1) return move(state, DIRSYN[verb], out);
+  if(["go","walk","run","head","travel"].includes(verb) && toks[1] && DIRSYN[toks[1]]) return move(state, DIRSYN[toks[1]], out);
+  if(verb==="enter"||verb==="in") return move(state, "in", out);
+  if(verb==="exit"||verb==="out"||verb==="leave") return move(state, "out", out);
+
+  const noun=()=>resolveItem(state, rest);
+
+  switch(verb){
+    case "look": case "l":
+      if(rest){ examine(state, noun(), rest, out); } else { for(const ln of describeRoom(state,false)) push(ln); } break;
+    case "examine": case "x": case "inspect": case "read": {
+      const id=noun();
+      if(verb==="read"){ readItem(state, id, rest, out); } else { examine(state, id, rest, out); } break; }
+    case "search": { const id=noun(); searchItem(state, id, rest, out); break; }
+    case "take": case "get": case "grab": case "carry": case "pick": { const r=take(state, noun(), rest, out); change = change||r; break; }
+    case "drop": case "release": case "discard": { const r=drop(state, noun(), rest, out); change=change||r; break; }
+    case "open": { const r=openClose(state, noun(), rest, true, out); change=change||r; break; }
+    case "close": { const r=openClose(state, noun(), rest, false, out); change=change||r; break; }
+    case "move": case "push": case "pull": case "shift": case "slide": { const r=pushItem(state, noun(), rest, out); change=change||r; break; }
+    case "put": case "insert": case "place": { const r=putItem(state, rest, out); change=change||r; break; }
+    case "turn": {
+      if(/\bon\b/.test(rest)){ const r=lamp(state,true,out); change=change||r; }
+      else if(/\boff\b/.test(rest)){ const r=lamp(state,false,out); change=change||r; }
+      else push("Turn it on, or off?"); break; }
+    case "lampon": case "light": case "activate": { const r=lamp(state,true,out); change=change||r; break; }
+    case "lampoff": case "extinguish": case "douse": { const r=lamp(state,false,out); change=change||r; break; }
+    case "inventory": case "i": case "inv": inventory(state, out); break;
+    case "score": push("Your score is "+state.score+" of 50, in "+state.moves+" moves. You are rated: "+rankFor(state.score)+"."); break;
+    case "attack": case "kill": case "hit": case "fight": case "strike": case "slay": { const r=attack(state, rest, out); change=change||r; break; }
+    case "eat": case "devour": case "bite": eatItem(state, noun(), rest, out); break;
+    case "drink": case "sip": drinkItem(state, noun(), rest, out); break;
+    case "climb": if(getExits(state).u){ return move(state,"u",out); } push("There is nothing to climb here."); break;
+    case "wait": case "z": { const r=waitTurn(state, out); change=change||r; break; }
+    case "help": case "?": case "commands": helpText(out); break;
+    case "say": case "speak": case "chant": case "shout": case "yell": { const r=sayWord(state, rest||toks[0], out); change=change||r; break; }
+    case "ulysses": case "odysseus": case "ulisses": { const r=sayWord(state, verb, out); change=change||r; break; }
+    case "tie": case "fasten": case "attach": { const r=tieRope(state, rest, out); change=change||r; break; }
+    case "pray": case "kneel": case "worship": { const r=pray(state, out); change=change||r; break; }
+    case "give": case "offer": case "feed": { const r=giveItem(state, rest, out); change=change||r; break; }
+    case "diagnose": push("You are "+(state.dead?"dead":"in good health")+". You have taken "+state.moves+" turns."); break;
+    case "restart": return {restart:true};
+    default: push("I don't know how to \""+verb+"\".");
+  }
+  return {lines:out, change};
+}
+
+function move(state, dir, out){
+  const push=(o)=>out.push(typeof o==="string"?{text:o}:o);
+  // troll blocks all passages
+  if(state.here==="TROLL_ROOM" && !state.flags.troll_dead){ push("The troll bars your way, axe raised. You'll not pass while he stands."); return {lines:out,change:false}; }
+  // cyclops blocks all passages until he flees
+  if(state.here==="CYCLOPS_ROOM" && !state.flags.cyclops_fled){ push("The cyclops blocks the way, glaring with his single bloodshot eye. He will not let you pass."); return {lines:out,change:false}; }
+  // chimney from the studio is too tight if heavily laden or without light
+  if(state.here==="STUDIO" && dir==="u"){
+    const carried=itemsAt(state,"INV").length;
+    if(isDark(state)){ /* dark handled below */ }
+    if(carried>2){ push("The chimney is far too narrow to climb while carrying so much. You can manage two items at most."); return {lines:out,change:false}; }
+  }
+  // grue check when leaving a dark, unlit room
+  if(isDark(state)){
+    const p=0.30+0.18*state.darkMoves; state.darkMoves++;
+    if(RNG()<p){ state.dead=true; push("You stumble through the blackness — and something with too many teeth finds you first. You have been eaten."); push({dead:true}); state.moves++; return {lines:out,change:true}; }
+    push("You grope blindly through the dark, heart pounding.");
+  }
+  const ex=getExits(state); const dest=ex[dir];
+  if(!dest){ push("You can't go that way."); return {lines:out,change:false}; }
+  if(dest==="__BOARDED__"){ push("The front door is boarded shut, and the boards will not give."); return {lines:out,change:false}; }
+  // perform
+  state.here=dest; state.moves++; tickLamp(state, push);
+  if(!isDark(state)) state.darkMoves=0;
+  for(const ln of describeRoom(state, true)) push(ln);
+  state.visited[dest]=true;
+  return {lines:out, change:true};
+}
+
+function tickLamp(state, push){
+  if(state.lampOn){ state.lampTurns--;
+    if(state.lampTurns===30) push("The lantern's flame wavers — perhaps half its oil remains.");
+    else if(state.lampTurns===12) push("The lantern is noticeably dimmer now.");
+    else if(state.lampTurns===4) push("The lantern gutters; it will not last much longer.");
+    else if(state.lampTurns<=0){ state.lampOn=false; push("The lantern flares once and dies. Darkness rushes in."); }
+  }
+}
+
+function examine(state, id, rest, out){
+  const push=(o)=>out.push(typeof o==="string"?{text:o}:o);
+  if(!id){ if(rest) push("You can't see any "+rest+" here."); else push("Examine what?"); return; }
+  const it=ITEMS[id]; let d=it.desc;
+  if(id==="lamp") d+= state.lampOn? " It is lit, casting a steady glow." : " It is currently dark.";
+  if(id==="window") d+= state.flags.window_open? " It stands open." : " It is shut.";
+  if(id==="sword" && (isDark(state)||state.here==="TROLL_ROOM"||state.here==="CELLAR")) d+= " The blade glows with a faint blue light.";
+  if(id==="troll" && state.flags.troll_dead) { push("There is no troll here now — only a hanging fog where he fell."); return; }
+  push(d);
+  if(it.container){ const open = id==="mailbox"?state.flags.mailbox_open : id==="sack"?state.flags.sack_open : id==="trophy_case"?state.flags.case_open : id==="bottle"?true:false;
+    if(open){ const inside=itemsAt(state,id); push(inside.length? "It contains: "+inside.map(i=>ITEMS[i].name).join(", ")+"." : "It is empty."); }
+    else push("It is closed."); }
+}
+function readItem(state, id, rest, out){
+  const push=(o)=>out.push(typeof o==="string"?{text:o}:o);
+  if(!id){ push("Read what?"); return; }
+  const it=ITEMS[id]; if(it.read) push(it.read); else push("There is nothing written on the "+it.name+".");
+}
+function searchItem(state, id, rest, out){
+  const push=(o)=>out.push(typeof o==="string"?{text:o}:o);
+  if(!id){ push("Search what?"); return; }
+  const it=ITEMS[id];
+  if(it.container){ const inside=itemsAt(state,id); push(inside.length? "Inside the "+it.name+" you see: "+inside.map(i=>ITEMS[i].name).join(", ")+"." : "The "+it.name+" is empty."); }
+  else push("You find nothing of interest.");
+}
+function take(state, id, rest, out){
+  const push=(o)=>out.push(typeof o==="string"?{text:o}:o);
+  if(!id){ push(rest? "You can't see any "+rest+" here." : "Take what?"); return false; }
+  const it=ITEMS[id];
+  if(state.loc[id]==="INV"){ push("You're already carrying the "+it.name+"."); return false; }
+  if(!it.takeable){ push("You can't take the "+it.name+"."); return false; }
+  // must be reachable: in room, or in an open container in scope
+  const where=state.loc[id];
+  if(where!==state.here){ const cont=ITEMS[where]; const open = where==="mailbox"?state.flags.mailbox_open : where==="sack"?state.flags.sack_open : where==="trophy_case"?state.flags.case_open : where==="bottle"?true:false;
+    if(!cont || !open){ push("You can't reach the "+it.name+"."); return false; } }
+  state.loc[id]="INV";
+  if(it.treasure && !state.scoredTake[id]){ state.scoredTake[id]=true; state.score+=it.takePts||0; }
+  push("Taken.");
+  return true;
+}
+function drop(state, id, rest, out){
+  const push=(o)=>out.push(typeof o==="string"?{text:o}:o);
+  if(!id || state.loc[id]!=="INV"){ push("You aren't carrying that."); return false; }
+  state.loc[id]=state.here; push("Dropped."); return true;
+}
+function openClose(state, id, rest, opening, out){
+  const push=(o)=>out.push(typeof o==="string"?{text:o}:o);
+  if(!id){ push((opening?"Open":"Close")+" what?"); return false; }
+  const it=ITEMS[id];
+  if(id==="window"){ if(opening===!!state.flags.window_open){ push("The window is already "+(opening?"open":"closed")+"."); return false; }
+    state.flags.window_open=opening; push(opening? "With some effort the window slides open, revealing a passage into the kitchen." : "The window slides shut."); return true; }
+  if(id==="trap_door"){ if(!state.flags.rug_moved){ push("You see no trap door."); return false; }
+    if(opening===!!state.flags.trap_open){ push("The trap door is already "+(opening?"open":"closed")+"."); return false; }
+    state.flags.trap_open=opening; push(opening? "The trap door creaks open, revealing a dark staircase descending." : "The trap door falls shut."); return true; }
+  if(it.container){ const key = id==="mailbox"?"mailbox_open" : id==="sack"?"sack_open" : id==="trophy_case"?"case_open" : null;
+    if(!key){ push("You can't open that."); return false; }
+    if(opening===!!state.flags[key]){ push("It is already "+(opening?"open":"closed")+"."); return false; }
+    state.flags[key]=opening;
+    if(opening){ const inside=itemsAt(state,id); push("Opened."+(inside.length? " It contains: "+inside.map(i=>ITEMS[i].name).join(", ")+"." : " It is empty.")); }
+    else push("Closed.");
+    return true; }
+  push("You can't open the "+it.name+"."); return false;
+}
+function pushItem(state, id, rest, out){
+  const push=(o)=>out.push(typeof o==="string"?{text:o}:o);
+  if(!id){ push("Move what?"); return false; }
+  if(id==="rug"){ if(state.flags.rug_moved){ push("The rug is already pushed aside; a trap door lies beneath it."); return false; }
+    state.flags.rug_moved=true; push("You drag the heavy rug aside, revealing a closed trap door set into the floor."); return true; }
+  push("Pushing the "+ITEMS[id].name+" accomplishes nothing."); return false;
+}
+function putItem(state, rest, out){
+  const push=(o)=>out.push(typeof o==="string"?{text:o}:o);
+  const m=rest.split(/\s+\bin(?:to)?\b\s+/);
+  if(m.length<2){ push("Put what where? (try: put painting in case)"); return false; }
+  const id=resolveItem(state, m[0]); const targetId=resolveItem(state, m[1]);
+  if(!id || state.loc[id]!=="INV"){ push("You aren't carrying that."); return false; }
+  if(!targetId){ push("You can't see that here."); return false; }
+  const tgt=ITEMS[targetId];
+  if(!tgt.container){ push("You can't put anything in the "+tgt.name+"."); return false; }
+  if(targetId==="trophy_case"){ if(!state.flags.case_open){ push("The trophy case is closed."); return false; }
+    state.loc[id]="trophy_case"; let msg="You place the "+ITEMS[id].name+" inside the trophy case.";
+    if(ITEMS[id].treasure && !state.scoredCase[id]){ state.scoredCase[id]=true; state.score+=ITEMS[id].casePts||0; }
+    push(msg);
+    if(treasuresInCase(state)===totalTreasures()){ state.won=true; state.score+=10;
+      push({win:true}); push("Every lost treasure is now locked safe behind glass. The house hums with old magic, and a voice you cannot place says: well done, adventurer. You have restored CINEOSIS. (+10 bonus)"); }
+    return true; }
+  const key = targetId==="sack"?"sack_open" : targetId==="mailbox"?"mailbox_open" : null;
+  if(key && !state.flags[key]){ push("The "+tgt.name+" is closed."); return false; }
+  state.loc[id]=targetId; push("Done."); return true;
+}
+function lamp(state, on, out){
+  const push=(o)=>out.push(typeof o==="string"?{text:o}:o);
+  const l=state.loc.lamp; if(l!=="INV" && l!==state.here){ push("You don't have the lantern."); return false; }
+  if(on && state.lampTurns<=0){ push("The lantern is spent; it gives no light."); return false; }
+  if(state.lampOn===on){ push("The lantern is already "+(on?"on":"off")+"."); return false; }
+  state.lampOn=on; push(on? "The lantern is now on, throwing a warm circle of light." : "The lantern is now off."); return true;
+}
+function inventory(state, out){
+  const push=(o)=>out.push(typeof o==="string"?{text:o}:o);
+  const inv=itemsAt(state,"INV"); if(!inv.length){ push("You are empty-handed."); return; }
+  push("You are carrying:"); for(const id of inv) push("  - "+ITEMS[id].name + (id==="lamp"&&state.lampOn?" (lit)":""));
+}
+function bladeInHand(state){ return state.loc.sword==="INV" ? "sword" : (state.loc.knife==="INV" ? "knife" : (state.loc.stiletto==="INV" ? "stiletto" : null)); }
+function attack(state, rest, out){
+  const push=(o)=>out.push(typeof o==="string"?{text:o}:o);
+  const m=rest.split(/\s+\bwith\b\s+/);
+  const targetId=resolveItem(state, m[0]||rest);
+  const weaponId=m[1]?resolveItem(state,m[1]):bladeInHand(state);
+  if(targetId==="troll"){
+    if(state.flags.troll_dead){ push("The troll is already dead."); return false; }
+    if(weaponId!=="sword" || state.loc.sword!=="INV"){ push("Bare-handed against an axe is a short story with a bad ending. The troll swings — only a quick stumble backward saves you. Find a proper blade."); return false; }
+    push("The elvish blade flares blue. You parry the troll's first blow in a shower of sparks.");
+    if(RNG()<0.35) push("His axe grazes your arm — a shallow, stinging cut.");
+    push("Your second thrust finds its mark. The troll shrieks, drops his axe, and dissolves into a cloud of sinister black fog. The passages are clear.");
+    state.flags.troll_dead=true; return true;
+  }
+  if(targetId==="thief"){
+    if(state.flags.thief_dead){ push("The thief is already dead."); return false; }
+    if(!weaponId){ push("You have no weapon. The thief laughs, and his stiletto draws a thin line of blood across your knuckles."); return false; }
+    // the thief is quick: a sharp blade (sword/knife/stiletto) usually wins, with a real chance he wounds you
+    push("You lunge at the thief. He is quick — blades flash and scrape.");
+    const r=RNG();
+    if(r<0.65){
+      push("Your blow lands true. The thief gasps, staggers, and collapses among his loot, which spills across the floor. A crystal skull rolls free.");
+      state.flags.thief_dead=true; state.loc.skull=state.here; // drop his hoard
+      return true;
+    } else if(r<0.9){
+      push("He parries, grinning, and nicks your forearm. Try again."); return true;
+    } else {
+      state.dead=true; push("The thief is faster than you. His stiletto finds your heart, and the den goes dark. You have been killed."); push({dead:true}); return true;
+    }
+  }
+  if(targetId==="cyclops"){ push("The cyclops swats your weapon aside as if it were a twig. Steel will not save you here — perhaps a word might."); return false; }
+  if(targetId){ push("Violence against the "+ITEMS[targetId].name+" seems unwise."); return false; }
+  push("Attack what?"); return false;
+}
+function eatItem(state, id, rest, out){
+  const push=(o)=>out.push(typeof o==="string"?{text:o}:o);
+  if(!id){ push("Eat what?"); return; } const it=ITEMS[id];
+  if(!it.edible){ push("The "+it.name+" is hardly appetising."); return; }
+  if(state.loc[id]!=="INV"){ push("You're not holding that."); return; }
+  state.loc[id]="__GONE__"; push(id==="lunch"? "You wolf the sandwich. The pepper sets your whole head alight — bracing!" : "You eat the "+it.name+". Pungent, but oddly fortifying.");
+}
+function drinkItem(state, id, rest, out){
+  const push=(o)=>out.push(typeof o==="string"?{text:o}:o);
+  if(id!=="water"){ push("You can't drink that."); return; }
+  const b=state.loc.bottle; if(b!=="INV" && b!==state.here){ push("You have no water to drink."); return; }
+  if(state.loc.water!=="bottle"){ push("The bottle is empty."); return; }
+  state.loc.water="__GONE__"; push("You drink the water. Refreshing.");
+}
+function waitTurn(state, out){
+  const push=(o)=>out.push(typeof o==="string"?{text:o}:o);
+  if(isDark(state)){ const p=0.30+0.18*state.darkMoves; state.darkMoves++;
+    if(RNG()<p){ state.dead=true; push("You wait in the dark — a mistake. Something closes its jaws around you. You have been eaten."); push({dead:true}); state.moves++; return true; }
+    push("You wait, tense, in the smothering dark."); state.moves++; return true; }
+  push("Time passes."); state.moves++; tickLamp(state,push); return true;
+}
+function helpText(out){
+  const push=(o)=>out.push(typeof o==="string"?{text:o}:o);
+  push("COMMANDS — move: n s e w ne nw se sw up down · in · out");
+  push("  look (l) · examine X (x) · read X · search X · inventory (i) · score");
+  push("  take X · drop X · open X · close X · move X · put X in Y");
+  push("  turn on lamp · turn off lamp · attack troll with sword · eat X · drink X · wait (z) · again (g)");
+  push("Object names in the transcript are clickable — the text is a control surface. So is the BEFLIX source on the right: click a line to bind its box in the cell, or click the cell to find the line.");
+  push("Special words may matter. Some doors open only to the right name; some places answer a prayer.");
+}
+function sayWord(state, word, out){
+  const push=(o)=>out.push(typeof o==="string"?{text:o}:o);
+  const w=(word||"").toLowerCase().replace(/[^a-z]/g,"");
+  if(state.here==="CYCLOPS_ROOM" && !state.flags.cyclops_fled && (w==="ulysses"||w==="odysseus"||w==="ulisses")){
+    state.flags.cyclops_fled=true;
+    push("At the sound of his ancient enemy's name the cyclops blanches, bellows, and flees — smashing clean through the east wall. Beyond, a staircase rises, and a strange passage now leads back toward the living room.");
+    return true;
+  }
+  if(w) push("\""+w+"\" echoes off the stone and fades. Nothing happens.");
+  else push("Say what?");
+  return false;
+}
+function tieRope(state, rest, out){
+  const push=(o)=>out.push(typeof o==="string"?{text:o}:o);
+  if(!/rope/.test(rest||"")){ push("Tie what?"); return false; }
+  if(state.loc.rope!=="INV"){ push("You aren't carrying the rope."); return false; }
+  if(state.here!=="DOME_ROOM"){ push("There is nothing here worth tying a rope to."); return false; }
+  if(state.flags.rope_tied){ push("The rope is already tied to the railing."); return false; }
+  state.flags.rope_tied=true; state.loc.rope="DOME_ROOM";
+  push("You make the rope fast to the wooden railing and drop the loose end over the rim. It hangs down into the dark — you could climb down now.");
+  return true;
+}
+function pray(state, out){
+  const push=(o)=>out.push(typeof o==="string"?{text:o}:o);
+  if(state.here==="TEMPLE"){
+    state.here="FOREST_1"; state.moves++; state.darkMoves=0;
+    push("You kneel at the altar and bow your head. The temple seems to fold around you — and between one breath and the next you are standing, blinking, in open daylight.");
+    for(const ln of describeRoom(state,true)) push(ln);
+    state.visited.FOREST_1=true; return true;
+  }
+  push("You pray. It is good for the soul, if nothing else.");
+  return false;
+}
+function giveItem(state, rest, out){
+  const push=(o)=>out.push(typeof o==="string"?{text:o}:o);
+  const m=rest.split(/\s+\bto\b\s+/); const id=resolveItem(state,m[0]); const tgt=m[1]?resolveItem(state,m[1]):null;
+  if(tgt==="cyclops" && !state.flags.cyclops_fled){
+    push("The cyclops snatches whatever you offer and devours it, then looks hungrier than before. Food will not move him — but a certain name might."); return false; }
+  if(tgt==="thief" && !state.flags.thief_dead){
+    if(id && ITEMS[id].treasure && state.loc[id]==="INV"){ state.loc[id]="TREASURE_ROOM"; push("The thief accepts your "+ITEMS[id].name+" with an ironic little bow, and tucks it away. Unwise."); return true; }
+    push("The thief raises an eyebrow, unimpressed."); return false; }
+  if(!id || state.loc[id]!=="INV"){ push("You aren't carrying that."); return false; }
+  push("There is no one here who wants it."); return false;
+}
+
+/* =====================================================================
+   EXPORT BUILDERS — Twine .twee + standalone HTML branch map
+   Pure functions over ROOMS/ITEMS (DOM-free, unit-testable). Rooms ->
+   passages, exits -> [[links]]; the map renders the same graph as SVG.
+   ===================================================================== */
+function genIFID(){ return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,c=>{const r=Math.random()*16|0;return (c==="x"?r:(r&0x3|0x8)).toString(16);}).toUpperCase(); }
+function uniqueTitles(){
+  const ids=Object.keys(ROOMS), count={}, seen={}, T={};
+  ids.forEach(i=>count[ROOMS[i].name]=(count[ROOMS[i].name]||0)+1);
+  ids.forEach(i=>{ const nm=ROOMS[i].name; if(count[nm]>1){ seen[nm]=(seen[nm]||0)+1; T[i]=nm+" "+seen[nm]; } else T[i]=nm; });
+  return T;
+}
+function roomNotables(id){
+  const keep=["mailbox","window","rug","trophy_case","troll","cyclops","thief","altar","railing","skeleton"];
+  const r=[]; for(const it in ITEMS){ const I=ITEMS[it]; if(I.start===id && (I.takeable||I.treasure||keep.includes(it))) r.push(I); } return r;
+}
+function buildTwee(){
+  const T=uniqueTitles(); const L=[];
+  L.push(":: StoryTitle"); L.push("CINEOSIS ZORK"); L.push("");
+  L.push(":: StoryData");
+  L.push(JSON.stringify({ ifid:genIFID(), format:"Harlowe", "format-version":"3.3.9", start:T.WEST_OF_HOUSE, "tag-colors":{ treasure:"green", dark:"purple" } }, null, 2));
+  L.push("");
+  for(const id in ROOMS){
+    const r=ROOMS[id], items=roomNotables(id), tags=[];
+    if(r.dark) tags.push("dark");
+    if(items.some(i=>i.treasure)) tags.push("treasure");
+    L.push(":: "+T[id]+(tags.length?" ["+tags.join(" ")+"]":""));
+    L.push(r.desc);
+    if(items.length){ L.push(""); L.push("Here: "+items.map(i=>i.name+(i.treasure?" (treasure)":"")).join(", ")+"."); }
+    L.push("");
+    const ex=r.exits||{};
+    for(const d in ex){ const t=ex[d];
+      if(t==="__BOARDED__"){ L.push("The way "+DIRNAME[d]+" is boarded shut."); continue; }
+      if(!ROOMS[t]) continue;
+      L.push("[["+DIRNAME[d]+"->"+T[t]+"]]");
+    }
+    if(id==="BEHIND_HOUSE") L.push("[[in (open the window first)->"+T.KITCHEN+"]]");
+    if(id==="LIVING_ROOM")  L.push("[[down (move rug, open trap door)->"+T.CELLAR+"]]");
+    if(id==="CYCLOPS_ROOM"){ L.push("[[up (say the magic word)->"+T.TREASURE_ROOM+"]]"); L.push("[[east (after the cyclops flees)->"+T.LIVING_ROOM+"]]"); }
+    if(id==="DOME_ROOM")    L.push("[[down (tie the rope to the railing)->"+T.TORCH_ROOM+"]]");
+    if(id==="TEMPLE")       L.push("[[pray (teleports you out)->"+T.FOREST_1+"]]");
+    L.push("");
+  }
+  return L.join("\n");
+}
+function buildMapHTML(){
+  const ids=Object.keys(ROOMS), T=uniqueTitles();
+  const adj={}; ids.forEach(i=>adj[i]=[]); const edges=[];
+  const addEdge=(f,t,d,g)=>{ if(!ROOMS[f]||!ROOMS[t]) return; edges.push({from:f,to:t,dir:d,gated:!!g}); adj[f].push(t); adj[t].push(f); };
+  for(const id of ids){ const ex=ROOMS[id].exits||{}; for(const d in ex){ const t=ex[d]; if(ROOMS[t]) addEdge(id,t,d,false); } }
+  // puzzle-gated passages (drawn dashed) so the interior is reachable on the graph
+  const has=(f,t)=>edges.some(e=>e.from===f&&e.to===t);
+  for(const [f,t,d] of [["BEHIND_HOUSE","KITCHEN","in"],["LIVING_ROOM","CELLAR","down"],["CYCLOPS_ROOM","TREASURE_ROOM","up"],["CYCLOPS_ROOM","LIVING_ROOM","east"],["DOME_ROOM","TORCH_ROOM","down"],["TEMPLE","FOREST_1","pray"]])
+    if(!has(f,t)) addEdge(f,t,d,true);
+  // BFS order from start, then any stragglers
+  const start="WEST_OF_HOUSE", order=[], inq={}; inq[start]=1; const q=[start];
+  while(q.length){ const c=q.shift(); order.push(c); for(const nb of adj[c]) if(!inq[nb]){ inq[nb]=1; q.push(nb); } }
+  ids.forEach(i=>{ if(!inq[i]) order.push(i); });
+  // compact grid in traversal order (connected rooms land near each other)
+  const NW=158, NH=46, COLW=212, ROWH=88, MX=36, MY=46, pos={};
+  const cols=Math.min(6, Math.max(3, Math.ceil(Math.sqrt(order.length*1.25))));
+  order.forEach((id,i)=>{ pos[id]={x:MX+(i%cols)*COLW, y:MY+Math.floor(i/cols)*ROWH}; });
+  const rows=Math.ceil(order.length/cols);
+  const W=MX*2+(cols-1)*COLW+NW, H=MY*2+(rows-1)*ROWH+NH;
+  const isTre=id=>{ for(const it in ITEMS) if(ITEMS[it].start===id && ITEMS[it].treasure) return true; return false; };
+  let eSvg="", lSvg="";
+  for(const e of edges){ const a=pos[e.from], b=pos[e.to]; if(!a||!b) continue;
+    const x1=a.x+NW/2, y1=a.y+NH/2, x2=b.x+NW/2, y2=b.y+NH/2;
+    const ex2=x1+(x2-x1)*0.84, ey2=y1+(y2-y1)*0.84;
+    eSvg+='<line x1="'+x1+'" y1="'+y1+'" x2="'+ex2+'" y2="'+ey2+'" class="edge'+(e.gated?' gated':'')+'" marker-end="url(#ah)"/>';
+    const lx=x1+(x2-x1)*0.3, ly=y1+(y2-y1)*0.3;
+    lSvg+='<rect x="'+(lx-10)+'" y="'+(ly-7)+'" width="20" height="13" class="elab"/><text x="'+lx+'" y="'+(ly+3)+'" class="edt">'+e.dir.toUpperCase()+'</text>';
+  }
+  let nSvg="";
+  for(const id of ids){ const p=pos[id], tr=isTre(id), dk=ROOMS[id].dark;
+    nSvg+='<g transform="translate('+p.x+','+p.y+')">'+
+      '<rect width="'+NW+'" height="'+NH+'" class="node'+(tr?' tre':'')+'"/>'+
+      '<rect width="'+NW+'" height="16" class="'+(tr?'tret':'ntitle')+'"/>'+
+      '<text x="6" y="12" class="ntt'+(tr?' ntti':'')+'">'+T[id].toUpperCase()+'</text>'+
+      '<text x="6" y="33" class="nsub">'+(dk?'dark':'')+(tr?(dk?' / treasure':'treasure'):'')+'</text>'+
+      '</g>';
+  }
+  let list="";
+  for(const id of ids){ const r=ROOMS[id], ex=r.exits||{};
+    const exits=Object.keys(ex).filter(d=>ex[d]!=="__BOARDED__"&&ROOMS[ex[d]]).map(d=>DIRNAME[d]+" -> "+T[ex[d]]);
+    list+='<div class="rl"><h3>'+T[id]+(r.dark?' <span class="tag">dark</span>':'')+(isTre(id)?' <span class="tag">treasure</span>':'')+'</h3><p>'+r.desc+'</p>'+
+      (exits.length?'<p class="ex">'+exits.join(" &nbsp;&middot;&nbsp; ")+'</p>':'')+'</div>';
+  }
+  return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>CINEOSIS ZORK - Branch Map</title>'+
+'<style>:root{--ink:#000;--paper:#fff;--mono:ui-monospace,Menlo,Consolas,monospace;--grot:"Arial Narrow","Helvetica Neue",Arial,sans-serif}'+
+'*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--mono);font-size:13px;-webkit-font-smoothing:none}'+
+'header{border-bottom:2px solid var(--ink);padding:8px 14px;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}'+
+'h1{font-family:var(--grot);font-weight:800;font-stretch:condensed;text-transform:uppercase;letter-spacing:-.01em;font-size:22px;margin:0}'+
+'.sub{font-family:var(--grot);font-weight:700;font-stretch:condensed;text-transform:uppercase;letter-spacing:.13em;font-size:10px}'+
+'.mapwrap{overflow:auto;border-bottom:2px solid var(--ink)}svg{display:block;background:var(--paper)}'+
+'.edge{stroke:var(--ink);stroke-width:1.5}.edge.gated{stroke-dasharray:5 4}.elab{fill:var(--paper);stroke:var(--ink);stroke-width:1}'+
+'.edt{font-family:var(--grot);font-weight:800;font-stretch:condensed;font-size:8.5px;text-anchor:middle;letter-spacing:.05em}'+
+'.node{fill:var(--paper);stroke:var(--ink);stroke-width:2}.tre{stroke-width:3.5}.ntitle{fill:var(--paper)}.tret{fill:var(--ink)}'+
+'.ntt{font-family:var(--grot);font-weight:800;font-stretch:condensed;font-size:10.5px;letter-spacing:.03em}.ntti{fill:var(--paper)}'+
+'.nsub{font-family:var(--mono);font-size:8px}'+
+'section{padding:12px 14px;column-width:300px;column-gap:18px}'+
+'.rl{break-inside:avoid;border:2px solid var(--ink);padding:8px 10px;margin:0 0 12px}'+
+'.rl h3{font-family:var(--grot);font-weight:800;font-stretch:condensed;text-transform:uppercase;letter-spacing:.04em;font-size:14px;margin:0 0 5px;border-bottom:2px solid var(--ink);padding-bottom:3px}'+
+'.rl p{margin:4px 0}.rl .ex{font-size:11px}'+
+'.tag{font-family:var(--grot);font-weight:700;font-stretch:condensed;background:var(--ink);color:var(--paper);padding:0 5px;font-size:9px;letter-spacing:.07em;vertical-align:1px}'+
+'footer{border-top:2px solid var(--ink);padding:8px 14px;font-size:10px;letter-spacing:.03em}</style></head><body>'+
+'<header><h1>CINEOSIS&middot;ZORK</h1><span class="sub">Branch Map &middot; '+ids.length+' rooms &middot; nodes are rooms, arrows are exits</span></header>'+
+'<div class="mapwrap"><svg width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg">'+
+'<defs><marker id="ah" markerWidth="8" markerHeight="8" refX="6.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#000"/></marker></defs>'+
+eSvg+lSvg+nSvg+'</svg></div><section>'+list+'</section>'+
+'<footer>CONSEQUENCE WORKS &middot; bold-bordered nodes hold treasure; dashed arrows are puzzle-gated passages. Import the companion .twee into Twine for an editable, playable branch graph.</footer></body></html>';
+}
+
+/* =====================================================================
+   PART D — UI CONTROLLER  (DOM; guarded so headless tests skip it)
+   Realises the POML interaction law: bidirectional binding between the
+   BEFLIX source (control surface) and the cell viewport, plus a
+   foot-anchored op stack. Transcript object names are also a control
+   surface (click to examine / move).
+   ===================================================================== */
+if (typeof document !== "undefined") (function(){
+  const $ = id => document.getElementById(id);
+  const transcript=$("transcript"), cmdInput=$("cmd"), tray=$("tray"), moreBtn=$("moreBtn"),
+        cellCanvas=$("cellCanvas"), bindCanvas=$("bindCanvas"), crt=$("crt"),
+        crtLabel=$("crtLabel"), cellRoom=$("cellRoom"), cellStat=$("cellStat"),
+        scoreReadout=$("scoreReadout"), srcList=$("srcList"), srcEdit=$("srcEdit"),
+        srcText=$("srcText"), editToggle=$("editToggle"), stackWrap=$("stackWrap"),
+        stackCount=$("stackCount"), tPlay=$("tPlay"), tBack=$("tBack"), tFwd=$("tFwd"),
+        tScrub=$("tScrub"), tCur=$("tCur"), tTot=$("tTot"),
+        bindInfo=$("bindInfo"), btnUndo=$("btnUndo"), btnSave=$("btnSave"), btnLoad=$("btnLoad"), wsw=$("wsw");
+
+  const SCALE=6, G=64;
+  let state=newGame();
+  let opMeta={};            // line -> {depth, kind, order} for bind readout
+  let undoStack=[], savedSlot=null;
+  const snapshot = () => JSON.parse(JSON.stringify(state));
+  const clone = o => JSON.parse(JSON.stringify(o));
+  const executor=new CellExecutor({sprites:SPRITES});
+  let player=null, program=null, currentSource="", boundLine=null;
+  const journey=[]; let filming=false;
+  let history=[], histIdx=0, editing=false;
+
+  /* ---------- transcript + control-surface linkify ---------- */
+  const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  function linkify(text){
+    const nouns=scopeNouns(state), matches=[];
+    for(const {word,id} of nouns){ const re=new RegExp("\\b"+word.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\b","ig"); let m;
+      while((m=re.exec(text))) matches.push({start:m.index,end:m.index+m[0].length,id,text:m[0]}); }
+    matches.sort((a,b)=> a.start-b.start || (b.end-b.start)-(a.end-a.start));
+    const picked=[]; let lastEnd=-1;
+    for(const mt of matches) if(mt.start>=lastEnd){ picked.push(mt); lastEnd=mt.end; }
+    let out="", pos=0;
+    for(const mt of picked){ out+=esc(text.slice(pos,mt.start)); out+='<button class="ref" data-ex="'+mt.id+'">'+esc(mt.text)+"</button>"; pos=mt.end; }
+    out+=esc(text.slice(pos)); return out;
+  }
+  function printLine(o){
+    const d=document.createElement("div");
+    if(o.room){ d.className="t-room"; d.textContent=o.room.toUpperCase(); }
+    else if(o.exits){ d.className="exits"; d.innerHTML="<b>Exits:</b> "+o.exits.map(x=>'<button class="ref" data-go="'+x+'">'+x+"</button>").join(" · "); }
+    else if(o.win){ d.className="t-win"; d.textContent="VICTORY"; }
+    else if(o.dead){ d.className="t-dead"; d.textContent="YOU HAVE DIED"; }
+    else { d.className="t-line"; d.innerHTML=linkify(o.text||""); }
+    transcript.appendChild(d);
+  }
+  function printSys(k,t){ const d=document.createElement("div"); d.className="t-sys"; d.innerHTML='<span class="k">'+esc(k)+"</span> "+esc(t); transcript.appendChild(d); }
+
+  function submit(raw){
+    raw=(raw||"").trim(); if(!raw) return;
+    const ec=raw.toLowerCase().match(/^export\s+(film|video|movie|twee|twine|map|html)$/);
+    if(ec){ const e2=document.createElement("div"); e2.className="t-cmd"; e2.textContent=raw; transcript.appendChild(e2);
+      const k=ec[1]; if(k==="film"||k==="video"||k==="movie") exportFilm(); else if(k==="map"||k==="html") exportMap(); else exportTwee();
+      transcript.scrollTop=transcript.scrollHeight; if(!editing) cmdInput.focus(); return; }
+    undoStack.push(snapshot()); if(undoStack.length>50) undoStack.shift();
+    history.push(raw); histIdx=history.length;
+    const echo=document.createElement("div"); echo.className="t-cmd"; echo.textContent=raw; transcript.appendChild(echo);
+    const res=handleCommand(state, raw);
+    if(res.restart){ doRestart(); return; }
+    for(const ln of res.lines) printLine(ln);
+    transcript.scrollTop=transcript.scrollHeight;
+    updateScore(); loadCell(); recordJourney(raw);
+    if(!editing) cmdInput.focus();
+  }
+  function updateScore(){ scoreReadout.textContent="SCORE "+state.score+" · MOVES "+state.moves; }
+  function doRestart(){ state=newGame(); transcript.innerHTML=""; intro(); loadCell(); updateScore(); journey.length=0; recordJourney("restart"); if(!editing) cmdInput.focus(); }
+  function intro(){
+    printSys("CINEOSIS ZORK","an operational-pragmatist text adventure · BEFLIX live render");
+    printLine({text:"HELP for commands. Nouns below are clickable. The render at right is the live BEFLIX cell — click a source line to bind its box, or click the cell to find the line."});
+    for(const ln of describeRoom(state,false)) printLine(ln);
+    state.visited[state.here]=true;
+  }
+
+  /* ---------- cell compile / play ---------- */
+  function loadCell(){ currentSource=cellSource(state); compileAndPlay(currentSource); }
+  function compileAndPlay(source){
+    let out;
+    try{ out=executor.executeCell(source); }
+    catch(e){ out={cellId:"ERR",frames:[],frameCount:0,boxesPerFrame:[],metadata:{error:String(e)}}; }
+    try{ program=parseBelixSource(source); }catch(e){ program={nodes:[]}; }
+    const wasPlaying = !player || player.playing;
+    if(player) player.pause();
+    const g0 = out.frames.length ? out.frames[0].width : 64;
+    const sc = Math.max(1, Math.round(384/g0));   // ~384px intrinsic at any grid, crisp
+    player=new AnimationPlayer(out, cellCanvas, 12, sc);
+    bindCanvas.width=cellCanvas.width; bindCanvas.height=cellCanvas.height;
+    player.onFrame=(idx)=>{ tCur.textContent=idx; tScrub.value=idx; drawBind(); markActive(); if(boundLine!=null) updateBindInfo(); };
+    tTot.textContent=out.frameCount; tScrub.max=Math.max(0,out.frameCount-1); tScrub.value=0; tCur.textContent="0";
+    cellRoom.textContent=(out.cellId||"—").replace(/_/g," ");
+    const dm = out.metadata.dither || (source.match(/DITHER\(\s*([a-z0-9]+)\s*\)/i)||[])[1] || "bayer8";
+    crtLabel.textContent="1-BIT · "+dm.toUpperCase();
+    if(out.metadata.error){ crt.classList.add("err"); cellStat.textContent="ERR: "+out.metadata.error.slice(0,28); }
+    else { crt.classList.remove("err"); cellStat.textContent=out.frameCount+"f · "+Math.round(out.metadata.executionTimeMs)+"ms"; }
+    renderSource(source, out); if(out.ops) renderStackB128(out.ops); else renderStack(program, out);
+    boundLine=null; syncBound(); drawBind();
+    if(out.frameCount){ if(wasPlaying) player.play(); else player.render(); }
+    updatePlayBtn();
+  }
+
+  function fmtCode(ln,isCmt){
+    if(isCmt) return esc(ln)||" ";
+    const m=ln.match(/^(\s*)([A-Za-z]+)(.*)$/);
+    if(m) return esc(m[1])+'<span class="verb">'+esc(m[2])+'</span>'+esc(m[3]);
+    return esc(ln)||" ";
+  }
+  function renderSource(source, out){
+    if(srcText.value!==source) srcText.value=source;
+    srcList.innerHTML="";
+    const bindable=new Set();
+    for(const fr of out.boxesPerFrame) for(const b of fr) bindable.add(b.line);
+    source.split("\n").forEach((ln,i)=>{
+      const no=i+1, isCmt=/^\s*c\b/i.test(ln);
+      const row=document.createElement("div"); row.className="srcline"+(bindable.has(no)?" bindable":"")+(isCmt?" cmt-line":"");
+      row.dataset.line=no;
+      row.innerHTML='<span class="ln">'+no+'</span><span class="code">'+fmtCode(ln,isCmt)+"</span>";
+      row.addEventListener("click",()=>bindLine(no));
+      row.addEventListener("mouseenter",()=>preview(no));
+      row.addEventListener("mouseleave",()=>preview(null));
+      srcList.appendChild(row);
+    });
+  }
+  function summarize(n){
+    if(n.kind==="IF") return n.condition||"";
+    if(n.kind==="FOR") return n.range? (n.varName+" "+n.from+".."+n.to) : ("× "+n.count);
+    if(n.kind==="ASSIGN") return n.target+" "+n.op+" "+n.expr;
+    if(n.kind==="CALL") return n.fn+"("+(n.args||[]).join(",")+")";
+    return (n.args||[]).join(", ");
+  }
+  function renderStack(prog, out){
+    [...stackWrap.querySelectorAll(".opbox")].forEach(n=>n.remove());
+    const flat=[];
+    (function walk(nodes,depth){ for(const n of nodes){ flat.push({node:n,depth}); if(n.body&&n.body.length) walk(n.body,Math.min(depth+1,2)); } })(prog.nodes||[],0);
+    stackCount.textContent=flat.length+" ops";
+    // foot-anchored: ground is first DOM child (column-reverse => bottom); node0 appended next sits just above ground.
+    opMeta={};
+    for(const {node,depth} of flat){
+      const box=document.createElement("div"); box.className="opbox depth"+depth; box.dataset.line=node.line;
+      box.innerHTML='<span class="kind">'+node.kind+'</span><span class="arg">'+esc(summarize(node))+'</span><span class="dl">L'+node.line+"</span>";
+      box.addEventListener("click",()=>bindLine(node.line));
+      box.addEventListener("mouseenter",()=>preview(node.line));
+      box.addEventListener("mouseleave",()=>preview(null));
+      stackWrap.appendChild(box);
+      if(opMeta[node.line]===undefined) opMeta[node.line]={depth, kind:node.kind, order:depth+1};
+    }
+    markActive();
+  }
+  // BEFLIX-128 op stack: one box per CLR / PNT / LIN / REC; REC marks a frame capture
+  function renderStackB128(ops){
+    [...stackWrap.querySelectorAll(".opbox")].forEach(n=>n.remove());
+    const recs=ops.filter(o=>o.op==="REC").length;
+    stackCount.textContent = ops.length + " ops \u00B7 " + recs + " rec";
+    opMeta = {};
+    for(const o of ops){
+      const cls = o.op==="REC" ? " rec" : (o.op==="CLR" ? " clr" : "");
+      const box=document.createElement("div"); box.className="opbox"+cls; box.dataset.line=o.line;
+      let arg="";
+      if(o.op==="CLR")      arg="fill \u00B7 i"+o.i;
+      else if(o.op==="PNT") arg=o.x+","+o.y+" \u00B7 "+o.w+"\u00D7"+o.h+" \u00B7 i"+o.i;
+      else if(o.op==="LIN") arg=o.x1+","+o.y1+"\u2192"+o.x2+","+o.y2+" \u00B7 i"+o.i;
+      else if(o.op==="REC") arg="capture \u00D7 "+o.n;
+      box.innerHTML='<span class="kind">'+o.op+'</span><span class="arg">'+esc(arg)+'</span><span class="dl">L'+o.line+"</span>";
+      box.addEventListener("click",()=>bindLine(o.line));
+      box.addEventListener("mouseenter",()=>preview(o.line));
+      box.addEventListener("mouseleave",()=>preview(null));
+      stackWrap.appendChild(box);
+      if(opMeta[o.line]===undefined) opMeta[o.line]={depth:0, kind:o.op, order:1};
+    }
+    markActive();
+  }
+  // highlight ops that actually drew in the current frame (first/second-order firing live)
+  function markActive(){
+    if(!player) return; const live=new Set((player.boxes||[]).map(b=>b.line));
+    for(const box of stackWrap.querySelectorAll(".opbox")) box.classList.toggle("active", live.has(+box.dataset.line));
+  }
+
+  /* ---------- bidirectional bind ---------- */
+  let previewLine=null;
+  function preview(line){
+    previewLine=line;
+    for(const row of srcList.querySelectorAll(".srcline")) row.classList.toggle("preview", line!=null && +row.dataset.line===line);
+    for(const box of stackWrap.querySelectorAll(".opbox")) box.classList.toggle("preview", line!=null && +box.dataset.line===line);
+    drawBind();
+  }
+  function orderWord(d){ return d===0? "1 · outer (first-order)" : d===1? "2 · inner (second-order)" : (d+1)+" · inner (order "+(d+1)+")"; }
+  function updateBindInfo(){
+    if(boundLine==null){ bindInfo.textContent="none — click a source line or the cell"; return; }
+    const m=opMeta[boundLine]; const boxes=(player&&player.boxes||[]).filter(b=>b.line===boundLine);
+    let geo="non-visual (no box this frame)";
+    if(boxes.length){ const b=boxes[0]; geo="box ["+b.x+","+b.y+" "+b.w+"\u00d7"+b.h+"]"+(boxes.length>1?" +"+(boxes.length-1)+" more":""); }
+    const kind=m?m.kind:"?"; const ord=m?orderWord(m.depth):"?";
+    bindInfo.textContent="L"+boundLine+" · "+kind+" · "+geo+" · ORDER "+ord;
+  }
+  function syncBound(){
+    for(const row of srcList.querySelectorAll(".srcline")) row.classList.toggle("bound", +row.dataset.line===boundLine);
+    for(const box of stackWrap.querySelectorAll(".opbox")) box.classList.toggle("bound", +box.dataset.line===boundLine);
+    updateBindInfo();
+  }
+  function bindLine(line){
+    boundLine = (boundLine===line)? null : line;
+    syncBound();
+    if(boundLine!=null){
+      const row=srcList.querySelector('.srcline[data-line="'+boundLine+'"]'); if(row) row.scrollIntoView({block:"nearest"});
+      const bx=stackWrap.querySelector('.opbox[data-line="'+boundLine+'"]'); if(bx) bx.scrollIntoView({block:"nearest"});
+    }
+    drawBind();
+  }
+  function drawBind(){
+    const ctx=bindCanvas.getContext("2d"); ctx.clearRect(0,0,bindCanvas.width,bindCanvas.height);
+    if(player && previewLine!=null && previewLine!==boundLine){
+      ctx.setLineDash([4,3]); ctx.strokeStyle="#000"; ctx.lineWidth=1.5;
+      const s=cellCanvas.width/player.g; for(const b of (player.boxes||[]).filter(x=>x.line===previewLine)){ ctx.strokeRect(b.x*s-1,b.y*s-1,b.w*s+2,b.h*s+2); }
+      ctx.setLineDash([]);
+    }
+    if(boundLine==null || !player) return;
+    const boxes=(player.boxes||[]).filter(b=>b.line===boundLine);
+    const s=cellCanvas.width/player.g;
+    for(const b of boxes) regMark(ctx,b,s);
+  }
+  function regMark(ctx,b,s){
+    const pad=2;
+    const X=b.x*s-pad, Y=b.y*s-pad, W=b.w*s+2*pad, H=b.h*s+2*pad;
+    const L=Math.max(7, Math.min(W,H)*0.30);
+    function corners(){ ctx.beginPath();
+      ctx.moveTo(X,Y+L); ctx.lineTo(X,Y); ctx.lineTo(X+L,Y);
+      ctx.moveTo(X+W-L,Y); ctx.lineTo(X+W,Y); ctx.lineTo(X+W,Y+L);
+      ctx.moveTo(X,Y+H-L); ctx.lineTo(X,Y+H); ctx.lineTo(X+L,Y+H);
+      ctx.moveTo(X+W-L,Y+H); ctx.lineTo(X+W,Y+H); ctx.lineTo(X+W,Y+H-L);
+      ctx.stroke(); }
+    ctx.lineJoin="miter"; ctx.strokeStyle="#fff"; ctx.lineWidth=5; corners();   // halo (1-bit safe)
+    ctx.strokeStyle="#000"; ctx.lineWidth=2; corners();                          // mark
+  }
+  // viewport -> source line (clicks pass through bindCanvas which is pointer-events:none)
+  cellCanvas.style.cursor="crosshair";
+  cellCanvas.addEventListener("click",(e)=>{
+    if(!player) return;
+    const r=cellCanvas.getBoundingClientRect();
+    const gx=(e.clientX-r.left)/r.width*player.g, gy=(e.clientY-r.top)/r.height*player.g;
+    let hit=null;
+    for(const b of (player.boxes||[])) if(gx>=b.x && gx<b.x+b.w && gy>=b.y && gy<b.y+b.h) hit=b; // last drawn wins (topmost)
+    if(hit){ boundLine = (boundLine===hit.line)? boundLine : hit.line; syncBound();
+      const row=srcList.querySelector('.srcline[data-line="'+boundLine+'"]'); if(row) row.scrollIntoView({block:"nearest"});
+      drawBind(); }
+    else { boundLine=null; syncBound(); drawBind(); }
+  });
+
+  /* ---------- transport ---------- */
+  function updatePlayBtn(){ tPlay.textContent=(player&&player.playing)?"Pause":"Play"; }
+  tPlay.onclick=()=>{ if(!player||!player.total) return; if(player.playing) player.pause(); else player.play(); updatePlayBtn(); };
+  tBack.onclick=()=>{ if(player&&player.total){ player.pause(); player.seek(player.idx-1); updatePlayBtn(); } };
+  tFwd.onclick =()=>{ if(player&&player.total){ player.pause(); player.seek(player.idx+1); updatePlayBtn(); } };
+  tScrub.oninput=()=>{ if(player&&player.total){ player.pause(); player.seek(+tScrub.value); updatePlayBtn(); } };
+
+  /* ---------- edit toggle ---------- */
+  editToggle.onclick=()=>{
+    editing=!editing;
+    if(editing){ srcList.style.display="none"; srcEdit.style.display="flex"; srcText.value=currentSource; editToggle.textContent="Done"; srcText.focus(); }
+    else { srcEdit.style.display="none"; srcList.style.display="block"; editToggle.textContent="Edit"; currentSource=srcText.value; compileAndPlay(currentSource); }
+  };
+  srcText.addEventListener("keydown",(e)=>{ if((e.ctrlKey||e.metaKey)&&e.key==="Enter"){ e.preventDefault(); currentSource=srcText.value; compileAndPlay(currentSource); } });
+
+  (function buildDeck(){
+    // compass d-pad (movement lives here, in one compact control)
+    document.querySelectorAll(".dpad button[data-cmd]").forEach(btn=>{ btn.addEventListener("click",()=>submit(btn.dataset.cmd)); });
+
+    // bottom sheets: CODE / STACK / MENU rise within the work area, beneath the film.
+    // Only one is open at a time; the film above always stays visible.
+    function syncMore(){ if(!moreBtn) return; const open=document.body.classList.contains("sheet-menu");
+      moreBtn.textContent=open?"LESS \u2212":"MORE +"; moreBtn.setAttribute("aria-expanded", open?"true":"false"); }
+    function closeSheets(){ document.body.classList.remove("sheet-code","sheet-stack","sheet-menu"); syncMore(); try{ cmdInput.focus(); }catch(e){} }
+    function openSheet(name){
+      const cls="sheet-"+name, was=document.body.classList.contains(cls);
+      document.body.classList.remove("sheet-code","sheet-stack","sheet-menu");
+      if(!was){ document.body.classList.add(cls); if(name==="stack" && player) markActive(); }
+      syncMore();
+    }
+    document.querySelectorAll("[data-sheet]").forEach(b=>b.addEventListener("click",()=>openSheet(b.dataset.sheet)));
+    document.querySelectorAll("[data-sheet-close]").forEach(b=>b.addEventListener("click",closeSheets));
+    if(moreBtn) moreBtn.addEventListener("click",()=>openSheet("menu"));   // desktop: MORE toggles the inline tray
+
+    // MENU sheet: clear sections, big touch targets
+    const acts=[["Look","look"],["Inventory","inventory"],["Wait","wait"],["Score","score"],["Help","help"],["Restart","restart"]];
+    const exps=[["Export film","__film","MP4 / WebM"],["Export Twine","__twee",".twee story"],["Export map","__map","branch HTML"]];
+    tray.innerHTML="";
+    const la=document.createElement("div"); la.className="menu-label"; la.textContent="Actions"; tray.appendChild(la);
+    const ga=document.createElement("div"); ga.className="menu-grid";
+    for(const [lab,c] of acts){ const b=document.createElement("button"); b.className="menu-btn"; b.textContent=lab; b.onclick=()=>{ submit(c); closeSheets(); }; ga.appendChild(b); }
+    tray.appendChild(ga);
+    const le=document.createElement("div"); le.className="menu-label"; le.textContent="Export"; tray.appendChild(le);
+    const ge=document.createElement("div"); ge.className="menu-col";
+    for(const [lab,c,sub] of exps){ const b=document.createElement("button"); b.className="menu-btn wide";
+      b.innerHTML='<span>'+lab+'</span><span class="sub">'+sub+'</span>';
+      b.onclick=()=>{ if(c==="__film") exportFilm(); else if(c==="__twee") exportTwee(); else exportMap(); }; ge.appendChild(b); }
+    tray.appendChild(ge);
+  })();
+
+  /* ---------- input ---------- */
+  cmdInput.addEventListener("keydown",(e)=>{
+    if(e.key==="Enter"){ const v=cmdInput.value; cmdInput.value=""; submit(v); }
+    else if(e.key==="ArrowUp"){ if(history.length){ histIdx=Math.max(0,histIdx-1); cmdInput.value=history[histIdx]||""; e.preventDefault(); } }
+    else if(e.key==="ArrowDown"){ if(history.length){ histIdx=Math.min(history.length,histIdx+1); cmdInput.value=history[histIdx]||""; e.preventDefault(); } }
+  });
+  transcript.addEventListener("click",(e)=>{
+    const r=e.target.closest("button.ref"); if(!r) return;
+    if(r.dataset.ex) submit("examine "+ITEMS[r.dataset.ex].syn[0]);
+    else if(r.dataset.go) submit(r.dataset.go);
+    cmdInput.focus();
+  });
+
+  /* ---------- save / restore / undo (in-memory) ---------- */
+  function refresh(msg){ if(msg) printSys("STATE", msg); for(const ln of describeRoom(state,true)) printLine(ln); transcript.scrollTop=transcript.scrollHeight; updateScore(); loadCell(); cmdInput.focus(); }
+  btnUndo.onclick=()=>{ if(!undoStack.length){ printSys("STATE","Nothing to undo."); return; } state=undoStack.pop(); refresh("Undone — back one move."); };
+  btnSave.onclick=()=>{ savedSlot=snapshot(); printSys("STATE","Position saved."); cmdInput.focus(); };
+  btnLoad.onclick=()=>{ if(!savedSlot){ printSys("STATE","No saved position."); return; } undoStack.push(snapshot()); state=clone(savedSlot); refresh("Restored saved position."); };
+
+  /* ---------- exports: journey film (video) + Twine .twee + HTML branch map ---------- */
+  function download(name, data, mime){
+    const blob = (data instanceof Blob) ? data : new Blob([data], { type: mime || "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url; a.download = name;
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{ a.remove(); URL.revokeObjectURL(url); }, 1500);
+  }
+  function recordJourney(cmd){
+    if(!currentSource) return;
+    const last = journey[journey.length-1];
+    if(last && last.source===currentSource) return;     // only log genuine scene changes
+    const room = state.dead ? "THE VOID" : state.won ? "VICTORY" : (ROOMS[state.here] ? ROOMS[state.here].name : "\u2014");
+    journey.push({ source: currentSource, room: room, cmd: cmd || "" });
+  }
+  function exportTwee(){
+    try{ download("cineosis-zork.twee", buildTwee(), "text/plain;charset=utf-8");
+      printSys("EXPORT","Twee exported \u2014 in Twine, use Import From File to load the branch graph."); }
+    catch(e){ printSys("EXPORT","Twee export failed: "+e.message); }
+  }
+  function exportMap(){
+    try{ download("cineosis-zork-map.html", buildMapHTML(), "text/html;charset=utf-8");
+      printSys("EXPORT","Branch map exported \u2014 open the HTML in any browser to see every room and exit."); }
+    catch(e){ printSys("EXPORT","Map export failed: "+e.message); }
+  }
+  async function exportFilm(){
+    if(filming){ printSys("EXPORT","Already recording \u2014 one moment."); return; }
+    if(typeof MediaRecorder==="undefined" || !HTMLCanvasElement.prototype.captureStream){
+      printSys("EXPORT","This browser can't record video. Try Chrome, Edge or Firefox (Safari gives MP4). Twee and Map export work everywhere."); return; }
+    if(journey.length===0){ printSys("EXPORT","No journey yet \u2014 move through a few rooms first, then export the film."); return; }
+    let mime=""; for(const m of ["video/mp4;codecs=avc1.42E01E","video/mp4","video/webm;codecs=vp9","video/webm;codecs=vp8","video/webm"]){
+      try{ if(MediaRecorder.isTypeSupported(m)){ mime=m; break; } }catch(e){} }
+    filming=true;
+    const w=512, capH=46, H=w+capH;
+    const c=document.createElement("canvas"); c.width=w; c.height=H;
+    c.style.position="fixed"; c.style.left="-99999px"; c.style.top="0"; document.body.appendChild(c);
+    const x=c.getContext("2d"); x.imageSmoothingEnabled=false;
+    const tmp=document.createElement("canvas"); const tx=tmp.getContext("2d");
+    x.fillStyle="#fff"; x.fillRect(0,0,w,H);
+    const stream=c.captureStream(30);
+    let rec; try{ rec=new MediaRecorder(stream, mime?{ mimeType:mime, videoBitsPerSecond:6000000 }:undefined); }
+    catch(e){ filming=false; c.remove(); printSys("EXPORT","Couldn't start the recorder: "+e.message); return; }
+    const chunks=[]; rec.ondataavailable=e=>{ if(e.data && e.data.size) chunks.push(e.data); };
+    const stopped=new Promise(res=>{ rec.onstop=res; });
+    const exo=new CellExecutor({ sprites: SPRITES });
+    const fps=15, sleep=ms=>new Promise(r=>setTimeout(r,ms));
+    printSys("EXPORT","Recording "+journey.length+" scenes\u2026 keep this tab in front \u2014 it records in real time.");
+    rec.start();
+    try{
+      for(let j=0;j<journey.length;j++){
+        const entry=journey[j]; let out;
+        try{ out=exo.executeCell(entry.source); }catch(e){ continue; }
+        const fr=out.frames; if(!fr || !fr.length) continue;
+        const total=Math.max(fr.length, 16);
+        for(let f=0; f<total; f++){
+          const img=fr[f % fr.length]; if(tmp.width!==img.width){ tmp.width=img.width; tmp.height=img.height; } tx.putImageData(img,0,0);
+          x.imageSmoothingEnabled=false; x.fillStyle="#fff"; x.fillRect(0,0,w,w); x.drawImage(tmp,0,0,w,w);
+          x.fillStyle="#000"; x.fillRect(0,w,w,capH);
+          x.fillStyle="#fff"; x.textBaseline="middle"; x.textAlign="left";
+          x.font="700 21px 'Arial Narrow',Arial,sans-serif"; x.fillText((entry.room||"").toUpperCase(), 12, w+capH/2-1);
+          x.textAlign="right"; x.font="500 14px ui-monospace,Menlo,monospace"; x.fillText("> "+(entry.cmd||"start"), w-12, w+capH/2-1);
+          x.textAlign="left"; x.fillStyle="#000"; x.fillRect(0,0,98,18);
+          x.fillStyle="#fff"; x.font="700 11px 'Arial Narrow',Arial,sans-serif"; x.fillText("SCENE "+(j+1)+"/"+journey.length, 6, 10);
+          await sleep(1000/fps);
+        }
+      }
+    }catch(e){ /* stop and salvage whatever recorded */ }
+    await sleep(160); try{ rec.stop(); }catch(e){} await stopped;
+    c.remove(); filming=false;
+    const ext = (mime.indexOf("mp4")>=0) ? "mp4" : "webm";
+    const blob=new Blob(chunks, { type: mime || "video/webm" });
+    if(!blob.size){ printSys("EXPORT","Recording produced no data \u2014 the browser may have blocked capture in this context. Try opening the downloaded HTML file directly."); return; }
+    download("cineosis-zork-film."+ext, blob, blob.type);
+    printSys("EXPORT","Film exported \u2014 "+ext.toUpperCase()+", "+journey.length+" scenes, "+(blob.size/1024|0)+" KB.");
+  }
+
+  /* ---------- mobile workspace switcher (film stays pinned; only the lower zone switches) ---------- */
+  function setWS(w){
+    document.body.classList.remove("ws-play","ws-code","ws-stack");
+    document.body.classList.add("ws-"+w);
+    if(wsw) for(const b of wsw.querySelectorAll("button")) b.classList.toggle("on", b.dataset.ws===w);
+    if(w==="play"){ try{ cmdInput.focus(); }catch(e){} transcript.scrollTop=transcript.scrollHeight; }
+    if(w==="stack" && player) markActive();
+  }
+  if(wsw) wsw.addEventListener("click",(e)=>{ const b=e.target.closest("button"); if(b) setWS(b.dataset.ws); });
+
+  /* ---------- boot ---------- */
+  setWS("play");
+  intro(); loadCell(); updateScore(); recordJourney("start"); cmdInput.focus();
+  // the film is square + sized to its panel; re-fit on viewport changes
+  let _raf=null;
+  // Pin the app to the actually-visible viewport. With no in-app scrolling this stays steady
+  // normally, and when the keyboard opens it shrinks to sit above it — so the text input never
+  // hides or jumps and nothing reflows mid-type.
+  (function stableHeight(){
+    const vv = window.visualViewport; if(!vv) return;
+    let raf=null;
+    const apply=()=>{ document.documentElement.style.setProperty("--app-h", Math.round(vv.height)+"px");
+      document.body.classList.toggle("kbd", (window.innerHeight - vv.height) > 120); };
+    const onVV=()=>{ if(raf) cancelAnimationFrame(raf); raf=requestAnimationFrame(apply); };
+    vv.addEventListener("resize", onVV); apply();
+  })();
+  window.addEventListener("resize", ()=>{ if(_raf) cancelAnimationFrame(_raf); _raf=requestAnimationFrame(()=>{ if(player){ player.render(); drawBind(); } }); });
+})();
+</script>
+</body>
+</html>

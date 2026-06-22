@@ -1,0 +1,1277 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<title>CINEOSIS · FLIX</title>
+<style>
+/* ============================================================
+   CINEOSIS · FLIX  —  MAP ⇄ MACRO ⇄ FRAMES
+   One BEFLIX-MAP artifact, three views:
+     ② CODE view   : whole graph decompiles to a script, recompiles to a map
+     ③ TYPE        : prose -> @CELL blocks -> territories
+     ④ DRAW-THROUGH: pen/box/patch on the selected cell, on the map itself
+   No page scroll. Black/white, no mid-tones, drawn vector marks (no emoji).
+   ============================================================ */
+:root{
+  --ink:#000; --paper:#fff; --hair:1px; --rule:2px;
+  --mono:"DejaVu Sans Mono","SFMono-Regular",ui-monospace,Menlo,Consolas,monospace;
+  --disp:"Helvetica Neue",Helvetica,Arial,"Liberation Sans",sans-serif;
+  --bar:46px; --pad:10px;
+  --acc:#000;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none;touch-action:manipulation}
+body{background:var(--paper);color:var(--ink);font-family:var(--mono);font-size:12px;line-height:1.25;
+  -webkit-font-smoothing:none;height:100dvh;display:flex;flex-direction:column;user-select:none}
+button{font-family:var(--mono);cursor:pointer;color:inherit;border:0;background:none}
+button:focus-visible{outline:3px solid var(--ink);outline-offset:-3px}
+textarea,input{font-family:var(--mono)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+.ic{display:block;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:square}
+.ic.fill{fill:currentColor;stroke:none}
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:var(--ink)}
+
+/* ---------- TOOLBAR ---------- */
+.toolbar{flex:0 0 var(--bar);height:var(--bar);border-bottom:var(--rule) solid var(--ink);
+  display:flex;align-items:stretch;overflow:hidden}
+.brand{display:flex;align-items:center;gap:7px;padding:0 11px;border-right:var(--rule) solid var(--ink);
+  font-family:var(--disp);font-weight:800;letter-spacing:.1em;font-size:13px;white-space:nowrap}
+.brand .dot{width:11px;height:11px;background:var(--ink);border-radius:50%;
+  box-shadow:inset 0 0 0 2px var(--paper),inset 0 0 0 3px var(--ink);flex:0 0 auto}
+.acts{display:flex;flex:1 1 auto;overflow-x:auto;overflow-y:hidden}
+.acts::-webkit-scrollbar{height:0}
+.tbtn{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+  min-width:46px;padding:0 9px;border-right:var(--hair) solid var(--ink);
+  letter-spacing:.04em;font-size:7px;font-weight:700;background:var(--paper)}
+.tbtn svg{width:18px;height:18px}
+.tbtn:hover{background:var(--ink);color:var(--paper)}
+.tbtn[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.tbtn:disabled{opacity:.28;pointer-events:none}
+.spacer{flex:1 1 auto;border-right:var(--hair) solid var(--ink);min-width:6px}
+.stat{flex:0 0 auto;display:flex;flex-direction:column;justify-content:center;padding:0 10px;
+  border-left:var(--rule) solid var(--ink);font-size:8px;text-align:right;white-space:nowrap}
+.stat b{font-weight:700}
+@media (max-width:640px){
+  .brand{font-size:0;gap:0;padding:0 9px}
+  .tbtn{min-width:44px;font-size:0;padding:0 8px}.tbtn svg{width:20px;height:20px}
+  .stat{padding:0 8px}
+}
+
+/* ---------- VIEW SWITCHER (segmented) ---------- */
+.viewseg{flex:0 0 auto;display:flex;border-bottom:var(--rule) solid var(--ink)}
+.vseg{flex:1 1 0;border-right:var(--hair) solid var(--ink);background:var(--paper);
+  padding:7px 6px;font-family:var(--disp);font-weight:800;letter-spacing:.08em;font-size:11px;
+  display:flex;align-items:center;justify-content:center;gap:6px}
+.vseg:last-child{border-right:0}
+.vseg[aria-selected="true"]{background:var(--ink);color:var(--paper)}
+.vseg small{font-size:8px;opacity:.7;letter-spacing:.04em}
+@media (max-width:520px){.vseg small{display:none}}
+
+/* ---------- REGION ---------- */
+.region{flex:1 1 auto;min-height:0;display:flex;position:relative}
+.view{display:none;flex:1 1 auto;min-height:0;width:100%;flex-direction:column;overflow:hidden}
+.view.is-on{display:flex}
+
+/* ===== MAP VIEW ===== */
+#mapWrap{flex:1 1 auto;min-height:0;position:relative;background:var(--paper)}
+#map{display:block;width:100%;height:100%;touch-action:none}
+.maptag{position:absolute;left:6px;top:6px;font-size:8px;letter-spacing:.14em;
+  background:var(--paper);border:var(--hair) solid var(--ink);padding:2px 6px;pointer-events:none;z-index:5}
+/* floating draw toolbar (④) */
+#drawbar{position:absolute;top:6px;left:50%;transform:translateX(-50%);z-index:20;display:none;
+  align-items:center;gap:5px;background:var(--ink);border:var(--rule) solid var(--ink);padding:4px 6px}
+#drawbar.on{display:flex}
+.db{height:30px;min-width:38px;border:var(--hair) solid #555;background:#111;color:#fff;
+  font-size:9px;font-weight:800;letter-spacing:.04em;padding:0 8px}
+.db.on{background:#fff;color:#000;border-color:#fff}
+.db-sw{width:22px;height:22px;border:2px solid #555;flex:0 0 auto}
+.db-sw.on{border-color:#fff;transform:scale(1.12)}
+.db-div{width:1px;height:22px;background:#444;flex:0 0 auto}
+.legend{flex:0 0 auto;border-top:var(--rule) solid var(--ink);display:flex;gap:12px;align-items:center;
+  padding:5px var(--pad);font-size:8px;letter-spacing:.05em;overflow-x:auto}
+.legend::-webkit-scrollbar{height:0}
+.sw{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.sw i{width:10px;height:10px;border:var(--hair) solid var(--ink);display:inline-block;flex:0 0 auto}
+.sw i.solid{background:var(--ink)}
+.sw i.hatch{background:repeating-linear-gradient(45deg,var(--ink) 0 1px,transparent 1px 4px)}
+.sw i.now{box-shadow:inset 0 0 0 2px var(--paper),inset 0 0 0 3px var(--ink)}
+
+/* ===== CODE VIEW (②) ===== */
+#codeWrap{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;overflow:hidden;padding:var(--pad);gap:8px}
+.codehead{flex:0 0 auto;display:flex;justify-content:space-between;align-items:baseline}
+.codehead h2{font-family:var(--disp);font-weight:800;letter-spacing:.06em;font-size:15px;margin:0}
+.codehint{font-size:9px;opacity:.6;letter-spacing:.03em}
+#codeArea{flex:1 1 auto;min-height:0;width:100%;border:var(--rule) solid var(--ink);background:var(--paper);
+  color:var(--ink);font-family:var(--mono);font-size:12px;line-height:1.45;padding:10px;resize:none;outline:none;
+  user-select:text;white-space:pre;overflow:auto;tab-size:2}
+.coderow{flex:0 0 auto;display:flex;gap:8px}
+.cbtn{flex:1 1 auto;border:var(--rule) solid var(--ink);background:var(--paper);padding:9px 6px;
+  font-weight:800;letter-spacing:.06em;font-size:10px}
+.cbtn:hover{background:var(--ink);color:var(--paper)}
+.cbtn.alt{background:var(--ink);color:var(--paper)}.cbtn.alt:hover{background:var(--paper);color:var(--ink)}
+.cbtn:disabled{opacity:.3;pointer-events:none}
+
+/* ===== TYPE VIEW (③) ===== */
+#typeWrap{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;overflow:hidden;padding:var(--pad);gap:8px}
+#typeArea{flex:1 1 auto;min-height:0;width:100%;border:var(--rule) solid var(--ink);background:var(--paper);
+  font-family:var(--disp);font-size:14px;font-weight:600;line-height:1.5;padding:12px;resize:none;outline:none;
+  user-select:text}
+.typerow{flex:0 0 auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.fieldset{display:flex;flex-direction:column;gap:2px}
+.fieldset label{font-size:8px;letter-spacing:.08em;opacity:.6;text-transform:uppercase}
+.fieldset select,.fieldset input{height:32px;border:var(--rule) solid var(--ink);background:var(--paper);
+  font-size:11px;font-weight:700;padding:0 6px}
+
+/* ===== INSPECTOR (shared, sits in MAP view bottom on wide; own pane) ===== */
+.split{flex:1 1 auto;min-height:0;display:flex;width:100%}
+.pane{flex:1 1 50%;min-width:0;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.pane.left{border-right:var(--rule) solid var(--ink)}
+@media (max-width:860px){.split{flex-direction:column}.pane.left{border-right:0;border-bottom:var(--rule) solid var(--ink)}}
+
+.inspector{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;overflow:hidden;padding:var(--pad);gap:8px}
+.reelstage{flex:1 1 auto;min-height:64px;border:var(--rule) solid var(--ink);background:var(--paper);
+  display:flex;align-items:center;justify-content:center;overflow:hidden}
+.reelstage canvas{display:block;image-rendering:pixelated;max-width:100%;max-height:100%}
+.reelbar{flex:0 0 auto;display:flex;justify-content:space-between;align-items:center;font-size:10px;letter-spacing:.04em}
+.reelbar .tag{border:var(--hair) solid var(--ink);padding:1px 7px;font-weight:700;letter-spacing:.09em}
+.reelbar .tag.inv{background:var(--ink);color:var(--paper)}
+.meta{flex:0 0 auto;font-size:11px;display:flex;flex-wrap:wrap;gap:2px 10px}
+.meta b{font-weight:700}.meta .sep{opacity:.4}
+.rowlabel{flex:0 0 auto;font-family:var(--disp);font-weight:800;letter-spacing:.1em;font-size:9px;
+  text-transform:uppercase;opacity:.55;display:flex;justify-content:space-between;align-items:baseline}
+.exits{flex:0 0 auto;display:flex;gap:6px;overflow-x:auto;padding-bottom:4px}
+.exits::-webkit-scrollbar{height:5px}
+.chip{flex:0 0 auto;border:var(--hair) solid var(--ink);padding:6px 9px;white-space:nowrap;font-size:11px;
+  display:flex;align-items:center;gap:6px;background:var(--paper)}
+.chip:hover{background:var(--ink);color:var(--paper)}
+.chip[data-illegal="1"]{opacity:.3;pointer-events:none;text-decoration:line-through}
+.chip .ar{font-weight:700}
+.filmstrip{flex:0 0 auto;display:flex;gap:5px;overflow-x:auto;padding-bottom:4px}
+.filmstrip::-webkit-scrollbar{height:5px}
+.fcell{flex:0 0 auto;border:var(--hair) solid var(--ink);width:58px}
+.fcell canvas{display:block;width:58px;height:40px;image-rendering:pixelated;border-bottom:var(--hair) solid var(--ink)}
+.fcell .fl{font-size:7px;padding:2px 3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.empty{font-size:11px;opacity:.5;padding:6px 2px;white-space:nowrap}
+
+/* ===== FRAME EDITOR (drill, ⑤-lite for deep frame work) ===== */
+#frameWrap{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.feHead{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;
+  border-bottom:var(--rule) solid var(--ink);padding:6px var(--pad)}
+.feHead h2{font-family:var(--disp);font-weight:800;letter-spacing:.06em;font-size:14px;margin:0}
+.feBody{flex:1 1 auto;min-height:0;display:flex;overflow:hidden}
+@media (max-width:760px){.feBody{flex-direction:column}}
+.feCanvasZone{flex:1 1 auto;min-height:0;position:relative;background:#e8e6e0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+#feCanvas{image-rendering:pixelated;display:block;touch-action:none;cursor:crosshair;border:2px solid #999;background:#fff}
+.feSide{flex:0 0 220px;border-left:var(--rule) solid var(--ink);display:flex;flex-direction:column;overflow:hidden}
+@media (max-width:760px){.feSide{flex:0 0 auto;border-left:0;border-top:var(--rule) solid var(--ink);max-height:38vh}}
+.feTools{flex:0 0 auto;display:flex;flex-wrap:wrap;gap:5px;padding:8px;border-bottom:var(--hair) solid var(--ink)}
+.feFrames{flex:1 1 auto;min-height:0;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:6px}
+.feFrames::-webkit-scrollbar{width:6px}
+.feStrip{flex:0 0 auto;display:flex;gap:5px;overflow-x:auto;padding:6px var(--pad);border-top:var(--rule) solid var(--ink)}
+.feStrip::-webkit-scrollbar{height:6px}
+.feFrame{flex:0 0 64px;height:48px;border:var(--rule) solid var(--ink);background:#1a1a1a;position:relative;cursor:pointer}
+.feFrame.on{border-color:var(--ink);box-shadow:inset 0 0 0 3px var(--ink)}
+.feFrame canvas{width:100%;height:100%;image-rendering:pixelated;display:block;opacity:.85}
+.feFrame .n{position:absolute;top:1px;left:2px;font-size:8px;font-weight:800;color:#fff;text-shadow:1px 1px 0 #000}
+.btn{border:var(--rule) solid var(--ink);background:var(--paper);padding:7px 8px;font-weight:800;
+  letter-spacing:.04em;font-size:10px}
+.btn:hover{background:var(--ink);color:var(--paper)}
+.btn.alt{background:var(--ink);color:var(--paper)}.btn.alt:hover{background:var(--paper);color:var(--ink)}
+.btn.on{background:var(--ink);color:var(--paper)}
+.feLabel{font-family:var(--disp);font-weight:800;letter-spacing:.1em;font-size:9px;opacity:.6;text-transform:uppercase;margin:2px 0}
+.inkrow{display:flex;flex-wrap:wrap;gap:4px}
+.inkw{width:30px;height:30px;border:var(--rule) solid var(--ink);flex:0 0 auto}
+.inkw.on{box-shadow:inset 0 0 0 2px var(--paper),inset 0 0 0 3px var(--ink)}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:24px;background:transparent;
+  border:var(--rule) solid var(--ink);outline:none;touch-action:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;height:22px;width:22px;background:var(--ink);border:0}
+input[type=range]::-moz-range-thumb{height:22px;width:22px;background:var(--ink);border:0}
+
+/* ===== EXPORT (fullscreen overlay) ===== */
+.exportscreen{display:none;position:absolute;inset:0;z-index:30;background:var(--paper);flex-direction:column}
+body.exporting .exportscreen{display:flex}
+.exHead{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;border-bottom:var(--rule) solid var(--ink);padding:8px var(--pad)}
+.exHead h2{font-family:var(--disp);font-weight:800;letter-spacing:.06em;font-size:17px;margin:0}
+.exHead .conf{font-size:10px;border:var(--hair) solid var(--ink);padding:2px 8px;font-weight:700}
+.exBody{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;padding:var(--pad);gap:var(--pad);overflow:hidden}
+.modules{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:1fr 1fr;gap:var(--pad)}
+@media (max-width:560px){.modules{gap:7px}}
+.mod{border:var(--rule) solid var(--ink);padding:10px;display:flex;flex-direction:column;min-height:0}
+.mod .mh{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.mod h3{font-family:var(--disp);font-weight:800;letter-spacing:.03em;font-size:14px;margin:0}
+.mod .grain{font-size:7px;letter-spacing:.1em;border:var(--hair) solid var(--ink);padding:1px 5px;white-space:nowrap}
+.mod .ms{font-size:10px;line-height:1.4;margin:5px 0 0;opacity:.8}.mod .ms b{opacity:1;font-weight:700}
+.mod .mb{display:flex;gap:6px;margin-top:auto;padding-top:8px}
+.xbtn{flex:1 1 auto;border:var(--rule) solid var(--ink);background:var(--paper);padding:8px 6px;font-weight:800;letter-spacing:.04em;font-size:10px}
+.xbtn:hover{background:var(--ink);color:var(--paper)}
+.xbtn.alt{background:var(--ink);color:var(--paper)}.xbtn.alt:hover{background:var(--paper);color:var(--ink)}
+.xbtn:disabled{opacity:.3;pointer-events:none}
+.outlog{flex:0 0 auto;border:var(--hair) solid var(--ink);padding:7px;font-size:10px;white-space:pre-wrap;word-break:break-word;height:64px;overflow-y:auto}
+@media (max-width:560px),(max-height:560px){.mod .ms{display:none}}
+
+/* ===== TOAST + LOCK ===== */
+#toast{position:fixed;top:calc(var(--bar) + 8px);left:50%;transform:translateX(-50%);background:var(--ink);
+  color:var(--paper);font-weight:800;font-size:11px;padding:8px 14px;opacity:0;pointer-events:none;z-index:9999;
+  letter-spacing:.06em;transition:opacity .12s;white-space:nowrap;border:var(--rule) solid var(--ink)}
+#toast.on{opacity:1}
+#lock{position:fixed;inset:0;background:rgba(255,255,255,.94);z-index:9000;display:none;flex-direction:column;
+  align-items:center;justify-content:center;gap:10px}
+#lock.on{display:flex}
+#lockMsg{font-family:var(--disp);font-weight:800;letter-spacing:.16em;font-size:12px}
+#lockSub{font-size:20px;font-weight:800}
+.spinner{width:40px;height:40px;border:var(--rule) solid var(--ink);border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<!-- ============ TOOLBAR ============ -->
+<header class="toolbar">
+  <div class="brand"><span class="dot" aria-hidden="true"></span><span>CINEOSIS·FLIX</span></div>
+  <div class="acts" role="toolbar" aria-label="Actions">
+    <button class="tbtn" id="btn-draw" title="Draw-through: edit selected reel on the map" aria-pressed="false">
+      <svg viewBox="0 0 24 24" class="ic"><path d="M3 21l4-1 11-11-3-3L4 17z"/><path d="M14 6l3 3"/></svg><span>DRAW</span>
+    </button>
+    <button class="tbtn" id="btn-graze" title="Graze (lower head) in current reel">
+      <svg viewBox="0 0 24 24" class="ic"><path d="M3 19c2-6 4-8 6-8s2 4 4 4 3-6 6-6"/><path d="M3 19h18"/></svg><span>GRAZE</span>
+    </button>
+    <button class="tbtn" id="btn-ripple" title="Fire ripple: graph event + pixel-ripple into reels">
+      <svg viewBox="0 0 24 24" class="ic"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7"/><path d="M12 1v3M12 20v3M1 12h3M20 12h3"/></svg><span>RIPPLE</span>
+    </button>
+    <button class="tbtn" id="btn-play" title="Pause / play reels" aria-pressed="false">
+      <svg viewBox="0 0 24 24" class="ic fill" id="ic-play"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg><span id="lbl-play">PAUSE</span>
+    </button>
+    <button class="tbtn" id="btn-undo" title="Undo" disabled>
+      <svg viewBox="0 0 24 24" class="ic"><path d="M9 7L4 12l5 5"/><path d="M4 12h11a5 5 0 0 1 0 10h-3"/></svg><span>UNDO</span>
+    </button>
+    <button class="tbtn" id="btn-regen" title="Regenerate grid">
+      <svg viewBox="0 0 24 24" class="ic"><path d="M20 11a8 8 0 1 0-1 5"/><path d="M20 4v6h-6"/></svg><span>REGEN</span>
+    </button>
+    <div class="spacer"></div>
+    <button class="tbtn" id="btn-export" title="Export (fullscreen)">
+      <svg viewBox="0 0 24 24" class="ic" id="ic-export"><path d="M12 3v12"/><path d="M7 8l5-5 5 5"/><path d="M4 21h16"/></svg><span id="lbl-export">OUT</span>
+    </button>
+    <button class="tbtn" id="btn-help" title="How it works">
+      <svg viewBox="0 0 24 24" class="ic"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.8.4-1 .9-1 1.7"/><path d="M12 17h.01"/></svg><span>HELP</span>
+    </button>
+  </div>
+  <div class="stat" aria-live="polite">
+    <div><b id="st-motion">STILL</b></div>
+    <div>R <b id="st-cuts">0</b> · F <b id="st-frames">0</b></div>
+  </div>
+</header>
+
+<!-- ============ VIEW SWITCHER ============ -->
+<div class="viewseg" role="tablist" aria-label="Views">
+  <button class="vseg" id="vs-map" role="tab" aria-selected="true">MAP <small>territories</small></button>
+  <button class="vseg" id="vs-code" role="tab" aria-selected="false">CODE <small>macro ⇄ map</small></button>
+  <button class="vseg" id="vs-type" role="tab" aria-selected="false">TYPE <small>text → film</small></button>
+</div>
+
+<div class="region">
+
+  <!-- ===== MAP VIEW : map half + inspector half ===== -->
+  <section class="view is-on" id="view-map" role="tabpanel">
+    <div class="split">
+      <section class="pane left">
+        <div id="mapWrap">
+          <div class="maptag" id="maptag">VORONOI · EACH CELL PLAYS A FILM</div>
+          <!-- ④ floating draw toolbar -->
+          <div id="drawbar">
+            <button class="db on" id="db-pen" data-tool="pen">PEN</button>
+            <button class="db" id="db-box" data-tool="rect">BOX</button>
+            <button class="db" id="db-patch" data-tool="patch">PATCH</button>
+            <button class="db" id="db-erase" data-tool="erase">×</button>
+            <div class="db-div"></div>
+            <div id="db-swatches" style="display:flex;gap:4px;align-items:center"></div>
+          </div>
+          <canvas id="map" aria-label="Voronoi map. Each territory plays its BEFLIX reel. Tap an adjacent territory to cut; turn on DRAW to paint the selected reel."></canvas>
+        </div>
+        <div class="legend">
+          <span class="sw"><i></i>FIELD</span>
+          <span class="sw"><i class="hatch"></i>WATER</span>
+          <span class="sw"><i class="solid"></i>GATE</span>
+          <span class="sw"><i class="now"></i>CURRENT</span>
+          <span class="sw" style="opacity:.55" id="legend-hint">TAP ADJACENT → CUT</span>
+        </div>
+      </section>
+
+      <section class="pane">
+        <div class="inspector">
+          <div class="reelstage"><canvas id="insp-reel" width="280" height="200"></canvas></div>
+          <div class="reelbar">
+            <span><span class="tag" id="insp-room">—</span></span>
+            <span id="insp-reelframe" style="opacity:.7">—</span>
+          </div>
+          <div class="meta" id="meta">—</div>
+          <div class="rowlabel"><span>Possible cuts</span><span id="insp-nbr" style="opacity:.8"></span></div>
+          <div class="exits" id="exits"></div>
+          <div class="rowlabel"><span>Film-of-films</span><span id="trav-count" style="opacity:.8">0 reels</span></div>
+          <div class="filmstrip" id="strip"><div class="empty">No cuts yet — tap a neighboring territory.</div></div>
+          <div class="coderow" style="margin-top:2px">
+            <button class="cbtn alt" id="btn-deepedit">DEEP-EDIT THIS REEL (frame editor)</button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <!-- ===== CODE VIEW (②) ===== -->
+  <section class="view" id="view-code" role="tabpanel">
+    <div id="codeWrap">
+      <div class="codehead">
+        <h2>BEFLIX-MAP</h2>
+        <span class="codehint">one script = the whole graph · @CELL blocks · @CUT edges · EDL pragmas</span>
+      </div>
+      <textarea id="codeArea" spellcheck="false" placeholder="; the map decompiles here"></textarea>
+      <div class="coderow">
+        <button class="cbtn" id="btn-decompile">◄ MAP → CODE</button>
+        <button class="cbtn alt" id="btn-recompile">CODE → MAP ►</button>
+        <button class="cbtn" id="btn-copycode">COPY</button>
+        <button class="cbtn" id="btn-downcode">.bfx</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TYPE VIEW (③) ===== -->
+  <section class="view" id="view-type" role="tabpanel">
+    <div id="typeWrap">
+      <div class="codehead">
+        <h2>TYPE → FILM-OF-FILMS</h2>
+        <span class="codehint">each block of text becomes a territory · cuts wired in reading order</span>
+      </div>
+      <textarea id="typeArea" spellcheck="false">FADE IN.
+
+A horse stands still in an open field.
+
+The gate is shut. Nothing moves.
+
+A ripple crosses the water.
+
+The gate opens.
+
+The horse runs free.</textarea>
+      <div class="typerow">
+        <div class="fieldset"><label>split on</label>
+          <select id="ty-split"><option value="para">blank lines (paragraphs)</option><option value="line">every line</option><option value="sentence">sentences</option></select>
+        </div>
+        <div class="fieldset"><label>reel motion</label>
+          <select id="ty-motion"><option value="typewriter">typewriter</option><option value="fade">fade in</option><option value="ripple">ripple</option><option value="scroll">scroll up</option><option value="still">still</option></select>
+        </div>
+        <div class="fieldset"><label>font</label>
+          <select id="ty-font"><option value="10">SM</option><option value="14" selected>MD</option><option value="20">LG</option></select>
+        </div>
+        <div class="fieldset"><label>frames/reel</label>
+          <input type="number" id="ty-frames" value="10" min="2" max="48" style="width:70px">
+        </div>
+      </div>
+      <div class="coderow">
+        <button class="cbtn alt" id="btn-typebuild">BUILD MAP FROM TEXT ►</button>
+        <button class="cbtn" id="btn-typeappend">APPEND TO MAP</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FRAME EDITOR (deep ④) ===== -->
+  <section class="view" id="view-frame" role="tabpanel">
+    <div id="frameWrap">
+      <div class="feHead">
+        <h2 id="feTitle">REEL EDITOR</h2>
+        <button class="btn alt" id="fe-done">◄ DONE — BACK TO MAP</button>
+      </div>
+      <div class="feBody">
+        <div class="feCanvasZone">
+          <canvas id="feCanvas" width="640" height="480"></canvas>
+        </div>
+        <div class="feSide">
+          <div class="feTools">
+            <button class="btn on" id="fe-pen" data-tool="pen">PEN</button>
+            <button class="btn" id="fe-box" data-tool="rect">BOX</button>
+            <button class="btn" id="fe-patch" data-tool="patch">PATCH</button>
+            <button class="btn" id="fe-erase" data-tool="erase">ERASE</button>
+            <button class="btn" id="fe-grid" title="Toggle grid/onion">GRID</button>
+          </div>
+          <div class="feFrames">
+            <div class="feLabel">Ink</div>
+            <div class="inkrow" id="fe-inks"></div>
+            <div class="feLabel">Brush</div>
+            <input type="range" id="fe-size" min="1" max="24" value="5">
+            <div class="feLabel">BEFLIX script (this reel)</div>
+            <textarea id="fe-script" spellcheck="false" style="width:100%;height:90px;border:var(--rule) solid var(--ink);font-size:11px;padding:6px;resize:none;outline:none;user-select:text">CLR 0
+PNT 8 6 12 8 7
+REC 6</textarea>
+            <div style="display:flex;gap:5px;margin-top:5px">
+              <button class="btn" id="fe-runscript" style="flex:1">RUN</button>
+              <button class="btn" id="fe-toscript" style="flex:1">FRAMES→CODE</button>
+            </div>
+            <div class="feLabel" style="margin-top:8px">Text stamp</div>
+            <input type="text" id="fe-text" value="HELLO" style="width:100%;height:32px;border:var(--rule) solid var(--ink);font-size:12px;font-weight:700;padding:0 6px;user-select:text">
+            <div style="display:flex;gap:5px;margin-top:5px">
+              <button class="btn" id="fe-stamp" style="flex:1">STAMP</button>
+              <button class="btn" id="fe-ripple" style="flex:1">RIPPLE TEXT</button>
+            </div>
+            <div class="feLabel" style="margin-top:8px">Frame ops</div>
+            <div style="display:flex;gap:5px;flex-wrap:wrap">
+              <button class="btn" id="fe-add" style="flex:1">+BLK</button>
+              <button class="btn" id="fe-dup" style="flex:1">+CPY</button>
+              <button class="btn" id="fe-del" style="flex:1">DEL</button>
+            </div>
+            <div style="display:flex;gap:5px;margin-top:5px;align-items:center">
+              <span class="feLabel" style="margin:0">FPS</span>
+              <button class="btn" id="fe-fps-d" style="min-width:34px">−</button>
+              <span id="fe-fps" style="font-weight:800;min-width:24px;text-align:center">10</span>
+              <button class="btn" id="fe-fps-u" style="min-width:34px">+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="feStrip" id="fe-strip"></div>
+    </div>
+  </section>
+
+  <!-- ===== EXPORT (fullscreen) ===== -->
+  <div class="exportscreen">
+    <div class="exHead"><h2>EXPORT</h2><span class="conf" id="ed-conf">IDLE</span></div>
+    <div class="exBody">
+      <div class="modules">
+        <div class="mod">
+          <div class="mh"><h3>BEFLIX-MAP</h3><span class="grain">UNIFIED</span></div>
+          <p class="ms">The whole artifact as one runnable script + edit log. Round-trips to a map.</p>
+          <div class="mb"><button class="xbtn" id="exp-bfx">.bfx</button><button class="xbtn alt" id="exp-bfx-copy">COPY</button></div>
+        </div>
+        <div class="mod">
+          <div class="mh"><h3>MOSAIC</h3><span class="grain">REEL GRAIN</span></div>
+          <p class="ms">Self-contained HTML; each tile plays its reel. Grid <b id="ms-grid">—</b>, tiles <b id="ms-tiles">—</b>.</p>
+          <div class="mb"><button class="xbtn" id="exp-mosaic">HTML</button></div>
+        </div>
+        <div class="mod">
+          <div class="mh"><h3>LINEAR FILM</h3><span class="grain">FRAME TIME</span></div>
+          <p class="ms">Reels concatenated at true rate → WebM. <b id="lf-run">—</b>.</p>
+          <div class="mb"><button class="xbtn" id="exp-webm">WEBM</button><button class="xbtn alt" id="exp-edl">EDL</button></div>
+        </div>
+        <div class="mod">
+          <div class="mh"><h3>TWEE / OTIO</h3><span class="grain">REEL + FRAME</span></div>
+          <p class="ms">Branching story (reel grain) · OTIO timeline (frame time).</p>
+          <div class="mb"><button class="xbtn" id="exp-twee">TWEE</button><button class="xbtn alt" id="exp-otio">OTIO</button></div>
+        </div>
+      </div>
+      <div class="outlog" id="outlog">IDLE · build a map (MAP / CODE / TYPE), then export.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- toast + lock + help -->
+<div id="toast">READY</div>
+<div id="lock"><div class="spinner"></div><div id="lockMsg">WORKING</div><div id="lockSub"></div></div>
+<div id="help" class="exportscreen" style="z-index:40">
+  <div class="exHead"><h2>HOW IT WORKS</h2><button class="btn alt" id="help-close">CLOSE</button></div>
+  <div class="exBody" style="overflow-y:auto;display:block">
+    <p style="font-weight:800;margin:0 0 10px">One BEFLIX artifact, three ways to author it.</p>
+    <p style="margin:0 0 8px"><b>MAP</b> — the Voronoi graph. Every territory plays its own BEFLIX reel. Tap a cell to inspect; tap an adjacent cell to cut (the dashed path is your film-of-films). Turn on <b>DRAW</b> to paint the selected reel right on the map; neighbors keep playing.</p>
+    <p style="margin:0 0 8px"><b>CODE</b> — the same map decompiled to one BEFLIX-MAP script: each cell is a <code>;@CELL</code> block of CLR/PNT/LIN/REC, each cut a <code>;@CUT</code> edge. Edit the text, hit <b>CODE → MAP</b>, and the map rebuilds. This script is also the edit log and the export format — one artifact.</p>
+    <p style="margin:0 0 8px"><b>TYPE</b> — paste prose. Each block becomes a territory, cuts wired in reading order, with your chosen motion (typewriter / ripple / fade…) rendered into each reel. Write a screenplay, get a navigable spatial film.</p>
+    <p style="margin:0 0 8px"><b>DEEP-EDIT</b> — open the full dot-matrix frame editor on one reel: pen/box/patch, per-reel BEFLIX script, text stamp, ripple, frame ops, onion skin.</p>
+    <p style="margin:0"><b>RIPPLE</b> works at both scales at once: it propagates across the graph <i>and</i> renders a pixel-ripple into each reel it crosses.</p>
+  </div>
+</div>
+<script>
+/* ============================================================
+   CINEOSIS · FLIX engine
+   MAP ⇄ MACRO ⇄ FRAMES — one BEFLIX truth.
+   ============================================================ */
+"use strict";
+
+/* ---- constants (ABC-compatible dot-matrix) ---- */
+const G_COLS=128, G_ROWS=96;     // BEFLIX grid
+const FW=G_COLS, FH=G_ROWS;
+const INK_HEX=['#ffffff','#dddddd','#bbbbbb','#999999','#777777','#555555','#333333','#000000'];
+let BASE_FPS=10;
+
+function makeRNG(seed){let s=seed>>>0||1;return()=>{s^=s<<13;s^=s>>>17;s^=s<<5;return((s>>>0)/4294967296);};}
+function uuid(){return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,c=>{const r=Math.random()*16|0;return (c==="x"?r:(r&0x3|0x8)).toString(16);});}
+
+/* ============================================================
+   <entity> BeflixFrame — a 128x96 grid of ink levels 0..7.
+   Compact: Uint8Array(G_COLS*G_ROWS). This is the ABC frame,
+   simplified to one ink-level layer (lossless for our macro).
+   ============================================================ */
+function blankCells(){ return new Uint8Array(G_COLS*G_ROWS); }
+function cellGet(c,x,y){ return (x<0||y<0||x>=G_COLS||y>=G_ROWS)?0:c[y*G_COLS+x]; }
+function cellSet(c,x,y,v){ if(x<0||y<0||x>=G_COLS||y>=G_ROWS)return; c[y*G_COLS+x]=v&7; }
+
+class BeflixFrame{ constructor(cells){ this.cells = cells||blankCells(); } clone(){ return new BeflixFrame(new Uint8Array(this.cells)); } }
+
+class BeflixFilm{
+  constructor(frames,fps){ this.frames=(frames&&frames.length)?frames:[new BeflixFrame()]; this.fps=fps||BASE_FPS; }
+  get frameCount(){ return this.frames.length; }
+  get runtime(){ return this.frameCount/this.fps; }
+  frameAt(i){ const n=this.frameCount; return this.frames[((i%n)+n)%n]; }
+}
+
+/* ---- dot rendering: draw an ink-level grid into a canvas ctx ---- */
+function drawCells(ctx, cells, ox, oy, cw, ch){
+  // cw,ch = total target px; compute per-cell pixel
+  const px=cw/G_COLS, py=ch/G_ROWS;
+  ctx.fillStyle="#fff"; ctx.fillRect(ox,oy,cw,ch);
+  ctx.fillStyle="#000";
+  const maxR=Math.min(px,py)*0.46;
+  for(let y=0;y<G_ROWS;y++){
+    for(let x=0;x<G_COLS;x++){
+      const v=cells[y*G_COLS+x]; if(!v)continue;
+      const r=Math.max(0.4,maxR*(v/7));
+      const cx=ox+x*px+px/2, cy=oy+y*py+py/2;
+      ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fill();
+    }
+  }
+}
+/* fast block render (no circles) for tiny thumbs */
+function drawCellsFast(ctx, cells, ox, oy, cw, ch){
+  const px=cw/G_COLS, py=ch/G_ROWS;
+  ctx.fillStyle="#fff"; ctx.fillRect(ox,oy,cw,ch);
+  for(let y=0;y<G_ROWS;y++)for(let x=0;x<G_COLS;x++){
+    const v=cells[y*G_COLS+x]; if(!v)continue;
+    const g=255-Math.round(v/7*255); ctx.fillStyle=`rgb(${g},${g},${g})`;
+    ctx.fillRect(ox+x*px,oy+y*py,Math.ceil(px),Math.ceil(py));
+  }
+}
+
+/* ---- pixel primitives on a cells grid ---- */
+function pRect(c,x,y,w,h,v){ for(let yy=y;yy<y+h;yy++)for(let xx=x;xx<x+w;xx++)cellSet(c,xx,yy,v); }
+function pLine(c,x1,y1,x2,y2,v){ let dx=Math.abs(x2-x1),sx=x1<x2?1:-1,dy=-Math.abs(y2-y1),sy=y1<y2?1:-1,e=dx+dy,lim=4000;
+  while(lim-->0){ cellSet(c,x1,y1,v); if(x1===x2&&y1===y2)break; const e2=2*e; if(e2>=dy){e+=dy;x1+=sx;} if(e2<=dx){e+=dx;y1+=sy;} } }
+function pDisc(c,cx,cy,r,v){ for(let y=-r;y<=r;y++)for(let x=-r;x<=r;x++)if(x*x+y*y<=r*r)cellSet(c,cx+x,cy+y,v); }
+function pBrush(c,x,y,r,v){ const rr=Math.max(0,Math.floor(r/2)); for(let iy=-rr;iy<=rr;iy++)for(let ix=-rr;ix<=rr;ix++)if(ix*ix+iy*iy<=rr*rr)cellSet(c,Math.round(x+ix),Math.round(y+iy),v); }
+function pBrushLine(c,x0,y0,x1,y1,r,v){ let dx=Math.abs(x1-x0),sx=x0<x1?1:-1,dy=-Math.abs(y1-y0),sy=y0<y1?1:-1,e=dx+dy,lim=4000;
+  while(lim-->0){ pBrush(c,x0,y0,r,v); if(x0===x1&&y0===y1)break; const e2=2*e; if(e2>=dy){e+=dy;x0+=sx;} if(e2<=dx){e+=dx;y0+=sy;} } }
+
+/* ============================================================
+   TEXT RASTERIZER — prose -> ink grid (for ③ and frame editor)
+   ============================================================ */
+const _txtC=document.createElement('canvas'); _txtC.width=G_COLS; _txtC.height=G_ROWS;
+const _txtX=_txtC.getContext('2d',{willReadFrequently:true});
+function rasterText(text,fontSize,gx,gy,ink){
+  const cells=blankCells();
+  _txtX.clearRect(0,0,G_COLS,G_ROWS);
+  _txtX.fillStyle='#000'; _txtX.font=`900 ${fontSize}px Helvetica,Arial,sans-serif`;
+  _txtX.textBaseline='top'; _txtX.textAlign='left';
+  const lineH=Math.ceil(fontSize*1.2), maxW=G_COLS-gx;
+  let cy=gy;
+  for(const raw of String(text).split('\n')){
+    const words=raw.split(' '); let line='';
+    for(const w of words){ const t=line?line+' '+w:w;
+      if(_txtX.measureText(t).width>maxW && line){ _txtX.fillText(line,gx,cy); cy+=lineH; line=w; } else line=t; }
+    if(line){ _txtX.fillText(line,gx,cy); cy+=lineH; }
+  }
+  const px=_txtX.getImageData(0,0,G_COLS,G_ROWS).data;
+  for(let y=0;y<G_ROWS;y++)for(let x=0;x<G_COLS;x++){
+    const a=px[(y*G_COLS+x)*4+3]; if(a>30) cells[y*G_COLS+x]=Math.max(1,Math.round(a/255*ink))&7;
+  }
+  return cells;
+}
+
+/* ============================================================
+   ② THE MACRO — compile cells -> BEFLIX lines, and run lines -> cells
+   Commands: CLR v | PNT x y w h v | LIN x1 y1 x2 y2 v | REC n | SHF dx dy n
+   ============================================================ */
+/* run a macro (array of lines) -> array of BeflixFrame (one reel) */
+function runMacro(lines){
+  const frames=[]; let mat=blankCells();
+  for(let raw of lines){
+    const l=raw.trim(); if(!l||l[0]===';') continue;
+    const p=l.toUpperCase().split(/\s+/); const c=p[0]; const a=p.slice(1).map(Number);
+    if(c==='C') continue;
+    else if(c==='CLR'){ mat.fill(a[0]&7); }
+    else if(c==='PNT'){ pRect(mat,a[0],a[1],a[2],a[3],a[4]); }
+    else if(c==='LIN'){ pLine(mat,a[0],a[1],a[2],a[3],a[4]); }
+    else if(c==='REC'){ for(let i=0;i<Math.min(a[0]||1,2000);i++) frames.push(new BeflixFrame(new Uint8Array(mat))); }
+    else if(c==='SHF'){ for(let f=0;f<Math.min(a[2]||1,2000);f++){ const n=blankCells();
+      for(let y=0;y<G_ROWS;y++)for(let x=0;x<G_COLS;x++){ const nx=x-a[0],ny=y-a[1]; if(nx>=0&&nx<G_COLS&&ny>=0&&ny<G_ROWS) n[y*G_COLS+x]=mat[ny*G_COLS+nx]; }
+      mat=n; frames.push(new BeflixFrame(new Uint8Array(mat))); } }
+  }
+  if(!frames.length) frames.push(new BeflixFrame(new Uint8Array(mat)));
+  return frames;
+}
+
+/* decompile ONE frame's cells -> macro lines (run-length per row over background) */
+function cellsToMacro(cells){
+  const lines=[];
+  // pick background = most common value
+  const counts=new Array(8).fill(0);
+  for(let i=0;i<cells.length;i++) counts[cells[i]]++;
+  let bg=0,mx=-1; for(let v=0;v<8;v++) if(counts[v]>mx){mx=counts[v];bg=v;}
+  lines.push('CLR '+bg);
+  for(let y=0;y<G_ROWS;y++){
+    let x=0;
+    while(x<G_COLS){
+      const v=cells[y*G_COLS+x];
+      if(v!==bg){ const sx=x; while(x<G_COLS&&cells[y*G_COLS+x]===v)x++; lines.push(`PNT ${sx} ${y} ${x-sx} 1 ${v}`); }
+      else x++;
+    }
+  }
+  return lines;
+}
+
+/* ---- per-reel: decompile a film to macro (dedupe identical frames into REC n) ---- */
+function filmToMacro(film){
+  const out=[];
+  let i=0;
+  while(i<film.frames.length){
+    const cur=film.frames[i].cells;
+    let run=1; while(i+run<film.frames.length && eqCells(film.frames[i+run].cells,cur)) run++;
+    out.push(...cellsToMacro(cur));
+    out.push('REC '+run);
+    i+=run;
+  }
+  return out;
+}
+function eqCells(a,b){ if(a.length!==b.length)return false; for(let i=0;i<a.length;i++) if(a[i]!==b[i])return false; return true; }
+/* ============================================================
+   MotionGrammar + per-room reel generators (128x96 BEFLIX)
+   ============================================================ */
+const MOTION={ STILL:"STILL (UNHAPPY)", MOVING:"MOVING", FREE:"FREE (HAPPY)" };
+
+/* a small horse drawn into a cells grid at scale, posture by phase */
+function horseInto(c, phase, gallop, ink){
+  ink=ink||7;
+  const ox=44, oy=34, s=2;               // place mid-grid
+  const R=(x,y,w,h)=>pRect(c,ox+x*s,oy+y*s,Math.max(1,w*s),Math.max(1,h*s),ink);
+  R(0,2,11,5);                            // body
+  R(9,-2,4,5); cellSet(c,ox+13*s,oy-2*s,ink); // neck+head
+  cellSet(c,ox+11*s,oy-3*s,ink);          // ear
+  cellSet(c,ox-1*s,oy+2*s,ink); cellSet(c,ox-2*s,oy+3*s,ink); // tail
+  const p = gallop ? [-1,1,2,0][phase%4] : [0,1,0,1][phase%4];
+  pLine(c, ox+9*s,oy+7*s, ox+9*s, oy+(10+(p>0?1:0))*s, ink);
+  pLine(c, ox+7*s,oy+7*s, ox+7*s, oy+(10-(p>0?1:0))*s, ink);
+  pLine(c, ox+2*s,oy+7*s, ox+2*s, oy+(10-(p<0?1:0))*s, ink);
+  pLine(c, ox+4*s,oy+7*s, ox+4*s, oy+(10+(p<0?1:0))*s, ink);
+}
+
+const MotionGrammar={
+  generateFilm(roomType, seed){
+    const rng=makeRNG(seed);
+    switch(roomType){
+      case "OPEN FIELD": return this._gallop();
+      case "FIELD":      return this._graze();
+      case "WATER":      return this._water();
+      case "GATE":       return this._gate();
+      case "STILSK":     return this._still();
+      default:           return this._graze();
+    }
+  },
+  _gallop(){ const F=[]; for(let i=0;i<8;i++){ const c=blankCells(); horseInto(c,i,true,7);
+    for(let k=0;k<6;k++) cellSet(c,(i*5+k*9)%G_COLS, G_ROWS-4, 5); F.push(new BeflixFrame(c)); } return new BeflixFilm(F,12); },
+  _graze(){ const F=[]; for(let i=0;i<10;i++){ const c=blankCells(); horseInto(c,i%2,false,7);
+    if(i%10<5){ pRect(c,44+9*2,34-2*2,8,8,0); pRect(c,44+9*2,34+5*2,8,8,7); for(let g=4;g<G_COLS;g+=6)pLine(c,g,G_ROWS-6,g,G_ROWS-1,4); }
+    F.push(new BeflixFrame(c)); } return new BeflixFilm(F,8); },
+  _water(){ const F=[]; for(let i=0;i<10;i++){ const c=blankCells(); pLine(c,0,30,G_COLS-1,30,7);
+    for(let x=0;x<G_COLS;x++){ cellSet(c,x,42+Math.round(Math.sin((x+i)/8)*5),6); cellSet(c,x,60+Math.round(Math.cos((x+i)/11)*4),5);} F.push(new BeflixFrame(c)); } return new BeflixFilm(F,10); },
+  _gate(){ const F=[]; for(let i=0;i<8;i++){ const c=blankCells(); pLine(c,20,8,20,G_ROWS-8,7); pLine(c,G_COLS-20,8,G_COLS-20,G_ROWS-8,7); pLine(c,20,8,G_COLS-20,8,7);
+    const open=Math.round((i/7)*24); for(let y=16;y<G_ROWS-12;y+=8){ pLine(c,22,y,22+(24-open),y,7); pLine(c,G_COLS-22-(24-open),y,G_COLS-22,y,7);} F.push(new BeflixFrame(c)); } return new BeflixFilm(F,9); },
+  _still(){ const F=[]; for(let i=0;i<6;i++){ const c=blankCells(); horseInto(c,0,false,7); cellSet(c,42, i%3===0?36:34, 7); F.push(new BeflixFrame(c)); } return new BeflixFilm(F,6); },
+
+  onEnter(room,st){ switch(room){ case "FIELD": return st===MOTION.STILL?MOTION.MOVING:st; case "OPEN FIELD": return MOTION.MOVING; case "WATER": return st; case "STILSK": return MOTION.STILL; case "GATE": return st; default: return st; } },
+  action(label,room,st){ return label==="LOWER HEAD TO GRAZE"?MOTION.MOVING:st; },
+  onGateOpened(){ return MOTION.FREE; }
+};
+
+/* ---- pixel-ripple: stamp a ripple field into a film's frames (① bridge) ---- */
+function rippleIntoFilm(film, intensity){
+  const cx=G_COLS/2, cy=G_ROWS/2, n=film.frameCount;
+  for(let fi=0;fi<n;fi++){ const c=film.frames[fi].cells; const phase=(fi/n)*Math.PI*4;
+    for(let y=0;y<G_ROWS;y+=2)for(let x=0;x<G_COLS;x+=2){ const d=Math.hypot(x-cx,y-cy);
+      const w=Math.sin(d/12*Math.PI*2-phase); const v=Math.max(0,Math.min(7,Math.round((w+1)*1.6*intensity)));
+      if(v>cellGet(c,x,y)) cellSet(c,x,y,v); } }
+}
+
+/* ============================================================
+   CINEOSIS spatial engine: CineTerritory / Grid / Traversal
+   ============================================================ */
+let CID=0;
+class CineTerritory{
+  constructor(site){ this.id=CID++; this.site=site; this.poly=[]; this.neighbors=new Set();
+    this.room="FIELD"; this.gateOpen=false; this.film=null; this.v=[0,0,0,0]; this.label=null; }
+  shot(){ return this.film; }
+  passages(){ return this._passages.slice(); }
+}
+function convexHull(P){ if(P.length<3)return P.slice();
+  P=P.slice().sort((a,b)=>a[0]-b[0]||a[1]-b[1]);
+  const cr=(o,a,b)=>(a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]); const lo=[],up=[];
+  for(const p of P){while(lo.length>=2&&cr(lo[lo.length-2],lo[lo.length-1],p)<=0)lo.pop();lo.push(p);}
+  for(let i=P.length-1;i>=0;i--){const p=P[i];while(up.length>=2&&cr(up[up.length-2],up[up.length-1],p)<=0)up.pop();up.push(p);}
+  lo.pop();up.pop();return lo.concat(up); }
+
+class Grid{
+  constructor(w,h,n,seed){ this.w=w;this.h=h;this.seed=seed; const rng=makeRNG(seed); CID=0;
+    this.cells=Array.from({length:n},()=>new CineTerritory({x:rng()*w,y:rng()*h}));
+    this._lloyd(1); this._adjacency(); this._rooms(rng); this._passages(); this._vectors(); this._films(); }
+  _nearest(px,py){let b=-1,bd=Infinity;for(const c of this.cells){const dx=px-c.site.x,dy=py-c.site.y,d=dx*dx+dy*dy;if(d<bd){bd=d;b=c.id;}}return b;}
+  _lloyd(p){const st=6;for(let k=0;k<p;k++){const sx=this.cells.map(()=>0),sy=this.cells.map(()=>0),ct=this.cells.map(()=>0);
+    for(let y=0;y<this.h;y+=st)for(let x=0;x<this.w;x+=st){const id=this._nearest(x,y);sx[id]+=x;sy[id]+=y;ct[id]++;}
+    this.cells.forEach((c,i)=>{if(ct[i]){c.site.x=sx[i]/ct[i];c.site.y=sy[i]/ct[i];}});}}
+  _adjacency(){const st=4;const pts=this.cells.map(()=>[]);let pr=null;
+    for(let y=0;y<this.h;y+=st){let prev=-1;const row=[];
+      for(let x=0;x<this.w;x+=st){const id=this._nearest(x,y);row.push(id);pts[id].push([x,y]);
+        if(prev!==-1&&prev!==id){this.cells[prev].neighbors.add(id);this.cells[id].neighbors.add(prev);}
+        if(pr){const up=pr[row.length-1];if(up!==undefined&&up!==id){this.cells[up].neighbors.add(id);this.cells[id].neighbors.add(up);}} prev=id;}
+      pr=row;}
+    this.cells.forEach(c=>{c.poly=convexHull(pts[c.id]);});}
+  _rooms(rng){for(const c of this.cells){const edge=c.site.x<this.w*.16||c.site.x>this.w*.84||c.site.y<this.h*.16||c.site.y>this.h*.84;const r=rng();
+    if(edge&&r<.45)c.room="GATE"; else if(r<.18)c.room="WATER"; else if(r<.3)c.room="STILSK"; else if(r<.62)c.room="OPEN FIELD"; else c.room="FIELD";}}
+  _passages(){for(const c of this.cells){ c._passages=[...c.neighbors].map(nid=>({label:`CUT TO ${this.cells[nid].room}`,to:nid,kind:"cut"}));
+    if(c.room==="FIELD"||c.room==="OPEN FIELD")c._passages.push({label:"LOWER HEAD TO GRAZE",to:c.id,kind:"action"});
+    if(c.room==="GATE")c._passages.push({label:"OPEN THE GATE",to:c.id,kind:"action"});}}
+  _vectors(){const cx=this.w/2,cy=this.h/2;for(const c of this.cells){const bias=c.room==="OPEN FIELD"?.8:c.room==="FIELD"?.5:c.room==="WATER"?.2:c.room==="STILSK"?.05:.4;
+    const depth=Math.hypot(c.site.x-cx,c.site.y-cy)/Math.hypot(cx,cy); c.v=[+bias.toFixed(2),0,c.room==="GATE"?(c.gateOpen?1:0):.5,+depth.toFixed(2)];}}
+  _films(){for(const c of this.cells) c.film=MotionGrammar.generateFilm(c.room,(this.seed*131+c.id*977+1)>>>0);}
+  cell(id){return this.cells[id];}
+  adjacent(a,b){return this.cells[a].neighbors.has(b);}
+  boundsW(poly){let mn=1e9,mx=-1e9;poly.forEach(p=>{mn=Math.min(mn,p[0]);mx=Math.max(mx,p[0]);});return mx-mn;}
+}
+
+class Traversal{
+  constructor(grid){this.grid=grid;this.steps=[];}
+  get length(){return this.steps.length;}
+  current(){return this.steps.length?this.steps[this.steps.length-1].to:this.start;}
+  begin(id,m){this.start=id;this.steps=[];this.startMotion=m;}
+  _win(id){const f=this.grid.cell(id).film;return{inFrame:0,outFrame:f.frameCount,fps:f.fps,frameCount:f.frameCount};}
+  cut(to,m){const from=this.current();if(!this.grid.adjacent(from,to))return{ok:false,reason:"no shared boundary"};this.steps.push({from,to,action:null,motionAfter:m,...this._win(to)});return{ok:true};}
+  act(label,m){const h=this.current();this.steps.push({from:h,to:h,action:label,motionAfter:m,...this._win(h)});return{ok:true};}
+  validate(){const e=[];let prev=this.start;this.steps.forEach((s,i)=>{const c=this.grid.cell(s.to);if(!c)e.push(`step ${i+1}: dangling`);else if(!c.film||c.film.frameCount<1)e.push(`step ${i+1}: empty reel`);if(s.action===null&&!this.grid.adjacent(prev,s.to))e.push(`step ${i+1}: non-adjacent`);prev=s.to;});return{ok:e.length===0,errs:e};}
+  totalFrames(){return this.steps.reduce((a,s)=>a+(s.outFrame-s.inFrame),0);}
+  totalRuntime(){return this.steps.reduce((a,s)=>a+(s.outFrame-s.inFrame)/s.fps,0);}
+  events(){const ev=[];let prev=this.start;this.steps.forEach((s,i)=>{const c=this.grid.cell(s.to);ev.push({n:i+1,cellId:s.to,room:c.room,kind:s.action?"ACTION":"CUT",label:s.action||`CUT TO ${c.room}`,motion:s.motionAfter,inFrame:s.inFrame,outFrame:s.outFrame,fps:s.fps,frameCount:s.frameCount,runtime:(s.outFrame-s.inFrame)/s.fps,from:prev});prev=s.to;});return ev;}
+}
+/* ============================================================
+   ② BEFLIX-MAP : whole graph <-> one script
+   Format:
+     ;@MAP w=.. h=.. seed=.. start=..
+     ;@CELL id=0 room=FIELD x=.. y=.. fps=8 gate=0
+     CLR 0 / PNT.. / REC n            (that reel's frames)
+     ;@CELL id=1 ...
+     ;@CUT 0 3                        (traversal edges, in order)
+     ;@CUT 3 5
+   ============================================================ */
+function mapToBFX(grid, trav){
+  const L=[];
+  L.push('; ════════════════════════════════════════');
+  L.push('; CINEOSIS·FLIX · BEFLIX-MAP');
+  L.push('; one script = the whole graph (cells + cuts + frames)');
+  L.push('; ════════════════════════════════════════');
+  L.push(`;@MAP w=${grid.w} h=${grid.h} seed=${grid.seed} start=${trav.start} cells=${grid.cells.length}`);
+  L.push('');
+  grid.cells.forEach(c=>{
+    L.push(`;@CELL id=${c.id} room=${c.room.replace(/\s+/g,'_')} x=${Math.round(c.site.x)} y=${Math.round(c.site.y)} fps=${c.film.fps} gate=${c.gateOpen?1:0} nbr=${[...c.neighbors].join('.')}`);
+    L.push(...filmToMacro(c.film));
+    L.push('');
+  });
+  L.push('; --- TRAVERSAL (film-of-films, in cut order) ---');
+  if(trav.steps.length===0) L.push('; (no cuts yet)');
+  trav.steps.forEach(s=>{ if(s.action) L.push(`;@ACT ${s.to} ${s.action.replace(/\s+/g,'_')}`); else L.push(`;@CUT ${s.from} ${s.to}`); });
+  L.push('');
+  L.push('; @END');
+  return L.join('\n');
+}
+
+/* parse a BEFLIX-MAP script -> {grid, trav}. Rebuilds geometry from saved sites. */
+function bfxToMap(text){
+  const lines=text.split('\n');
+  let mapMeta={w:900,h:600,seed:7,start:0};
+  const cellDefs=[];        // {id,room,x,y,fps,gate,nbr[],macro[]}
+  const cuts=[];            // {type:'cut'|'act', a,b,label}
+  let cur=null;
+  for(let raw of lines){
+    const l=raw.trim();
+    if(l.startsWith(';@MAP')){ mapMeta=parseKV(l, mapMeta); }
+    else if(l.startsWith(';@CELL')){ if(cur)cellDefs.push(cur);
+      const kv=parseKV(l,{id:0,room:'FIELD',x:0,y:0,fps:10,gate:0,nbr:''});
+      cur={id:+kv.id, room:String(kv.room).replace(/_/g,' '), x:+kv.x, y:+kv.y, fps:+kv.fps, gate:+kv.gate,
+           nbr:String(kv.nbr).split('.').filter(s=>s!=='').map(Number), macro:[]}; }
+    else if(l.startsWith(';@CUT')){ const p=l.split(/\s+/); cuts.push({type:'cut',a:+p[1],b:+p[2]}); }
+    else if(l.startsWith(';@ACT')){ const p=l.split(/\s+/); cuts.push({type:'act',b:+p[1],label:(p[2]||'').replace(/_/g,' ')}); }
+    else if(l[0]===';'||l===''){ /* skip */ }
+    else if(cur){ cur.macro.push(l); }
+  }
+  if(cur) cellDefs.push(cur);
+  if(!cellDefs.length) throw new Error('no @CELL blocks found');
+
+  // Build a grid shell WITHOUT regenerating films, then attach compiled reels.
+  const grid=Object.create(Grid.prototype);
+  grid.w=+mapMeta.w||900; grid.h=+mapMeta.h||600; grid.seed=+mapMeta.seed||7;
+  CID=0;
+  grid.cells=cellDefs.map(d=>{ const c=new CineTerritory({x:d.x,y:d.y}); c.id=d.id; c.room=d.room; c.gateOpen=!!d.gate;
+    c.film=new BeflixFilm(runMacro(d.macro), d.fps||10); c.v=[.5,0,c.gateOpen?1:.5,.5]; return c; });
+  // sort by id and reindex defensively
+  grid.cells.sort((a,b)=>a.id-b.id); grid.cells.forEach((c,i)=>c.id=i);
+  // rebuild Voronoi polygons + adjacency from sites (so the map draws + cuts validate)
+  recomputeGeometry(grid, cellDefs);
+  grid._passages();
+  const trav=new Traversal(grid); const start=Math.min(+mapMeta.start||0, grid.cells.length-1);
+  trav.begin(start, MOTION.STILL);
+  // replay cuts/acts
+  let motion=MOTION.STILL;
+  for(const e of cuts){ if(e.type==='cut'){ const m=MotionGrammar.onEnter(grid.cell(e.b).room,motion); const r=trav.cut(e.b,m); if(r.ok)motion=m; }
+    else { const m=MotionGrammar.action(e.label,grid.cell(e.b).room,motion); if(trav.current()!==e.b){ /* jump not allowed; ignore */ } trav.act(e.label,m); motion=m; } }
+  return {grid, trav, motion};
+}
+function parseKV(line, base){ const o=Object.assign({},base); line.replace(/(\w+)=([^\s]+)/g,(_,k,v)=>{o[k]=v;return _;}); return o; }
+
+/* recompute polygons + adjacency for a grid whose sites are already set */
+function recomputeGeometry(grid, defs){
+  const st=4; const pts=grid.cells.map(()=>[]); let pr=null;
+  for(let y=0;y<grid.h;y+=st){ let prev=-1; const row=[];
+    for(let x=0;x<grid.w;x+=st){ const id=grid._nearest(x,y); row.push(id); pts[id].push([x,y]);
+      if(prev!==-1&&prev!==id){grid.cells[prev].neighbors.add(id);grid.cells[id].neighbors.add(prev);}
+      if(pr){const up=pr[row.length-1];if(up!==undefined&&up!==id){grid.cells[up].neighbors.add(id);grid.cells[id].neighbors.add(up);}} prev=id;}
+    pr=row;}
+  grid.cells.forEach(c=>{c.poly=convexHull(pts[c.id]);});
+}
+
+/* ============================================================
+   ③ TYPE -> film-of-films
+   Split prose into blocks; place each block as a NEW territory on a
+   fresh grid sized to count; render the chosen motion into each reel;
+   wire cuts in reading order.
+   ============================================================ */
+function splitProse(text, mode){
+  text=text.trim();
+  if(mode==='line') return text.split('\n').map(s=>s.trim()).filter(Boolean);
+  if(mode==='sentence') return text.split(/(?<=[.!?])\s+/).map(s=>s.trim()).filter(Boolean);
+  return text.split(/\n\s*\n/).map(s=>s.replace(/\n/g,' ').trim()).filter(Boolean); // paragraphs
+}
+function reelFromText(line, motion, font, nFrames, seed){
+  const F=[]; const ink=7;
+  for(let i=0;i<nFrames;i++){ const t=nFrames>1?i/(nFrames-1):1; let cells;
+    if(motion==='typewriter'){ const k=Math.ceil(t*line.length); cells=rasterText(line.substring(0,k),font,4,30,ink); }
+    else if(motion==='fade'){ cells=rasterText(line,font,4,30,Math.max(1,Math.round(t*ink))); }
+    else if(motion==='scroll'){ const y=Math.round(G_ROWS - t*(G_ROWS+font)); cells=rasterText(line,font,4,y,ink); }
+    else if(motion==='ripple'){ cells=rasterText(line,font,4,30,ink); const cx=G_COLS/2,cy=G_ROWS/2,ph=t*Math.PI*4;
+      for(let y=0;y<G_ROWS;y+=2)for(let x=0;x<G_COLS;x+=2){ const d=Math.hypot(x-cx,y-cy); if(d/Math.hypot(cx,cy)>t*1.4 && cellGet(cells,x,y)===0){ const w=Math.sin(d/12*Math.PI*2-ph); const v=Math.max(0,Math.min(3,Math.round((w+1)*1.2))); if(v)cellSet(cells,x,y,v);} } }
+    else { cells=rasterText(line,font,4,30,ink); }
+    F.push(new BeflixFrame(cells));
+  }
+  return new BeflixFilm(F, motion==='still'?6:10);
+}
+/* place N reels on a fresh grid as a left-to-right serpentine, wired in order */
+function buildMapFromProse(text, opts){
+  const blocks=splitProse(text, opts.split); if(!blocks.length) throw new Error('no text');
+  const n=Math.min(blocks.length, 40);
+  // fresh grid for geometry (sites + adjacency), then OVERWRITE reels + rooms with text reels
+  const W=opts.w, H=opts.h;
+  const grid=new Grid(W,H, n, (Date.now()>>>0)||7);   // Grid(w,h,COUNT,seed)
+  // map reading order onto cells sorted by (y rows, then x) so cuts feel like reading
+  const order=grid.cells.map(c=>c).sort((a,b)=> (Math.round(a.site.y/60)-Math.round(b.site.y/60)) || (a.site.x-b.site.x));
+  for(let i=0;i<order.length;i++){
+    const c=order[i]; const line=blocks[i % blocks.length];
+    c.label=line; c.room="FIELD";
+    c.film=reelFromText(line.toUpperCase(), opts.motion, opts.font, opts.frames, (i*131+7)>>>0);
+  }
+  grid._passages();
+  // wire cuts in reading order, but only between adjacent cells; if not adjacent, still allow (insert via nearest path is overkill) -> we keep only adjacent hops, else skip
+  const trav=new Traversal(grid); trav.begin(order[0].id, MOTION.STILL); let motion=MOTION.STILL;
+  for(let i=1;i<order.length;i++){ const to=order[i].id;
+    if(grid.adjacent(trav.current(),to)){ const m=MotionGrammar.onEnter(grid.cell(to).room,motion); const r=trav.cut(to,m); if(r.ok)motion=m; } }
+  return {grid, trav, motion, placed:order.length};
+}
+/* ============================================================
+   EXPORTERS (Policy C) — reuse trav.events(); render cells via dots
+   ============================================================ */
+function tcFromFrames(frames,fps){let f=Math.max(0,Math.round(frames));const ff=f%fps;f=(f-ff)/fps;const ss=f%60;f=(f-ss)/60;const mm=f%60;f=(f-mm)/60;const hh=f%24;const p=x=>String(x).padStart(2,'0');return `${p(hh)}:${p(mm)}:${p(ss)}:${p(ff)}`;}
+
+function exportEDL(grid,trav){
+  const ev=trav.events(); const fps=24; let rec=0; const L=['TITLE: CINEOSIS-FLIX FILM-OF-FILMS','FCM: NON-DROP FRAME'];
+  ev.forEach((e,i)=>{ const sfps=e.fps; const srcIn=tcFromFrames(e.inFrame,sfps),srcOut=tcFromFrames(e.outFrame,sfps);
+    const durRec=Math.max(1,Math.round((e.frameCount/sfps)*fps)); const recIn=tcFromFrames(rec,fps),recOut=tcFromFrames(rec+durRec,fps);
+    L.push(`${String(i+1).padStart(3,'0')}  R${String(e.cellId).padStart(3,'0')}      V     C        ${srcIn} ${srcOut} ${recIn} ${recOut}`);
+    L.push(`* FROM CLIP NAME: ${e.room.replace(/\s+/g,'_')}_REEL_${e.cellId}`);
+    L.push(`* CINEOSIS: ${e.kind} ${e.label} | ${e.frameCount}f @ ${sfps}fps | ${e.motion}`); rec+=durRec; });
+  return {name:'cineflix.edl',mime:'text/plain',data:L.join('\n')+'\n'};
+}
+function exportOTIO(grid,trav){
+  const ev=trav.events(); const clips=ev.map(e=>({OTIO_SCHEMA:"Clip.2",name:`${e.room} / reel ${e.cellId}`,
+    source_range:{OTIO_SCHEMA:"TimeRange.1",start_time:{OTIO_SCHEMA:"RationalTime.1",rate:e.fps,value:e.inFrame},duration:{OTIO_SCHEMA:"RationalTime.1",rate:e.fps,value:e.frameCount}},
+    metadata:{cineflix:{cell:e.cellId,room:e.room,kind:e.kind,motion:e.motion,frames:e.frameCount,fps:e.fps,step:e.n}},
+    media_reference:{OTIO_SCHEMA:"MissingReference.1",name:`beflix_reel_${e.cellId}`}}));
+  const doc={OTIO_SCHEMA:"Timeline.1",name:"CINEOSIS-FLIX",metadata:{cineflix:{reels:ev.length,total_frames:trav.totalFrames(),runtime_s:+trav.totalRuntime().toFixed(3)}},
+    tracks:{OTIO_SCHEMA:"Stack.1",name:"tracks",children:[{OTIO_SCHEMA:"Track.1",name:"V1",kind:"Video",children:clips}]}};
+  return {name:'cineflix.otio',mime:'application/json',data:JSON.stringify(doc,null,2)};
+}
+function exportTwee(grid,trav){
+  const ev=trav.events(); const out=[":: StoryTitle","CINEOSIS-FLIX\n",":: StoryData",JSON.stringify({ifid:uuid(),format:"Harlowe",["format-version"]:"3.3.7",start:"Reel 1"},null,2)+"\n"];
+  ev.forEach((e,i)=>{ const here=grid.cell(e.cellId); out.push(`:: Reel ${e.n} {"position":"${100+i*200},${120+(i%3)*150}"}`);
+    out.push(`A **${e.room}** reel — ${e.frameCount}f@${e.fps}fps. (set: $motion to "${e.motion}")`);
+    if(here.label) out.push('“'+here.label+'”');
+    out.push(i<ev.length-1?`[[Continue->Reel ${e.n+1}]]`:`[[The end->Ending]]`);
+    [...here.neighbors].slice(0,3).forEach(nid=>out.push(`[[Cut to ${grid.cell(nid).room}|Reel ${e.n}]]`)); out.push(""); });
+  out.push(":: Ending"); out.push('Resolves. (if: $motion is "FREE (HAPPY)")[The horse runs free.](else:)[Still unhappy.]');
+  return {name:'cineflix.twee',mime:'text/plain',data:out.join('\n')+'\n', nodes:ev.length+1};
+}
+function exportMosaicHTML(grid,trav){
+  const ev=trav.events(); const side=Math.max(1,Math.ceil(Math.sqrt(ev.length)));
+  const reels=ev.map(e=>{ const f=grid.cell(e.cellId).film; return {room:e.room,fps:f.fps,cols:G_COLS,rows:G_ROWS,
+    frames:f.frames.map(fr=>cellsHex(fr.cells))}; });
+  const tpl=MOSAIC_TPL.replace('/*__REELS__*/',JSON.stringify(reels)).replace('/*__SIDE__*/',String(side))
+    .replace(/\/\*__COLS__\*\//g,String(G_COLS)).replace(/\/\*__ROWS__\*\//g,String(G_ROWS));
+  return {name:'cineflix_mosaic.html',mime:'text/html',data:tpl, side, count:ev.length};
+}
+/* pack cells (0..7) two-per-byte hex */
+function cellsHex(cells){ let s=''; for(let i=0;i<cells.length;i+=2){ const a=cells[i]&7, b=(cells[i+1]||0)&7; s+=((a<<4)|b).toString(16).padStart(2,'0'); } return s; }
+
+const MOSAIC_TPL = `<!doctype html><html><head><meta charset="utf-8"><title>CINEOSIS·FLIX — Mosaic</title>
+<style>:root{--ink:#000;--paper:#fff}html,body{margin:0;background:var(--paper);color:var(--ink);font-family:"DejaVu Sans Mono",monospace;height:100%}body{display:flex;flex-direction:column}
+header{border-bottom:2px solid #000;padding:8px 14px;display:flex;justify-content:space-between;letter-spacing:.14em}header b{font-weight:800;letter-spacing:.2em}
+#wrap{flex:1;display:grid;gap:2px;padding:2px;background:#000}.tile{background:#fff;position:relative}.tile canvas{width:100%;height:100%;image-rendering:pixelated;display:block}
+.cap{position:absolute;left:0;bottom:0;background:#000;color:#fff;font-size:9px;letter-spacing:.1em;padding:1px 4px}
+footer{border-top:2px solid #000;padding:6px 14px;display:flex;gap:14px;align-items:center;font-size:11px}button{font-family:inherit;background:#fff;border:2px solid #000;padding:5px 12px;letter-spacing:.12em;font-weight:700;cursor:pointer}</style></head><body>
+<header><b>CINEOSIS·FLIX</b><span>MOSAIC — every tile plays its reel</span></header><div id="wrap"></div>
+<footer><button id="t">PAUSE</button><span id="h">playing</span></footer><script>
+const R=/*__REELS__*/,SIDE=/*__SIDE__*/,COLS=/*__COLS__*/,ROWS=/*__ROWS__*/;
+function hx(s){const c=new Uint8Array(COLS*ROWS);for(let i=0,p=0;i<s.length;i+=2,p+=2){const b=parseInt(s.substr(i,2),16);c[p]=(b>>4)&7;c[p+1]=b&7;}return c;}
+const wrap=document.getElementById('wrap');wrap.style.gridTemplateColumns='repeat('+SIDE+',1fr)';wrap.style.gridTemplateRows='repeat('+Math.ceil(R.length/SIDE)+',1fr)';
+function draw(ctx,cells){const W=ctx.canvas.width,H=ctx.canvas.height,px=W/COLS,py=H/ROWS,r=Math.min(px,py)*0.46;ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);ctx.fillStyle='#000';for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){const v=cells[y*COLS+x];if(!v)continue;ctx.beginPath();ctx.arc(x*px+px/2,y*py+py/2,Math.max(.4,r*(v/7)),0,6.28);ctx.fill();}}
+const P=R.map((reel,i)=>{const d=document.createElement('div');d.className='tile';const cv=document.createElement('canvas');cv.width=COLS*3;cv.height=ROWS*3;d.appendChild(cv);const cap=document.createElement('div');cap.className='cap';cap.textContent=(i+1)+' '+reel.room;d.appendChild(cap);wrap.appendChild(d);const ctx=cv.getContext('2d');const frames=reel.frames.map(hx);let idx=0,acc=0;draw(ctx,frames[0]);return{reel,step(dt){acc+=dt;const spf=1000/reel.fps;while(acc>=spf){acc-=spf;idx=(idx+1)%frames.length;}draw(ctx,frames[idx]);}};});
+let playing=true,last=performance.now();function loop(n){const dt=n-last;last=n;if(playing)P.forEach(p=>p.step(dt));requestAnimationFrame(loop);}requestAnimationFrame(loop);
+document.getElementById('t').onclick=()=>{playing=!playing;document.getElementById('t').textContent=playing?'PAUSE':'PLAY';document.getElementById('h').textContent=playing?'playing':'paused';};
+<\/script></body></html>`;
+
+/* WebM recorder — plays each reel through its frames at its fps */
+function webmSupported(){return typeof MediaRecorder!=="undefined" && (MediaRecorder.isTypeSupported("video/webm;codecs=vp9")||MediaRecorder.isTypeSupported("video/webm;codecs=vp8")||MediaRecorder.isTypeSupported("video/webm"));}
+async function recordWebM(grid,trav,onP){
+  const W=G_COLS*4, H=G_ROWS*4+24, recFps=24; const cv=document.createElement('canvas');cv.width=W;cv.height=H;const ctx=cv.getContext('2d');
+  const stream=cv.captureStream(recFps); const mime=MediaRecorder.isTypeSupported("video/webm;codecs=vp9")?"video/webm;codecs=vp9":MediaRecorder.isTypeSupported("video/webm;codecs=vp8")?"video/webm;codecs=vp8":"video/webm";
+  const rec=new MediaRecorder(stream,{mimeType:mime});const chunks=[];rec.ondataavailable=e=>{if(e.data.size)chunks.push(e.data);};const done=new Promise(r=>rec.onstop=r);rec.start();
+  const ev=trav.events();let drawn=0;
+  for(const e of ev){ const film=grid.cell(e.cellId).film;
+    for(let fi=e.inFrame;fi<e.outFrame;fi++){ const fr=film.frameAt(fi);
+      ctx.fillStyle="#fff";ctx.fillRect(0,0,W,H); ctx.fillStyle="#000";ctx.fillRect(0,0,W,22);
+      ctx.fillStyle="#fff";ctx.font="13px monospace"; ctx.fillText(`REEL ${e.n}  ${e.room}  ·  ${e.motion}  ·  f${fi+1}/${e.frameCount}`,6,16);
+      drawCells(ctx,fr.cells,0,24,W,H-24);
+      const hold=Math.max(1,Math.round(recFps/e.fps)); for(let h=0;h<hold;h++) await new Promise(r=>setTimeout(r,1000/recFps));
+      drawn++; if(onP&&drawn%8===0)onP(drawn); } }
+  rec.stop();await done;return new Blob(chunks,{type:"video/webm"});
+}
+
+function download(file){ const blob=(file.data instanceof Blob)?file.data:new Blob([file.data],{type:file.mime}); const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=file.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500); }
+/* ============================================================
+   APP — controller. State, three views, draw-through, frame editor.
+   ============================================================ */
+const App=(()=>{
+  const mapCv=document.getElementById('map'), mctx=mapCv.getContext('2d');
+  let grid, trav, motion=MOTION.STILL, selected=null, playing=true, exporting=false;
+  let view='map';                 // map | code | type | frame
+  let drawOn=false, tool='pen', ink=7, brush=5, dragging=false, p0=[0,0], p1=[0,0], patchBox=null;
+  let lastSize={w:0,h:0}, lastT=performance.now();
+  const heads=new Map();
+  // undo
+  const UNDO_MAX=30; let undoStack=[];
+  // frame editor state
+  let feFrameIdx=0, feGrid=false, feDragging=false, feP0=[0,0], feP1=[0,0];
+
+  function ensureHeads(){heads.clear();grid.cells.forEach(c=>heads.set(c.id,{idx:0,acc:0}));}
+  function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');clearTimeout(t._k);t._k=setTimeout(()=>t.classList.remove('on'),1400);}
+  function log(m){const el=document.getElementById('outlog');el.textContent=(m+'\n'+el.textContent).slice(0,3000);}
+  function lock(msg){const l=document.getElementById('lock');document.getElementById('lockMsg').textContent=msg||'WORKING';document.getElementById('lockSub').textContent='';l.classList.add('on');}
+  function unlock(){document.getElementById('lock').classList.remove('on');}
+
+  function snapshot(){ return { seed:grid.seed, w:grid.w, h:grid.h, bfx:mapToBFX(grid,trav), start:trav.start }; }
+  function pushUndo(){ try{ undoStack.push(snapshot()); if(undoStack.length>UNDO_MAX)undoStack.shift(); document.getElementById('btn-undo').disabled=undoStack.length===0; }catch(e){} }
+  function undo(){ if(!undoStack.length){toast('NOTHING TO UNDO');return;} const s=undoStack.pop();
+    try{ const r=bfxToMap(s.bfx); grid=r.grid; trav=r.trav; motion=r.motion; selected=trav.current(); ensureHeads(); refresh(); toast('UNDO'); }catch(e){ toast('UNDO FAILED'); }
+    document.getElementById('btn-undo').disabled=undoStack.length===0; }
+
+  /* ---------- status / panels ---------- */
+  function setStatus(){
+    document.getElementById('st-motion').textContent=motion.split(' ')[0];
+    document.getElementById('st-cuts').textContent=trav.length;
+    document.getElementById('st-frames').textContent=trav.totalFrames();
+    document.getElementById('trav-count').textContent=trav.length+' reel'+(trav.length===1?'':'s');
+    const side=Math.max(1,Math.ceil(Math.sqrt(Math.max(trav.length,1))));
+    document.getElementById('ms-grid').textContent=`${side}×${side}`;
+    document.getElementById('ms-tiles').textContent=trav.length;
+    document.getElementById('lf-run').textContent=trav.totalRuntime().toFixed(2)+'s';
+    const v=trav.validate();
+    document.getElementById('ed-conf').textContent=v.ok?(trav.length?`PASS · ${trav.length}r · ${trav.totalFrames()}f`:'IDLE'):`FAIL · ${v.errs.length}`;
+    const ready=v.ok&&trav.length>0;
+    ['exp-mosaic','exp-webm','exp-edl','exp-twee','exp-otio'].forEach(id=>{const b=document.getElementById(id);if(b)b.disabled=!ready;});
+    document.getElementById('exp-webm').disabled=!ready||!webmSupported();
+  }
+  function renderStrip(){
+    const strip=document.getElementById('strip');
+    if(!trav.length){strip.innerHTML='<div class="empty">No cuts yet — tap a neighboring territory.</div>';return;}
+    strip.innerHTML='';
+    trav.events().forEach(e=>{ const cell=document.createElement('div');cell.className='fcell';
+      const cv=document.createElement('canvas');cv.width=58;cv.height=40;drawCellsFast(cv.getContext('2d'),grid.cell(e.cellId).film.frameAt(0).cells,0,0,58,40);
+      const fl=document.createElement('div');fl.className='fl';fl.textContent='#'+e.n+' '+e.room; cell.appendChild(cv);cell.appendChild(fl);strip.appendChild(cell); });
+    strip.scrollLeft=strip.scrollWidth;
+  }
+  function renderInspector(){
+    if(selected==null)selected=trav.current();
+    const c=grid.cell(selected);
+    const r=document.getElementById('insp-room'); r.textContent=c.room+(c.gateOpen?' · OPEN':''); r.className='tag'+(c.room==='GATE'?' inv':'');
+    document.getElementById('insp-reelframe').textContent=`f? / ${c.film.frameCount}`;
+    const gram=c.room==='GATE'?(c.gateOpen?'→FREE':'closed'):'→'+MotionGrammar.onEnter(c.room,motion).split(' ')[0];
+    document.getElementById('meta').innerHTML=`cell <b>#${c.id}</b><span class="sep">·</span><b>${c.film.frameCount}f</b>@${c.film.fps}fps<span class="sep">·</span><b>${c.film.runtime.toFixed(2)}s</b><span class="sep">·</span>${gram}${c.label?'<span class="sep">·</span>“'+c.label.slice(0,40)+'”':''}`;
+    document.getElementById('insp-nbr').textContent=c.neighbors.size+' neighbors';
+    const ex=document.getElementById('exits');ex.innerHTML='';const from=trav.current();
+    c.passages().forEach(p=>{ const chip=document.createElement('button');chip.className='chip';chip.type='button';
+      const legal=p.kind==='action'?true:grid.adjacent(from,p.to); chip.dataset.illegal=legal?'0':'1';
+      const short=p.kind==='action'?(p.label==='LOWER HEAD TO GRAZE'?'GRAZE':'OPEN GATE'):p.label.replace('CUT TO ','');
+      chip.innerHTML=`<span class="ar">${p.kind==='action'?'●':'→'}</span><span>${short}</span>`;
+      if(legal)chip.onclick=()=>p.kind==='action'?doAction(p):doCut(p.to); ex.appendChild(chip); });
+  }
+  function paintInspReel(){
+    if(selected==null||view!=='map')return;
+    const c=grid.cell(selected),cv=document.getElementById('insp-reel');
+    const stage=cv.parentElement,bw=stage.clientWidth-4,bh=stage.clientHeight-4;
+    if(bw>0&&bh>0){ const tw=Math.min(bw, bh*(G_COLS/G_ROWS)), th=tw*(G_ROWS/G_COLS);
+      if(Math.abs(cv.width-tw)>2){cv.width=Math.round(tw);cv.height=Math.round(th);} }
+    const ph=heads.get(selected);if(!ph)return; drawCells(cv.getContext('2d'),c.film.frameAt(ph.idx).cells,0,0,cv.width,cv.height);
+    document.getElementById('insp-reelframe').textContent=`f${ph.idx+1}/${c.film.frameCount}`;
+  }
+
+  /* ---------- morphisms ---------- */
+  function doCut(to){ pushUndo(); const m=MotionGrammar.onEnter(grid.cell(to).room,motion); const r=trav.cut(to,m);
+    if(!r.ok){log('REJECTED: '+r.reason);toast('NOT ADJACENT');undoStack.pop();return;} motion=m;selected=to;grid.cell(to).v[1]=Math.min(1,grid.cell(to).v[1]+.15);refresh(); }
+  function doAction(p){ const c=grid.cell(p.to); if(p.label==='OPEN THE GATE'){openGate(c.id);return;}
+    pushUndo(); const m=MotionGrammar.action(p.label,c.room,motion);trav.act(p.label,m);motion=m;refresh(); }
+  function openGate(id){ pushUndo(); const c=grid.cell(id);c.gateOpen=true;c.v[2]=1;
+    c.film=MotionGrammar.generateFilm('GATE',(grid.seed*131+c.id*977+9)>>>0);
+    motion=MotionGrammar.onGateOpened(motion);
+    [...c.neighbors].forEach(nid=>{const n=grid.cell(nid);n.v[1]=Math.min(1,n.v[1]+.4); rippleIntoFilm(n.film,0.8);   // ① pixel-ripple into neighbor reels
+      [...n.neighbors].forEach(mid=>{grid.cell(mid).v[1]=Math.min(1,grid.cell(mid).v[1]+.15);});});
+    rippleIntoFilm(c.film,1.0); log(`RIPPLE: GATE #${id} OPENS → ${motion} · pixel-ripple written to ${c.neighbors.size+1} reels`); refresh(); }
+
+  /* ---------- map render ---------- */
+  function fit(){
+    const wrap=document.getElementById('mapWrap');const w=wrap.clientWidth,h=wrap.clientHeight; if(w<2||h<2)return;
+    const dpr=Math.min(2,window.devicePixelRatio||1); mapCv.width=Math.round(w*dpr);mapCv.height=Math.round(h*dpr);mapCv.style.width=w+'px';mapCv.style.height=h+'px';
+    if(!grid||lastSize.w!==w||lastSize.h!==h){ lastSize={w,h};
+      grid=new Grid(Math.max(380,Math.round(w)),Math.max(300,Math.round(h)),grid?grid.seed:7,13);
+      const cx=grid.w/2,cy=grid.h/2;let s=0,bd=1e9;grid.cells.forEach(c=>{const d=Math.hypot(c.site.x-cx,c.site.y-cy);if(d<bd){bd=d;s=c.id;}});
+      trav=new Traversal(grid);trav.begin(s,motion);selected=s;ensureHeads();refresh(); }
+  }
+  function advanceHeads(dt){if(!playing)return;for(const c of grid.cells){const ph=heads.get(c.id);ph.acc+=dt;const spf=1000/c.film.fps;while(ph.acc>=spf){ph.acc-=spf;ph.idx=(ph.idx+1)%c.film.frameCount;}}}
+  function hatch(poly){mctx.save();mctx.beginPath();mctx.moveTo(poly[0][0],poly[0][1]);for(let i=1;i<poly.length;i++)mctx.lineTo(poly[i][0],poly[i][1]);mctx.closePath();mctx.clip();
+    let mnx=1e9,mny=1e9,mxx=-1e9,mxy=-1e9;poly.forEach(p=>{mnx=Math.min(mnx,p[0]);mny=Math.min(mny,p[1]);mxx=Math.max(mxx,p[0]);mxy=Math.max(mxy,p[1]);});
+    mctx.lineWidth=1;mctx.strokeStyle='#000';for(let x=mnx-(mxy-mny);x<mxx;x+=6){mctx.beginPath();mctx.moveTo(x,mny);mctx.lineTo(x+(mxy-mny),mxy);mctx.stroke();}mctx.restore();}
+  function paintMap(){
+    if(!grid)return;const sx=mapCv.width/grid.w,sy=mapCv.height/grid.h; mctx.save();mctx.scale(sx,sy);
+    mctx.fillStyle='#fff';mctx.fillRect(0,0,grid.w,grid.h); const cur=trav.current();
+    grid.cells.forEach(c=>{ if(c.poly.length<3)return; mctx.beginPath();mctx.moveTo(c.poly[0][0],c.poly[0][1]);
+      for(let i=1;i<c.poly.length;i++)mctx.lineTo(c.poly[i][0],c.poly[i][1]);mctx.closePath();
+      mctx.fillStyle=(c.room==='GATE')?(c.gateOpen?'#fff':'#000'):'#fff';mctx.fill(); if(c.room==='WATER')hatch(c.poly);
+      mctx.lineWidth=1.2/((sx+sy)/2);mctx.strokeStyle='#000';mctx.stroke(); });
+    grid.cells.forEach(c=>{ if(c.v[1]>.25){mctx.save();mctx.globalAlpha=Math.min(1,c.v[1]);mctx.lineWidth=2/((sx+sy)/2);mctx.strokeStyle='#000';
+      mctx.beginPath();mctx.arc(c.site.x,c.site.y,8+c.v[1]*10,0,Math.PI*2);mctx.stroke();mctx.restore();} });
+    // reels: render current frame small inside the cell (downscaled via fast block sampler)
+    grid.cells.forEach(c=>{ const ph=heads.get(c.id); const cells=c.film.frameAt(ph.idx).cells;
+      const cw=grid.boundsW(c.poly); const tw=Math.min(cw*0.92, 60), th=tw*(G_ROWS/G_COLS);
+      const ink=(c.room==='GATE'&&!c.gateOpen); // skip drawing dark reel on solid black gate
+      if(!ink) drawCellsSampled(mctx, cells, c.site.x-tw/2, c.site.y-th/2, tw, th); });
+    if(trav.length){mctx.save();mctx.lineWidth=2.4/((sx+sy)/2);mctx.strokeStyle='#000';mctx.setLineDash([2/((sx+sy)/2),3/((sx+sy)/2)]);
+      mctx.beginPath();const s0=grid.cell(trav.start);mctx.moveTo(s0.site.x,s0.site.y);trav.steps.forEach(st=>{const t=grid.cell(st.to);mctx.lineTo(t.site.x,t.site.y);});mctx.stroke();mctx.restore();}
+    if(selected!=null){const c=grid.cell(selected);mctx.save();mctx.lineWidth=3/((sx+sy)/2);mctx.strokeStyle='#000';mctx.setLineDash([6/((sx+sy)/2),4/((sx+sy)/2)]);
+      mctx.beginPath();mctx.moveTo(c.poly[0][0],c.poly[0][1]);for(let i=1;i<c.poly.length;i++)mctx.lineTo(c.poly[i][0],c.poly[i][1]);mctx.closePath();mctx.stroke();mctx.restore();}
+    const cc=grid.cell(cur);mctx.save();mctx.lineWidth=2/((sx+sy)/2);mctx.strokeStyle='#000';
+    mctx.beginPath();mctx.arc(cc.site.x,cc.site.y,4,0,Math.PI*2);mctx.stroke();mctx.beginPath();mctx.arc(cc.site.x,cc.site.y,7,0,Math.PI*2);mctx.stroke();mctx.restore();
+    // patch marquee (④)
+    if(drawOn && (patchBox || (tool==='patch'&&dragging))){ let bx,by,bw,bh;
+      if(tool==='patch'&&dragging){ bx=Math.min(gp0[0],gp1[0]);by=Math.min(gp0[1],gp1[1]);bw=Math.abs(gp1[0]-gp0[0]);bh=Math.abs(gp1[1]-gp0[1]); const cell=grid.cell(selected); /* draw in cell space converted */ }
+    }
+    mctx.restore();
+  }
+  /* sample a 128x96 cells grid down to a small on-map footprint */
+  function drawCellsSampled(ctx, cells, ox, oy, cw, ch){
+    const step=4; // sample every 4th cell for map speed
+    const px=cw/G_COLS*step, py=ch/G_ROWS*step;
+    ctx.fillStyle='#000';
+    for(let y=0;y<G_ROWS;y+=step)for(let x=0;x<G_COLS;x+=step){ const v=cells[y*G_COLS+x]; if(v<4)continue;
+      ctx.fillRect(ox+x/G_COLS*cw, oy+y/G_ROWS*ch, Math.max(0.6,px), Math.max(0.6,py)); }
+  }
+  function pickCell(ex,ey){const r=mapCv.getBoundingClientRect();return grid._nearest((ex-r.left)/r.width*grid.w,(ey-r.top)/r.height*grid.h);}
+
+  function frame(now){const dt=Math.min(100,now-lastT);lastT=now; if(view==='map'&&!exporting){advanceHeads(dt);paintMap();paintInspReel();}
+    else if(view==='frame'){ feAdvance(dt); fePaint(); } requestAnimationFrame(frame);}
+  function refresh(){renderInspector();renderStrip();setStatus(); if(view==='code') syncCodeFromMap();}
+
+  /* ---------- ④ DRAW-THROUGH on the map ---------- */
+  // convert a map pointer event to (cellId, gx, gy) within that cell's 128x96 grid
+  let gp0=[0,0], gp1=[0,0]; // grid coords in selected reel
+  function mapToReelGrid(e){
+    const r=mapCv.getBoundingClientRect(); const mx=(e.clientX-r.left)/r.width*grid.w, my=(e.clientY-r.top)/r.height*grid.h;
+    const c=grid.cell(selected); // map the cell's polygon bbox to 0..128 / 0..96
+    let mnx=1e9,mny=1e9,mxx=-1e9,mxy=-1e9; c.poly.forEach(p=>{mnx=Math.min(mnx,p[0]);mny=Math.min(mny,p[1]);mxx=Math.max(mxx,p[0]);mxy=Math.max(mxy,p[1]);});
+    const gx=Math.round((mx-mnx)/(mxx-mnx)*G_COLS), gy=Math.round((my-mny)/(mxy-mny)*G_ROWS);
+    return [Math.max(0,Math.min(G_COLS-1,gx)), Math.max(0,Math.min(G_ROWS-1,gy))];
+  }
+  function setDraw(on){ drawOn=on; document.getElementById('drawbar').classList.toggle('on',on);
+    document.getElementById('btn-draw').setAttribute('aria-pressed',on?'true':'false');
+    document.getElementById('legend-hint').textContent= on?'DRAW: paint selected reel':'TAP ADJACENT → CUT';
+    mapCv.style.cursor=on?'crosshair':'default'; }
+  function commitStroke(g0,g1,final){ const c=grid.cell(selected); const v=(tool==='erase')?0:ink;
+    c.film.frames.forEach(fr=>{ if(tool==='pen'||tool==='erase') pBrushLine(fr.cells,g0[0],g0[1],g1[0],g1[1],brush,v);
+      else if(tool==='rect'&&final) { pLine(fr.cells,g0[0],g0[1],g1[0],g0[1],v);pLine(fr.cells,g1[0],g0[1],g1[0],g1[1],v);pLine(fr.cells,g1[0],g1[1],g0[0],g1[1],v);pLine(fr.cells,g0[0],g1[1],g0[0],g0[1],v);} }); }
+
+  /* ---------- ④ DEEP frame editor ---------- */
+  const feCv=document.getElementById('feCanvas'), fectx=feCv.getContext('2d');
+  let feHeadAcc=0;
+  function openFrameEditor(){ setView('frame'); feFrameIdx=0; feBuildInks(); feRenderStrip();
+    document.getElementById('feTitle').textContent=`REEL EDITOR · CELL #${selected} (${grid.cell(selected).room})`;
+    document.getElementById('fe-fps').textContent=grid.cell(selected).film.fps; }
+  function feFilm(){ return grid.cell(selected).film; }
+  function feFrame(){ return feFilm().frames[feFrameIdx]; }
+  function feAdvance(dt){ /* editor shows the selected frame statically; no auto-play */ }
+  function fePaint(){ const f=feFrame(); if(!f)return; const W=feCv.width,H=feCv.height; drawCells(fectx,f.cells,0,0,W,H);
+    if(feGrid){ fectx.strokeStyle='rgba(0,0,0,.08)';fectx.lineWidth=.5; const px=W/G_COLS,py=H/G_ROWS;
+      for(let x=0;x<=G_COLS;x+=8){fectx.beginPath();fectx.moveTo(x*px,0);fectx.lineTo(x*px,H);fectx.stroke();}
+      for(let y=0;y<=G_ROWS;y+=8){fectx.beginPath();fectx.moveTo(0,y*py);fectx.lineTo(W,y*py);fectx.stroke();} }
+    if((tool==='patch'&&feDragging)||patchBox){ let b=patchBox|| {x:Math.min(feP0[0],feP1[0]),y:Math.min(feP0[1],feP1[1]),w:Math.abs(feP1[0]-feP0[0]),h:Math.abs(feP1[1]-feP0[1])};
+      const px=W/G_COLS,py=H/G_ROWS; fectx.save();fectx.setLineDash([6,6]);fectx.lineWidth=2;fectx.strokeStyle='#000';fectx.strokeRect(b.x*px,b.y*py,b.w*px,b.h*py);fectx.restore(); }
+  }
+  function feResize(){ const zone=feCv.parentElement; const zw=zone.clientWidth-8, zh=zone.clientHeight-8; if(zw<2||zh<2)return;
+    const sc=Math.min(zw/G_COLS, zh/G_ROWS); const cw=Math.max(1,Math.floor(sc))*G_COLS, ch=Math.max(1,Math.floor(sc))*G_ROWS;
+    feCv.width=cw;feCv.height=ch; }
+  function feCoord(e){ const r=feCv.getBoundingClientRect(); return [Math.max(0,Math.min(G_COLS-1,Math.floor((e.clientX-r.left)/r.width*G_COLS))), Math.max(0,Math.min(G_ROWS-1,Math.floor((e.clientY-r.top)/r.height*G_ROWS)))]; }
+  function feBuildInks(){ const box=document.getElementById('fe-inks'); box.innerHTML='';
+    for(let v=1;v<8;v++){ const s=document.createElement('div');s.className='inkw'+(v===ink?' on':'');s.style.background=INK_HEX[v];
+      s.onclick=()=>{ink=v;[...box.children].forEach((el,i)=>el.classList.toggle('on',i+1===v)); if(tool==='erase')feSetTool('pen');};box.appendChild(s);} }
+  function feSetTool(t){ tool=t; ['pen','rect','patch','erase'].forEach(x=>{const b=document.getElementById('fe-'+(x==='rect'?'box':x));if(b)b.classList.toggle('on',x===t);}); }
+  function feRenderStrip(){ const strip=document.getElementById('fe-strip');strip.innerHTML='';
+    feFilm().frames.forEach((fr,i)=>{ const d=document.createElement('div');d.className='feFrame'+(i===feFrameIdx?' on':'');
+      const cv=document.createElement('canvas');cv.width=64;cv.height=48;drawCellsFast(cv.getContext('2d'),fr.cells,0,0,64,48);
+      const n=document.createElement('div');n.className='n';n.textContent=i+1; d.appendChild(cv);d.appendChild(n);
+      d.onclick=()=>{feFrameIdx=i;feRenderStrip();}; strip.appendChild(d); }); }
+
+  /* ---------- view switching ---------- */
+  function setView(v){
+    view=v;
+    document.querySelectorAll('.view').forEach(el=>el.classList.remove('is-on'));
+    document.getElementById('view-'+v).classList.add('is-on');
+    ['map','code','type'].forEach(x=>{const s=document.getElementById('vs-'+x);if(s)s.setAttribute('aria-selected',x===v?'true':'false');});
+    // draw-through only meaningful in map view
+    if(v!=='map'&&drawOn) setDraw(false);
+    if(v==='map') requestAnimationFrame(fit);
+    if(v==='code') syncCodeFromMap();
+    if(v==='frame'){ requestAnimationFrame(()=>{feResize();fePaint();feRenderStrip();}); }
+  }
+  function syncCodeFromMap(){ document.getElementById('codeArea').value=mapToBFX(grid,trav); }
+
+  /* ---------- export mode ---------- */
+  function setExport(on){ exporting=on; document.body.classList.toggle('exporting',on);
+    document.getElementById('btn-export').setAttribute('aria-pressed',on?'true':'false');
+    document.getElementById('lbl-export').textContent=on?'BACK':'OUT';
+    document.getElementById('ic-export').innerHTML=on?'<path d="M15 7l-5 5 5 5"/><path d="M20 12H8"/>':'<path d="M12 3v12"/><path d="M7 8l5-5 5 5"/><path d="M4 21h16"/>';
+    if(on) setStatus();
+  }
+  function guard(){const v=trav.validate();if(!v.ok){log('BLOCKED — '+v.errs.join('; '));toast('INVALID MAP');return false;}if(!trav.length){log('BLOCKED — empty traversal.');toast('NO CUTS YET');return false;}return true;}
+
+  /* ---------- wiring ---------- */
+  function wire(){
+    // view switcher
+    document.getElementById('vs-map').onclick=()=>setView('map');
+    document.getElementById('vs-code').onclick=()=>setView('code');
+    document.getElementById('vs-type').onclick=()=>setView('type');
+
+    // toolbar
+    document.getElementById('btn-draw').onclick=()=>{ if(view!=='map')setView('map'); setDraw(!drawOn); toast(drawOn?'DRAW ON — paint selected reel':'DRAW OFF'); };
+    document.getElementById('btn-graze').onclick=()=>{const c=grid.cell(trav.current());if(c.room==='FIELD'||c.room==='OPEN FIELD')doAction({label:'LOWER HEAD TO GRAZE',to:c.id,kind:'action'});else toast('GRAZE: FIELD ONLY');};
+    document.getElementById('btn-ripple').onclick=()=>{let g=-1,bd=1e9;const cur=grid.cell(trav.current());grid.cells.forEach(c=>{if(c.room==='GATE'&&!c.gateOpen){const d=Math.hypot(c.site.x-cur.site.x,c.site.y-cur.site.y);if(d<bd){bd=d;g=c.id;}}});if(g>=0)openGate(g);else toast('NO CLOSED GATE');};
+    document.getElementById('btn-play').onclick=()=>{playing=!playing;document.getElementById('lbl-play').textContent=playing?'PAUSE':'PLAY';document.getElementById('btn-play').setAttribute('aria-pressed',playing?'false':'true');document.getElementById('ic-play').innerHTML=playing?'<rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/>':'<path d="M7 4l12 8-12 8z"/>';};
+    document.getElementById('btn-undo').onclick=undo;
+    document.getElementById('btn-regen').onclick=()=>{pushUndo();grid=new Grid(grid.w,grid.h,(grid.seed*1103515245+12345)>>>0,13);const cx=grid.w/2,cy=grid.h/2;let s=0,bd=1e9;grid.cells.forEach(c=>{const d=Math.hypot(c.site.x-cx,c.site.y-cy);if(d<bd){bd=d;s=c.id;}});trav=new Traversal(grid);motion=MOTION.STILL;trav.begin(s,motion);selected=s;ensureHeads();toast('REGENERATED');refresh();};
+    document.getElementById('btn-export').onclick=()=>setExport(!exporting);
+    document.getElementById('btn-help').onclick=()=>document.getElementById('help').style.display='flex';
+    document.getElementById('help-close').onclick=()=>document.getElementById('help').style.display='none';
+
+    // draw-through swatches
+    const sw=document.getElementById('db-swatches'); for(let v=1;v<8;v++){ const s=document.createElement('div');s.className='db-sw'+(v===ink?' on':'');s.style.background=INK_HEX[v];
+      s.onclick=()=>{ink=v;[...sw.children].forEach((el,i)=>el.classList.toggle('on',i+1===v)); if(tool==='erase')setTool('pen');}; sw.appendChild(s); }
+    document.querySelectorAll('#drawbar .db[data-tool]').forEach(b=>b.onclick=()=>setTool(b.dataset.tool));
+    function setTool(t){tool=t;document.querySelectorAll('#drawbar .db[data-tool]').forEach(b=>b.classList.toggle('on',b.dataset.tool===t));}
+    window.__setTool=setTool;
+
+    // MAP canvas interactions: cut OR draw-through
+    mapCv.addEventListener('pointerdown',e=>{
+      if(drawOn){ mapCv.setPointerCapture(e.pointerId); dragging=true; gp0=mapToReelGrid(e); gp1=gp0; pushUndo();
+        if(tool==='pen'||tool==='erase') commitStroke(gp0,gp0,true); return; }
+      const id=pickCell(e.clientX,e.clientY);
+      if(selected===id&&grid.adjacent(trav.current(),id))doCut(id); else {selected=id;renderInspector();}
+    });
+    mapCv.addEventListener('pointermove',e=>{ if(!drawOn||!dragging)return; const prev=gp1; gp1=mapToReelGrid(e);
+      if(tool==='pen'||tool==='erase') commitStroke(prev,gp1,false); });
+    mapCv.addEventListener('pointerup',e=>{ if(!drawOn||!dragging)return; if(tool==='rect')commitStroke(gp0,gp1,true);
+      if(tool==='patch'){ patchBox={x:Math.min(gp0[0],gp1[0]),y:Math.min(gp0[1],gp1[1]),w:Math.abs(gp1[0]-gp0[0]),h:Math.abs(gp1[1]-gp0[1])}; }
+      dragging=false; refresh(); });
+    mapCv.addEventListener('dblclick',e=>{ if(drawOn)return; const id=pickCell(e.clientX,e.clientY); if(grid.adjacent(trav.current(),id))doCut(id); });
+
+    document.getElementById('btn-deepedit').onclick=openFrameEditor;
+
+    // ② CODE
+    document.getElementById('btn-decompile').onclick=()=>{ syncCodeFromMap(); toast('MAP → CODE'); };
+    document.getElementById('btn-recompile').onclick=()=>{ try{ pushUndo(); const r=bfxToMap(document.getElementById('codeArea').value); grid=r.grid;trav=r.trav;motion=r.motion;selected=trav.current();ensureHeads();setView('map');refresh();toast('CODE → MAP · '+grid.cells.length+' cells'); }catch(e){ toast('PARSE ERROR: '+e.message); log('CODE→MAP failed: '+e.message); } };
+    document.getElementById('btn-copycode').onclick=()=>{ const t=document.getElementById('codeArea'); t.select(); try{document.execCommand('copy');toast('COPIED');}catch(e){navigator.clipboard&&navigator.clipboard.writeText(t.value).then(()=>toast('COPIED'));} };
+    document.getElementById('btn-downcode').onclick=()=>{ download({name:'cineflix.bfx',mime:'text/plain',data:mapToBFX(grid,trav)}); toast('.bfx SAVED'); };
+
+    // ③ TYPE
+    document.getElementById('btn-typebuild').onclick=()=>{ try{ pushUndo(); lock('BUILDING FROM TEXT');
+      setTimeout(()=>{ const opts={split:document.getElementById('ty-split').value, motion:document.getElementById('ty-motion').value, font:+document.getElementById('ty-font').value, frames:+document.getElementById('ty-frames').value, w:lastSize.w||900, h:lastSize.h||600};
+        const r=buildMapFromProse(document.getElementById('typeArea').value, opts); grid=r.grid;trav=r.trav;motion=r.motion;selected=trav.current();ensureHeads();unlock();setView('map');refresh();toast(r.placed+' TERRITORIES FROM TEXT'); },30);
+    }catch(e){ unlock(); toast('TEXT BUILD FAILED: '+e.message);} };
+    document.getElementById('btn-typeappend').onclick=()=>{ toast('Append uses BUILD for now'); document.getElementById('btn-typebuild').click(); };
+
+    // frame editor
+    document.getElementById('fe-done').onclick=()=>{ refresh(); setView('map'); };
+    document.querySelectorAll('.feTools .btn[data-tool]').forEach(b=>b.onclick=()=>feSetTool(b.dataset.tool));
+    document.getElementById('fe-grid').onclick=()=>{feGrid=!feGrid;document.getElementById('fe-grid').classList.toggle('on',feGrid);};
+    document.getElementById('fe-size').oninput=e=>brush=+e.target.value;
+    document.getElementById('fe-runscript').onclick=()=>{ const film=feFilm(); const frames=runMacro(document.getElementById('fe-script').value.split('\n')); film.frames=frames; feFrameIdx=0; feRenderStrip(); fePaint(); toast(frames.length+' FRAMES'); refresh(); };
+    document.getElementById('fe-toscript').onclick=()=>{ document.getElementById('fe-script').value=filmToMacro(feFilm()).join('\n'); toast('FRAMES → CODE'); };
+    document.getElementById('fe-stamp').onclick=()=>{ const cells=rasterText(document.getElementById('fe-text').value.toUpperCase(),16,4,40,ink); const f=feFrame();
+      for(let i=0;i<cells.length;i++) if(cells[i]) f.cells[i]=cells[i]; feRenderStrip(); fePaint(); toast('STAMPED'); };
+    document.getElementById('fe-ripple').onclick=()=>{ rippleIntoFilm(feFilm(),1.0); feRenderStrip(); fePaint(); toast('RIPPLE TEXT'); };
+    document.getElementById('fe-add').onclick=()=>{ feFilm().frames.splice(feFrameIdx+1,0,new BeflixFrame()); feFrameIdx++; feRenderStrip(); fePaint(); };
+    document.getElementById('fe-dup').onclick=()=>{ feFilm().frames.splice(feFrameIdx+1,0,feFrame().clone()); feFrameIdx++; feRenderStrip(); fePaint(); };
+    document.getElementById('fe-del').onclick=()=>{ const film=feFilm(); if(film.frames.length<=1){toast('LAST FRAME');return;} film.frames.splice(feFrameIdx,1); feFrameIdx=Math.min(feFrameIdx,film.frames.length-1); feRenderStrip(); fePaint(); };
+    document.getElementById('fe-fps-d').onclick=()=>{const f=feFilm();f.fps=Math.max(1,f.fps-1);document.getElementById('fe-fps').textContent=f.fps;};
+    document.getElementById('fe-fps-u').onclick=()=>{const f=feFilm();f.fps=Math.min(30,f.fps+1);document.getElementById('fe-fps').textContent=f.fps;};
+    feCv.addEventListener('pointerdown',e=>{ feCv.setPointerCapture(e.pointerId); feDragging=true; feP0=feCoord(e);feP1=feP0;
+      if(tool==='pen'||tool==='erase'){ pBrush(feFrame().cells,feP0[0],feP0[1],brush,tool==='erase'?0:ink); fePaint(); } });
+    feCv.addEventListener('pointermove',e=>{ if(!feDragging)return; const prev=feP1; feP1=feCoord(e);
+      if(tool==='pen'||tool==='erase'){ pBrushLine(feFrame().cells,prev[0],prev[1],feP1[0],feP1[1],brush,tool==='erase'?0:ink); fePaint(); } else fePaint(); });
+    feCv.addEventListener('pointerup',e=>{ if(!feDragging)return; const v=tool==='erase'?0:ink; const f=feFrame();
+      if(tool==='rect'){ pLine(f.cells,feP0[0],feP0[1],feP1[0],feP0[1],v);pLine(f.cells,feP1[0],feP0[1],feP1[0],feP1[1],v);pLine(f.cells,feP1[0],feP1[1],feP0[0],feP1[1],v);pLine(f.cells,feP0[0],feP1[1],feP0[0],feP0[1],v); }
+      if(tool==='patch'){ patchBox={x:Math.min(feP0[0],feP1[0]),y:Math.min(feP0[1],feP1[1]),w:Math.abs(feP1[0]-feP0[0]),h:Math.abs(feP1[1]-feP0[1])}; }
+      feDragging=false; feRenderStrip(); fePaint(); });
+
+    // EXPORTS
+    document.getElementById('exp-bfx').onclick=()=>{ download({name:'cineflix.bfx',mime:'text/plain',data:mapToBFX(grid,trav)}); log('BEFLIX-MAP .bfx saved.'); };
+    document.getElementById('exp-bfx-copy').onclick=()=>{ const s=mapToBFX(grid,trav); const ta=document.createElement('textarea');ta.value=s;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');log('BEFLIX-MAP copied.');toast('COPIED');}catch(e){}ta.remove(); };
+    document.getElementById('exp-mosaic').onclick=()=>{ if(!guard())return; const f=exportMosaicHTML(grid,trav);download(f);log(`Mosaic · ${f.count} tiles ${f.side}×${f.side}.`); };
+    document.getElementById('exp-edl').onclick=()=>{ if(!guard())return; download(exportEDL(grid,trav));log(`EDL · ${trav.length} reels.`); };
+    document.getElementById('exp-otio').onclick=()=>{ if(!guard())return; download(exportOTIO(grid,trav));log(`OTIO · ${trav.length} clips.`); };
+    document.getElementById('exp-twee').onclick=()=>{ if(!guard())return; const f=exportTwee(grid,trav);download(f);log(`Twee · ${f.nodes} passages.`); };
+    document.getElementById('exp-webm').onclick=async()=>{ if(!guard())return; if(!webmSupported()){log('WebM unsupported — EDL.');download(exportEDL(grid,trav));return;}
+      log('Recording WebM…');try{const blob=await recordWebM(grid,trav,fr=>{if(fr%24===0)log('…'+fr+'f');});download({name:'cineflix_film.webm',mime:'video/webm',data:blob});log('WebM · '+trav.totalRuntime().toFixed(2)+'s.');}catch(e){log('Fail: '+e.message);} };
+
+    // resize
+    let rt; const re=()=>{clearTimeout(rt);rt=setTimeout(()=>{ if(view==='map')fit(); if(view==='frame'){feResize();fePaint();} },120);};
+    window.addEventListener('resize',re); window.addEventListener('orientationchange',re);
+    if(window.visualViewport) window.visualViewport.addEventListener('resize',re);
+
+    // keyboard
+    document.addEventListener('keydown',e=>{ if(['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName))return;
+      if(e.key===' '){e.preventDefault();document.getElementById('btn-play').click();}
+      else if((e.metaKey||e.ctrlKey)&&(e.key==='z'||e.key==='Z')){e.preventDefault();undo();}
+      else if(e.key==='1')setView('map'); else if(e.key==='2')setView('code'); else if(e.key==='3')setView('type');
+      else if(e.key==='Escape'){ if(document.getElementById('help').style.display==='flex')document.getElementById('help').style.display='none'; else if(exporting)setExport(false); else if(drawOn)setDraw(false); } });
+  }
+
+  function start(){ wire(); fit(); requestAnimationFrame(()=>{fit();refresh();requestAnimationFrame(frame);});
+    log('Ready. Author by MAP, CODE, or TYPE — one BEFLIX artifact, three views.'); }
+  return {start};
+})();
+document.addEventListener('DOMContentLoaded',App.start);
+</script>
+</body>
+</html>

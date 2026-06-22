@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BEFLIX Call</title>
+<style>
+  :root {
+    --bg: #07090b;
+    --ink: #8df0a6;        /* phosphor */
+    --ink-dim: #2f5e3e;
+    --panel: #0d1216;
+    --line: #1a2a22;
+    --accent: #f0d28d;     /* warm amber, used once: the live dot */
+    --danger: #f08d8d;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font: 14px/1.4 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    -webkit-font-smoothing: none;
+  }
+
+  /* ---- the screen: the whole point ---- */
+  .stage {
+    flex: 1 1 auto;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+    background:
+      radial-gradient(ellipse at center, #0b1410 0%, #07090b 78%);
+    overflow: hidden;
+  }
+  #screen {
+    margin: 0;
+    color: var(--ink);
+    /* glyphs packed tight so the grid reads as an image, not text */
+    font: 700 var(--cell, 9px)/0.92 ui-monospace, Menlo, Consolas, monospace;
+    letter-spacing: 0;
+    white-space: pre;
+    text-shadow: 0 0 2px rgba(141,240,166,0.45);
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  /* scanline veil — ambient, not decoration-for-decoration's-sake; sells the phosphor */
+  .stage::after {
+    content: "";
+    position: absolute; inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      to bottom, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 2px, rgba(0,0,0,0.18) 3px);
+    mix-blend-mode: multiply;
+  }
+  .placeholder {
+    color: var(--ink-dim);
+    text-align: center;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    padding: 2rem;
+  }
+  .placeholder strong { color: var(--ink); font-weight: 700; }
+
+  /* tiny live badge, top-left of stage */
+  .badge {
+    position: absolute; top: 12px; left: 14px;
+    display: flex; align-items: center; gap: 7px;
+    font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--ink-dim);
+    z-index: 2;
+  }
+  .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--ink-dim);
+  }
+  .badge.live .dot { background: var(--accent); box-shadow: 0 0 8px var(--accent); animation: pulse 1.6s infinite; }
+  .badge.live { color: var(--ink); }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
+
+  /* freeze / error toast, center stage */
+  .toast {
+    position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%);
+    background: rgba(13,18,22,0.92);
+    border: 1px solid var(--line);
+    color: var(--danger);
+    padding: 8px 14px; border-radius: 6px;
+    font-size: 12px; letter-spacing: 0.04em;
+    z-index: 3; max-width: 90%; text-align: center;
+    display: none;
+  }
+
+  /* ---- control bar ---- */
+  .bar {
+    flex: 0 0 auto;
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px;
+    background: var(--panel);
+    border-top: 1px solid var(--line);
+    flex-wrap: wrap;
+  }
+  button {
+    font: inherit; font-size: 13px;
+    color: var(--ink);
+    background: #11181d;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    padding: 9px 14px;
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+  }
+  button:hover:not(:disabled) { border-color: var(--ink-dim); background: #14201a; }
+  button:active:not(:disabled) { transform: translateY(1px); }
+  button:disabled { opacity: 0.4; cursor: default; }
+  button.primary { background: #13241a; border-color: var(--ink-dim); }
+  button.danger { color: var(--danger); border-color: #3a2222; }
+  button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+  .spacer { flex: 1 1 auto; }
+  .stat {
+    font-size: 11px; color: var(--ink-dim); letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+  .stat b { color: var(--ink); font-weight: 700; }
+
+  /* connect sheet (peer setup), hidden until needed */
+  dialog {
+    background: var(--panel); color: var(--ink);
+    border: 1px solid var(--line); border-radius: 12px;
+    padding: 0; width: min(520px, 92vw);
+    font: inherit;
+  }
+  dialog::backdrop { background: rgba(0,0,0,0.6); }
+  .sheet-h { padding: 16px 18px 8px; font-size: 15px; font-weight: 700; letter-spacing: 0.02em; }
+  .sheet-b { padding: 4px 18px 18px; }
+  .sheet-b p { color: var(--ink-dim); font-size: 12px; line-height: 1.5; margin: 6px 0 12px; }
+  .sheet-b textarea {
+    width: 100%; height: 84px; resize: vertical;
+    background: #0a0f12; color: var(--ink); border: 1px solid var(--line);
+    border-radius: 7px; padding: 9px; font: 11px/1.4 ui-monospace, monospace;
+  }
+  .sheet-b label { display:block; font-size:11px; letter-spacing:0.08em; color:var(--ink-dim); text-transform:uppercase; margin: 12px 0 5px; }
+  .sheet-row { display:flex; gap:8px; margin-top:14px; flex-wrap: wrap; }
+  .role { display:flex; gap:8px; margin-bottom: 4px; }
+  .role button { flex:1; }
+
+  @media (max-width: 560px) {
+    .bar { gap: 7px; padding: 9px 10px; }
+    button { padding: 10px 12px; }
+    .stat { display: none; }
+    .stat.keep { display: inline; }
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="badge" id="badge"><span class="dot"></span><span id="badge-txt">offline</span></div>
+  <pre id="screen" aria-label="Live call" role="img"></pre>
+  <div class="placeholder" id="placeholder">
+    <strong>BEFLIX CALL</strong><br>
+    your camera, sent as drawing commands &mdash; not video<br><br>
+    press <strong>Start</strong>
+  </div>
+  <div class="toast" id="toast"></div>
+</div>
+
+<div class="bar">
+  <button id="cam" class="primary" type="button">Start</button>
+  <button id="connect" type="button" disabled>Connect a peer</button>
+  <button id="hang" class="danger" type="button" disabled hidden>End</button>
+  <div class="spacer"></div>
+  <span class="stat keep" id="s-fps">&mdash;</span>
+  <span class="stat" id="s-rate">&mdash;</span>
+  <span class="stat" id="s-detail">
+    <label style="cursor:pointer;color:inherit;letter-spacing:inherit">
+      detail
+      <select id="detail" style="background:#11181d;color:var(--ink);border:1px solid var(--line);border-radius:4px;font:inherit;font-size:11px;padding:2px 4px;margin-left:4px">
+        <option value="hi">high</option>
+        <option value="mid" selected>medium</option>
+        <option value="lo">low</option>
+      </select>
+    </label>
+  </span>
+</div>
+
+<dialog id="sheet">
+  <div class="sheet-h">Connect a peer</div>
+  <div class="sheet-b">
+    <p>No server. One of you hosts, the other joins, by copy-pasting two short codes (text, email, anything).</p>
+    <div class="role">
+      <button id="be-host" type="button">I'll host</button>
+      <button id="be-guest" type="button">I'll join</button>
+    </div>
+    <div id="sig-area" hidden>
+      <label id="out-label">Send this to them</label>
+      <textarea id="sigOut" readonly placeholder="generating&hellip;"></textarea>
+      <label>Paste what they send back</label>
+      <textarea id="sigIn" placeholder="paste their code here"></textarea>
+      <div class="sheet-row">
+        <button id="apply" class="primary" type="button">Apply</button>
+        <button id="sheet-close" type="button">Cancel</button>
+      </div>
+    </div>
+    <div id="sig-init-row" class="sheet-row">
+      <button id="sheet-close2" type="button">Cancel</button>
+    </div>
+  </div>
+</dialog>
+
+<canvas id="cap" width="128" height="96" hidden></canvas>
+<video id="vid" autoplay playsinline muted hidden></video>
+
+<script>
+(function () {
+'use strict';
+
+// ====================================================================
+// CONSTANTS  (verified codec — unchanged from tested core)
+// ====================================================================
+var W = 128, H = 96, N = W * H;
+var RAMP = [' ', '.', ':', '-', '=', '+', '#', '@'];
+
+// ====================================================================
+// ENCODER
+// ====================================================================
+function dominant(grid) {
+  var c = new Uint32Array(8), i;
+  for (i = 0; i < N; i++) c[grid[i]]++;
+  var best = 0, bestV = -1, v;
+  for (v = 0; v < 8; v++) if (c[v] > bestV) { bestV = c[v]; best = v; }
+  return best;
+}
+function extractRects(grid, bg) {
+  var byRow = [], y, x, base, v, x1;
+  for (y = 0; y < H; y++) byRow.push([]);
+  for (y = 0; y < H; y++) {
+    base = y * W; x = 0;
+    while (x < W) {
+      v = grid[base + x]; x1 = x;
+      while (x1 + 1 < W && grid[base + x1 + 1] === v) x1++;
+      if (v !== bg) byRow[y].push([x, x1, v]);
+      x = x1 + 1;
+    }
+  }
+  var rects = [], open = {}, key, r, here, seen, j;
+  for (y = 0; y < H; y++) {
+    here = byRow[y]; seen = {};
+    for (j = 0; j < here.length; j++) {
+      r = here[j]; key = r[0] + ':' + r[1] + ':' + r[2]; seen[key] = 1;
+      if (open[key] && open[key].y1 === y - 1) open[key].y1 = y;
+      else { if (open[key]) rects.push(open[key]); open[key] = { x0: r[0], x1: r[1], v: r[2], y0: y, y1: y }; }
+    }
+    for (key in open) if (open.hasOwnProperty(key) && !seen[key]) { rects.push(open[key]); delete open[key]; }
+  }
+  for (key in open) if (open.hasOwnProperty(key)) rects.push(open[key]);
+  return rects;
+}
+function encodeKeyframe(grid) {
+  var bg = dominant(grid), rects = extractRects(grid, bg), cmds = ['CLR ' + bg], i, r;
+  for (i = 0; i < rects.length; i++) { r = rects[i]; cmds.push('PNT ' + r.x0 + ' ' + r.y0 + ' ' + (r.x1 - r.x0 + 1) + ' ' + (r.y1 - r.y0 + 1) + ' ' + r.v); }
+  return cmds;
+}
+function estimateMotion(prev, cur) {
+  var bestDx = 0, bestDy = 0, bestErr = Infinity, dx, dy;
+  for (dy = -3; dy <= 3; dy++) for (dx = -3; dx <= 3; dx++) {
+    var err = 0, y, x, sy, sx, step = 3;
+    for (y = 0; y < H; y += step) {
+      sy = y - dy; if (sy < 0 || sy >= H) { err += 200; continue; }
+      for (x = 0; x < W; x += step) {
+        sx = x - dx; if (sx < 0 || sx >= W) { err += 8; continue; }
+        var d = cur[y * W + x] - prev[sy * W + sx]; err += d < 0 ? -d : d;
+        if (err >= bestErr) break;
+      }
+      if (err >= bestErr) break;
+    }
+    if (err < bestErr) { bestErr = err; bestDx = dx; bestDy = dy; }
+  }
+  return [bestDx, bestDy];
+}
+function shiftGrid(grid, dx, dy) {
+  var out = new Uint8Array(N), y, x, sy, sx;
+  for (y = 0; y < H; y++) { sy = y - dy; if (sy < 0 || sy >= H) continue;
+    for (x = 0; x < W; x++) { sx = x - dx; if (sx < 0 || sx >= W) continue; out[y * W + x] = grid[sy * W + sx]; } }
+  return out;
+}
+function encodeDelta(prev, cur) {
+  var mv = estimateMotion(prev, cur), predicted = shiftGrid(prev, mv[0], mv[1]);
+  var resid = new Uint8Array(N), i, diff = 0;
+  for (i = 0; i < N; i++) { if (cur[i] !== predicted[i]) { resid[i] = cur[i]; diff++; } else resid[i] = 255; }
+  var rects = extractRects(resid, 255), cmds = ['SHF ' + mv[0] + ' ' + mv[1]], r;
+  for (i = 0; i < rects.length; i++) { r = rects[i]; cmds.push('PNT ' + r.x0 + ' ' + r.y0 + ' ' + (r.x1 - r.x0 + 1) + ' ' + (r.y1 - r.y0 + 1) + ' ' + r.v); }
+  return { cmds: cmds, residualCount: diff };
+}
+
+// ====================================================================
+// DECODER
+// ====================================================================
+function decode(cmds, base) {
+  var grid = base ? base.slice() : new Uint8Array(N);
+  for (var li = 0; li < cmds.length; li++) {
+    var t = cmds[li]; if (!t) continue;
+    if (t.charCodeAt(0) === 67 && t.length > 1 && t.charCodeAt(1) === 32) continue;
+    var p = t.split(/\s+/), op = p[0];
+    if (op === 'CLR') grid.fill(clampV(p[1]));
+    else if (op === 'PNT') {
+      var x = ipt(p[1]), y = ipt(p[2]), w = ipt(p[3]), h = ipt(p[4]), v = clampV(p[5]);
+      if (w <= 0 || h <= 0 || w > W || h > H) continue;
+      var xe = Math.min(W, x + w), ye = Math.min(H, y + h), yy, xx, rb;
+      for (yy = Math.max(0, y); yy < ye; yy++) { rb = yy * W; for (xx = Math.max(0, x); xx < xe; xx++) grid[rb + xx] = v; }
+    } else if (op === 'LIN') bres(grid, ipt(p[1]), ipt(p[2]), ipt(p[3]), ipt(p[4]), clampV(p[5]));
+    else if (op === 'SHF') { var sd = shiftGrid(grid, ipt(p[1]), ipt(p[2])); grid.set(sd); }
+  }
+  return grid;
+}
+function ipt(s) { var n = parseInt(s, 10); return n === n ? n : 0; }
+function clampV(s) { var v = ipt(s); return v < 0 ? 0 : v > 7 ? 7 : v; }
+function bres(grid, x1, y1, x2, y2, v) {
+  var dx = Math.abs(x2 - x1), dy = Math.abs(y2 - y1), sx = x1 < x2 ? 1 : -1, sy = y1 < y2 ? 1 : -1;
+  var err = dx - dy, x = x1, y = y1, guard = 0;
+  while (guard++ < N) {
+    if (x >= 0 && x < W && y >= 0 && y < H) grid[y * W + x] = v;
+    if (x === x2 && y === y2) break;
+    var e2 = 2 * err; if (e2 > -dy) { err -= dy; x += sx; } if (e2 < dx) { err += dx; y += sy; }
+  }
+}
+
+// ====================================================================
+// PRETEXT
+// ====================================================================
+function checksum(cmds) {
+  var h = 0x811c9dc5 >>> 0, s = cmds.join('\n'), i;
+  for (i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = (h + ((h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24))) >>> 0; }
+  return ('0000000' + h.toString(16)).slice(-8);
+}
+function serialize(env) {
+  return ['PRETEXT 1', 'SND ' + env.snd, 'SEQ ' + env.seq, 'TS ' + env.ts, 'KIND ' + env.kind,
+    'BASE ' + env.base, 'DIM ' + W + ' ' + H, 'CNT ' + env.cmds.length]
+    .concat(env.cmds, ['SUM ' + checksum(env.cmds), 'END']).join('\n');
+}
+function parse(text) {
+  var lines = text.split('\n');
+  if (lines[0] !== 'PRETEXT 1') return { ok: false };
+  var env = { cmds: [] }, i = 1, expect = -1;
+  for (; i < lines.length; i++) {
+    var t = lines[i], sp = t.indexOf(' '), tag = sp < 0 ? t : t.slice(0, sp), rest = sp < 0 ? '' : t.slice(sp + 1);
+    if (tag === 'SND') env.snd = rest; else if (tag === 'KIND') env.kind = rest;
+    else if (tag === 'SEQ') env.seq = ipt(rest); else if (tag === 'TS') env.ts = ipt(rest);
+    else if (tag === 'BASE') env.base = ipt(rest);
+    else if (tag === 'DIM') { var d = rest.split(/\s+/); if (ipt(d[0]) !== W || ipt(d[1]) !== H) return { ok: false }; }
+    else if (tag === 'CNT') { expect = ipt(rest); i++; break; } else return { ok: false };
+  }
+  if (expect < 0 || expect > 5000) return { ok: false };
+  for (var k = 0; k < expect; k++, i++) { if (i >= lines.length) return { ok: false }; env.cmds.push(lines[i]); }
+  if (lines[i] === undefined || lines[i].slice(0, 4) !== 'SUM ') return { ok: false };
+  if (lines[i].slice(4) !== checksum(env.cmds)) return { ok: false };
+  i++; if (lines[i] !== 'END') return { ok: false };
+  return { ok: true, env: env };
+}
+
+// ====================================================================
+// RENDERER  — fit-to-viewport, the screen IS the interface
+// ====================================================================
+var screenEl = document.getElementById('screen');
+var stageEl = document.querySelector('.stage');
+
+function project(grid) {
+  var out = '', y, x, rb;
+  for (y = 0; y < H; y += 2) { rb = y * W; for (x = 0; x < W; x++) out += RAMP[grid[rb + x]]; out += '\n'; }
+  screenEl.textContent = out;
+}
+
+// size the glyphs so 128 cols x 48 rows fills the stage, recomputed on resize
+function fitScreen() {
+  var rect = stageEl.getBoundingClientRect();
+  var cols = 128, rows = 48;
+  // monospace char advance ~0.6em of font-size; line-height 0.92
+  var byW = (rect.width * 0.96) / (cols * 0.6);
+  var byH = (rect.height * 0.96) / (rows * 0.92);
+  var cell = Math.max(4, Math.min(byW, byH));
+  screenEl.style.setProperty('--cell', cell.toFixed(2) + 'px');
+}
+window.addEventListener('resize', fitScreen);
+
+// ====================================================================
+// CAPTURE
+// ====================================================================
+var vid = document.getElementById('vid'), cap = document.getElementById('cap');
+var capCtx = cap.getContext('2d', { willReadFrequently: true });
+var stream = null, capturing = false, prevGrid = null;
+
+function sampleGrid() {
+  capCtx.drawImage(vid, 0, 0, W, H);
+  var img = capCtx.getImageData(0, 0, W, H).data, grid = new Uint8Array(N), i, p, luma;
+  for (i = 0; i < N; i++) {
+    p = i * 4;
+    luma = img[p] * 0.299 + img[p + 1] * 0.587 + img[p + 2] * 0.114;
+    grid[i] = 7 - (luma * 8 / 256) | 0;
+    if (grid[i] > 7) grid[i] = 7; if (grid[i] < 0) grid[i] = 0;
+  }
+  if (prevGrid) for (i = 0; i < N; i++) grid[i] = (grid[i] + prevGrid[i] + 1) >> 1;
+  return grid;
+}
+
+// ====================================================================
+// TRANSPORT
+// ====================================================================
+var link = null, forceKeyframe = false;
+
+function makeLoopback(onFrame) {
+  return { kind: 'loopback',
+    sendVisual: function (text) { onFrame(text); },
+    sendControl: function () {}, bufferedAmount: function () { return 0; } };
+}
+function makeWebRTC(pc, onFrame, isHost) {
+  var visual = null, control = null;
+  function wire(ch) {
+    if (ch.label === 'visual') { visual = ch; ch.onmessage = function (e) { onFrame(e.data); }; }
+    else if (ch.label === 'control') { control = ch; ch.onmessage = function (e) { if (e.data === 'KEYREQ') forceKeyframe = true; }; }
+  }
+  if (isHost) { wire(pc.createDataChannel('visual', { ordered: false, maxRetransmits: 0 })); wire(pc.createDataChannel('control', { ordered: true })); }
+  else pc.ondatachannel = function (e) { wire(e.channel); };
+  return { kind: 'webrtc',
+    sendVisual: function (text) {
+      if (!visual || visual.readyState !== 'open') return;
+      if (visual.bufferedAmount > 256 * 1024) { metrics.lost++; return; }
+      visual.send(text);
+    },
+    sendControl: function (msg) { if (control && control.readyState === 'open') control.send(msg); },
+    bufferedAmount: function () { return visual ? visual.bufferedAmount : 0; } };
+}
+
+// ====================================================================
+// RECEIVER
+// ====================================================================
+var rxBase = null, rxBaseSeq = -1, lastPresentTs = 0, gotFirst = false;
+
+function receiveFrame(text) {
+  var res = parse(text); if (!res.ok) { metrics.lost++; return; }
+  var env = res.env;
+  if (env.ts < lastPresentTs) { metrics.late++; return; }
+  if (env.kind === 'KEY') {
+    var g = decode(env.cmds, null); rxBase = g; rxBaseSeq = env.seq; lastPresentTs = env.ts; commit(g); metrics.lastKeyTs = env.ts;
+  } else {
+    if (rxBase === null || env.base !== rxBaseSeq) { metrics.lost++; if (link) link.sendControl('KEYREQ'); return; }
+    var gd = decode(env.cmds, rxBase); rxBase = gd; rxBaseSeq = env.seq; lastPresentTs = env.ts; commit(gd);
+  }
+}
+function commit(grid) {
+  if (!gotFirst) {
+    gotFirst = true;
+    document.getElementById('placeholder').style.display = 'none';
+    fitScreen();
+  }
+  project(grid);
+  hideToast();
+}
+
+// ====================================================================
+// SENDER
+// ====================================================================
+var SND_ID = 'P' + Math.floor(Math.random() * 9000 + 1000);
+var seq = 0, sinceKey = 1e9, sendTimer = null;
+var metrics = { lost: 0, late: 0, lastKeyTs: 0, bytesWin: 0, winStart: 0, frames: 0 };
+
+// detail level -> sample fps + keyframe interval
+var DETAIL = { hi: { fps: 10, gop: 30 }, mid: { fps: 6, gop: 30 }, lo: { fps: 4, gop: 45 } };
+function detail() { return DETAIL[document.getElementById('detail').value]; }
+
+function tick() {
+  if (!capturing || vid.readyState < 2) return;
+  var grid = sampleGrid(), gop = detail().gop, cmds, kind, base;
+  var wantKey = prevGrid === null || sinceKey >= gop || forceKeyframe;
+  if (wantKey) { cmds = encodeKeyframe(grid); kind = 'KEY'; base = -1; sinceKey = 0; forceKeyframe = false; }
+  else {
+    var d = encodeDelta(prevGrid, grid);
+    if (d.cmds.length > N / 12) { cmds = encodeKeyframe(grid); kind = 'KEY'; base = -1; sinceKey = 0; }
+    else { cmds = d.cmds; kind = 'DELTA'; base = seq; sinceKey++; }
+  }
+  var thisSeq = ++seq;
+  var env = { snd: SND_ID, seq: thisSeq, ts: Date.now(), kind: kind, base: base, cmds: cmds };
+  var wire = serialize(env);
+  prevGrid = grid;
+  metrics.frames++; metrics.bytesWin += wire.length; if (!metrics.winStart) metrics.winStart = performance.now();
+  if (link) link.sendVisual(wire);
+}
+function startSending() {
+  stopSending();
+  prevGrid = null; seq = 0; sinceKey = 1e9;
+  sendTimer = setInterval(tick, 1000 / detail().fps);
+}
+function stopSending() { if (sendTimer) { clearInterval(sendTimer); sendTimer = null; } }
+
+// ====================================================================
+// STATUS (minimal)
+// ====================================================================
+var badge = document.getElementById('badge'), badgeTxt = document.getElementById('badge-txt');
+function setBadge(state, live) { badgeTxt.textContent = state; badge.classList.toggle('live', !!live); }
+var toastEl = document.getElementById('toast');
+function showToast(m) { toastEl.textContent = m; toastEl.style.display = 'block'; }
+function hideToast() { toastEl.style.display = 'none'; }
+
+setInterval(function () {
+  if (!metrics.winStart) return;
+  var elapsed = (performance.now() - metrics.winStart) / 1000;
+  if (elapsed < 0.5) return;
+  var bps = Math.round(metrics.bytesWin / elapsed), fps = (metrics.frames / elapsed).toFixed(1);
+  var kb = bps > 1024 ? (bps / 1024).toFixed(1) + ' KB/s' : bps + ' B/s';
+  document.getElementById('s-fps').innerHTML = '<b>' + fps + '</b> fps';
+  document.getElementById('s-rate').innerHTML = '<b>' + kb + '</b>';
+  metrics.bytesWin = 0; metrics.frames = 0; metrics.winStart = performance.now();
+  if (capturing && link) {
+    var sinceShown = Date.now() - lastPresentTs;
+    if (sinceShown > 3000 && lastPresentTs > 0) { setBadge('frozen', false); showToast('No signal for ' + (sinceShown / 1000).toFixed(0) + 's — connection may have dropped'); }
+    else { setBadge(link.kind === 'loopback' ? 'live (self)' : 'connected', true); }
+  }
+}, 1000);
+
+// ====================================================================
+// UI
+// ====================================================================
+var camBtn = document.getElementById('cam'), connectBtn = document.getElementById('connect'), hangBtn = document.getElementById('hang');
+
+camBtn.addEventListener('click', function () {
+  if (capturing) return;
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { showToast('This browser has no camera access.'); return; }
+  setBadge('starting', false);
+  navigator.mediaDevices.getUserMedia({ video: { width: 320, height: 240, facingMode: 'user' }, audio: false })
+    .then(function (s) {
+      stream = s; vid.srcObject = s; capturing = true;
+      camBtn.textContent = 'On'; camBtn.disabled = true;
+      connectBtn.disabled = false;
+      // start in self-view loopback immediately so you SEE yourself
+      link = makeLoopback(receiveFrame);
+      rxBase = null; rxBaseSeq = -1; lastPresentTs = 0; gotFirst = false;
+      startSending();
+      setBadge('live (self)', true);
+    })
+    .catch(function (err) { setBadge('offline', false); showToast('Camera blocked: ' + (err && err.name || 'error') + '. Mobile needs HTTPS + permission.'); });
+});
+
+document.getElementById('detail').addEventListener('change', function () { if (sendTimer) startSending(); });
+
+// ---- peer ----
+var pc = null, sheet = document.getElementById('sheet');
+connectBtn.addEventListener('click', function () {
+  document.getElementById('sig-area').hidden = true;
+  document.getElementById('sig-init-row').hidden = false;
+  sheet.showModal();
+});
+document.getElementById('sheet-close').addEventListener('click', function () { sheet.close(); });
+document.getElementById('sheet-close2').addEventListener('click', function () { sheet.close(); });
+
+function newPeer() {
+  pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+  pc.oniceconnectionstatechange = function () {
+    var st = pc.iceConnectionState;
+    if (st === 'connected' || st === 'completed') {
+      sheet.close();
+      rxBase = null; rxBaseSeq = -1; lastPresentTs = 0; gotFirst = false;
+      startSending();
+      connectBtn.hidden = true; hangBtn.hidden = false; hangBtn.disabled = false;
+      setBadge('connected', true);
+    } else if (st === 'failed' || st === 'disconnected') { setBadge('link ' + st, false); showToast('Peer ' + st + '. Reconnect to continue.'); }
+  };
+  return pc;
+}
+function waitIce() {
+  return new Promise(function (resolve) {
+    if (pc.iceGatheringState === 'complete') return resolve();
+    pc.onicegatheringstatechange = function () { if (pc.iceGatheringState === 'complete') resolve(); };
+    setTimeout(resolve, 2500);
+  });
+}
+function openSig(label) {
+  document.getElementById('sig-init-row').hidden = true;
+  document.getElementById('sig-area').hidden = false;
+  document.getElementById('out-label').textContent = label;
+}
+document.getElementById('be-host').addEventListener('click', function () {
+  newPeer(); link = makeWebRTC(pc, receiveFrame, true); openSig('Send this offer to them');
+  pc.createOffer().then(function (o) { return pc.setLocalDescription(o); }).then(waitIce).then(function () {
+    document.getElementById('sigOut').value = JSON.stringify(pc.localDescription);
+  });
+});
+document.getElementById('be-guest').addEventListener('click', function () {
+  newPeer(); link = makeWebRTC(pc, receiveFrame, false); openSig('After you Apply, send this answer back');
+  document.getElementById('sigOut').value = '(paste their offer below, then Apply)';
+});
+document.getElementById('apply').addEventListener('click', function () {
+  var raw = document.getElementById('sigIn').value.trim(); if (!raw || !pc) return;
+  var desc; try { desc = JSON.parse(raw); } catch (e) { showToast('That code is not valid.'); return; }
+  pc.setRemoteDescription(desc).then(function () {
+    if (desc.type === 'offer') {
+      return pc.createAnswer().then(function (a) { return pc.setLocalDescription(a); }).then(waitIce).then(function () {
+        document.getElementById('sigOut').value = JSON.stringify(pc.localDescription);
+      });
+    }
+  }).catch(function (e) { showToast('Connection error: ' + e.message); });
+});
+
+hangBtn.addEventListener('click', function () {
+  if (pc) { try { pc.close(); } catch (e) {} pc = null; }
+  link = makeLoopback(receiveFrame);
+  rxBase = null; rxBaseSeq = -1; lastPresentTs = 0;
+  hangBtn.hidden = true; connectBtn.hidden = false;
+  setBadge('live (self)', true);
+});
+
+setBadge('offline', false);
+fitScreen();
+})();
+</script>
+
+</body>
+</html>
