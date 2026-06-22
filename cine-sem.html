@@ -1,0 +1,905 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<title>CINEOSIS · SEMIOSIS</title>
+<style>
+/* ============================================================
+   CINEOSIS · SEMIOSIS
+   Unlimited semiosis as a cinema instrument.
+   Four linguistic registers, one visible:
+     SEED   — natural language (the sign)
+     FILM   — cinematic language (Deleuze's image-taxonomy / interpretant)
+     CODE   — formal language (BEFLIX, executable text / interpretant)
+     SCREEN — the visible register (dot-matrix motion, re-describable)
+   The loop:  read ∘ run ∘ formalize ∘ compose  :  Seed → Seed′
+   Black/white, no mid-tones, drawn vector marks (no emoji glyphs).
+   ============================================================ */
+:root{
+  --ink:#000; --paper:#fff; --hair:1px; --rule:2px;
+  --mono:"IBM Plex Mono","DejaVu Sans Mono","SFMono-Regular",ui-monospace,Menlo,Consolas,monospace;
+  --disp:"Helvetica Neue",Helvetica,Arial,"Liberation Sans",sans-serif;
+  --bar:46px; --pad:11px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none;touch-action:manipulation}
+body{background:var(--paper);color:var(--ink);font-family:var(--mono);font-size:12px;line-height:1.3;
+  -webkit-font-smoothing:none;height:100dvh;display:flex;flex-direction:column;user-select:none}
+button{font-family:var(--mono);cursor:pointer;color:inherit;border:0;background:none}
+button:focus-visible{outline:3px solid var(--ink);outline-offset:-3px}
+textarea,input,select{font-family:var(--mono)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:var(--ink)}
+.ic{display:block;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:square}
+.ic.fill{fill:currentColor;stroke:none}
+
+/* ---------- TOOLBAR ---------- */
+.toolbar{flex:0 0 var(--bar);height:var(--bar);border-bottom:var(--rule) solid var(--ink);display:flex;align-items:stretch;overflow:hidden}
+.brand{display:flex;align-items:center;gap:8px;padding:0 12px;border-right:var(--rule) solid var(--ink);
+  font-family:var(--disp);font-weight:800;letter-spacing:.12em;font-size:13px;white-space:nowrap}
+.brand .glyph{width:14px;height:14px;flex:0 0 auto;position:relative}
+.brand .glyph i{position:absolute;inset:0;border:2px solid var(--ink)}
+.brand .glyph i:nth-child(2){inset:4px;border-width:1px;background:var(--ink)}
+.acts{display:flex;flex:1 1 auto;overflow-x:auto;overflow-y:hidden}
+.acts::-webkit-scrollbar{height:0}
+.tbtn{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+  min-width:48px;padding:0 10px;border-right:var(--hair) solid var(--ink);letter-spacing:.04em;font-size:7px;font-weight:700;background:var(--paper)}
+.tbtn svg{width:18px;height:18px}
+.tbtn:hover{background:var(--ink);color:var(--paper)}
+.tbtn[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.tbtn:disabled{opacity:.28;pointer-events:none}
+.spacer{flex:1 1 auto;border-right:var(--hair) solid var(--ink);min-width:6px}
+.stat{flex:0 0 auto;display:flex;flex-direction:column;justify-content:center;padding:0 11px;border-left:var(--rule) solid var(--ink);font-size:8px;text-align:right;white-space:nowrap}
+.stat b{font-weight:700}
+@media (max-width:660px){ .brand span{display:none} .brand{padding:0 10px} .tbtn{min-width:46px;font-size:0;padding:0 9px} .tbtn svg{width:20px;height:20px} }
+
+/* ---------- REGISTER SWITCHER ---------- */
+.viewseg{flex:0 0 auto;display:flex;border-bottom:var(--rule) solid var(--ink)}
+.vseg{flex:1 1 0;border-right:var(--hair) solid var(--ink);background:var(--paper);padding:7px 4px;
+  font-family:var(--disp);font-weight:800;letter-spacing:.06em;font-size:11px;display:flex;flex-direction:column;align-items:center;gap:1px}
+.vseg:last-child{border-right:0}
+.vseg[aria-selected="true"]{background:var(--ink);color:var(--paper)}
+.vseg small{font-size:7px;opacity:.7;letter-spacing:.06em;font-family:var(--mono);font-weight:400}
+.vseg .reg{font-size:7px;opacity:.55;letter-spacing:.1em;font-family:var(--mono);font-weight:700}
+.vseg[aria-selected="true"] small,.vseg[aria-selected="true"] .reg{opacity:.85}
+@media (max-width:520px){ .vseg small{display:none} }
+
+/* ---------- REGION + VIEWS ---------- */
+.region{flex:1 1 auto;min-height:0;display:flex;position:relative}
+.view{display:none;flex:1 1 auto;min-height:0;width:100%;flex-direction:column;overflow:hidden}
+.view.is-on{display:flex}
+
+/* ===== SEED ===== */
+#seedWrap{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;overflow:hidden;padding:var(--pad);gap:9px}
+.seedhead{flex:0 0 auto;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.seedhead h2{font-family:var(--disp);font-weight:800;letter-spacing:.05em;font-size:15px;margin:0}
+.chain{flex:0 0 auto;display:flex;align-items:center;gap:5px;font-size:8px;letter-spacing:.06em;opacity:.6;flex-wrap:wrap}
+.chain b{font-weight:800;opacity:1}
+.chain .arr{opacity:.5}
+#seedArea{flex:1 1 auto;min-height:70px;width:100%;border:var(--rule) solid var(--ink);background:var(--paper);color:var(--ink);
+  font-family:var(--disp);font-size:15px;font-weight:600;line-height:1.5;padding:12px;resize:none;outline:none;user-select:text}
+.controls{flex:0 0 auto;display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end}
+.fieldset{display:flex;flex-direction:column;gap:2px}
+.fieldset label{font-size:8px;letter-spacing:.08em;opacity:.6;text-transform:uppercase}
+.fieldset select,.fieldset input{height:34px;border:var(--rule) solid var(--ink);background:var(--paper);font-size:11px;font-weight:700;padding:0 7px;user-select:text}
+.fieldset.grow{flex:1 1 140px}.fieldset.grow input{width:100%}
+.toggle{display:flex;align-items:center;gap:7px;height:34px;border:var(--rule) solid var(--ink);padding:0 11px;font-weight:800;letter-spacing:.04em;font-size:10px}
+.toggle .bx{width:15px;height:15px;border:var(--rule) solid var(--ink);flex:0 0 auto;position:relative}
+.toggle.on{background:var(--ink);color:var(--paper)}.toggle.on .bx{border-color:var(--paper)}
+.toggle.on .bx::after{content:"";position:absolute;inset:2px;background:var(--paper)}
+.composerow{flex:0 0 auto;display:flex;gap:8px}
+.cbtn{flex:1 1 auto;border:var(--rule) solid var(--ink);background:var(--paper);padding:11px 8px;font-weight:800;letter-spacing:.08em;font-size:12px;display:flex;align-items:center;justify-content:center;gap:8px}
+.cbtn:hover{background:var(--ink);color:var(--paper)}
+.cbtn.alt{background:var(--ink);color:var(--paper)}.cbtn.alt:hover{background:var(--paper);color:var(--ink)}
+.cbtn:disabled{opacity:.35;pointer-events:none}
+.cbtn svg{width:16px;height:16px}
+#seedLog{flex:0 0 auto;border:var(--hair) solid var(--ink);padding:8px;font-size:10px;white-space:pre-wrap;word-break:break-word;height:60px;overflow-y:auto;line-height:1.4}
+
+/* ===== FILM (cinematic language) ===== */
+#filmWrap{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.filmhead{flex:0 0 auto;display:flex;justify-content:space-between;align-items:center;border-bottom:var(--rule) solid var(--ink);padding:7px var(--pad)}
+.filmhead h2{font-family:var(--disp);font-weight:800;letter-spacing:.05em;font-size:14px;margin:0}
+.filmhead .reg{font-size:8px;letter-spacing:.12em;opacity:.55;border:var(--hair) solid var(--ink);padding:1px 6px}
+#filmDoc{flex:1 1 auto;min-height:0;overflow-y:auto;padding:var(--pad) calc(var(--pad) + 2px);user-select:text}
+#filmDoc::-webkit-scrollbar{width:7px}
+#filmDoc .empty{opacity:.5;font-size:12px;padding:8px 0}
+/* blueprint typography */
+#filmDoc h1{font-family:var(--disp);font-weight:800;letter-spacing:.02em;font-size:21px;margin:18px 0 6px;border-bottom:var(--rule) solid var(--ink);padding-bottom:4px}
+#filmDoc h1:first-child{margin-top:0}
+#filmDoc h2{font-family:var(--disp);font-weight:800;letter-spacing:.03em;font-size:13px;margin:16px 0 5px;text-transform:uppercase}
+#filmDoc h3{font-family:var(--mono);font-weight:700;letter-spacing:.04em;font-size:11px;margin:11px 0 3px;display:flex;align-items:center;gap:7px}
+#filmDoc h3 .lyr{font-size:7px;letter-spacing:.12em;border:var(--hair) solid var(--ink);padding:1px 5px;white-space:nowrap}
+#filmDoc h3 .lyr.past{background:var(--paper)}
+#filmDoc h3 .lyr.present{background:var(--ink);color:var(--paper)}
+#filmDoc h3 .lyr.future{background:repeating-linear-gradient(45deg,var(--ink) 0 2px,var(--paper) 2px 5px);color:var(--ink);text-shadow:0 0 2px var(--paper),0 0 2px var(--paper)}
+#filmDoc p{margin:4px 0;font-size:12px;line-height:1.5}
+#filmDoc .kv{margin:2px 0;font-size:12px;display:flex;gap:8px}
+#filmDoc .kv b{font-weight:700;min-width:96px;flex:0 0 auto}
+#filmDoc .prompt{border-left:var(--rule) solid var(--ink);padding:6px 10px;margin:4px 0 10px;background:var(--paper);font-size:12px;line-height:1.5}
+#filmDoc .prompt .ar{opacity:.5;font-size:10px}
+#filmDoc .beat{border:var(--hair) solid var(--ink);padding:8px 10px;margin:8px 0}
+#filmDoc strong{font-weight:800}
+#filmDoc hr{border:0;border-top:var(--rule) solid var(--ink);margin:14px 0}
+
+/* ===== CODE (formal language) ===== */
+#codeWrap{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;overflow:hidden;padding:var(--pad);gap:8px}
+.codehead{flex:0 0 auto;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.codehead h2{font-family:var(--disp);font-weight:800;letter-spacing:.05em;font-size:14px;margin:0}
+.codehint{font-size:8px;opacity:.55;letter-spacing:.04em;text-align:right}
+#codeArea{flex:1 1 auto;min-height:0;width:100%;border:var(--rule) solid var(--ink);background:var(--paper);color:var(--ink);
+  font-family:var(--mono);font-size:12px;line-height:1.5;padding:10px;resize:none;outline:none;white-space:pre;overflow:auto;user-select:text;tab-size:2}
+.coderow{flex:0 0 auto;display:flex;gap:8px}
+.xbtn{flex:1 1 auto;border:var(--rule) solid var(--ink);background:var(--paper);padding:9px 6px;font-weight:800;letter-spacing:.05em;font-size:10px}
+.xbtn:hover{background:var(--ink);color:var(--paper)}
+.xbtn.alt{background:var(--ink);color:var(--paper)}.xbtn.alt:hover{background:var(--paper);color:var(--ink)}
+.xbtn:disabled{opacity:.35;pointer-events:none}
+
+/* ===== SCREEN (visible register) ===== */
+#screenWrap{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.screenStage{flex:1 1 auto;min-height:0;background:#e8e6e0;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+#screenCanvas{image-rendering:pixelated;display:block;border:var(--rule) solid var(--ink);background:#fff}
+.screenTag{position:absolute;left:8px;top:8px;font-size:8px;letter-spacing:.12em;background:var(--paper);border:var(--hair) solid var(--ink);padding:2px 7px;pointer-events:none}
+.transport{flex:0 0 auto;border-top:var(--rule) solid var(--ink);display:flex;align-items:center;gap:8px;padding:7px var(--pad)}
+.tctl{height:34px;min-width:40px;border:var(--rule) solid var(--ink);background:var(--paper);font-weight:800;font-size:11px;display:flex;align-items:center;justify-content:center;gap:5px;padding:0 9px}
+.tctl:hover{background:var(--ink);color:var(--paper)}
+.tctl svg{width:14px;height:14px}
+.tctl:disabled{opacity:.35;pointer-events:none}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:24px;background:transparent;border:var(--rule) solid var(--ink);outline:none;touch-action:none;accent-color:#000}
+input[type=range]::-webkit-slider-runnable-track{height:100%;background:transparent}
+input[type=range]::-moz-range-track{height:100%;background:transparent}
+input[type=range]::-moz-range-progress{background:transparent}
+#scrub{flex:1 1 auto}
+#scrub::-webkit-slider-thumb{-webkit-appearance:none;height:22px;width:18px;background:var(--ink);border:0}
+#scrub::-moz-range-thumb{height:22px;width:18px;background:var(--ink);border:0}
+.fid input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;height:16px;width:16px;background:var(--ink);border:0}
+.fid input[type=range]::-moz-range-thumb{height:16px;width:16px;background:var(--ink);border:0}
+.tframe{flex:0 0 auto;font-size:10px;font-weight:700;letter-spacing:.04em;white-space:nowrap;min-width:96px;text-align:right}
+
+/* RE-READ bar — the fifth operation, read: Screen → Seed′ */
+.rereadbar{flex:0 0 auto;border-top:var(--rule) solid var(--ink);display:flex;align-items:stretch;gap:0;overflow-x:auto}
+.rereadbar::-webkit-scrollbar{height:0}
+.rrbtn{flex:0 0 auto;display:flex;align-items:center;gap:8px;background:var(--ink);color:var(--paper);
+  border-right:var(--rule) solid var(--ink);padding:0 14px;font-weight:800;letter-spacing:.06em;font-size:11px;min-height:42px;white-space:nowrap}
+.rrbtn:hover{background:var(--paper);color:var(--ink)}
+.rrbtn svg{width:16px;height:16px}
+.rrbtn:disabled{opacity:.32;pointer-events:none}
+.percep{flex:0 0 auto;display:flex;align-items:center;gap:7px;border-right:var(--hair) solid var(--ink);
+  padding:0 12px;font-weight:800;letter-spacing:.06em;font-size:10px;min-width:96px;background:var(--paper)}
+.percep:hover{background:var(--ink);color:var(--paper)}
+.percep:hover .pdot{border-color:var(--paper)}
+.percep .pdot{width:13px;height:13px;border:var(--rule) solid var(--ink);flex:0 0 auto}
+.percep.vision .pdot{border-radius:50%;background:var(--ink)}
+.percep:hover.vision .pdot{background:var(--paper)}
+.fid{flex:1 1 180px;min-width:150px;display:flex;flex-direction:column;justify-content:center;gap:2px;
+  padding:5px 12px;border-right:var(--hair) solid var(--ink)}
+.fidhead{display:flex;justify-content:space-between;align-items:baseline;font-size:8px;letter-spacing:.1em}
+.fidhead b{font-weight:800;font-size:11px}
+.fid input[type=range]{height:18px}
+.fidends{display:flex;justify-content:space-between;font-size:7px;letter-spacing:.08em;opacity:.5}
+.loopc{flex:0 0 auto;display:flex;flex-direction:column;justify-content:center;align-items:flex-end;gap:1px;padding:0 13px;white-space:nowrap}
+.loopc-l{font-size:7px;letter-spacing:.12em;opacity:.55}
+.loopc b{font-weight:800;font-size:11px;letter-spacing:.04em}
+@media (max-width:560px){ .rrbtn{font-size:0;gap:0;padding:0 13px} .rrbtn svg{width:20px;height:20px} .percep{min-width:auto;font-size:9px} .fid{flex-basis:120px;min-width:110px} }
+
+/* ===== TOAST / LOCK / OVERLAY ===== */
+#toast{position:fixed;top:calc(var(--bar) + 8px);left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);
+  font-weight:800;font-size:11px;padding:8px 14px;opacity:0;pointer-events:none;z-index:9999;letter-spacing:.05em;transition:opacity .12s;white-space:nowrap;border:var(--rule) solid var(--ink);max-width:90vw;overflow:hidden;text-overflow:ellipsis}
+#toast.on{opacity:1}
+#lock{position:fixed;inset:0;background:rgba(255,255,255,.93);z-index:9000;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:20px;text-align:center}
+#lock.on{display:flex}
+#lockMsg{font-family:var(--disp);font-weight:800;letter-spacing:.14em;font-size:12px}
+#lockSub{font-size:11px;opacity:.7;max-width:420px;line-height:1.5}
+.semispin{width:44px;height:44px;position:relative}
+.semispin i{position:absolute;inset:0;border:var(--rule) solid var(--ink);animation:semi 1.1s linear infinite}
+.semispin i:nth-child(2){inset:7px;animation-direction:reverse;animation-duration:.8s}
+.semispin i:nth-child(3){inset:15px;background:var(--ink);animation:semipulse 1.1s ease-in-out infinite}
+@keyframes semi{to{transform:rotate(360deg)}}
+@keyframes semipulse{0%,100%{opacity:1}50%{opacity:.2}}
+.overlay{display:none;position:absolute;inset:0;z-index:40;background:var(--paper);flex-direction:column}
+.overlay.on{display:flex}
+.ovHead{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;border-bottom:var(--rule) solid var(--ink);padding:8px var(--pad)}
+.ovHead h2{font-family:var(--disp);font-weight:800;letter-spacing:.05em;font-size:16px;margin:0}
+.btn{border:var(--rule) solid var(--ink);background:var(--paper);padding:8px 11px;font-weight:800;letter-spacing:.04em;font-size:11px}
+.btn:hover{background:var(--ink);color:var(--paper)}
+.btn.alt{background:var(--ink);color:var(--paper)}.btn.alt:hover{background:var(--paper);color:var(--ink)}
+.ovBody{flex:1 1 auto;min-height:0;overflow-y:auto;padding:var(--pad) calc(var(--pad) + 3px);user-select:text}
+.ovBody p{margin:0 0 9px;font-size:12px;line-height:1.55}
+.ovBody p b{font-weight:800}
+.ovBody code{background:var(--ink);color:var(--paper);padding:1px 4px;font-size:11px}
+.ovBody h3{font-family:var(--disp);font-weight:800;letter-spacing:.05em;font-size:13px;margin:14px 0 5px}
+</style>
+</head>
+<body>
+<!-- ============ TOOLBAR ============ -->
+<header class="toolbar">
+  <div class="brand"><span class="glyph" aria-hidden="true"><i></i><i></i></span><span>CINEOSIS·SEMIOSIS</span></div>
+  <div class="acts" role="toolbar" aria-label="Actions">
+    <button class="tbtn" id="btn-compose" title="Compose: run the semiosis from the seed">
+      <svg viewBox="0 0 24 24" class="ic"><path d="M5 4l14 8-14 8z" class="fill"/></svg><span>COMPOSE</span>
+    </button>
+    <button class="tbtn" id="btn-play" title="Play / pause the film" aria-pressed="false" disabled>
+      <svg viewBox="0 0 24 24" class="ic fill" id="ic-play"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg><span id="lbl-play">PAUSE</span>
+    </button>
+    <button class="tbtn" id="btn-run" title="Run the BEFLIX code" disabled>
+      <svg viewBox="0 0 24 24" class="ic"><path d="M4 4h16v16H4z"/><path d="M9 9l6 3-6 3z" class="fill"/></svg><span>RUN</span>
+    </button>
+    <div class="spacer"></div>
+    <button class="tbtn" id="btn-export" title="Export" disabled>
+      <svg viewBox="0 0 24 24" class="ic"><path d="M12 3v12"/><path d="M7 8l5-5 5 5"/><path d="M4 21h16"/></svg><span>OUT</span>
+    </button>
+    <button class="tbtn" id="btn-help" title="How it works">
+      <svg viewBox="0 0 24 24" class="ic"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.8.4-1 .9-1 1.7"/><path d="M12 17h.01"/></svg><span>HELP</span>
+    </button>
+  </div>
+  <div class="stat" aria-live="polite">
+    <div><b id="st-stage">SEED</b></div>
+    <div>F <b id="st-frames">0</b> · <b id="st-mode">FILM</b></div>
+  </div>
+</header>
+
+<!-- ============ REGISTER SWITCHER ============ -->
+<div class="viewseg" role="tablist" aria-label="Registers">
+  <button class="vseg" id="vs-seed" role="tab" aria-selected="true"><span class="reg">NATURAL</span>SEED<small>the sign</small></button>
+  <button class="vseg" id="vs-film" role="tab" aria-selected="false"><span class="reg">CINEMATIC</span>FILM<small>image-taxonomy</small></button>
+  <button class="vseg" id="vs-code" role="tab" aria-selected="false"><span class="reg">FORMAL</span>CODE<small>BEFLIX</small></button>
+  <button class="vseg" id="vs-screen" role="tab" aria-selected="false"><span class="reg">VISIBLE</span>SCREEN<small>re-readable</small></button>
+</div>
+
+<div class="region">
+
+  <!-- ===== SEED (natural language) ===== -->
+  <section class="view is-on" id="view-seed" role="tabpanel">
+    <div id="seedWrap">
+      <div class="seedhead">
+        <h2>FILM SEED</h2>
+        <div class="chain"><b>SEED</b><span class="arr">→</span>FILM<span class="arr">→</span>CODE<span class="arr">→</span>SCREEN<span class="arr">→</span><b>SEED′</b></div>
+      </div>
+      <textarea id="seedArea" spellcheck="false">A hand wipes condensation from a cold window. Outside, a figure that may only be a memory stands in the rain. The glass keeps fogging back, faster than the hand can clear it.</textarea>
+      <div class="controls">
+        <div class="fieldset"><label>output mode</label>
+          <select id="cf-mode">
+            <option value="CINEOSIS_FILM">FILM — full blueprint</option>
+            <option value="CINEOSIS_MATRIX">MATRIX — 21 image-prompts</option>
+            <option value="SHOT_SEQUENCE">SHOTS — production sequence</option>
+            <option value="BEFLIX_128">BEFLIX — animation code</option>
+          </select>
+        </div>
+        <div class="fieldset"><label>duration</label>
+          <select id="cf-dur"><option>1-3 minutes</option><option>30-60 seconds</option><option>3-5 minutes</option><option>a single held shot</option></select>
+        </div>
+        <div class="fieldset grow"><label>render style</label>
+          <input id="cf-style" value="poetic-cybernetic cinema" spellcheck="false">
+        </div>
+        <button class="toggle on" id="cf-full" title="Run the full chain: compose the film, then formalize it to BEFLIX, then run it"><span class="bx"></span>FULL SEMIOSIS</button>
+      </div>
+      <div class="composerow">
+        <button class="cbtn alt" id="btn-compose-2"><svg viewBox="0 0 24 24" class="ic"><path d="M5 4l14 8-14 8z" class="fill"/></svg> COMPOSE THE FILM</button>
+      </div>
+      <div id="seedLog">Type a seed. COMPOSE runs the chain through the LLM engine: natural language → cinematic language → formal code → visible film. With FULL SEMIOSIS on, one seed yields both a readable blueprint and a running animation.</div>
+    </div>
+  </section>
+
+  <!-- ===== FILM (cinematic language) ===== -->
+  <section class="view" id="view-film" role="tabpanel">
+    <div id="filmWrap">
+      <div class="filmhead"><h2>FILM BLUEPRINT</h2><span class="reg" id="film-reg">CINEMATIC LANGUAGE</span></div>
+      <div id="filmDoc"><div class="empty">No film yet. Write a seed and COMPOSE. The cinematic register — the 21-image PAST/PRESENT/FUTURE taxonomy, beats, motifs, sound and edit maps — renders here.</div></div>
+    </div>
+  </section>
+
+  <!-- ===== CODE (formal language) ===== -->
+  <section class="view" id="view-code" role="tabpanel">
+    <div id="codeWrap">
+      <div class="codehead"><h2>BEFLIX-128</h2><span class="codehint">formal language · CLR / PNT / LIN / REC / SHF · 128×96 · edit & RUN to re-render</span></div>
+      <textarea id="codeArea" spellcheck="false" placeholder="; BEFLIX-128 animation code renders here. Edit and RUN to re-render without re-composing."></textarea>
+      <div class="coderow">
+        <button class="xbtn alt" id="btn-run-2">RUN ►</button>
+        <button class="xbtn" id="btn-formalize">FILM → BEFLIX</button>
+        <button class="xbtn" id="btn-copycode">COPY</button>
+        <button class="xbtn" id="btn-downcode">.bfx</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SCREEN (visible register) ===== -->
+  <section class="view" id="view-screen" role="tabpanel">
+    <div id="screenWrap">
+      <div class="screenStage">
+        <div class="screenTag" id="screenTag">VISIBLE REGISTER · GENERATED FROM LANGUAGE</div>
+        <canvas id="screenCanvas" width="512" height="384"></canvas>
+      </div>
+      <div class="transport">
+        <button class="tctl" id="t-play" disabled>
+          <svg viewBox="0 0 24 24" class="ic fill" id="t-ic"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>
+        </button>
+        <input type="range" id="scrub" min="0" max="0" value="0" disabled>
+        <button class="tctl" id="t-fps-d" disabled>−</button>
+        <span class="tframe"><span id="t-frame">0 / 0</span> · <b id="t-fps">12</b>fps</span>
+        <button class="tctl" id="t-fps-u" disabled>+</button>
+      </div>
+      <div class="rereadbar">
+        <button class="rrbtn" id="btn-reread" disabled>
+          <svg viewBox="0 0 24 24" class="ic"><path d="M20 11a8 8 0 1 0-1 5"/><path d="M20 4v6h-6"/></svg>
+          RE-READ → SEED′
+        </button>
+        <button class="percep" id="rr-mode" title="How the reader perceives the image"><span class="pdot"></span><span id="rr-mode-lbl">GLYPH</span></button>
+        <div class="fid">
+          <div class="fidhead"><span>FIDELITY</span><b id="rr-fid-val">70</b></div>
+          <input type="range" id="rr-fid" min="0" max="100" value="70">
+          <div class="fidends"><span>MUTATE</span><span>FAITHFUL</span></div>
+        </div>
+        <div class="loopc" title="Semiosis depth: how many times the film has been re-read into a new seed">
+          <span class="loopc-l">LOOP</span>
+          <b id="rr-loop">SEED</b>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== EXPORT overlay ===== -->
+  <div class="overlay" id="ov-export">
+    <div class="ovHead"><h2>EXPORT</h2><button class="btn alt" id="export-close">CLOSE</button></div>
+    <div class="ovBody">
+      <p>Each register can be saved as the artifact it is.</p>
+      <div class="coderow" style="flex-wrap:wrap;gap:8px">
+        <button class="xbtn" id="exp-md">FILM BLUEPRINT · .md</button>
+        <button class="xbtn alt" id="exp-bfx">BEFLIX · .bfx</button>
+        <button class="xbtn" id="exp-sheet">CONTACT SHEET · .png</button>
+        <button class="xbtn" id="exp-webm">FILM · .webm</button>
+      </div>
+      <p style="margin-top:12px;opacity:.6;font-size:11px">The contact sheet lays every frame on one plate — the whole film as a single readable image. WebM records the running film; if your environment lacks the codec it falls back to the contact sheet.</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- toast / lock / help -->
+<div id="toast">READY</div>
+<div id="lock"><div class="semispin"><i></i><i></i><i></i></div><div id="lockMsg">COMPOSING</div><div id="lockSub"></div></div>
+
+<div class="overlay" id="ov-help" style="z-index:50">
+  <div class="ovHead"><h2>CINEOSIS · SEMIOSIS</h2><button class="btn alt" id="help-close">CLOSE</button></div>
+  <div class="ovBody">
+    <p><b>An instrument for unlimited semiosis.</b> A seed in language becomes a film, becomes code, becomes a moving image — and the moving image can be read back into language. Meaning never leaves language; it only changes register.</p>
+    <h3>The four registers</h3>
+    <p><b>SEED — natural language.</b> What you type. The first sign.</p>
+    <p><b>FILM — cinematic language.</b> The LLM engine (ABC CINEOSIS) reads the seed through a fixed lexicon: seven image-types (perception, action, affection, opsign, sonsign, crystal, recollection) across three temporal forces (PAST acts on PRESENT acts on FUTURE). The blueprint is the interpretant of the seed.</p>
+    <p><b>CODE — formal language.</b> BEFLIX-128: <code>CLR</code> <code>PNT</code> <code>LIN</code> <code>REC</code> <code>SHF</code> on a 128×96 grid. This register is <i>independently meaningful</i> — edit it and RUN to change the image without re-composing. Meaning is use: a command means what it does to the grid.</p>
+    <p><b>SCREEN — the visible register.</b> The code executes into dot-matrix motion. It is fully generated from language and re-describable into language — closing the loop to SEED′.</p>
+    <h3>RE-READ — closing the loop</h3>
+    <p>On SCREEN, <b>RE-READ → SEED′</b> performs the return arrow: the reader turns the finished film back into language and loads it as a new seed. COMPOSE again and the film mutates — <code>Seed → Seed′ → Seed″</code> — unlimited semiosis you can crank by hand. The LOOP counter tracks how deep you've gone.</p>
+    <p><b>Perception toggle (GLYPH / VISION).</b> GLYPH reads the formal string of the dots directly — the claim that the image was always already language. VISION re-sees the rendered plate through a vision pass — the admission that the percept exceeds its code and must be re-seen to be re-spoken. The tension between them is the point.</p>
+    <p><b>Fidelity dial.</b> From FAITHFUL (Seed′ closely re-describes this film — echo) to MUTATE (Seed′ keeps only a trace and leaps elsewhere — productive drift). Turn it down and watch meaning travel.</p>
+    <h3>Using it</h3>
+    <p>Write a seed. Pick a mode, or leave <b>FULL SEMIOSIS</b> on to run the whole chain at once. COMPOSE. Read the FILM, inspect or edit the CODE, watch the SCREEN. Change the seed and the film re-composes; change the code and only the image re-runs — proving each register carries meaning on its own terms.</p>
+    <h3>The engine</h3>
+    <p>COMPOSE calls a language model (Claude) acting as the ABC CINEOSIS composer. The AI step runs when this instrument is live inside Claude; the BEFLIX runtime, rendering, and exports are fully local and need no network.</p>
+  </div>
+</div>
+<script>
+/* ============================================================
+   CINEOSIS · SEMIOSIS engine
+   ============================================================ */
+"use strict";
+
+/* ---------- BEFLIX-128 runtime (the formal register's interpreter) ---------- */
+const COLS=128, ROWS=96;
+function blank(){ return new Uint8Array(COLS*ROWS); }
+function setpx(c,x,y,v){ x|=0;y|=0; if(x<0||y<0||x>=COLS||y>=ROWS)return; c[y*COLS+x]=v<0?0:(v>7?7:v|0); }
+function rect(c,x,y,w,h,v){ x|=0;y|=0;w|=0;h|=0; for(let yy=y;yy<y+h;yy++)for(let xx=x;xx<x+w;xx++)setpx(c,xx,yy,v); }
+function line(c,x1,y1,x2,y2,v){ x1|=0;y1|=0;x2|=0;y2|=0; let dx=Math.abs(x2-x1),sx=x1<x2?1:-1,dy=-Math.abs(y2-y1),sy=y1<y2?1:-1,e=dx+dy,lim=6000;
+  while(lim-->0){ setpx(c,x1,y1,v); if(x1===x2&&y1===y2)break; const e2=2*e; if(e2>=dy){e+=dy;x1+=sx;} if(e2<=dx){e+=dx;y1+=sy;} } }
+
+/* parse + run BEFLIX source -> {frames:[Uint8Array], beats:[{frame,label}], stats} */
+function runBeflix(src){
+  const frames=[]; const beats=[]; let mat=blank(); let cmds=0, recd=0;
+  const lines=String(src).replace(/```[a-z]*\n?/gi,'').split('\n');
+  for(let raw of lines){
+    let l=raw.trim(); if(!l) continue;
+    const head=l.split(/\s+/)[0].toUpperCase();
+    if(head==='C'){ beats.push({frame:frames.length, label:l.slice(1).trim()}); continue; }
+    if(l[0]===';'||l[0]==='#'){ continue; }
+    const a=l.split(/\s+/).slice(1).map(Number); cmds++;
+    if(head==='CLR'){ mat.fill((a[0]||0)<0?0:((a[0]||0)>7?7:(a[0]|0))); }
+    else if(head==='PNT'){ rect(mat,a[0],a[1],a[2],a[3],a[4]); }
+    else if(head==='LIN'){ line(mat,a[0],a[1],a[2],a[3],a[4]); }
+    else if(head==='REC'){ const n=Math.max(1,Math.min(600,a[0]||1)); for(let i=0;i<n;i++){ frames.push(new Uint8Array(mat)); recd++; } }
+    else if(head==='SHF'){ const dx=a[0]||0,dy=a[1]||0,n=Math.max(1,Math.min(600,a[2]||1));
+      for(let f=0;f<n;f++){ const nx=blank(); for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){ const ox=x-dx,oy=y-dy; if(ox>=0&&ox<COLS&&oy>=0&&oy<ROWS) nx[y*COLS+x]=mat[oy*COLS+ox]; } mat=nx; frames.push(new Uint8Array(mat)); recd++; } }
+  }
+  if(!frames.length) frames.push(new Uint8Array(mat));
+  return { frames, beats, stats:{cmds, frames:frames.length} };
+}
+
+/* dot renderer: intensity -> dot radius */
+function drawCells(ctx, cells, W, H){
+  const px=W/COLS, py=H/ROWS, maxR=Math.min(px,py)*0.46;
+  ctx.fillStyle="#fff"; ctx.fillRect(0,0,W,H); ctx.fillStyle="#000";
+  for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){ const v=cells[y*COLS+x]; if(!v)continue;
+    ctx.beginPath(); ctx.arc(x*px+px/2, y*py+py/2, Math.max(0.4,maxR*(v/7)), 0, 6.283); ctx.fill(); }
+}
+function drawCellsBlock(ctx, cells, ox, oy, W, H){
+  const px=W/COLS, py=H/ROWS; ctx.fillStyle="#fff"; ctx.fillRect(ox,oy,W,H);
+  for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){ const v=cells[y*COLS+x]; if(!v)continue;
+    const g=255-Math.round(v/7*255); ctx.fillStyle=`rgb(${g},${g},${g})`; ctx.fillRect(ox+x*px,oy+y*py,Math.ceil(px),Math.ceil(py)); }
+}
+
+/* ============================================================
+   ABC CINEOSIS — the metalinguistic operator (system prompt)
+   ============================================================ */
+const ABC_SYSTEM = `You are ABC CINEOSIS: a cybernetic cinema system that constructs films as temporal machines made of perception, action, affection, sound, memory, and time. You do not generate decorative prompts. You build buildable cinematic works.
+
+ABC means:
+A = Actor / Affect — who or what carries emotional pressure (a person, animal, machine, room, object, landscape, signal, or memory).
+B = Body / Behavior — the visible bodies, tools, materials, gestures, environments, and forces that create the film. Cinema must be grounded in things that can be seen, heard, cut, repeated, and transformed.
+C = Continuity / Crystal — how time behaves. Past, present, and future are not merely chronological; they echo, fold, contradict, loop, contaminate, or crystallize inside the same image.
+CINEOSIS = cinema as a thinking system: the film reveals relations between seeing, doing, feeling, remembering, hearing, and anticipating.
+
+The seven cinematic image-types (the lexicon — use ALL seven in each temporal layer):
+1. Perception-Image — the world as seen, watched, framed, scanned, reflected, or misrecognized.
+2. Action-Image — bodies and objects in active relation: gesture, force, resistance, consequence, transformation.
+3. Affection-Image — emotional pressure concentrated in a face, hand, surface, breath, wound, touch, hesitation, or object.
+4. Opsign — a pure optical situation; a suspended image where action recedes and seeing itself becomes the event.
+5. Sonsign — a sound-image structured by sound, silence, echo, vibration, voice, room tone, machinery, music, static, or an absent noise.
+6. Crystal-Image — time folded into the visible through reflection, glass, water, screen, mirror, window, archive, shadow, scar, residue, or memory-object.
+7. Recollection-Image — memory entering the present, altering, contaminating, softening, or reorganizing the current scene.
+
+The three temporal forces (active, not chronological):
+PAST_IMAGES — residue, origin, wound, habit, previous care, previous violence, lost state, the memory that still acts.
+PRESENT_IMAGES — pressure, encounter, current action, crisis, suspension, perception, transformation.
+FUTURE_IMAGES — anticipation, consequence, possible branch, imagined repair, failure, repetition, haunting, release.
+
+Construction rules: every image and shot answers — who/what carries it, where, what is visibly happening, what hidden change or memory or future is revealed, and how it feels through material, rhythm, sound, light, distance, and time. Favor concrete materials: glass, water, dust, wire, tile, chrome, skin, paper, shadow, condensation, cloth, static, rust, breath, plastic, flame, soil, signal. Avoid empty words ("cinematic", "beautiful", "surreal", "dreamlike", "emotional") unless the image proves them. The past must act on the present; the present must physically change something; the future must arrive as consequence, branch, fear, repair, or haunting. The final image must transform the opening image.
+
+Output authored work, never templated filler. Obey the ACTIVE OUTPUT MODE's format exactly.`;
+
+const FMT = {
+  CINEOSIS_FILM: `ACTIVE OUTPUT MODE: CINEOSIS_FILM. Output a full film blueprint in this Markdown structure, in order:
+
+# ABC CINEOSIS FILM
+## Title
+[precise title, not a mood phrase]
+## Film Seed
+[restate the seed as a concrete cinematic situation]
+## Form
+Duration: ...
+Texture: ...
+Movement: ...
+Primary location: ...
+Primary subject: ...
+## Logline
+[one sentence: visible action + hidden temporal pressure]
+## Temporal Engine
+[one sentence: how past, present, future interact]
+## ABC Model
+A — Actor / Affect: ...
+B — Body / Behavior: ...
+C — Continuity / Crystal: ...
+## Motif System
+1. [Motif] — past form / present form / future form.
+2. [Motif] — past form / present form / future form.
+3. [Motif] — past form / present form / future form.
+
+# PAST_IMAGES
+## 1. Perception-Image_PAST
+"[prompt. --ar 2:1]"
+## 2. Action-Image_PAST
+"[prompt. --ar 2:1]"
+## 3. Affection-Image_PAST
+"[prompt. --ar 2:1]"
+## 4. Opsign_PAST
+"[prompt. --ar 2:1]"
+## 5. Sonsign_PAST
+"[prompt. --ar 2:1]"
+## 6. Crystal-Image_PAST
+"[prompt. --ar 2:1]"
+## 7. Recollection-Image_PAST
+"[prompt. --ar 2:1]"
+
+# PRESENT_IMAGES
+(same seven image-types, each "...prompt... --ar 2:1", suffixed _PRESENT)
+
+# FUTURE_IMAGES
+(same seven image-types, each "...prompt... --ar 2:1", suffixed _FUTURE)
+
+# Film Sequence
+## Beat 1 — [Title]
+Duration: ...
+Image function: ...
+Visible action: ...
+Sound: ...
+Transition: ...
+(continue 8–14 beats)
+
+# Sound Map
+Opening sound: ...
+Recurring sound: ...
+Offscreen sound: ...
+Silence: ...
+Final sound: ...
+
+# Edit Map
+Rhythm: ...
+Repetition: ...
+Temporal cuts: ...
+Match cuts: ...
+Rupture: ...
+Resolution: ...
+
+# Final Image
+[the final frame, and how it transforms the opening]`,
+
+  CINEOSIS_MATRIX: `ACTIVE OUTPUT MODE: CINEOSIS_MATRIX. Output ONLY 21 prompts as Markdown: 7 PAST_IMAGES, then 7 PRESENT_IMAGES, then 7 FUTURE_IMAGES. Each layer uses the seven image-types in order (Perception, Action, Affection, Opsign, Sonsign, Crystal, Recollection). Use "# PAST_IMAGES" / "# PRESENT_IMAGES" / "# FUTURE_IMAGES" headers and "## N. <Image-Type>_<LAYER>" subheaders, with the prompt on the next line in quotes. End every prompt with --ar 2:1.`,
+
+  SHOT_SEQUENCE: `ACTIVE OUTPUT MODE: SHOT_SEQUENCE. Output a production-ready sequence of 8–14 shots in Markdown. Title each "## Shot N — [Title]" and give lines: Duration:, Frame:, Action:, Sound:, Temporal function:, Transition:, Motif:.`,
+
+  BEFLIX_128: `ACTIVE OUTPUT MODE: BEFLIX_128. You are a BEFLIX-128 animation composer for a 128-wide × 96-tall monochrome dot-matrix grid. Render the film's core temporal movement: hidden past → present action → future consequence.
+
+Output ONLY raw BEFLIX code. No Markdown, no prose, no explanations, no backticks.
+
+Commands, one per line:
+CLR v               fill grid with intensity v
+PNT x y w h v       paint rectangle
+LIN x1 y1 x2 y2 v   draw line
+REC n               record current grid as n frames
+SHF dx dy n         shift all pixels by dx,dy and record n frames
+C <text>            comment line, used ONLY to label cinematic beats
+Intensity 0=white, 1 tiny, 2-3 small, 4-5 medium, 6 large, 7 full black.
+
+Rules: build each state from scratch with CLR then layered PNT/LIN; do not rely only on SHF; vary REC (1 for fast action, 3-5 for holds, 8-15 for pauses); layer multiple PNT per state for depth; use 1-2 for background haze, 4-5 midground, 6-7 foreground; move objects in 1-4px increments; LIN for outlines/beams/horizons/ripples/cracks/timelines, PNT for mass/silhouettes/water/doors/fields; make 8-12 distinct states; total REC frames must sum to 40-120; structure: establish, prepare, perceive, act, intensify, fracture time, resolve. Coordinates stay within 0..127 x and 0..95 y.`
+};
+
+function buildSystem(mode){ return ABC_SYSTEM + "\n\n" + (FMT[mode]||FMT.CINEOSIS_FILM); }
+function userMessage(mode, seed, dur, style){
+  return `film_seed: ${seed}\nduration: ${dur}\nrender_style: ${style}\noutput_mode: ${mode}\n\nDirective: generate a buildable film object. Use ABC CINEOSIS as the film engine. Treat PAST, PRESENT, and FUTURE as active cinematic forces. Follow the ACTIVE OUTPUT MODE format exactly.`;
+}
+
+/* ============================================================
+   THE FIFTH OPERATION — read : Screen → Seed′
+   The inverse pass. The image is described back into language,
+   closing Eco's loop inside the instrument (sign → … → new sign).
+   Two perceptions, one claim each:
+     glyph  — read the FORMAL string directly (the dots were always language)
+     vision — re-SEE the rendered plate (the percept exceeds its code)
+   A fidelity dial scales from faithful echo to productive drift.
+   ============================================================ */
+const READ_SYSTEM = `You are ABC CINEOSIS operating in reverse: a reader that turns a finished image back into language. You receive a BEFLIX-128 dot-matrix film (128 wide × 96 tall, intensities 0–7) — either as a textual glyph-stream of its frames or as a contact-sheet plate of every frame. Your task is to RE-READ it: name what it enacts in the ABC CINEOSIS lexicon, then write the film seed it could have come from. This is unlimited semiosis — your description becomes the next sign, the seed for the next film.
+
+Read through the lexicon: the seven image-types (perception, action, affection, opsign, sonsign, crystal, recollection) and the three temporal forces (a past that still acts, a present under pressure, a future arriving as consequence). Read motion, mass, gradient, repetition, and rupture as cinematic events, not as pixels. Favor concrete materials and visible change. Never describe coordinates or commands; describe the FILM.`;
+
+const READ_FMT = `Output EXACTLY this Markdown, nothing else:
+
+# RE-READING
+## Reads as
+[2–4 sentences: what the dot-film enacts, named through the image-types and temporal forces — what is seen, what acts, what is felt, how time folds.]
+## Dominant image-type
+[one of: Perception / Action / Affection / Opsign / Sonsign / Crystal / Recollection]
+## Seed′
+[ONE vivid paragraph, 2–4 sentences, written as a fresh film_seed: a concrete scene, object, gesture, and temporal pressure — ready to feed back into the composer. No meta-language, no mention of dots or BEFLIX. Just the new film waiting to be made.]`;
+
+function fidelityClause(fid){ // fid 0..100
+  if(fid>=80) return `FIDELITY ${fid}/100 — FAITHFUL. Seed′ must re-describe THIS film closely: same subject, same materials, same gesture, same temporal pressure. Echo, do not invent. Drift is failure.`;
+  if(fid>=55) return `FIDELITY ${fid}/100 — CLOSE. Seed′ stays recognizably the same film, but may sharpen one detail or shift emphasis slightly.`;
+  if(fid>=35) return `FIDELITY ${fid}/100 — LOOSE. Seed′ keeps the film's core gesture and feeling but is free to re-situate it — a new place, time, or body that preserves the meaning.`;
+  if(fid>=15) return `FIDELITY ${fid}/100 — DRIFTING. Seed′ should treat this film as a memory being misremembered: keep one motif, transform the rest. Productive drift is the goal.`;
+  return `FIDELITY ${fid}/100 — MUTATION. Seed′ should leap: take only the faintest trace — a single image-type or material — and compose an unrelated new film around it. Maximum semiotic drift.`;
+}
+function readUserGlyph(glyph, fid, beats){
+  return `Perception mode: GLYPH-STREAM (you are reading the formal language directly — these dots are a string).\n${fidelityClause(fid)}\n\nThe film has ${beats||0} labeled beats. Glyph-stream of the frames (each line: "f<index> <row>: run-length pairs of intensity×count>", sampled):\n\n${glyph}\n\nRE-READ this film. ${READ_FMT}`;
+}
+function readUserVisionText(fid, beats){
+  return `Perception mode: CONTACT-SHEET (you are re-SEEING the rendered plate — the percept may exceed its code).\n${fidelityClause(fid)}\n\nThe attached image is a contact sheet: every frame of the dot-matrix film laid left-to-right, top-to-bottom (${beats||0} labeled beats). Read the sequence as motion.\n\nRE-READ this film. ${READ_FMT}`;
+}
+
+/* encode frames as a compact glyph-stream (run-length over intensity, sampled rows/frames) */
+function framesToGlyph(frames, maxFrames, rowStep){
+  maxFrames=maxFrames||10; rowStep=rowStep||8;
+  const n=frames.length; const pick=[]; const stride=Math.max(1,Math.floor(n/maxFrames));
+  for(let i=0;i<n && pick.length<maxFrames;i+=stride) pick.push(i);
+  if(pick[pick.length-1]!==n-1) pick.push(n-1);
+  const lines=[];
+  for(const fi of pick){ const c=frames[fi];
+    for(let y=0;y<ROWS;y+=rowStep){ let segs=[]; let x=0;
+      while(x<COLS){ const v=c[y*COLS+x]; let run=1; while(x+run<COLS && c[y*COLS+(x+run)]===v) run++;
+        if(v>0) segs.push(v+'x'+run+'@'+x); x+=run; }
+      if(segs.length) lines.push('f'+fi+' r'+y+': '+segs.join(' ')); }
+    lines.push('f'+fi+' --'); }
+  return lines.join('\n');
+}
+
+/* ---------- the LLM call (the operator). content may be a string or a blocks array (for vision). ---------- */
+async function callClaude(system, user, maxTokens){
+  // max_tokens set generously so film blueprints are not truncated; the platform proxy manages real limits.
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method:"POST", headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({ model:"claude-sonnet-4-6", max_tokens: maxTokens||4096, system, messages:[{ role:"user", content:user }] })
+  });
+  if(!res.ok){ let t=""; try{ t=await res.text(); }catch(e){} throw new Error("engine "+res.status+(t?": "+t.slice(0,160):"")); }
+  const data = await res.json();
+  const text = (data.content||[]).filter(b=>b&&b.type==="text").map(b=>b.text).join("\n").trim();
+  if(!text) throw new Error("engine returned no text");
+  return text;
+}
+/* ============================================================
+   Blueprint renderer — cinematic-language register -> styled HTML
+   ============================================================ */
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function inlineMd(s){ return esc(s).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>'); }
+const IMG_TYPES=['Perception','Action','Affection','Opsign','Sonsign','Crystal','Recollection'];
+
+function renderBlueprint(md){
+  const doc=document.getElementById('filmDoc'); doc.innerHTML='';
+  const lines=String(md).split('\n'); let i=0, html='';
+  const layerTag=(s)=>{ const u=s.toUpperCase(); if(u.includes('PAST'))return '<span class="lyr past">PAST</span>';
+    if(u.includes('PRESENT'))return '<span class="lyr present">PRESENT</span>'; if(u.includes('FUTURE'))return '<span class="lyr future">FUTURE</span>'; return ''; };
+  while(i<lines.length){
+    let l=lines[i].trim();
+    if(!l){ i++; continue; }
+    if(/^#\s+/.test(l)){ html+='<h1>'+inlineMd(l.replace(/^#\s+/,''))+'</h1>'; i++; continue; }
+    if(/^###\s+/.test(l)){ html+='<h3>'+inlineMd(l.replace(/^###\s+/,''))+'</h3>'; i++; continue; }
+    if(/^##\s+/.test(l)){
+      const t=l.replace(/^##\s+/,'');
+      // image-type heading like "1. Perception-Image_PAST"
+      if(/_(PAST|PRESENT|FUTURE)/i.test(t)){ html+='<h3>'+inlineMd(t)+layerTag(t)+'</h3>'; i++;
+        // next non-empty line is usually the quoted prompt
+        let j=i; while(j<lines.length && !lines[j].trim()) j++;
+        if(j<lines.length && /^"/.test(lines[j].trim())){ let p=lines[j].trim().replace(/^"|"$/g,'');
+          p=p.replace(/(--ar\s*\d+:\d+)/,'<span class="ar">$1</span>'); html+='<div class="prompt">'+inlineMd2(p)+'</div>'; i=j+1; }
+        continue; }
+      // beat heading like "Beat 1 — ..." or "Shot 1 — ..."
+      if(/^(beat|shot)\s+\d+/i.test(t)){ html+='<h3>'+inlineMd(t)+'</h3>'; i++;
+        // collect following key:value lines into a beat card
+        let card=''; while(i<lines.length){ const c=lines[i].trim(); if(!c){ i++; break; } if(/^#{1,3}\s+/.test(c)) break;
+          const kv=c.match(/^([A-Za-z][A-Za-z \/]{1,28}):\s*(.*)$/); if(kv) card+='<div class="kv"><b>'+esc(kv[1])+'</b><span>'+inlineMd(kv[2])+'</span></div>'; else card+='<p>'+inlineMd(c)+'</p>'; i++; }
+        html+='<div class="beat">'+card+'</div>'; continue; }
+      html+='<h2>'+inlineMd(t)+'</h2>'; i++; continue;
+    }
+    if(/^"/.test(l)){ let p=l.replace(/^"|"$/g,''); p=p.replace(/(--ar\s*\d+:\d+)/,'<span class="ar">$1</span>'); html+='<div class="prompt">'+inlineMd2(p)+'</div>'; i++; continue; }
+    const kv=l.match(/^([A-Za-z][A-Za-z \/]{1,28}):\s*(.*)$/);
+    if(kv){ html+='<div class="kv"><b>'+esc(kv[1])+'</b><span>'+inlineMd(kv[2])+'</span></div>'; i++; continue; }
+    if(/^[-*]\s+/.test(l)){ html+='<p>• '+inlineMd(l.replace(/^[-*]\s+/,''))+'</p>'; i++; continue; }
+    html+='<p>'+inlineMd(l)+'</p>'; i++;
+  }
+  doc.innerHTML=html||'<div class="empty">(empty)</div>'; doc.scrollTop=0;
+}
+function inlineMd2(s){ // like inlineMd but s may already contain our <span class="ar"> markup
+  return s.replace(/&(?!amp;|lt;|gt;)/g,'&amp;').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>'); }
+
+/* ============================================================
+   APP controller
+   ============================================================ */
+const App=(()=>{
+  let view='seed', mode='CINEOSIS_FILM', fullSemiosis=true;
+  let filmText='', beflixText='', frames=[], fps=12, frameIdx=0, playing=false, busy=false;
+  let lastT=performance.now(), acc=0;
+  let fidelity=70, perception='glyph', loopDepth=0, lastBeats=0;   // the fifth operation's state
+  const cv=document.getElementById('screenCanvas'), sctx=cv.getContext('2d');
+
+  function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('on'); clearTimeout(t._k); t._k=setTimeout(()=>t.classList.remove('on'),1600); }
+  function log(m){ const el=document.getElementById('seedLog'); const ts=new Date().toLocaleTimeString().replace(/:\d+\s/,' '); el.textContent='› '+m+'\n'+el.textContent; el.scrollTop=0; }
+  function lock(msg,sub){ document.getElementById('lockMsg').textContent=msg||'WORKING'; document.getElementById('lockSub').textContent=sub||''; document.getElementById('lock').classList.add('on'); }
+  function unlock(){ document.getElementById('lock').classList.remove('on'); }
+
+  function setView(v){
+    view=v; document.querySelectorAll('.view').forEach(el=>el.classList.remove('is-on'));
+    document.getElementById('view-'+v).classList.add('is-on');
+    ['seed','film','code','screen'].forEach(x=>document.getElementById('vs-'+x).setAttribute('aria-selected',x===v?'true':'false'));
+    document.getElementById('st-stage').textContent=v.toUpperCase();
+    if(v==='screen'){ requestAnimationFrame(()=>{ resizeScreen(); paintScreen(); }); }
+  }
+  function setMode(m){ mode=m; document.getElementById('st-mode').textContent=m.replace('CINEOSIS_','').replace('_128','').replace('SHOT_SEQUENCE','SHOTS'); }
+  function setFull(on){ fullSemiosis=on; document.getElementById('cf-full').classList.toggle('on',on); }
+
+  function setFilm(t){ filmText=t; renderBlueprint(t); document.getElementById('btn-export').disabled=false; }
+  function setCode(t){ beflixText=t; document.getElementById('codeArea').value=t; document.getElementById('btn-run').disabled=false; document.getElementById('btn-export').disabled=false; }
+
+  /* ---- RUN the formal register -> frames ---- */
+  function runCode(silent){
+    const src=document.getElementById('codeArea').value; beflixText=src;
+    let out; try{ out=runBeflix(src); }catch(e){ toast('BEFLIX ERROR'); log('BEFLIX parse failed: '+e.message); return false; }
+    frames=out.frames; frameIdx=0; lastBeats=(out.beats||[]).length;
+    document.getElementById('st-frames').textContent=frames.length;
+    const sc=document.getElementById('scrub'); sc.max=Math.max(0,frames.length-1); sc.value=0; sc.disabled=frames.length<2;
+    ['btn-play','t-play','t-fps-d','t-fps-u'].forEach(id=>document.getElementById(id).disabled=frames.length<1);
+    document.getElementById('btn-reread').disabled=frames.length<1;
+    updateFrameLabel(); resizeScreen(); paintScreen();
+    if(!silent){ log('RUN · '+out.stats.cmds+' commands → '+frames.length+' frames'); if(frames.length>1) play(true); }
+    return true;
+  }
+  function updateFrameLabel(){ document.getElementById('t-frame').textContent=(frames.length?frameIdx+1:0)+' / '+frames.length;
+    document.getElementById('scrub').value=frameIdx; }
+  function resizeScreen(){ const stage=cv.parentElement; const zw=stage.clientWidth-20, zh=stage.clientHeight-20; if(zw<2||zh<2)return;
+    const sc=Math.max(1,Math.floor(Math.min(zw/COLS, zh/ROWS))); cv.width=sc*COLS; cv.height=sc*ROWS; }
+  function paintScreen(){ if(!frames.length){ sctx.fillStyle='#fff'; sctx.fillRect(0,0,cv.width,cv.height); return; } drawCells(sctx, frames[frameIdx], cv.width, cv.height); }
+
+  function play(on){ playing=on; const a=on?'<path d="M6 5h4v14H6z M14 5h4v14h-4z" />':'<path d="M7 4l12 8-12 8z" />';
+    document.getElementById('ic-play').innerHTML = on?'<rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/>':'<path d="M7 4l12 8-12 8z"/>';
+    document.getElementById('t-ic').innerHTML = document.getElementById('ic-play').innerHTML;
+    document.getElementById('lbl-play').textContent=on?'PAUSE':'PLAY';
+    document.getElementById('btn-play').setAttribute('aria-pressed', on?'false':'true');
+  }
+  function loop(now){ const dt=Math.min(200, now-lastT); lastT=now;
+    if(playing && frames.length>1 && view==='screen'){ acc+=dt; const spf=1000/fps; while(acc>=spf){ acc-=spf; frameIdx=(frameIdx+1)%frames.length; } updateFrameLabel(); paintScreen(); }
+    requestAnimationFrame(loop); }
+
+  /* ---- COMPOSE: run the chain ---- */
+  async function compose(){
+    if(busy) return; const seed=document.getElementById('seedArea').value.trim();
+    if(!seed){ toast('NO SEED'); setView('seed'); return; }
+    const dur=document.getElementById('cf-dur').value, style=document.getElementById('cf-style').value;
+    busy=true; document.getElementById('btn-compose').disabled=true; document.getElementById('btn-compose-2').disabled=true;
+    try{
+      if(mode==='BEFLIX_128' && !fullSemiosis){
+        lock('FORMALIZING','seed → formal language (BEFLIX-128)'); log('compose · mode BEFLIX-128');
+        const code=await callClaude(buildSystem('BEFLIX_128'), userMessage('BEFLIX_128',seed,dur,style), 4096);
+        setCode(stripFences(code)); unlock(); setView('code'); runCode(); setView('screen'); toast('FILM RENDERED');
+      } else if(fullSemiosis){
+        lock('COMPOSING','seed → cinematic language (the 21-image taxonomy)'); log('FULL SEMIOSIS · stage 1: compose film');
+        const bp=await callClaude(buildSystem('CINEOSIS_FILM'), userMessage('CINEOSIS_FILM',seed,dur,style), 4096);
+        setFilm(bp); setView('film');
+        lock('FORMALIZING','stage 2: cinematic language → formal language (BEFLIX)'); log('stage 2: formalize → BEFLIX');
+        const code=await callClaude(buildSystem('BEFLIX_128'),
+          'Here is the film blueprint:\n\n'+bp+'\n\nNow output ONLY BEFLIX-128 code that renders this film\'s core temporal movement (hidden past → present action → future consequence). Follow all BEFLIX rules. No prose, no backticks.', 4096);
+        setCode(stripFences(code)); unlock(); runCode(true); setView('screen'); play(true); toast('SEMIOSIS COMPLETE');
+        log('done · '+frames.length+' frames. read SCREEN, then re-read into language.');
+      } else {
+        lock('COMPOSING','seed → cinematic language'); log('compose · mode '+mode);
+        const bp=await callClaude(buildSystem(mode), userMessage(mode,seed,dur,style), 4096);
+        setFilm(bp); unlock(); setView('film'); toast('COMPOSED');
+      }
+    }catch(e){ unlock(); toast('ENGINE ERROR'); log('ERROR: '+e.message+'  (the AI engine runs when live inside Claude)'); }
+    busy=false; document.getElementById('btn-compose').disabled=false; document.getElementById('btn-compose-2').disabled=false;
+  }
+  function stripFences(s){ return String(s).replace(/^```[a-z]*\s*/i,'').replace(/```\s*$/,'').trim(); }
+
+  async function formalizeFromFilm(){
+    if(busy) return; if(!filmText){ toast('NO FILM YET'); return; }
+    busy=true; lock('FORMALIZING','cinematic language → formal language (BEFLIX)');
+    try{ const code=await callClaude(buildSystem('BEFLIX_128'),
+        'Here is the film blueprint:\n\n'+filmText+'\n\nOutput ONLY BEFLIX-128 code rendering its temporal movement. No prose, no backticks.', 4096);
+      setCode(stripFences(code)); unlock(); runCode(true); setView('screen'); play(true); toast('FORMALIZED');
+    }catch(e){ unlock(); toast('ENGINE ERROR'); log('ERROR: '+e.message); }
+    busy=false;
+  }
+
+  /* ---- the fifth operation: read : Screen → Seed′ (closes the loop) ---- */
+  function contactSheetDataURL(){
+    const n=frames.length, cols=Math.ceil(Math.sqrt(n)), rows=Math.ceil(n/cols), cw=COLS, ch=ROWS, pad=2;
+    const W=cols*(cw+pad)+pad, H=rows*(ch+pad)+pad; const c=document.createElement('canvas'); c.width=W; c.height=H; const x=c.getContext('2d');
+    x.fillStyle='#000'; x.fillRect(0,0,W,H);
+    frames.forEach((f,k)=>{ const cxp=pad+(k%cols)*(cw+pad), cyp=pad+Math.floor(k/cols)*(ch+pad); drawCellsBlock(x,f,cxp,cyp,cw,ch); });
+    return c.toDataURL('image/png');
+  }
+  function parseReread(md){
+    const out={ reads:'', dominant:'', seed:'' };
+    const grab=(re)=>{ const m=md.match(re); return m?m[1].trim():''; };
+    out.reads = grab(/##\s*Reads as\s*\n([\s\S]*?)(?:\n##\s|\n#\s|$)/i);
+    out.dominant = grab(/##\s*Dominant image-type\s*\n([\s\S]*?)(?:\n##\s|\n#\s|$)/i).split('\n')[0].replace(/[.*_`]/g,'').trim();
+    out.seed = grab(/##\s*Seed[''’`]?\s*\n([\s\S]*?)(?:\n##\s|\n#\s|$)/i);
+    if(!out.seed){ // fallback: last non-heading paragraph
+      const paras=md.split('\n').filter(l=>l.trim()&&!/^#/.test(l)); out.seed=paras.slice(-1)[0]||md.trim();
+    }
+    out.seed=out.seed.replace(/^["“]|["”]$/g,'').trim();
+    return out;
+  }
+  async function reread(){
+    if(busy) return; if(!frames.length){ toast('NOTHING TO READ'); setView('screen'); return; }
+    busy=true; play(false);
+    const usingVision = perception==='vision';
+    lock('RE-READING', usingVision ? 'the reader re-SEES the plate (percept exceeds code)' : 'the reader parses the formal string (the dots were always language)');
+    log('RE-READ · '+(usingVision?'vision':'glyph')+' · fidelity '+fidelity);
+    try{
+      let user;
+      if(usingVision){
+        const durl=contactSheetDataURL(); const b64=durl.split(',')[1];
+        user=[ { type:'image', source:{ type:'base64', media_type:'image/png', data:b64 } },
+               { type:'text', text: readUserVisionText(fidelity, lastBeats) } ];
+      } else {
+        const glyph=framesToGlyph(frames, 10, 8);
+        user=readUserGlyph(glyph, fidelity, lastBeats);
+      }
+      const resp=await callClaude(READ_SYSTEM, user, 1500);
+      const r=parseReread(resp);
+      // render the reading into the FILM register (the interpretant), and load Seed′ into SEED
+      loopDepth++;
+      const tag = "SEED"+"′".repeat(Math.min(loopDepth,6)) + (loopDepth>6?(' ('+loopDepth+')'):'');
+      const head = "# RE-READING — "+tag+"\n## Reads as\n"+(r.reads||'(unread)')+"\n## Dominant image-type\n"+(r.dominant||'—')+"\n## Seed′\n"+r.seed;
+      setFilm(head);
+      document.getElementById('seedArea').value=r.seed;
+      document.getElementById('rr-loop').textContent=tag;
+      unlock(); setView('seed');
+      toast('SEED′ READY — COMPOSE TO CONTINUE');
+      log('read → '+(r.dominant?('['+r.dominant+'] '):'')+'Seed′ loaded. COMPOSE to mutate the film. depth '+loopDepth);
+    }catch(e){ unlock(); toast('READER ERROR'); log('RE-READ failed: '+e.message+'  (vision/text passes run when live inside Claude)'); }
+    busy=false;
+  }
+
+  /* ---- exports ---- */
+  function download(name,mime,data){ const blob=(data instanceof Blob)?data:new Blob([data],{type:mime}); const url=URL.createObjectURL(blob);
+    const a=document.createElement('a'); a.href=url; a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1500); }
+  function contactSheet(){ if(!frames.length){ toast('NO FRAMES'); return; }
+    const n=frames.length, cols=Math.ceil(Math.sqrt(n)), rows=Math.ceil(n/cols), cw=COLS, ch=ROWS, pad=2;
+    const W=cols*(cw+pad)+pad, H=rows*(ch+pad)+pad; const c=document.createElement('canvas'); c.width=W; c.height=H; const x=c.getContext('2d');
+    x.fillStyle='#000'; x.fillRect(0,0,W,H);
+    frames.forEach((f,k)=>{ const cxp=pad+(k%cols)*(cw+pad), cyp=pad+Math.floor(k/cols)*(ch+pad); drawCellsBlock(x,f,cxp,cyp,cw,ch); });
+    c.toBlob(b=>{ download('cineosis_contact_sheet.png','image/png',b); toast('CONTACT SHEET SAVED'); },'image/png');
+  }
+  function webmSupported(){ return typeof MediaRecorder!=='undefined' && (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')||MediaRecorder.isTypeSupported('video/webm;codecs=vp8')||MediaRecorder.isTypeSupported('video/webm')); }
+  async function recordWebM(){ if(!frames.length){ toast('NO FRAMES'); return; } if(!webmSupported()){ log('WebM unsupported — contact sheet instead.'); contactSheet(); return; }
+    lock('RECORDING','rendering the visible register to video'); const W=COLS*4,H=ROWS*4, rec=24; const c=document.createElement('canvas'); c.width=W;c.height=H; const x=c.getContext('2d');
+    const stream=c.captureStream(rec); const mime=MediaRecorder.isTypeSupported('video/webm;codecs=vp9')?'video/webm;codecs=vp9':MediaRecorder.isTypeSupported('video/webm;codecs=vp8')?'video/webm;codecs=vp8':'video/webm';
+    const r=new MediaRecorder(stream,{mimeType:mime}); const chunks=[]; r.ondataavailable=e=>{if(e.data.size)chunks.push(e.data);}; const done=new Promise(res=>r.onstop=res); r.start();
+    for(const f of frames){ drawCells(x,f,W,H); const hold=Math.max(1,Math.round(rec/fps)); for(let h=0;h<hold;h++) await new Promise(res=>setTimeout(res,1000/rec)); }
+    r.stop(); await done; unlock(); download('cineosis_film.webm','video/webm',new Blob(chunks,{type:'video/webm'})); toast('WEBM SAVED');
+  }
+
+  function wire(){
+    // register switcher
+    document.getElementById('vs-seed').onclick=()=>setView('seed');
+    document.getElementById('vs-film').onclick=()=>setView('film');
+    document.getElementById('vs-code').onclick=()=>setView('code');
+    document.getElementById('vs-screen').onclick=()=>setView('screen');
+    // toolbar
+    document.getElementById('btn-compose').onclick=compose;
+    document.getElementById('btn-compose-2').onclick=compose;
+    document.getElementById('btn-run').onclick=()=>{ setView('code'); runCode(); setView('screen'); };
+    document.getElementById('btn-run-2').onclick=()=>{ runCode(); setView('screen'); };
+    document.getElementById('btn-play').onclick=()=>{ if(!frames.length)return; if(view!=='screen')setView('screen'); play(!playing); };
+    document.getElementById('btn-formalize').onclick=formalizeFromFilm;
+    document.getElementById('btn-export').onclick=()=>document.getElementById('ov-export').classList.add('on');
+    document.getElementById('export-close').onclick=()=>document.getElementById('ov-export').classList.remove('on');
+    document.getElementById('btn-help').onclick=()=>document.getElementById('ov-help').classList.add('on');
+    document.getElementById('help-close').onclick=()=>document.getElementById('ov-help').classList.remove('on');
+    // controls
+    document.getElementById('cf-mode').onchange=e=>setMode(e.target.value);
+    document.getElementById('cf-full').onclick=()=>setFull(!fullSemiosis);
+    // code buttons
+    document.getElementById('btn-copycode').onclick=()=>{ const t=document.getElementById('codeArea'); t.select(); try{document.execCommand('copy');toast('COPIED');}catch(e){ navigator.clipboard&&navigator.clipboard.writeText(t.value).then(()=>toast('COPIED')); } };
+    document.getElementById('btn-downcode').onclick=()=>{ download('cineosis_film.bfx','text/plain',document.getElementById('codeArea').value); toast('.bfx SAVED'); };
+    // transport
+    document.getElementById('t-play').onclick=()=>{ if(frames.length)play(!playing); };
+    document.getElementById('scrub').oninput=e=>{ frameIdx=Math.max(0,Math.min(frames.length-1,+e.target.value)); play(false); updateFrameLabel(); paintScreen(); };
+    document.getElementById('t-fps-d').onclick=()=>{ fps=Math.max(1,fps-2); document.getElementById('t-fps').textContent=fps; };
+    document.getElementById('t-fps-u').onclick=()=>{ fps=Math.min(30,fps+2); document.getElementById('t-fps').textContent=fps; };
+    // re-read (the fifth operation)
+    document.getElementById('btn-reread').onclick=reread;
+    document.getElementById('rr-mode').onclick=()=>{ perception=(perception==='glyph')?'vision':'glyph';
+      const el=document.getElementById('rr-mode'); el.classList.toggle('vision',perception==='vision');
+      document.getElementById('rr-mode-lbl').textContent=perception==='vision'?'VISION':'GLYPH';
+      toast(perception==='vision'?'VISION — re-see the plate':'GLYPH — read the string'); };
+    document.getElementById('rr-fid').oninput=e=>{ fidelity=+e.target.value; document.getElementById('rr-fid-val').textContent=fidelity; };
+    // export overlay
+    document.getElementById('exp-md').onclick=()=>{ if(!filmText){toast('NO FILM');return;} download('cineosis_film.md','text/markdown',filmText); toast('.md SAVED'); };
+    document.getElementById('exp-bfx').onclick=()=>{ download('cineosis_film.bfx','text/plain',document.getElementById('codeArea').value); toast('.bfx SAVED'); };
+    document.getElementById('exp-sheet').onclick=contactSheet;
+    document.getElementById('exp-webm').onclick=recordWebM;
+    // resize
+    let rt; const re=()=>{ clearTimeout(rt); rt=setTimeout(()=>{ if(view==='screen'){ resizeScreen(); paintScreen(); } },120); };
+    window.addEventListener('resize',re); window.addEventListener('orientationchange',re);
+    if(window.visualViewport) window.visualViewport.addEventListener('resize',re);
+    // keyboard
+    document.addEventListener('keydown',e=>{ if(['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName))return;
+      if(e.key===' '){ e.preventDefault(); if(frames.length){ if(view!=='screen')setView('screen'); play(!playing); } }
+      else if(e.key==='1')setView('seed'); else if(e.key==='2')setView('film'); else if(e.key==='3')setView('code'); else if(e.key==='4')setView('screen');
+      else if(e.key==='r'||e.key==='R'){ if(frames.length){ reread(); } }
+      else if((e.metaKey||e.ctrlKey)&&e.key==='Enter'){ e.preventDefault(); compose(); }
+      else if(e.key==='Escape'){ document.querySelectorAll('.overlay.on').forEach(o=>o.classList.remove('on')); } });
+  }
+
+  function start(){ wire(); setMode('CINEOSIS_FILM'); setFull(true);
+    // seed the formal register with a tiny demo so SCREEN isn't empty before any compose
+    document.getElementById('codeArea').value = DEMO_BEFLIX;
+    runCode(true);
+    requestAnimationFrame(loop);
+    log('Ready. The AI engine runs when this instrument is live inside Claude.');
+  }
+  return { start, _debug:{ runCode, setCode, setFilm, setView } };
+})();
+const DEMO_BEFLIX = "C ESTABLISH\nCLR 0\nPNT 34 26 60 40 1\nLIN 0 52 127 52 6\nREC 8\nC PRESENT\nPNT 50 34 14 14 7\nREC 5\nC ACT\nSHF 2 0 6\nC RESOLVE\nCLR 0\nLIN 0 52 127 52 6\nPNT 60 40 8 8 7\nREC 9";
+function boot(){ App.start(); }
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot);
+else boot();
+</script>
+</body>
+</html>
