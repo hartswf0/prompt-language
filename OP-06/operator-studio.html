@@ -83,9 +83,8 @@
   details.relay{ margin-top:10px;border-top:3px solid var(--k);padding-top:12px; }
   details.relay summary{ cursor:pointer;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em; }
   .relay-state{ margin-top:8px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em; }
-  .recover{ position:fixed;left:50%;top:max(44px,env(safe-area-inset-top));transform:translateX(-50%);z-index:900;max-width:min(680px,96vw);width:max-content;text-align:left;background:var(--k);color:var(--w);border:3px solid var(--w);box-shadow:4px 4px 0 var(--k);padding:7px 9px;display:none; }
-  .recover .msg{ font-size:11px;font-weight:700;text-transform:uppercase; } .recover .act{ margin-top:2px;font-size:10px;opacity:.9; }
-  .recover-actions{display:flex;gap:5px;margin-top:6px;flex-wrap:wrap}.recover-actions button{min-height:30px;padding:4px 7px;font-size:9px;border:2px solid var(--w);box-shadow:none;background:var(--k);color:var(--w)}.recover-actions button:hover{background:var(--w);color:var(--k)}
+  .recover{ position:absolute;left:50%;bottom:14px;transform:translateX(-50%);z-index:5;max-width:92%;text-align:center;background:var(--k);color:var(--w);border:3px solid var(--k);box-shadow:6px 6px 0 var(--k);padding:12px 16px;display:none; }
+  .recover .msg{ font-size:13px;font-weight:700;text-transform:uppercase; } .recover .act{ margin-top:8px;font-size:12px;opacity:.9; }
   .hidden{ display:none; }
   pre#logbody{ background:var(--w);color:var(--k);border:3px solid var(--k);padding:10px;height:280px;overflow:auto;font:11px/1.45 ui-monospace,monospace;white-space:pre-wrap;word-break:break-word;margin:12px 0; }
 
@@ -124,7 +123,6 @@
   canvas.tlthumb{ position:absolute; inset:0; width:100%; height:100%; image-rendering:pixelated; }
   .tlnum{ position:relative; z-index:2; font-size:11px; font-weight:700; color:var(--k); background:rgba(255,255,255,.7); padding:0 2px; }
   .tlthem{ position:absolute; z-index:3; bottom:-2px; left:50%; transform:translateX(-50%); background:var(--aA); color:#fff; font-size:7px; font-weight:700; letter-spacing:.05em; padding:0 3px; }
-  .tlhold{ position:absolute; z-index:3; right:0; top:0; background:var(--k); color:var(--w); font-size:7px; font-weight:700; padding:0 2px; }
   .tlthem.live{ animation:blink .6s steps(1) infinite; }
   #tl-ops{ flex:0 0 auto; display:flex; gap:5px; padding:0 6px 5px; }
   #tl-ops button{ flex:1; font-size:10px; padding:4px 6px; min-height:28px; box-shadow:2px 2px 0 var(--k); }
@@ -185,6 +183,11 @@
   #toast.on{ opacity:1; }
   #flash{ position:fixed; inset:0; background:var(--w); opacity:0; pointer-events:none; z-index:9998; transition:opacity .25s; }
   #flash.on{ opacity:1; transition:opacity .04s; }
+
+  .tlbr{ position:absolute; z-index:3; top:-2px; right:-2px; background:var(--aA); color:#fff; font-size:8px; font-weight:700; padding:0 2px; cursor:pointer; }
+  #play-btn.on{ background:var(--aC); color:#fff; }
+  #tl-note{ display:none; flex:0 0 auto; font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:#fff; background:var(--aA); padding:2px 8px; }
+  .cnt{ flex:0 0 auto; align-self:center; font-size:9px; font-weight:700; opacity:.5; margin-left:auto; padding-right:4px; }
 </style>
 </head>
 <body>
@@ -209,12 +212,14 @@
 <div id="timeline">
   <div id="tl-strip"></div>
   <div id="tl-ops">
-    <button id="op-play" type="button">Play</button>
-    <button id="op-add" type="button">+Blank</button>
-    <button id="op-dup" type="button">+Copy</button>
-    <button id="op-del" type="button">Delete</button>
-    <span class="cnt" id="tl-count">1 frame</span>
+    <button id="op-ext" type="button">+Frame</button>
+    <button id="op-fork" type="button">Fork</button>
+    <button id="op-del" type="button">Del</button>
+    <button id="play-btn" type="button">Play</button>
+    <span class="mini" style="flex:0 0 auto">FPS</span><input type="range" id="fps" min="1" max="24" value="8" style="width:70px;min-width:70px;flex:0 0 auto"><span class="mini" id="fps-val" style="flex:0 0 auto">8</span>
+    <span class="cnt" id="tl-count">1 / 1</span>
   </div>
+  <div id="tl-note">A collaborator is on another branch &mdash; see <b>Branches</b></div>
 </div>
 
 <div id="stage">
@@ -222,7 +227,7 @@
     <canvas id="board" width="128" height="96"></canvas>
     <div id="board-empty">Frame <span id="be-n">1</span><span>draw &middot; stamp &middot; compose &mdash; together</span></div>
   </div>
-  <div class="recover" id="recover" role="status"><div class="msg" id="rec-msg">Lost signal</div><div class="act" id="rec-act">The film remains editable.</div><div class="recover-actions"><button id="rec-retry" type="button">Retry link</button><button id="rec-offline" type="button">Keep editing</button><button id="rec-export" type="button">Export recovery</button></div></div>
+  <div class="recover" id="recover" role="alert"><div class="msg" id="rec-msg">Lost signal</div><div class="act" id="rec-act">Waiting&hellip;</div></div>
 </div>
 
 <div class="panel" id="panel-make">
@@ -235,11 +240,10 @@
   <div class="row"><div style="flex:1"><label class="mini">X</label><input type="range" id="mk-x" min="0" max="127" value="6" style="width:100%"></div><div style="flex:1"><label class="mini">Y</label><input type="range" id="mk-y" min="0" max="95" value="40" style="width:100%"></div></div>
   <button class="primary" id="mk-stamp" type="button" style="width:100%">Stamp text</button>
   <div style="border-top:3px solid var(--k); margin-top:14px; padding-top:12px;">
-    <div class="field"><label>BEFLIX animation composer</label><textarea id="ai-idea" maxlength="1000" placeholder="e.g. a ball crosses a mountain valley, pauses, then dissolves&hellip;" style="width:100%;border:3px solid var(--k);padding:10px;font:11px/1.4 ui-monospace,monospace;height:64px;"></textarea></div>
-    <div class="toolrow"><button id="ai-copy-prompt" type="button">Copy prompt</button><button class="primary" id="ai-go" type="button" style="background:var(--aB);color:var(--k)">Use API</button></div>
-    <textarea id="ai-code" aria-label="BEFLIX animation code" placeholder="Paste or generate CLR / PNT / LIN / REC / SHF commands here" style="width:100%;border:3px solid var(--k);padding:10px;font:10px/1.35 ui-monospace,monospace;height:130px;margin-top:8px"></textarea>
-    <div class="toolrow" style="margin-top:8px"><button id="ai-import" type="button">Import code</button><button id="ai-local" type="button">Local demo</button></div>
-    <p class="note">API keys stay in the Worker. If the API is not configured, copy the full prompt into any model and paste its raw commands here.</p>
+    <div class="field"><label>AI compose &mdash; an animated sequence (a new branch)</label><textarea id="ai-idea" placeholder="e.g. a spiral collapsing, a ball bouncing, rain falling&hellip;" style="width:100%;border:3px solid var(--k);padding:10px;font:11px/1.4 ui-monospace,monospace;height:64px;"></textarea></div>
+    <button class="primary" id="ai-go" type="button" style="width:100%; background:var(--aB); color:var(--k); border-color:var(--k);">Generate sequence onto branch</button>
+    <button id="ai-copy" type="button" style="width:100%;margin-top:8px;">Copy BEFLIX animation prompt</button>
+    <details style="margin-top:10px;"><summary class="mini" style="cursor:pointer">API routing</summary><p class="note">API keys stay in the Cloudflare Worker. Join a room, then use the server composer; without a configured API key the local composer still works.</p></details>
   </div>
   <div style="border-top:3px solid var(--k); margin-top:14px; padding-top:12px;">
     <label class="mini">Bring a face onto this frame</label>
@@ -248,17 +252,17 @@
   </div>
 </div>
 
+<div class="panel" id="panel-branches">
+  <h3 style="color:var(--aA)">Branches &mdash; the writer's room</h3>
+  <p class="note" style="margin-bottom:10px">Every branch tip and who is on it. Tap to jump. Fork from any frame to split a new line.</p>
+  <div id="branch-list"></div>
+</div>
+
 <div class="panel" id="panel-save">
   <h3 style="color:var(--aC)">Capture</h3>
-  <div class="row"><div style="flex:1"><label class="mini" for="frame-label">Shot</label><input id="frame-label" maxlength="32" value="SHOT 01"></div><div style="width:92px"><label class="mini" for="frame-hold">Hold</label><select id="frame-hold" style="width:100%"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>8</option><option>10</option><option>12</option><option>15</option></select></div></div>
-  <div class="field"><label for="frame-note">EDL note</label><input id="frame-note" maxlength="120" placeholder="action, camera, intention"></div>
   <button class="primary" id="cap-frame" type="button" style="width:100%">Save this frame (PNG)</button>
   <button id="cap-sheet" type="button" style="width:100%;margin-top:8px">Save whole film (contact sheet)</button>
   <button id="cap-text" type="button" style="width:100%;margin-top:8px">Copy film as BEFLIX text</button>
-  <button id="cap-beflix" type="button" style="width:100%;margin-top:8px">Download BEFLIX file</button>
-  <button id="cap-video" type="button" style="width:100%;margin-top:8px">Export animated film</button>
-  <button id="cap-project" type="button" style="width:100%;margin-top:8px">Export editable project</button>
-  <button id="cap-import" type="button" style="width:100%;margin-top:8px">Import project</button><input id="project-file" type="file" accept="application/json,.json" hidden>
   <div style="border-top:3px solid var(--k); margin-top:14px; padding-top:12px;">
     <p class="note">Out of sync with the other person? This pushes your film to them.</p>
     <button id="cap-resync" type="button" style="width:100%;margin-top:8px">Resync film to them</button>
@@ -282,6 +286,7 @@
 <nav id="tabbar">
   <button class="tab tCall" id="tab-call" type="button"><b>A</b>Call</button>
   <button class="tab tB" id="tab-make" type="button"><b>B</b>Make</button>
+  <button class="tab tA" id="tab-branches" type="button"><b>&#9094;</b>Branch</button>
   <button class="tab tC" id="tab-save" type="button"><b>C</b>Save</button>
   <button class="tab tD" id="tab-chat" type="button"><b>&equiv;</b>Chat</button>
 </nav>
@@ -295,13 +300,13 @@
     <div id="pane-role">
       <div id="server-mode">
         <p class="note">Share a <strong>room code</strong>. You both enter it; the call connects automatically and reconnects on its own.</p>
-        <div class="field"><label for="room-code">Private room code</label><div class="copy-row"><input id="room-code" type="text" maxlength="64" placeholder="32-character private code" autocomplete="off"><button id="room-gen" type="button">New</button></div></div>
+        <div class="field"><label for="room-code">Room code</label><div class="copy-row"><input id="room-code" type="text" maxlength="64" placeholder="32-character private code" autocomplete="off"><button id="room-gen" type="button">New</button></div></div>
         <div class="row"><button id="room-join" class="primary" type="button" style="flex:1">Join room</button></div>
         <p class="waiting hidden" id="room-wait">Waiting for the other person&hellip;</p>
       </div>
       <details class="relay" id="server-box">
         <summary>Server &amp; reliability</summary>
-        <p class="note">Room codes + reconnect need a signaling server (the included Cloudflare Worker). Paste its URL. The same server can mint relay (TURN) credentials for strict networks. Blank = manual copy-paste.</p>
+        <p class="note">Room codes, reconnect, TURN, and server-side BEFLIX composition use the maintained Cloudflare Worker. The production URL loads automatically; paste a different URL only for local testing.</p>
         <label for="server-url" style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-top:12px;">Server URL</label>
         <input id="server-url" type="text" placeholder="https://operator.YOU.workers.dev" autocomplete="off" style="width:100%;background:var(--w);color:var(--k);border:3px solid var(--k);border-radius:0;padding:10px;font:11px/1.4 ui-monospace,monospace;margin-top:8px;min-height:44px;">
         <div class="relay-state" id="server-state">No server set</div>
@@ -451,7 +456,7 @@ function makeWebRTC(pc,onFrame,isHost){
   var visual=null,control=null;
   function wire(ch){
     if(ch.label==='visual'){ visual=ch; visual.binaryType='arraybuffer'; ch.onmessage=function(e){onFrame(e.data);}; }
-    else if(ch.label==='control'){ control=ch; ch.onmessage=function(e){ onControl(e.data); }; ch.onopen=function(){filmTransportReady();}; }
+    else if(ch.label==='control'){ control=ch; ch.onmessage=function(e){ onControl(e.data); }; }
   }
   if(isHost){ var v=pc.createDataChannel('visual',{ordered:false,maxRetransmits:0}); v.binaryType='arraybuffer'; wire(v); wire(pc.createDataChannel('control',{ordered:true})); }
   else pc.ondatachannel=function(e){wire(e.channel);};
@@ -475,8 +480,16 @@ function onControl(data){
     log('CHAT','recv '+text.length);
     return;
   }
-  if(data.charAt(0)==='F'&&data.charAt(1)===' '){try{receiveFilmMessage(JSON.parse(data.slice(2)));}catch(e){log('FILM','bad message');}return;}
-  if(data.charAt(0)==='P'&&data.charAt(1)===' '){var c=data.slice(2).split(' ');setTheirPen(c[0],parseInt(c[1],10),parseInt(c[2],10));return;}
+  // BRANCHING TREE protocol — node-addressed edits + structure + presence.
+  try{
+  var sp=data.indexOf(' '), op=data.slice(0,sp), rest=data.slice(sp+1);
+  if(op==='F'){ var nl=data.indexOf('\n'); var id=data.slice(2,nl); var lines=data.slice(nl+1).split('\n'); if(nodes[id]){ nodes[id].grid=applyCmds(nodes[id].grid,lines); if(id===myNode)paintBoard(); renderThumb(id); } return; }
+  if(op==='K'){ var pr=rest.split(' '); var par=pr[0], nid=pr[1]; if(nodes[par]&&!nodes[nid]){ mkNode(par,null,nid,'PEER'); } renderStrip(); renderBranches(); return; }
+  if(op==='X'){ delNode(rest); renderStrip(); renderBranches(); paintBoard(); return; }
+  if(op==='C'){ theirNode=rest; renderStrip(); renderBranches(); var tg=document.getElementById('tag-them'); if(tg)tg.textContent=nodes[rest]?('f'+depthOf(rest)):'\u2014'; return; }
+  if(op==='P'){ var c=rest.split(' '); setTheirPen(c[0],parseInt(c[1],10),parseInt(c[2],10)); return; }
+  if(op==='Z'){ loadSnapshot(rest); return; }
+  }catch(e){ log('RECV','bad msg: '+(e&&e.message||e)); }
 }
 function sendChat(){
   var inp=document.getElementById('chat-text'); var text=(inp.value||'').trim();
@@ -570,7 +583,7 @@ function setUIState(name){
   document.getElementById('connect').disabled=(name==='OFFLINE');
   document.getElementById('tag-you').textContent=(name==='CONNECTED')?'live':'self';
 }
-function showRecover(onCall,title){document.getElementById('rec-msg').textContent=title||(onCall?'Lost signal':'Camera stopped');document.getElementById('rec-act').textContent=onCall?'The film remains editable. Reconnecting in the background.':'Press Start to retry.';}
+function showRecover(onCall,title){document.getElementById('rec-msg').textContent=title||(onCall?'Lost signal':'Camera stopped');document.getElementById('rec-act').textContent=onCall?(title?'Network dropped \u2014 restoring automatically\u2026':'Recovering. If frozen, press End.'):'Press Start to retry.';}
 function flashRecover(msg,act){document.getElementById('rec-msg').textContent=msg;document.getElementById('rec-act').textContent=act;var r=document.getElementById('recover');r.style.display='block';setTimeout(function(){if(uiState!=='FROZEN')r.style.display='none';},6000);}
 
 // ==================== STATUS TICK (1Hz bounded) ====================
@@ -596,7 +609,7 @@ document.getElementById('cam').addEventListener('click',function(){
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){flashRecover('No camera API','Use Chrome, Safari, Firefox, or Edge.');return;}
   whereEl.textContent='Starting';
   var vc={width:320,height:240,facingMode:'user'};
-  navigator.mediaDevices.getUserMedia({video:vc,audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true,channelCount:1}}).catch(function(){ return navigator.mediaDevices.getUserMedia({video:vc,audio:false}); }).then(function(s){
+  navigator.mediaDevices.getUserMedia({video:vc,audio:true}).catch(function(){ return navigator.mediaDevices.getUserMedia({video:vc,audio:false}); }).then(function(s){
     stream=s;vid.srcObject=s;capturing=true;
     document.getElementById('cam').textContent='Camera on';document.getElementById('cam').disabled=true;
     var mb=document.getElementById('mic'); if(s.getAudioTracks().length){ mb.disabled=false; mb.textContent='MIC'; } else { mb.textContent='NO MIC'; }
@@ -614,32 +627,36 @@ function relayConfigured(){var raw=(document.getElementById('relay-cfg').value||
 function refreshRelayState(){var r=relayConfigured(),el=document.getElementById('relay-state');if(!r.ok&&r.reason==='none')el.textContent='Direct only';else if(!r.ok)el.textContent='Invalid \u2014 direct only';else if(!r.turn)el.textContent='STUN only (direct)';else el.textContent='Relay ready';}
 document.getElementById('relay-cfg').addEventListener('input',refreshRelayState);
 var SERVER_STORAGE_KEY='beflix.workerUrl',serverInput=document.getElementById('server-url');
-function normalizeServerUrl(value){var raw=(value||'').trim().replace(/\/+$/,'');var secure=/^https:\/\/[A-Za-z0-9.-]+(?::\d+)?(?:\/[^?#]*)?$/.test(raw);var local=/^http:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?(?:\/[^?#]*)?$/.test(raw);return secure||local?raw:'';}
+function normalizeServerUrl(raw){raw=(''+(raw||'')).trim().replace(/\/+$/,'');return /^https:\/\/[^ \t\r\n/]+(?:\/[^ \t\r\n]*)?$/.test(raw)?raw:'';}
 function storedServerUrl(){try{return localStorage.getItem(SERVER_STORAGE_KEY)||'';}catch(e){return '';}}
 function initialServerUrl(){var query='';try{query=new URLSearchParams(location.search).get('server')||'';}catch(e){}var meta=document.querySelector('meta[name="beflix-worker-url"]');return normalizeServerUrl(query)||normalizeServerUrl(storedServerUrl())||normalizeServerUrl(meta&&meta.content);}
-serverInput.value=initialServerUrl();
 function serverUrl(){return normalizeServerUrl(serverInput.value);}
-function refreshServerState(){var raw=(serverInput.value||'').trim(),u=serverUrl(),el=document.getElementById('server-state');if(!raw)el.textContent='No server set \u2014 manual codes only';else if(!u)el.textContent='Use a valid https:// Worker URL';else el.textContent='Shared Worker ready \u2014 room codes enabled';}
-serverInput.addEventListener('input',function(){var u=serverUrl();try{if(u)localStorage.setItem(SERVER_STORAGE_KEY,u);else if(!serverInput.value.trim())localStorage.removeItem(SERVER_STORAGE_KEY);}catch(e){}refreshServerState();});
-refreshServerState();
-function fetchIceServers(){var u=serverUrl();if(u){return fetch(u+'/turn',{headers:{Accept:'application/json'}}).then(function(r){if(!r.ok)throw new Error('TURN endpoint returned '+r.status);return r.json();}).then(function(d){if(d&&Array.isArray(d.iceServers)&&d.iceServers.length){log('TURN','server gave '+d.iceServers.length);return d.iceServers;}return getIceServers();}).catch(function(e){log('TURN','fail '+e.message);return getIceServers();});}return Promise.resolve(getIceServers());}
+var serverHealthTimer=null;
+function refreshServerState(){var raw=(serverInput.value||'').trim(),u=serverUrl(),el=document.getElementById('server-state');if(serverHealthTimer)clearTimeout(serverHealthTimer);if(!raw)el.textContent='No server set \u2014 manual codes only';else if(!u)el.textContent='Use a valid https:// Worker URL';else{el.textContent='Worker URL saved \u2014 checking live capabilities';serverHealthTimer=setTimeout(checkServerHealth,200);}}
+function checkServerHealth(){var u=serverUrl(),el=document.getElementById('server-state');if(!u)return;fetchWithTimeout(u+'/health',{headers:{Accept:'application/json'}},8000).then(function(r){if(!r.ok)throw new Error('health-'+r.status);return r.json();}).then(function(d){var turn=d.turn==='cloudflare'?'Cloudflare TURN':(d.turn==='coturn'?'coturn TURN':'STUN only');var composer=d.composer?'composer live':'composer needs OPENAI_API_KEY';el.textContent='Rooms live \u00b7 '+turn+' \u00b7 '+composer;}).catch(function(e){el.textContent='Worker unreachable \u2014 room codes may fail';log('HEALTH',e.message);});}
+serverInput.value=initialServerUrl();
+serverInput.addEventListener('input',function(){var u=serverUrl();try{if(u)localStorage.setItem(SERVER_STORAGE_KEY,u);else localStorage.removeItem(SERVER_STORAGE_KEY);}catch(e){}refreshServerState();});
+function fetchWithTimeout(url, opts, ms){
+  var ctl=('AbortController' in window)?new AbortController():null;
+  if(ctl)opts=Object.assign({},opts||{},{signal:ctl.signal});
+  var done=false,to=setTimeout(function(){if(!done&&ctl)try{ctl.abort();}catch(e){}},ms||15000);
+  return fetch(url,opts||{}).then(function(r){done=true;clearTimeout(to);return r;},function(e){done=true;clearTimeout(to);if(e&&e.name==='AbortError')throw new Error('request-timeout');throw e;});
+}
+function fetchIceServers(){var u=serverUrl();if(u){return fetchWithTimeout(u+'/turn',{headers:{Accept:'application/json'}},12000).then(function(r){if(!r.ok)throw new Error('TURN endpoint returned '+r.status);return r.json();}).then(function(d){if(d&&Array.isArray(d.iceServers)&&d.iceServers.length){log('TURN','server gave '+d.iceServers.length);return d.iceServers;}return getIceServers();}).catch(function(e){log('TURN','fail '+e.message);return getIceServers();});}return Promise.resolve(getIceServers());}
 
 // ==================== CONNECT + GRACE ====================
 var sheet=document.getElementById('sheet'),pc=null,isHostPeer=false;
-var GRACE_MS=8000,graceTimer=null,restarting=false,recoveryAttempts=0;
+var GRACE_MS=10000,graceTimer=null,restarting=false,recoveryAttempts=0;
 function clearGrace(){if(graceTimer){clearTimeout(graceTimer);graceTimer=null;}}
 function startGrace(){if(graceTimer)return;log('GRACE','start');showRecover(true,'Reconnecting');setUIState('FROZEN');tryIceRestart();graceTimer=setTimeout(function(){graceTimer=null;var st=pc?pc.iceConnectionState:'none';log('GRACE','expired ice='+st);if(st==='connected'||st==='completed')recoverFromGrace();else recoverConnection(true);},GRACE_MS);}
 function recoverFromGrace(){clearGrace();recoveryAttempts=0;log('RECOVER','resuming');setUIState('CONNECTED');detectConnType();}
-function recoverConnection(auto){clearGrace();if(!room.code||!room.peerId){showRecover(true,'Link unavailable');document.getElementById('rec-act').textContent='Manual calls need new offer/answer codes. Your film is safe locally.';return;}if(auto&&recoveryAttempts>=3){showRecover(true,'Editing offline');document.getElementById('rec-act').textContent='Automatic retries paused. Retry when the other person is ready, or export recovery.';return;}recoveryAttempts++;showRecover(true,'Reconnecting '+recoveryAttempts+'/3');try{initializeRoomPeer();if(room.role==='host')maybeStartHostOffer(2);else roomSend({type:'restart'}).catch(function(){});}catch(e){log('RECOVER','rebuild '+e.message);}}
-function tryIceRestart(){if(restarting||!pc||!isHostPeer)return;restarting=true;log('ICE-RESTART','host');try{if(pc.restartIce)pc.restartIce();if(room.code&&room.peerId&&serverUrl()){pc.createOffer({iceRestart:true}).then(function(o){return pc.setLocalDescription(o);}).then(function(){roomSend({type:'offer',sdp:pc.localDescription});if(!room.pollTimer)startRoomPoll();log('ICE-RESTART','re-offer');}).catch(function(e){log('ICE-RESTART','err '+e.message);});}}catch(e){log('ICE-RESTART','err '+e.message);}setTimeout(function(){restarting=false;},GRACE_MS);}
-document.getElementById('rec-retry').addEventListener('click',function(){recoveryAttempts=0;recoverConnection(false);});
-document.getElementById('rec-offline').addEventListener('click',function(){document.getElementById('recover').style.display='none';whereEl.textContent='Offline edit';});
-document.getElementById('rec-export').addEventListener('click',function(){document.getElementById('cap-project').click();});
+function recoverConnection(auto){clearGrace();if(!room.code||!room.peerId||!serverUrl()){document.getElementById('rec-msg').textContent='Lost signal';document.getElementById('rec-act').textContent='Manual calls need fresh codes. Your branch is still editable.';return;}if(auto&&recoveryAttempts>=3){document.getElementById('rec-msg').textContent='Editing offline';document.getElementById('rec-act').textContent='Automatic retries paused. Keep editing, then try Call again.';return;}recoveryAttempts++;showRecover(true,'Reconnecting '+recoveryAttempts+'/3');try{initializeRoomPeer();if(room.role==='host')maybeStartHostOffer(2);else roomSend({type:'restart'}).catch(function(){});if(!room.polling)startRoomPoll();}catch(e){log('RECOVER','rebuild '+e.message);}}
+function tryIceRestart(){if(restarting||!pc)return;restarting=true;if(!isHostPeer&&room.code&&room.peerId&&serverUrl()){roomSend({type:'restart'}).catch(function(){});if(!room.polling)startRoomPoll();log('ICE-RESTART','guest requested host re-offer');setTimeout(function(){restarting=false;},GRACE_MS);return;}if(!isHostPeer){restarting=false;return;}log('ICE-RESTART','host');try{if(pc.restartIce)pc.restartIce();if(room.code&&room.peerId&&serverUrl()){pc.createOffer({iceRestart:true}).then(function(o){return pc.setLocalDescription(o);}).then(function(){return roomSend({type:'offer',sdp:pc.localDescription});}).then(function(){if(!room.polling)startRoomPoll();log('ICE-RESTART','re-offer');}).catch(function(e){log('ICE-RESTART','err '+e.message);});}}catch(e){log('ICE-RESTART','err '+e.message);}setTimeout(function(){restarting=false;},GRACE_MS);}
 function newPeer(asHost,ice){connType='';isHostPeer=!!asHost;clearGrace();var servers=ice||getIceServers();pc=new RTCPeerConnection({iceServers:servers});log('PEER','role='+(asHost?'host':'guest')+' ice='+servers.length);
   // VOICE: send only the AUDIO track (video stays as text). Added before offer/answer so it's in the first SDP.
   if(stream){ var at=stream.getAudioTracks()[0]; if(at){ try{ pc.addTrack(at, stream); log('VOICE','audio track added'); }catch(e){ log('VOICE','addTrack err '+e.message); } } }
   pc.ontrack=function(e){ var a=document.getElementById('rvoice'); if(a&&e.streams&&e.streams[0]){ a.srcObject=e.streams[0]; var pp=a.play&&a.play(); if(pp&&pp.catch)pp.catch(function(){}); log('VOICE','remote audio in'); } };
-  pc.oniceconnectionstatechange=function(){var st=pc.iceConnectionState;log('ICE',st);if(st==='connected'||st==='completed'){recoveryAttempts=0;if(graceTimer){recoverFromGrace();return;}setStep(3);setTimeout(function(){sheet.close();},700);lastSeq=-1;gotRemote=false;lastRxMs=0;startSending();setUIState('CONNECTED');detectConnType();}else if(st==='failed'){clearGrace();setUIState('FROZEN');recoverConnection(true);}else if(st==='disconnected'){if(uiState==='CONNECTED')startGrace();}};
+  pc.oniceconnectionstatechange=function(){var st=pc.iceConnectionState;log('ICE',st);if(st==='connected'||st==='completed'){if(graceTimer){recoverFromGrace();return;}recoveryAttempts=0;setStep(3);setTimeout(function(){sheet.close();},700);lastSeq=-1;gotRemote=false;lastRxMs=0;startSending();setUIState('CONNECTED');detectConnType();}else if(st==='failed'){if(room.code&&room.peerId&&serverUrl())recoverConnection(true);else{clearGrace();var r=relayConfigured();flashRecover('Could not connect',(r.ok&&r.turn)?'Relay could not complete. Codes may be old \u2014 try again.':'Direct failed (strict network). Add a relay, then retry.');}}else if(st==='disconnected'){if(uiState==='CONNECTED')startGrace();}};
   pc.onicegatheringstatechange=function(){log('GATHER',pc.iceGatheringState);};
   return pc;}
 function waitIce(){return new Promise(function(res){if(pc.iceGatheringState==='complete')return res();pc.onicegatheringstatechange=function(){log('GATHER',pc.iceGatheringState);if(pc.iceGatheringState==='complete')res();};setTimeout(res,2500);});}
@@ -650,7 +667,7 @@ function resetSheet(){setStep(1);showPane('pane-role');document.getElementById('
 document.getElementById('connect').addEventListener('click',function(){resetSheet();sheet.showModal();});
 document.getElementById('sh-x').addEventListener('click',function(){sheet.close();cancelPeer();});
 sheet.addEventListener('cancel',function(){cancelPeer();});
-function cancelPeer(){if(pc&&uiState!=='CONNECTED'){leaveRoom();try{pc.close();}catch(e){}pc=null;clearGrace();if(capturing)setUIState('SELF');}}
+function cancelPeer(){if(pc&&uiState!=='CONNECTED'){try{pc.close();}catch(e){}pc=null;clearGrace();leaveRoom();if(capturing)setUIState('SELF');}}
 document.getElementById('be-host').addEventListener('click',function(){setUIState('CONNECTING');setStep(2);showPane('pane-host');document.getElementById('sh-title').textContent='You start';log('ROLE','host(manual)');fetchIceServers().then(function(ice){newPeer(true,ice);link=makeWebRTC(pc,receiveFrame,true);return pc.createOffer().then(function(o){return pc.setLocalDescription(o);}).then(waitIce).then(function(){document.getElementById('host-out').value=JSON.stringify(pc.localDescription);});}).catch(function(e){flashRecover('Setup failed',e.message);});});
 document.getElementById('host-copy').addEventListener('click',function(){copyField('host-out',this);});
 document.getElementById('host-apply').addEventListener('click',function(){var raw=document.getElementById('host-in').value.trim();if(!raw){flashRecover('Nothing to connect','Paste their reply first.');return;}var d;try{d=JSON.parse(raw);}catch(e){flashRecover('Code looks wrong','Copy their whole reply again.');return;}document.getElementById('host-wait').classList.remove('hidden');pc.setRemoteDescription(d).catch(function(e){flashRecover('Could not connect','Reply invalid. Ask them to resend.');});});
@@ -659,26 +676,28 @@ document.getElementById('guest-make').addEventListener('click',function(){var ra
 document.getElementById('guest-copy').addEventListener('click',function(){copyField('guest-out',this);});
 function copyField(id,btn){var ta=document.getElementById(id);ta.select();var done=function(){var o=btn.textContent;btn.textContent='Copied';setTimeout(function(){btn.textContent=o;},1200);};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(ta.value).then(done,function(){try{document.execCommand('copy');done();}catch(e){}});}else{try{document.execCommand('copy');done();}catch(e){}}}
 
-// Continuous signaling against the hardened Worker. Peer leases are renewed by
-// polling; an expired lease rejoins and rebuilds WebRTC without discarding film.
+// Continuous room signaling against the maintained Cloudflare Worker.
+// The old finite poll counter caused rooms to stop renewing their lease. This
+// loop never expires itself; it backs off on network errors and rejoins if the
+// Worker expires this peer.
 var room={code:'',peerId:'',after:0,pollTimer:null,polling:false,role:'',epoch:0,offerStarted:false,ice:null,errors:0,rejoining:false,pendingRemote:[]};
 var POLL_CONNECTING_MS=700,POLL_CONNECTED_MS=2500,POLL_MAX_BACKOFF_MS=10000;
 function roomReset(){if(room.pollTimer)clearTimeout(room.pollTimer);room={code:'',peerId:'',after:0,pollTimer:null,polling:false,role:'',epoch:0,offerStarted:false,ice:null,errors:0,rejoining:false,pendingRemote:[]};}
 document.getElementById('room-gen').addEventListener('click',function(){var bytes=new Uint8Array(16);crypto.getRandomValues(bytes);var token='';for(var i=0;i<bytes.length;i++)token+=('0'+bytes[i].toString(16)).slice(-2);document.getElementById('room-code').value=token;});
-document.getElementById('room-join').addEventListener('click',function(){var u=serverUrl();if(!u){flashRecover('No server set','The production Worker URL should load automatically.');return;}var code=(document.getElementById('room-code').value||'').trim().replace(/[^A-Za-z0-9_-]/g,'');if(code.length<16){flashRecover('Room code too short','Use at least 16 characters, or tap New.');return;}setUIState('CONNECTING');setStep(2);document.getElementById('room-wait').classList.remove('hidden');roomReset();room.code=code;filmPersistenceAvailable=true;joinRoom(false);});
-function joinRoom(recovery){var u=serverUrl(),code=room.code;if(!u||!code)return Promise.reject(new Error('Missing server or room code'));room.rejoining=!!recovery;return fetch(u+'/room/'+encodeURIComponent(code)+'/join',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}).then(function(r){return r.json().then(function(body){if(!r.ok){var error=new Error(body.error||('join-'+r.status));error.status=r.status;throw error;}return body;});}).then(function(j){room.peerId=j.peerId;room.after=j.seq||0;room.role=j.role;room.epoch=j.epoch||1;log('ROOM','joined '+room.role+' ('+j.peers+')');return room.role==='host'?loadPersistedFilm():Promise.resolve();}).then(fetchIceServers).then(function(ice){room.ice=ice;room.rejoining=false;initializeRoomPeer();startRoomPoll();}).catch(function(e){log('ROOM','join err '+e.message);room.rejoining=false;flashRecover('Could not join',e.message==='room-full'?'Room already has two active people.':e.message);if(!recovery)roomReset();});}
+document.getElementById('room-join').addEventListener('click',function(){var u=serverUrl();if(!u){flashRecover('No server set','The production Worker URL should load automatically.');return;}var code=(document.getElementById('room-code').value||'').trim().replace(/[^A-Za-z0-9_-]/g,'');if(code.length<16){flashRecover('Room code too short','Use at least 16 characters, or tap New.');return;}setUIState('CONNECTING');setStep(2);document.getElementById('room-wait').classList.remove('hidden');log('ROOM','joining '+code);roomReset();room.code=code;joinRoom(false);});
+function joinRoom(recovery){var u=serverUrl(),code=room.code;if(!u||!code)return Promise.reject(new Error('Missing server or room code'));room.rejoining=!!recovery;return fetchWithTimeout(u+'/room/'+encodeURIComponent(code)+'/join',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'},15000).then(function(r){return r.json().then(function(body){if(!r.ok){var error=new Error(body.error||('join-'+r.status));error.status=r.status;throw error;}return body;});}).then(function(j){room.peerId=j.peerId;room.after=j.seq||0;room.role=j.role||((j.peers>=2)?'guest':'host');room.epoch=j.epoch||1;log('ROOM','joined '+room.role+' ('+j.peers+')');return fetchIceServers();}).then(function(ice){room.ice=ice;room.rejoining=false;initializeRoomPeer();startRoomPoll();}).catch(function(e){log('ROOM','join err '+e.message);room.rejoining=false;flashRecover('Could not join',e.message==='room-full'?'Room already has two active people.':e.message);if(!recovery)roomReset();});}
 function initializeRoomPeer(){if(pc){try{pc.close();}catch(e){}}var asHost=room.role==='host';room.offerStarted=false;room.pendingRemote=[];newPeer(asHost,room.ice);link=makeWebRTC(pc,receiveFrame,asHost);pc.onicecandidate=function(e){if(e.candidate)roomSend({type:'ice',candidate:e.candidate}).catch(function(){});};}
-function maybeStartHostOffer(peerCount){if(room.role!=='host'||peerCount<2||room.offerStarted||!pc)return Promise.resolve();room.offerStarted=true;return pc.createOffer().then(function(o){return pc.setLocalDescription(o);}).then(function(){return roomSend({type:'offer',sdp:pc.localDescription});}).then(function(){log('ROOM','offer posted after second peer joined');}).catch(function(e){room.offerStarted=false;throw e;});}
-function roomSend(msg){var u=serverUrl();if(!u||!room.code||!room.peerId)return Promise.reject(new Error('Room is not joined'));return fetch(u+'/room/'+encodeURIComponent(room.code)+'/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({peerId:room.peerId,msg:msg})}).then(function(r){if(!r.ok)throw new Error('send-'+r.status);return r.json();});}
+function maybeStartHostOffer(peerCount){if(room.role!=='host'||peerCount<2||room.offerStarted||!pc)return Promise.resolve();room.offerStarted=true;return pc.createOffer().then(function(o){return pc.setLocalDescription(o);}).then(function(){return roomSend({type:'offer',sdp:pc.localDescription});}).then(function(){log('ROOM','offer posted after second peer joined');}).catch(function(error){room.offerStarted=false;log('ROOM','offer failed '+error.message);throw error;});}
+function roomSend(msg){var u=serverUrl();if(!u||!room.code||!room.peerId)return Promise.reject(new Error('Room is not joined'));return fetchWithTimeout(u+'/room/'+encodeURIComponent(room.code)+'/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({peerId:room.peerId,msg:msg})},15000).then(function(r){if(!r.ok)throw new Error('send-'+r.status);return r.json();});}
 function startRoomPoll(){if(room.polling)return;room.polling=true;pollRoom();}
 function scheduleRoomPoll(){if(!room.polling)return;var normal=uiState==='CONNECTED'?POLL_CONNECTED_MS:POLL_CONNECTING_MS;var delay=room.errors?Math.min(POLL_MAX_BACKOFF_MS,normal*Math.pow(2,Math.min(room.errors,4))):normal;room.pollTimer=setTimeout(pollRoom,delay);}
-function pollRoom(){if(!room.polling||!room.peerId)return;var u=serverUrl(),requestedAfter=room.after;fetch(u+'/room/'+encodeURIComponent(room.code)+'/poll?peerId='+encodeURIComponent(room.peerId)+'&after='+requestedAfter).then(function(r){return r.json().then(function(body){if(!r.ok){var error=new Error(body.error||('poll-'+r.status));error.status=r.status;throw error;}return body;});}).then(function(j){room.errors=0;var changed=room.epoch&&j.epoch!==room.epoch,roleChanged=j.role&&j.role!==room.role;if(changed||roleChanged){room.epoch=j.epoch;room.role=j.role;room.after=0;initializeRoomPeer();}return maybeStartHostOffer(j.peers).then(function(){var chain=Promise.resolve();(j.messages||[]).forEach(function(entry){chain=chain.then(function(){return handleSignal(entry.msg);});});return chain.then(function(){if(typeof j.seq==='number')room.after=Math.max(room.after,j.seq);});});}).catch(function(e){log('ROOM','poll err '+e.message);if(e.status===403&&!room.rejoining){room.polling=false;if(room.pollTimer)clearTimeout(room.pollTimer);joinRoom(true);return;}room.errors++;}).then(scheduleRoomPoll);}
-function handleSignal(msg){if(!msg||!msg.type||!pc)return Promise.resolve();if(msg.type==='restart'&&room.role==='host'){room.offerStarted=false;return maybeStartHostOffer(2);}if(msg.type==='offer'){return pc.setRemoteDescription(msg.sdp).then(drainRemoteCandidates).then(function(){return pc.createAnswer();}).then(function(a){return pc.setLocalDescription(a);}).then(function(){return roomSend({type:'answer',sdp:pc.localDescription});});}if(msg.type==='answer'){return pc.setRemoteDescription(msg.sdp).then(drainRemoteCandidates);}if(msg.type==='ice'){if(!pc.remoteDescription||!pc.remoteDescription.type){room.pendingRemote.push(msg.candidate);return Promise.resolve();}return pc.addIceCandidate(msg.candidate).catch(function(){});}return Promise.resolve();}
+function pollRoom(){if(!room.polling||!room.peerId)return;var u=serverUrl(),requestedAfter=room.after;fetchWithTimeout(u+'/room/'+encodeURIComponent(room.code)+'/poll?peerId='+encodeURIComponent(room.peerId)+'&after='+requestedAfter,{headers:{Accept:'application/json'}},15000).then(function(r){return r.json().then(function(body){if(!r.ok){var error=new Error(body.error||('poll-'+r.status));error.status=r.status;throw error;}return body;});}).then(function(j){room.errors=0;var changed=room.epoch&&j.epoch!==room.epoch,roleChanged=j.role&&j.role!==room.role;if(changed||roleChanged){room.epoch=j.epoch;room.role=j.role;room.after=0;initializeRoomPeer();}return maybeStartHostOffer(j.peers).then(function(){var chain=Promise.resolve();(j.messages||[]).forEach(function(entry){chain=chain.then(function(){return handleSignal(entry.msg);});});return chain.then(function(){if(typeof j.seq==='number')room.after=Math.max(room.after,j.seq);});});}).catch(function(e){log('ROOM','poll err '+e.message);if(e.status===403&&!room.rejoining){room.polling=false;if(room.pollTimer)clearTimeout(room.pollTimer);joinRoom(true);return;}room.errors++;}).then(scheduleRoomPoll);}
+function handleSignal(msg){if(!msg||!msg.type||!pc)return Promise.resolve();if(msg.type==='restart'&&room.role==='host'){room.offerStarted=false;return maybeStartHostOffer(2);}if(msg.type==='offer'){log('ROOM','offer recv');return pc.setRemoteDescription(msg.sdp).then(drainRemoteCandidates).then(function(){return pc.createAnswer();}).then(function(a){return pc.setLocalDescription(a);}).then(function(){return roomSend({type:'answer',sdp:pc.localDescription});}).then(function(){log('ROOM','answer posted');}).catch(function(e){log('ROOM','offer err '+e.message);});}if(msg.type==='answer'){log('ROOM','answer recv');return pc.setRemoteDescription(msg.sdp).then(drainRemoteCandidates).catch(function(e){log('ROOM','answer err '+e.message);});}if(msg.type==='ice'){if(!pc.remoteDescription||!pc.remoteDescription.type){room.pendingRemote.push(msg.candidate);return Promise.resolve();}return pc.addIceCandidate(msg.candidate).catch(function(){});}return Promise.resolve();}
 function drainRemoteCandidates(){var queued=room.pendingRemote.splice(0),chain=Promise.resolve();queued.forEach(function(candidate){chain=chain.then(function(){return pc.addIceCandidate(candidate).catch(function(){});});});return chain;}
-function leaveRoom(){if(!room.code||!room.peerId){roomReset();return;}var url=serverUrl()+'/room/'+encodeURIComponent(room.code)+'/leave',body=JSON.stringify({peerId:room.peerId});room.polling=false;if(room.pollTimer)clearTimeout(room.pollTimer);fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:body,keepalive:true}).catch(function(){});roomReset();}
+function leaveRoom(){if(!room.code||!room.peerId){roomReset();return;}var url=serverUrl()+'/room/'+encodeURIComponent(room.code)+'/leave',body=JSON.stringify({peerId:room.peerId});room.polling=false;if(room.pollTimer)clearTimeout(room.pollTimer);fetchWithTimeout(url,{method:'POST',headers:{'Content-Type':'application/json'},body:body,keepalive:true},6000).catch(function(){});roomReset();}
 
 // end call
-document.getElementById('hang').addEventListener('click',function(){log('HANGUP','user');clearGrace();leaveRoom();if(pc){try{pc.close();}catch(e){}pc=null;}link=makeLoopback(function(){});connType='';lastSeq=-1;gotRemote=false;lastRxMs=0;themGrid=null;faceThem.textContent='';document.getElementById('ph-them').classList.remove('hidden');document.getElementById('tag-them').textContent='\u2014';film.remote=-1;theirPen.on=false;renderTimeline();document.getElementById('recover').style.display='none';setUIState('SELF');});
+document.getElementById('hang').addEventListener('click',function(){log('HANGUP','user');clearGrace();leaveRoom();if(pc){try{pc.close();}catch(e){}pc=null;}link=makeLoopback(function(){});connType='';lastSeq=-1;gotRemote=false;lastRxMs=0;themGrid=null;faceThem.textContent='';document.getElementById('ph-them').classList.remove('hidden');document.getElementById('tag-them').textContent='\u2014';theirNode=null;theirPen.on=false;renderStrip();renderBranches();document.getElementById('recover').style.display='none';setUIState('SELF');});
 
 // log panel
 var logsheet=document.getElementById('logsheet');
@@ -693,55 +712,55 @@ function copyText(txt,btn){var done=function(){var o=btn.textContent;btn.textCon
 window.addEventListener('resize',function(){ fitFace(faceYou); fitFace(faceThem); });
 
 /* ============================================================
-   SHARED FILM — the collaborative object. A timeline of BEFLIX
-   frames (128x96, ink 0-7) both peers edit together, like an EDL.
-   Presence shows who is on which frame (Google-Docs style).
-   Film operations use stable frame IDs. Guests submit intents; the host emits
-   an ordered commit stream so simultaneous edits converge. Presence and live
-   pen messages remain transient and never move the other user's playhead.
+   BRANCHING FILM TREE — the shared object is a TREE of frames,
+   not a line. Each node is a 128x96 BEFLIX frame. +Frame extends
+   your branch; FORK splits a new branch from where you stand
+   (git / Twine / Xanadu / writer's room). A path through the tree
+   is a playable film. Different authors hold different branches.
+   Protocol (control channel, frame/node-addressed):
+     F <id>\n<beflix>     edit node id
+     K <parentId> <id>    create child node id under parentId
+     X <id>               delete node id and its subtree
+     C <id>               my cursor is on node id (presence)
+     P <id> <x> <y>       live pen on node id ("-1 -1" hides)
+     Z <payload>          full tree snapshot (host -> joiner)
+   Node ids are unique (time+random); kids kept id-sorted so both
+   peers agree on branch order. Edits on different nodes converge.
    ============================================================ */
-var localActor='p'+Math.random().toString(36).slice(2,10),localOp=0;
-var film={frames:[],remote:-1,playing:false,fps:6,commit:0};
-var myFrame=0,incomingFilm=null,filmVersion=0,persistTimer=null,filmPersistenceAvailable=true;
-var theirPen={frameId:'',x:0,y:0,on:false}; var _penHide=null;
-var localAudioTrack=null;         // (hoisted) set when camera+mic start
+var ME=Math.random().toString(36).slice(2,6).toUpperCase();
+var nodes={};            // id -> { id, grid, parent, kids:[id], author }
+var rootId=null, myNode=null, theirNode=null;
+var theirPen={node:null,x:0,y:0,on:false}; var _penHide=null;
+var branchChoice={};     // nodeId -> childId to follow downstream
+var localAudioTrack=null;
 var board=document.getElementById('board'), bctx=board.getContext('2d');
 
-function filmId(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8);}
-function makeFilmFrame(grid,label){return{id:filmId(),grid:grid?grid.slice():new Uint8Array(N),label:label||('SHOT '+String(film.frames.length+1).padStart(2,'0')),note:'',hold:1};}
-film.frames.push(makeFilmFrame(null,'SHOT 01'));
-function curFrame(){return film.frames[myFrame]||film.frames[0];}
-function curGrid(){ return curFrame().grid; }
-function clampFrame(n){ return n<0?0:n>=film.frames.length?film.frames.length-1:n; }
-function frameIndex(id){for(var i=0;i<film.frames.length;i++)if(film.frames[i].id===id)return i;return-1;}
-function frameById(id){var i=frameIndex(id);return i<0?null:film.frames[i];}
-function sendCtl(m){ if(link&&link.kind==='webrtc') link.sendControl(m); }
-function encodeGrid(grid){var bytes=[],i=0;while(i<grid.length){var v=grid[i],run=1;while(i+run<grid.length&&grid[i+run]===v&&run<255)run++;bytes.push(run,v);i+=run;}var s='';for(i=0;i<bytes.length;i++)s+=String.fromCharCode(bytes[i]);return btoa(s);}
-function decodeGrid(text){var raw=atob(text||''),grid=new Uint8Array(N),at=0;for(var i=0;i+1<raw.length&&at<N;i+=2){var run=raw.charCodeAt(i),v=Math.max(0,Math.min(7,raw.charCodeAt(i+1)));grid.fill(v,at,Math.min(N,at+run));at+=run;}return grid;}
-function filmSnapshot(){return{kind:'state',version:1,fps:film.fps,commit:film.commit,frames:film.frames.map(function(f){return{id:f.id,grid:encodeGrid(f.grid),label:f.label,note:f.note,hold:f.hold};}),hostFrame:curFrame().id};}
-function loadFilmSnapshot(msg){if(!msg||!msg.frames||!msg.frames.length)return false;film.frames=msg.frames.slice(0,48).map(function(f,i){return{id:String(f.id||filmId()).slice(0,64),grid:decodeGrid(f.grid),label:String(f.label||('SHOT '+String(i+1).padStart(2,'0'))).slice(0,32),note:String(f.note||'').slice(0,120),hold:Math.max(1,Math.min(15,parseInt(f.hold,10)||1))};});film.fps=Math.max(1,Math.min(24,parseInt(msg.fps,10)||6));film.commit=parseInt(msg.commit,10)||0;myFrame=Math.max(0,frameIndex(msg.hostFrame));film.remote=-1;paintBoard();renderTimeline();syncEdlFields();log('FILM','state loaded '+film.frames.length+' frames');return true;}
-function filmStorageUrl(){return serverUrl()+'/room/'+encodeURIComponent(room.code)+'/film';}
-function loadPersistedFilm(){if(!room.peerId||room.role!=='host')return Promise.resolve();return fetch(filmStorageUrl()+'?peerId='+encodeURIComponent(room.peerId),{headers:{Accept:'application/json'}}).then(function(r){if(r.status===404){filmPersistenceAvailable=false;return null;}if(!r.ok)throw new Error('film-load-'+r.status);return r.json();}).then(function(body){if(body&&body.film){filmVersion=body.version||0;loadFilmSnapshot(body.film);log('FILM','restored durable version '+filmVersion);}}).catch(function(e){log('FILM','durable restore unavailable '+e.message);});}
-function scheduleFilmPersistence(){if(!filmPersistenceAvailable||!isHostPeer||!room.code||!room.peerId)return;if(persistTimer)clearTimeout(persistTimer);persistTimer=setTimeout(persistFilm,900);}
-function persistFilm(){persistTimer=null;if(!filmPersistenceAvailable||!isHostPeer||!room.code||!room.peerId)return;fetch(filmStorageUrl(),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({peerId:room.peerId,film:filmSnapshot()})}).then(function(r){return r.json().then(function(body){if(!r.ok)throw new Error(body.error||('film-save-'+r.status));return body;});}).then(function(body){filmVersion=body.version||filmVersion;log('FILM','saved durable version '+filmVersion);}).catch(function(e){log('FILM','durable save '+e.message);});}
-function filmSend(msg){sendCtl('F '+JSON.stringify(msg));}
-function filmTransportReady(){if(isHostPeer)sendFilmState();else filmSend({kind:'request'});sendCursor();}
-function sendFilmState(){var snap=filmSnapshot();filmSend({kind:'state-begin',commit:snap.commit,fps:snap.fps,hostFrame:snap.hostFrame,count:snap.frames.length});snap.frames.forEach(function(frame){filmSend({kind:'state-frame',frame:frame});});filmSend({kind:'state-end'});}
-function receiveFilmMessage(msg){if(!msg||!msg.kind)return;if(msg.kind==='presence'){film.remote=frameIndex(msg.frameId);renderTimeline();return;}if(msg.kind==='request'){if(isHostPeer)sendFilmState();return;}if(msg.kind==='state-begin'&&!isHostPeer){incomingFilm={kind:'state',commit:msg.commit||0,fps:msg.fps||6,hostFrame:msg.hostFrame,frames:[]};return;}if(msg.kind==='state-frame'&&!isHostPeer&&incomingFilm){incomingFilm.frames.push(msg.frame);return;}if(msg.kind==='state-end'&&!isHostPeer&&incomingFilm){loadFilmSnapshot(incomingFilm);incomingFilm=null;return;}if(msg.kind==='intent'&&isHostPeer){applyFilmOp(msg.op);film.commit++;filmSend({kind:'commit',seq:film.commit,op:msg.op});scheduleFilmPersistence();return;}if(msg.kind==='commit'&&!isHostPeer){film.commit=Math.max(film.commit,msg.seq||0);applyFilmOp(msg.op);}}
-function submitFilmOp(op){op.id=op.id||(localActor+'-'+(++localOp));op.actor=localActor;if(!link||link.kind!=='webrtc'){applyFilmOp(op);scheduleFilmPersistence();return;}if(isHostPeer){applyFilmOp(op);film.commit++;filmSend({kind:'commit',seq:film.commit,op:op});scheduleFilmPersistence();}else{if(op.type==='patch'||op.type==='meta')applyFilmOp(op);filmSend({kind:'intent',op:op});}}
-function applyFilmOp(op){if(!op||!op.type)return;var f,idx,selected=curFrame()&&curFrame().id,remoteId=film.remote>=0&&film.frames[film.remote]?film.frames[film.remote].id:null;
-  if(op.type==='patch'){f=frameById(op.frameId);if(!f)return;f.grid=applyCmds(f.grid,op.lines||[]);if(f.id===selected)paintBoard();renderThumb(frameIndex(f.id));return;}
-  if(op.type==='meta'){f=frameById(op.frameId);if(!f)return;f.label=String(op.label||f.label).slice(0,32);f.note=String(op.note||'').slice(0,120);f.hold=Math.max(1,Math.min(15,parseInt(op.hold,10)||1));if(f.id===selected)syncEdlFields();renderTimeline();return;}
-  if(op.type==='add'){if(film.frames.length>=48){fireToast('48 frame limit');return;}idx=Math.max(0,Math.min(film.frames.length,parseInt(op.index,10)));var nf=makeFilmFrame(op.grid?decodeGrid(op.grid):null,op.label);nf.id=String(op.frameId||nf.id).slice(0,64);nf.note=String(op.note||'').slice(0,120);nf.hold=Math.max(1,Math.min(15,parseInt(op.hold,10)||1));film.frames.splice(idx,0,nf);myFrame=op.actor===localActor?idx:Math.max(0,frameIndex(selected));film.remote=remoteId?frameIndex(remoteId):-1;selectFilmFrame(myFrame,false);return;}
-  if(op.type==='delete'){idx=frameIndex(op.frameId);if(idx<0||film.frames.length<=1)return;film.frames.splice(idx,1);myFrame=selected===op.frameId?Math.min(idx,film.frames.length-1):Math.max(0,frameIndex(selected));film.remote=remoteId===op.frameId?-1:frameIndex(remoteId);selectFilmFrame(myFrame,false);return;}
-  if(op.type==='replace'){loadFilmSnapshot(op.state);return;}
+// ---- resilient transmit: the missing piece. Never throws if the channel is mid-close. ----
+function sendCtl(m){
+  try{
+    if(link && link.kind==='webrtc' && typeof link.sendControl==='function'){ link.sendControl(m); }
+  }catch(e){ log('SEND','dropped: '+(e&&e.message||e)); }
+}
+// ---- error boundary: wrap any handler so one throw can't take down the room ----
+function guard(fn, label){
+  return function(){ try{ return fn.apply(this, arguments); }
+    catch(e){ log('GUARD', (label||'op')+': '+(e&&e.message||e)); try{ fireToast('Hiccup \u2014 kept going'); }catch(_){} } };
 }
 
-// ---- BEFLIX applicator (data-only, bound-safe): CLR/PNT/LIN onto a grid ----
+function mkId(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+function mkNode(parent, grid, id, author){
+  id=id||mkId(); nodes[id]={id:id,grid:grid||new Uint8Array(N),parent:(parent||null),kids:[],author:author||ME};
+  if(parent&&nodes[parent]){ var k=nodes[parent].kids; k.push(id); k.sort(); }
+  return id;
+}
+rootId=mkNode(null); myNode=rootId;
+function curGrid(){ return nodes[myNode]?nodes[myNode].grid:film0; }
+var film0=new Uint8Array(N);
+
+// ---- BEFLIX applicator (data-only, bound-safe) ----
 function applyCmds(base, lines){
   var g=base?base.slice():new Uint8Array(N), li;
-  for(li=0; li<lines.length; li++){
-    var t=lines[li]; if(!t)continue; var p=t.split(/\s+/), op=p[0];
+  for(li=0; li<lines.length; li++){ var t=lines[li]; if(!t)continue; var p=t.split(/\s+/), op=p[0];
     if(op==='CLR'){ g.fill(clampInk(p[1])); }
     else if(op==='PNT'){ var x=ipt(p[1]),y=ipt(p[2]),w=ipt(p[3]),h=ipt(p[4]),v=clampInk(p[5]); if(w<=0||h<=0||w>W||h>H)continue; var xe=Math.min(W,x+w),ye=Math.min(H,y+h),yy,xx,rb; for(yy=Math.max(0,y);yy<ye;yy++){rb=yy*W;for(xx=Math.max(0,x);xx<xe;xx++)g[rb+xx]=v;} }
     else if(op==='LIN'){ linInto(g, ipt(p[1]),ipt(p[2]),ipt(p[3]),ipt(p[4]), clampInk(p[5])); }
@@ -753,77 +772,102 @@ function clampInk(s){ var v=ipt(s); return v<0?0:v>7?7:v; }
 function linInto(g,x1,y1,x2,y2,v){ var dx=Math.abs(x2-x1),dy=Math.abs(y2-y1),sx=x1<x2?1:-1,sy=y1<y2?1:-1,err=dx-dy,x=x1,y=y1,gu=0; while(gu++<N){ if(x>=0&&x<W&&y>=0&&y<H)g[y*W+x]=v; if(x===x2&&y===y2)break; var e2=2*err; if(e2>-dy){err-=dy;x+=sx;} if(e2<dx){err+=dx;y+=sy;} } }
 function frameToCmds(grid){ var lines=['CLR 0'],y,x; for(y=0;y<H;y++){ x=0; var rb=y*W; while(x<W){ var v=grid[rb+x]; if(v>0){ var sx=x; while(x<W&&grid[rb+x]===v)x++; lines.push('PNT '+sx+' '+y+' '+(x-sx)+' 1 '+v); } else x++; } } return lines; }
 
-// ---- edit a frame (apply + sync) ----
-function draw(lines){if(lines&&lines.length)submitFilmOp({type:'patch',frameId:curFrame().id,lines:lines});}
-function doAdd(){playClack();submitFilmOp({type:'add',index:myFrame+1,frameId:filmId(),label:'SHOT '+String(myFrame+2).padStart(2,'0')});fireToast('Frame added');}
-function doDup(){var f=curFrame();playClack();submitFilmOp({type:'add',index:myFrame+1,frameId:filmId(),grid:encodeGrid(f.grid),label:(f.label+' COPY').slice(0,32),note:f.note,hold:f.hold});fireToast('Frame copied');}
-function doDel(){if(film.frames.length<=1){fireToast('Last frame');return;}playThud();submitFilmOp({type:'delete',frameId:curFrame().id});fireToast('Frame deleted');}
-function selectFilmFrame(n,announce){n=clampFrame(n);myFrame=n;paintBoard();renderTimeline();syncEdlFields();if(announce!==false)sendCursor();}
-function gotoFrame(n){if(clampFrame(n)===myFrame)return;playTick();selectFilmFrame(n,true);}
-function sendCursor(){if(curFrame())filmSend({kind:'presence',frameId:curFrame().id});}
+// ---- paths through the tree ----
+function pathToRoot(id){ var p=[],c=id,gu=0; while(c&&nodes[c]&&gu++<9999){ p.unshift(c); c=nodes[c].parent; } return p; }
+function activePath(){ var up=pathToRoot(myNode), seen={}; up.forEach(function(x){seen[x]=1;}); var c=myNode,gu=0;
+  while(nodes[c]&&nodes[c].kids.length&&gu++<9999){ var pick=branchChoice[c]; if(!pick||!nodes[pick]||nodes[pick].parent!==c) pick=nodes[c].kids[0]; if(seen[pick])break; up.push(pick); seen[pick]=1; c=pick; }
+  return up;
+}
+function leaves(){ var out=[],id; for(id in nodes){ if(!nodes[id].kids.length) out.push(id); } return out; }
+function depthOf(id){ return pathToRoot(id).length; }
+
+// ---- edit a node (apply + sync) ----
+function editNode(id, lines){ if(!lines.length||!nodes[id])return; nodes[id].grid=applyCmds(nodes[id].grid, lines); if(id===myNode)paintBoard(); renderThumb(id); sendCtl('F '+id+'\n'+lines.join('\n')); }
+function draw(lines){ editNode(myNode, lines); }
+
+// ---- structural ops ----
+function extend(){ stopPlay(); playClack(); var id=mkId(); mkNode(myNode,null,id); sendCtl('K '+myNode+' '+id); branchChoice[myNode]=id; myNode=id; renderStrip(); renderBranches(); paintBoard(); sendCursor(); fireToast('Frame added to branch'); }
+function fork(){ stopPlay(); playThud(); var par=nodes[myNode].parent; if(par===null)par=myNode; var id=mkId(); mkNode(par,null,id); sendCtl('K '+par+' '+id); branchChoice[par]=id; myNode=id; renderStrip(); renderBranches(); paintBoard(); sendCursor(); fireToast('Forked a new branch'); }
+function delNode(id){ if(!nodes[id]||id===rootId)return false; var stack=[id],victims={}; while(stack.length){ var c=stack.pop(); victims[c]=1; if(nodes[c]) nodes[c].kids.forEach(function(k){stack.push(k);}); }
+  var par=nodes[id].parent; if(par&&nodes[par]) nodes[par].kids=nodes[par].kids.filter(function(k){return k!==id;});
+  for(var v in victims){ delete nodes[v]; if(branchChoice[v])delete branchChoice[v]; }
+  if(victims[myNode]) myNode=par||rootId; if(victims[theirNode]) theirNode=null; if(theirPen.node&&victims[theirPen.node]) theirPen.on=false;
+  return true;
+}
+function doDel(){ if(myNode===rootId){fireToast('Cannot delete the root');return;} stopPlay(); playThud(); var id=myNode; delNode(id); sendCtl('X '+id); renderStrip(); renderBranches(); paintBoard(); sendCursor(); fireToast('Branch pruned'); }
+function gotoNode(id){ if(!nodes[id]||id===myNode)return; stopPlay(); myNode=id; playTick(); paintBoard(); renderStrip(); renderBranches(); sendCursor(); }
+function cycleBranch(id){ var k=nodes[id]&&nodes[id].kids; if(!k||k.length<2)return; var cur=branchChoice[id]||k[0]; var i=k.indexOf(cur); var nx=k[(i+1)%k.length]; branchChoice[id]=nx; myNode=nx; stopPlay(); playTick(); renderStrip(); renderBranches(); paintBoard(); sendCursor(); fireToast('Switched to branch '+((i+1)%k.length+1)+'/'+k.length); }
+function sendCursor(){ sendCtl('C '+myNode); }
+
+// ---- snapshot (host -> joiner) ----
+function snapshotTree(){ var ids=Object.keys(nodes); var parts=[rootId+'~'+ids.length]; ids.forEach(function(id){ var nd=nodes[id]; parts.push(id+'|'+(nd.parent||'')+'|'+nd.author+'>'+frameToCmds(nd.grid).join('\n')); }); return 'Z '+parts.join('\f'); }
+function loadSnapshot(payload){ var segs=payload.split('\f'); var head=segs[0].split('~'); var newRoot=head[0];
+  var nn={}; for(var i=1;i<segs.length;i++){ var seg=segs[i]; var gt=seg.indexOf('>'); var meta=seg.slice(0,gt).split('|'); var id=meta[0],par=meta[1]||null,au=meta[2]||'?'; var g=applyCmds(new Uint8Array(N), seg.slice(gt+1).split('\n')); nn[id]={id:id,grid:g,parent:par,kids:[],author:au}; }
+  for(var id2 in nn){ var p=nn[id2].parent; if(p&&nn[p]){ nn[p].kids.push(id2); } }
+  for(var id3 in nn){ nn[id3].kids.sort(); }
+  if(!nn[newRoot]){ return; } nodes=nn; rootId=newRoot; if(!nodes[myNode])myNode=rootId; branchChoice={}; renderStrip(); renderBranches(); paintBoard(); log('TREE','snapshot '+Object.keys(nodes).length+' nodes'); }
 
 // ---- presence: their pen ----
-function setTheirPen(frameId,x,y){if(x<0||!frameId){theirPen.on=false;}else{theirPen.frameId=frameId;theirPen.x=x;theirPen.y=y;theirPen.on=true;film.remote=frameIndex(frameId);}if(_penHide)clearTimeout(_penHide);_penHide=setTimeout(function(){theirPen.on=false;paintBoard();renderTimeline();},1600);paintBoard();renderTimeline();}
+function setTheirPen(id,x,y){ if(x<0||!id||!nodes[id]){ theirPen.on=false; } else { theirPen.node=id; theirPen.x=x; theirPen.y=y; theirPen.on=true; } if(_penHide)clearTimeout(_penHide); _penHide=setTimeout(function(){ theirPen.on=false; paintBoard(); renderStrip(); },1600); paintBoard(); renderStrip(); }
 
-/* ---- RENDER current frame as dot-matrix + their cursor ---- */
+/* ---- RENDER ---- */
 var DOTR=[0,0.10,0.20,0.30,0.42,0.55,0.72,0.92];
-function paintBoard(){
-  var grid=curGrid(), any=false;
-  bctx.clearRect(0,0,W,H); bctx.fillStyle='#fff'; bctx.fillRect(0,0,W,H); bctx.fillStyle='#000';
-  for(var y=0;y<H;y++){ var rb=y*W; for(var x=0;x<W;x++){ var v=grid[rb+x]; if(v>0){ any=true; var r=DOTR[v]*0.5; bctx.beginPath(); bctx.arc(x+0.5,y+0.5,Math.max(0.18,r+0.18),0,6.2832); bctx.fill(); } } }
-  if(theirPen.on && theirPen.frameId===curFrame().id){ bctx.fillStyle='#000'; bctx.fillRect(theirPen.x-3,theirPen.y,7,1); bctx.fillRect(theirPen.x,theirPen.y-3,1,7); bctx.strokeStyle='#000'; bctx.lineWidth=0.6; bctx.strokeRect(theirPen.x-4,theirPen.y-4,8,8); }
+function renderGridToBoard(grid){ bctx.clearRect(0,0,W,H); bctx.fillStyle='#fff'; bctx.fillRect(0,0,W,H); bctx.fillStyle='#000'; var any=false; for(var y=0;y<H;y++){ var rb=y*W; for(var x=0;x<W;x++){ var v=grid[rb+x]; if(v>0){ any=true; var r=DOTR[v]*0.5; bctx.beginPath(); bctx.arc(x+0.5,y+0.5,Math.max(0.18,r+0.18),0,6.2832); bctx.fill(); } } } return any; }
+function paintBoard(){ var grid=curGrid(); var any=renderGridToBoard(grid);
+  if(theirPen.on&&theirPen.node===myNode){ bctx.fillStyle='#000'; bctx.fillRect(theirPen.x-3,theirPen.y,7,1); bctx.fillRect(theirPen.x,theirPen.y-3,1,7); bctx.strokeStyle='#000'; bctx.lineWidth=0.6; bctx.strokeRect(theirPen.x-4,theirPen.y-4,8,8); }
   var be=document.getElementById('board-empty'); if(be)be.style.display=any?'none':'flex';
-  var ben=document.getElementById('be-n'); if(ben)ben.textContent=(myFrame+1);
 }
-
-/* ---- TIMELINE: the film + collaborator presence ---- */
 function thumbInto(grid,cv){ var x=cv.getContext('2d'); x.fillStyle='#fff'; x.fillRect(0,0,cv.width,cv.height); x.fillStyle='#000'; for(var gy=0;gy<H;gy+=2){ for(var gx=0;gx<W;gx+=2){ if(grid[gy*W+gx]>0) x.fillRect((gx/W*cv.width)|0,(gy/H*cv.height)|0,1,1); } } }
-function renderTimeline(){
+function renderStrip(){
   var strip=document.getElementById('tl-strip'); if(!strip)return; strip.innerHTML='';
-  for(var i=0;i<film.frames.length;i++){ (function(i){
-    var frame=film.frames[i],cell=document.createElement('div'); cell.className='tlc'+(i===myFrame?' me':'')+(i===film.remote?' them':''); cell.setAttribute('data-idx',i);cell.title=frame.label+' \u00b7 '+frame.note;
-    var cv=document.createElement('canvas'); cv.width=46; cv.height=34; cv.className='tlthumb'; thumbInto(frame.grid,cv); cell.appendChild(cv);
-    var num=document.createElement('span'); num.className='tlnum'; num.textContent=(i+1); cell.appendChild(num);
-    if(frame.hold>1){var hold=document.createElement('span');hold.className='tlhold';hold.textContent='\u00d7'+frame.hold;cell.appendChild(hold);}
-    if(i===film.remote){ var t=document.createElement('span'); t.className='tlthem'+((theirPen.on&&theirPen.frameId===frame.id)?' live':''); t.textContent='THEM'; cell.appendChild(t); }
-    cell.onclick=function(){ gotoFrame(i); };
+  var path=activePath(); var theirInPath=theirNode&&path.indexOf(theirNode)>=0;
+  path.forEach(function(id,idx){
+    var nd=nodes[id]; if(!nd)return;
+    var cell=document.createElement('div'); cell.className='tlc'+(id===myNode?' me':'')+(id===theirNode?' them':''); cell.setAttribute('data-idx',id);
+    var cv=document.createElement('canvas'); cv.width=46; cv.height=34; cv.className='tlthumb'; thumbInto(nd.grid,cv); cell.appendChild(cv);
+    var num=document.createElement('span'); num.className='tlnum'; num.textContent=(idx+1); cell.appendChild(num);
+    if(nd.kids.length>1){ var br=document.createElement('span'); br.className='tlbr'; br.textContent='\u2442'+nd.kids.length; br.onclick=function(e){ e.stopPropagation(); cycleBranch(id); }; cell.appendChild(br); }
+    if(id===theirNode){ var t=document.createElement('span'); t.className='tlthem'+((theirPen.on&&theirPen.node===id)?' live':''); t.textContent='THEM'; cell.appendChild(t); }
+    cell.onclick=function(){ gotoNode(id); };
     strip.appendChild(cell);
-    if(i===myFrame) cell.scrollIntoView({inline:'center',block:'nearest'});
-  })(i); }
-  var ben=document.getElementById('be-n'); if(ben)ben.textContent=(myFrame+1);
-  var cnt=document.getElementById('tl-count'); if(cnt)cnt.textContent=film.frames.length+(film.frames.length>1?' frames':' frame');
+    if(id===myNode)cell.scrollIntoView({inline:'center',block:'nearest'});
+  });
+  var ben=document.getElementById('be-n'); if(ben)ben.textContent=(path.indexOf(myNode)+1);
+  var cnt=document.getElementById('tl-count'); if(cnt)cnt.textContent=path.length+' / '+Object.keys(nodes).length;
+  var note=document.getElementById('tl-note'); if(note) note.style.display=(theirNode&&!theirInPath)?'block':'none';
 }
-function renderThumb(n){ var cell=document.querySelector('#tl-strip .tlc[data-idx="'+n+'"]'); if(cell&&film.frames[n]){ var cv=cell.querySelector('canvas'); if(cv)thumbInto(film.frames[n].grid,cv); } }
-function syncEdlFields(){var f=curFrame();if(!f)return;document.getElementById('frame-label').value=f.label;document.getElementById('frame-note').value=f.note;document.getElementById('frame-hold').value=String(f.hold);}
-function saveEdlFields(){var f=curFrame();if(!f)return;submitFilmOp({type:'meta',frameId:f.id,label:document.getElementById('frame-label').value,note:document.getElementById('frame-note').value,hold:document.getElementById('frame-hold').value});}
+function renderThumb(id){ var cell=document.querySelector('#tl-strip .tlc[data-idx="'+id+'"]'); if(cell){ var cv=cell.querySelector('canvas'); if(cv)thumbInto(nodes[id].grid,cv); } }
 
-/* ---- board sizing ---- */
+/* writer's-room: every branch tip + who is on it */
+function renderBranches(){
+  var box=document.getElementById('branch-list'); if(!box)return; box.innerHTML='';
+  var tips=leaves(); tips.sort(function(a,b){return depthOf(b)-depthOf(a);});
+  var head=document.createElement('div'); head.className='mini'; head.style.marginBottom='8px'; head.textContent=tips.length+' branch'+(tips.length>1?'es':'')+' \u00b7 '+Object.keys(nodes).length+' nodes \u00b7 you are '+ME; box.appendChild(head);
+  tips.forEach(function(tip){
+    var row=document.createElement('button'); row.type='button'; row.className='branch-row'; row.style.cssText='display:flex;width:100%;align-items:center;gap:8px;text-align:left;border:3px solid var(--k);background:var(--w);padding:8px 10px;margin-bottom:6px;box-shadow:3px 3px 0 var(--k);';
+    var onMine=(activePath().indexOf(tip)>=0), onThem=(theirNode&&pathToRoot(theirNode).indexOf(tip)>=0)||tip===theirNode;
+    var cv=document.createElement('canvas'); cv.width=40; cv.height=30; cv.style.cssText='border:2px solid var(--k);flex:0 0 auto;'; thumbInto(nodes[tip].grid,cv); row.appendChild(cv);
+    var info=document.createElement('div'); info.style.cssText='flex:1;min-width:0;';
+    info.innerHTML='<div style="font-size:11px;font-weight:700;text-transform:uppercase;">Branch \u00b7 '+depthOf(tip)+' frames</div><div class="mini" style="opacity:.7">by '+nodes[tip].author+(onMine?' \u00b7 YOU here':'')+(onThem?' \u00b7 THEM here':'')+'</div>';
+    row.appendChild(info);
+    var go=document.createElement('span'); go.style.cssText='font-size:10px;font-weight:700;border:2px solid var(--k);padding:3px 6px;'; go.textContent=onMine?'OPEN':'JOIN'; row.appendChild(go);
+    row.onclick=function(){ gotoNode(tip); closePanels(); };
+    box.appendChild(row);
+  });
+}
+
+/* board sizing */
 function fitBoard(){ var stage=document.getElementById('stage'); if(!stage||!stage.clientWidth)return; var pad=10, sc=Math.max(1,Math.floor(Math.min((stage.clientWidth-pad)/W,(stage.clientHeight-pad)/H))); board.style.width=(W*sc)+'px'; board.style.height=(H*sc)+'px'; var wrap=document.getElementById('board-wrap'); wrap.style.width=(W*sc)+'px'; wrap.style.height=(H*sc)+'px'; }
 
-/* ---- DRAWING on the current frame ---- */
+/* ---- DRAWING on current node ---- */
 var drawTool='pen', drawInk=7, brush=3, drawing=false, lastPt=null, _curTx=0;
 function boardCoord(e){ var r=board.getBoundingClientRect(); if(!r.width)return[0,0]; return [Math.max(0,Math.min(W-1,Math.floor((e.clientX-r.left)/r.width*W))), Math.max(0,Math.min(H-1,Math.floor((e.clientY-r.top)/r.height*H)))]; }
 function brushCmd(x,y,ink){ var s=brush, r=(s/2)|0; return 'PNT '+(x-r)+' '+(y-r)+' '+s+' '+s+' '+ink; }
 function strokeSeg(x0,y0,x1,y1,ink){ var lines=[],dx=Math.abs(x1-x0),dy=Math.abs(y1-y0),sx=x0<x1?1:-1,sy=y0<y1?1:-1,err=dx-dy,x=x0,y=y0,gu=0; while(gu++<2000){ lines.push(brushCmd(x,y,ink)); if(x===x1&&y===y1)break; var e2=2*err; if(e2>-dy){err-=dy;x+=sx;} if(e2<dx){err+=dx;y+=sy;} } return lines; }
-board.addEventListener('pointerdown',function(e){
-  closePanels(); initAudio(); board.setPointerCapture(e.pointerId); drawing=true; var p=boardCoord(e); lastPt=p; playMicroTick();
-  if(drawTool!=='box'){ var ink=drawTool==='erase'?0:drawInk; draw([brushCmd(p[0],p[1],ink)]); sendCtl('P '+curFrame().id+' '+p[0]+' '+p[1]); }
-});
-board.addEventListener('pointermove',function(e){
-  if(!drawing)return; var p=boardCoord(e); var now=performance.now();
-  if(now-_curTx>55){ _curTx=now; sendCtl('P '+curFrame().id+' '+p[0]+' '+p[1]); }
-  if(drawTool==='box')return;
-  var ink=drawTool==='erase'?0:drawInk;
-  if(lastPt&&(lastPt[0]!==p[0]||lastPt[1]!==p[1])){ draw(strokeSeg(lastPt[0],lastPt[1],p[0],p[1],ink)); lastPt=p; }
-});
-board.addEventListener('pointerup',function(e){
-  if(!drawing)return; drawing=false; var p=boardCoord(e);
-  if(drawTool==='box'&&lastPt){ var x0=Math.min(lastPt[0],p[0]),y0=Math.min(lastPt[1],p[1]),x1=Math.max(lastPt[0],p[0]),y1=Math.max(lastPt[1],p[1]);
-    draw(['LIN '+x0+' '+y0+' '+x1+' '+y0+' '+drawInk,'LIN '+x1+' '+y0+' '+x1+' '+y1+' '+drawInk,'LIN '+x1+' '+y1+' '+x0+' '+y1+' '+drawInk,'LIN '+x0+' '+y1+' '+x0+' '+y0+' '+drawInk]); playClack(); }
-  lastPt=null; sendCtl('P '+curFrame().id+' -1 -1');
-});
+board.addEventListener('pointerdown',function(e){ if(playing){stopPlay();return;} closePanels(); initAudio(); board.setPointerCapture(e.pointerId); drawing=true; var p=boardCoord(e); lastPt=p; playMicroTick(); if(drawTool!=='box'){ var ink=drawTool==='erase'?0:drawInk; draw([brushCmd(p[0],p[1],ink)]); sendCtl('P '+myNode+' '+p[0]+' '+p[1]); } });
+board.addEventListener('pointermove',function(e){ if(!drawing)return; var p=boardCoord(e); var now=performance.now(); if(now-_curTx>55){ _curTx=now; sendCtl('P '+myNode+' '+p[0]+' '+p[1]); } if(drawTool==='box')return; var ink=drawTool==='erase'?0:drawInk; if(lastPt&&(lastPt[0]!==p[0]||lastPt[1]!==p[1])){ draw(strokeSeg(lastPt[0],lastPt[1],p[0],p[1],ink)); lastPt=p; } });
+board.addEventListener('pointerup',function(e){ if(!drawing)return; drawing=false; var p=boardCoord(e); if(drawTool==='box'&&lastPt){ var x0=Math.min(lastPt[0],p[0]),y0=Math.min(lastPt[1],p[1]),x1=Math.max(lastPt[0],p[0]),y1=Math.max(lastPt[1],p[1]); draw(['LIN '+x0+' '+y0+' '+x1+' '+y0+' '+drawInk,'LIN '+x1+' '+y0+' '+x1+' '+y1+' '+drawInk,'LIN '+x1+' '+y1+' '+x0+' '+y1+' '+drawInk,'LIN '+x0+' '+y1+' '+x0+' '+y0+' '+drawInk]); playClack(); } lastPt=null; sendCtl('P '+myNode+' -1 -1'); });
 
-/* tool + ink controls (always-visible bar) */
 function setTool(t){ drawTool=t; playTick(); ['pen','box','erase'].forEach(function(k){ var b=document.getElementById('dt-'+k); if(b)b.classList.toggle('on',k===t); }); }
 document.getElementById('dt-pen').addEventListener('click',function(){setTool('pen');});
 document.getElementById('dt-box').addEventListener('click',function(){setTool('box');});
@@ -831,40 +875,21 @@ document.getElementById('dt-erase').addEventListener('click',function(){setTool(
 document.getElementById('brush').addEventListener('input',function(){ brush=parseInt(this.value,10)||3; playMicroTick(); });
 (function buildInk(){ var box=document.getElementById('ink-mini'); for(var v=7;v>=1;v--){ (function(v){ var d=document.createElement('div'); d.className='idot'+(v===drawInk?' on':''); var r=Math.round(DOTR[v]*16); d.style.backgroundImage='radial-gradient(circle,#000 '+r+'%,transparent '+(r+2)+'%)'; d.onclick=function(){ drawInk=v; playTick(); document.querySelectorAll('#ink-mini .idot').forEach(function(el){el.classList.remove('on');}); d.classList.add('on'); }; box.appendChild(d); })(v); } })();
 
-/* frame ops */
-document.getElementById('op-add').addEventListener('click', doAdd);
-document.getElementById('op-dup').addEventListener('click', doDup);
-document.getElementById('op-del').addEventListener('click', doDel);
-document.getElementById('op-play').addEventListener('click',function(){film.playing=!film.playing;this.textContent=film.playing?'Stop':'Play';if(film.playing)playFilmStep();});
-function playFilmStep(){if(!film.playing)return;selectFilmFrame(myFrame,true);setTimeout(function(){if(!film.playing)return;myFrame=(myFrame+1)%film.frames.length;playFilmStep();},Math.max(40,1000/film.fps*(curFrame().hold||1)));}
-document.getElementById('frame-label').addEventListener('change',saveEdlFields);
-document.getElementById('frame-note').addEventListener('change',saveEdlFields);
-document.getElementById('frame-hold').addEventListener('change',saveEdlFields);
+document.getElementById('op-ext').addEventListener('click', guard(extend,'extend'));
+document.getElementById('op-fork').addEventListener('click', guard(fork,'fork'));
+document.getElementById('op-del').addEventListener('click', guard(doDel,'delete'));
 
-/* drop a face onto the current frame */
 document.getElementById('trace-you').addEventListener('click',function(){ if(!youGrid){fireToast('Start camera first');return;} playThud(); draw(frameToCmds(youGrid)); flash(); fireToast('Your face dropped in'); });
 document.getElementById('trace-them').addEventListener('click',function(){ if(!themGrid){fireToast('No one connected');return;} playThud(); draw(frameToCmds(themGrid)); flash(); fireToast('Their face dropped in'); });
 document.getElementById('wipe-frame').addEventListener('click',function(){ playThud(); draw(['CLR 0']); flash(); fireToast('Frame cleared'); });
 
-/* ---- TEXT STAMP onto current frame ---- */
+/* ---- TEXT STAMP ---- */
 var _tcv=document.createElement('canvas'); _tcv.width=W; _tcv.height=H; var _tcx=_tcv.getContext('2d',{willReadFrequently:true});
-function textToCmds(text,size,gx,gy,ink){
-  _tcx.clearRect(0,0,W,H); _tcx.fillStyle='#000'; _tcx.font='900 '+size+'px Helvetica,Arial,sans-serif'; _tcx.textBaseline='top'; _tcx.textAlign='left';
-  var maxW=W-gx, words=(''+text).split(' '), line='', cy=gy, lh=Math.ceil(size*1.15), i;
-  for(i=0;i<words.length;i++){ var test=line?line+' '+words[i]:words[i]; if(_tcx.measureText(test).width>maxW&&line){ _tcx.fillText(line,gx,cy); cy+=lh; line=words[i]; } else line=test; }
-  if(line)_tcx.fillText(line,gx,cy);
-  var px=_tcx.getImageData(0,0,W,H).data, grid=new Uint8Array(N),k; for(k=0;k<N;k++){ if(px[k*4+3]>40)grid[k]=ink; }
-  var lines=[],y,x; for(y=0;y<H;y++){ x=0; var rb=y*W; while(x<W){ var v=grid[rb+x]; if(v>0){ var sx=x; while(x<W&&grid[rb+x]===v)x++; lines.push('PNT '+sx+' '+y+' '+(x-sx)+' 1 '+v); } else x++; } } return lines;
-}
-document.getElementById('mk-stamp').addEventListener('click',function(){
-  var t=(document.getElementById('mk-text').value||'').toUpperCase().trim(); if(!t){fireToast('Type some text');return;}
-  var size=parseInt(document.getElementById('mk-size').value,10)||14, ink=parseInt(document.getElementById('mk-ink').value,10)||7;
-  var gx=parseInt(document.getElementById('mk-x').value,10)||0, gy=parseInt(document.getElementById('mk-y').value,10)||40;
-  playThud(); var cmds=textToCmds(t,size,gx,gy,ink); if(cmds.length){ draw(cmds); fireToast('Text stamped'); } else fireToast('Nothing to stamp');
-});
+function textToCmds(text,size,gx,gy,ink){ _tcx.clearRect(0,0,W,H); _tcx.fillStyle='#000'; _tcx.font='900 '+size+'px Helvetica,Arial,sans-serif'; _tcx.textBaseline='top'; _tcx.textAlign='left'; var maxW=W-gx, words=(''+text).split(' '), line='', cy=gy, lh=Math.ceil(size*1.15), i; for(i=0;i<words.length;i++){ var test=line?line+' '+words[i]:words[i]; if(_tcx.measureText(test).width>maxW&&line){ _tcx.fillText(line,gx,cy); cy+=lh; line=words[i]; } else line=test; } if(line)_tcx.fillText(line,gx,cy); var px=_tcx.getImageData(0,0,W,H).data, grid=new Uint8Array(N),k; for(k=0;k<N;k++){ if(px[k*4+3]>40)grid[k]=ink; } var lines=[],y,x; for(y=0;y<H;y++){ x=0; var rb=y*W; while(x<W){ var v=grid[rb+x]; if(v>0){ var sx=x; while(x<W&&grid[rb+x]===v)x++; lines.push('PNT '+sx+' '+y+' '+(x-sx)+' 1 '+v); } else x++; } } return lines; }
+document.getElementById('mk-stamp').addEventListener('click',function(){ var t=(document.getElementById('mk-text').value||'').toUpperCase().trim(); if(!t){fireToast('Type some text');return;} var size=parseInt(document.getElementById('mk-size').value,10)||14, ink=parseInt(document.getElementById('mk-ink').value,10)||7; var gx=parseInt(document.getElementById('mk-x').value,10)||0, gy=parseInt(document.getElementById('mk-y').value,10)||40; playThud(); var cmds=textToCmds(t,size,gx,gy,ink); if(cmds.length){ draw(cmds); fireToast('Text stamped'); } else fireToast('Nothing to stamp'); });
 
-/* ---- BEFLIX ANIMATION COMPOSER ---- */
-var BEFLIX_SYS=[
+/* ---- AI: generate an ANIMATED SEQUENCE as a branch ---- */
+var ANIM_SYS=[
 'You are a BEFLIX-128 animation composer. You generate frame-by-frame animation code for a 128-wide x 96-tall monochrome dot-matrix grid.',
 'COMMANDS (output ONLY these, one per line):',
 '  CLR v           \u2014 Fill entire grid with intensity v',
@@ -884,53 +909,85 @@ var BEFLIX_SYS=[
 '8. Think cinematically: establish, build, climax, resolve.',
 'OUTPUT: Use C for comment lines. Output ONLY raw BEFLIX code. NO markdown. NO backticks.'
 ].join('\n');
-document.getElementById('ai-copy-prompt').addEventListener('click',function(){var idea=(document.getElementById('ai-idea').value||'[DESCRIBE THE FILM]').trim();copyText(BEFLIX_SYS+'\n\nINPUT: '+idea,this);fireToast('Prompt copied');});
-document.getElementById('ai-go').addEventListener('click',aiCompose);
-document.getElementById('ai-import').addEventListener('click',function(){importBeflix(document.getElementById('ai-code').value);});
-document.getElementById('ai-local').addEventListener('click',function(){var idea=(document.getElementById('ai-idea').value||'moving geometry').trim(),code=localCompose(idea).join('\n')+'\nREC 8\nSHF 2 0 5\nSHF 2 1 5\nSHF 2 0 5\nSHF 2 -1 5\nSHF 2 0 5\nSHF 2 1 5\nSHF 2 0 5';document.getElementById('ai-code').value=code;importBeflix(code);});
-async function aiCompose(){var idea=(document.getElementById('ai-idea').value||'').trim();if(!idea){fireToast('Describe a film');return;}if(!room.code||!room.peerId){fireToast('Join a room or copy prompt');return;}playThud();fireToast('Composing\u2026');try{var res=await fetch(serverUrl()+'/room/'+encodeURIComponent(room.code)+'/compose',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({peerId:room.peerId,idea:idea})});var data=await res.json();if(!res.ok)throw new Error(data.error||('API '+res.status));document.getElementById('ai-code').value=data.code||'';importBeflix(data.code||'');}catch(e){log('AI',e.message);fireToast(e.message==='composer-not-configured'?'API not configured \u2014 copy prompt':'Compose failed');}}
-function shiftGrid(grid,dx,dy){var out=new Uint8Array(N);for(var y=0;y<H;y++)for(var x=0;x<W;x++){var nx=x+dx,ny=y+dy;if(nx>=0&&nx<W&&ny>=0&&ny<H)out[ny*W+nx]=grid[y*W+x];}return out;}
-function importBeflix(code){try{var lines=(code||'').split(/\r?\n/),working=new Uint8Array(N),frames=[],note='',total=0,drawn=false;for(var i=0;i<lines.length;i++){var line=lines[i].trim();if(!line)continue;if(/^C(?:\s|$)/.test(line)){note=line.replace(/^C\s*/, '').slice(0,120);continue;}var p=line.split(/\s+/),op=p[0],nums=p.slice(1).map(Number);if(op==='CLR'&&nums.length===1&&nums[0]>=0&&nums[0]<=7){working=applyCmds(working,[line]);drawn=true;}else if(op==='PNT'&&nums.length===5&&nums[0]>=0&&nums[0]<W&&nums[1]>=0&&nums[1]<H&&nums[2]>0&&nums[3]>0&&nums[0]+nums[2]<=W&&nums[1]+nums[3]<=H&&nums[4]>=0&&nums[4]<=7){working=applyCmds(working,[line]);drawn=true;}else if(op==='LIN'&&nums.length===5&&nums[0]>=0&&nums[0]<W&&nums[2]>=0&&nums[2]<W&&nums[1]>=0&&nums[1]<H&&nums[3]>=0&&nums[3]<H&&nums[4]>=0&&nums[4]<=7){working=applyCmds(working,[line]);drawn=true;}else if(op==='REC'&&nums.length===1&&nums[0]>=1&&nums[0]<=15){frames.push({grid:working.slice(),hold:nums[0],note:note});total+=nums[0];note='';}else if(op==='SHF'&&nums.length===3&&Math.abs(nums[0])<W&&Math.abs(nums[1])<H&&nums[2]>=1&&nums[2]<=15){working=shiftGrid(working,nums[0],nums[1]);frames.push({grid:working.slice(),hold:nums[2],note:note});total+=nums[2];note='';}else throw new Error('Invalid command on line '+(i+1));if(frames.length>48||total>120)throw new Error('Film exceeds 48 states or 120 frames');}if(!frames.length&&drawn){frames.push({grid:working.slice(),hold:1,note:note});total=1;}if(!frames.length)throw new Error('No recorded frames');var state={kind:'state',version:1,fps:6,commit:film.commit+1,frames:frames.map(function(f,j){return{id:filmId(),grid:encodeGrid(f.grid),label:'SHOT '+String(j+1).padStart(2,'0'),note:f.note||'',hold:f.hold};})};state.hostFrame=state.frames[0].id;submitFilmOp({type:'replace',state:state});flash();fireToast('Imported '+frames.length+' states / '+total+' frames');}catch(e){log('BEFLIX',e.message);fireToast(e.message);}}
-function hashStr(s){ var h=2166136261>>>0,i; for(i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=(h+((h<<1)+(h<<4)+(h<<7)+(h<<8)+(h<<24)))>>>0; } return h>>>0; }
-function localCompose(idea){
-  var seed=hashStr(idea.toLowerCase()); function rnd(){ seed=(seed*1664525+1013904223)>>>0; return seed/4294967296; }
-  var lower=idea.toLowerCase(), lines=['CLR '+(rnd()<0.5?0:1)], n=6+Math.floor(rnd()*10);
-  var motif=/spiral|swirl|galaxy/.test(lower)?'spiral':/mountain|hill|peak/.test(lower)?'mountain':/ball|circle|sun|moon|eye|dot|ring/.test(lower)?'rings':/rain|line|stripe|grid|bar/.test(lower)?'lines':'shapes';
-  if(motif==='spiral'){ var cx=64,cy=48,a=0,r=2,i; for(i=0;i<60;i++){ var x=Math.round(cx+Math.cos(a)*r),y=Math.round(cy+Math.sin(a)*r); lines.push('PNT '+x+' '+y+' 3 3 '+(2+(i%6))); a+=0.5; r+=0.7; } }
-  else if(motif==='mountain'){ var m; for(m=0;m<4;m++){ var bx=Math.floor(rnd()*90),pk=20+Math.floor(rnd()*50),bw=30+Math.floor(rnd()*40),v=3+Math.floor(rnd()*5); lines.push('LIN '+bx+' 90 '+((bx+bw/2)|0)+' '+pk+' '+v); lines.push('LIN '+((bx+bw/2)|0)+' '+pk+' '+(bx+bw)+' 90 '+v); } }
-  else if(motif==='rings'){ var ccx=20+Math.floor(rnd()*88),ccy=20+Math.floor(rnd()*56),rr; for(rr=4;rr<40;rr+=5){ var v2=2+(((rr/5)|0)%6),t; for(t=0;t<360;t+=12){ var rad=t*Math.PI/180,px=Math.round(ccx+Math.cos(rad)*rr),py=Math.round(ccy+Math.sin(rad)*rr); lines.push('PNT '+px+' '+py+' 2 2 '+v2); } } }
-  else if(motif==='lines'){ var L; for(L=0;L<n+6;L++){ if(rnd()<0.5){ var yy=Math.floor(rnd()*96); lines.push('LIN 0 '+yy+' 127 '+yy+' '+(2+Math.floor(rnd()*6))); } else { var xx=Math.floor(rnd()*128); lines.push('LIN '+xx+' 0 '+xx+' 95 '+(2+Math.floor(rnd()*6))); } } }
-  else { var s; for(s=0;s<n;s++){ var w=6+Math.floor(rnd()*40),h=6+Math.floor(rnd()*40),x2=Math.floor(rnd()*(128-w)),y2=Math.floor(rnd()*(96-h)),v3=1+Math.floor(rnd()*7); lines.push(rnd()<0.5?('PNT '+x2+' '+y2+' '+w+' '+h+' '+v3):('LIN '+x2+' '+y2+' '+(x2+w)+' '+(y2+h)+' '+v3)); } }
-  return lines;
+function runBeflixAnim(lines){
+  var mat=new Uint8Array(N), frames=[], CAP=120, i;
+  function rect(x,y,w,h,v){ if(w<=0||h<=0)return; var xe=Math.min(W,x+w),ye=Math.min(H,y+h),yy,xx; for(yy=Math.max(0,y);yy<ye;yy++){var rb=yy*W;for(xx=Math.max(0,x);xx<xe;xx++)mat[rb+xx]=v;} }
+  for(i=0;i<lines.length&&frames.length<CAP;i++){ var t=(lines[i]||'').trim(); if(!t||t.charAt(0)==='C'||t.charAt(0)===';')continue; var p=t.split(/\s+/),op=p[0].toUpperCase();
+    if(op==='CLR') mat.fill(clampInk(p[1]));
+    else if(op==='PNT') rect(ipt(p[1]),ipt(p[2]),ipt(p[3]),ipt(p[4]),clampInk(p[5]));
+    else if(op==='LIN') linInto(mat,ipt(p[1]),ipt(p[2]),ipt(p[3]),ipt(p[4]),clampInk(p[5]));
+    else if(op==='REC'){ var n=Math.min(ipt(p[1])||1,CAP),r; for(r=0;r<n&&frames.length<CAP;r++)frames.push(mat.slice()); }
+    else if(op==='SHF'){ var dx=ipt(p[1]),dy=ipt(p[2]),nn=Math.min(ipt(p[3])||1,CAP),f; for(f=0;f<nn&&frames.length<CAP;f++){ var nm=new Uint8Array(N),yy,xx; for(yy=0;yy<H;yy++)for(xx=0;xx<W;xx++){var sx=xx-dx,sy=yy-dy;if(sx>=0&&sx<W&&sy>=0&&sy<H)nm[yy*W+xx]=mat[sy*W+sx];} mat=nm; frames.push(mat.slice()); } }
+  }
+  if(!frames.length)frames.push(mat.slice());
+  return frames;
 }
+function appendSequence(frames){ // chain frames as child nodes from myNode -> a new branch
+  var prev=myNode, first=null;
+  for(var i=0;i<frames.length;i++){ var id=mkId(); mkNode(prev, frames[i], id); sendCtl('K '+prev+' '+id); sendCtl('F '+id+'\n'+frameToCmds(frames[i]).join('\n')); branchChoice[prev]=id; prev=id; if(i===0)first=id; }
+  myNode=prev; renderStrip(); renderBranches(); paintBoard(); sendCursor();
+}
+function fetchT(url, opts, ms){ return fetchWithTimeout(url,opts,ms||60000); }
+function aiViaServer(idea){
+  var u=serverUrl();
+  if(!u)throw new Error('no-server');
+  if(!room.code||!room.peerId)throw new Error('join-room-first');
+  return fetchT(u+'/room/'+encodeURIComponent(room.code)+'/compose',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({peerId:room.peerId,idea:idea})},60000).then(function(r){return r.json().then(function(j){if(!r.ok)throw new Error(j.error||('server '+r.status));return j;});}).then(function(j){ return (j.code||'').split('\n'); });
+}
+function cleanAnim(lines){ return lines.map(function(s){return s.trim();}).filter(function(s){return /^(C|CLR|PNT|LIN|REC|SHF)\b/i.test(s);}); }
+async function aiCompose(){
+  var idea=(document.getElementById('ai-idea').value||'').trim(); if(!idea){fireToast('Describe a sequence');return;}
+  stopPlay(); playThud(); fireToast('Composing sequence\u2026');
+  var lines=null;
+  if(serverUrl()){ try{ lines=cleanAnim(await aiViaServer(idea)); }catch(e){ log('AI','server '+e.message); fireToast(e.message==='join-room-first'?'Join a room for API':'Server composer unavailable'); } }
+  if(!lines||!lines.length){ appendSequence(localComposeAnim(idea)); flash(); fireToast('Local sequence added'); return; }
+  var frames=runBeflixAnim(lines); appendSequence(frames); flash(); fireToast('AI sequence \u00b7 '+frames.length+' frames');
+}
+document.getElementById('ai-go').addEventListener('click', guard(function(){ aiCompose(); },'ai'));
+document.getElementById('ai-copy').addEventListener('click', function(){ var idea=(document.getElementById('ai-idea').value||'').trim(); var full=ANIM_SYS+(idea?('\n\n---\nUSER REQUEST: '+idea+'\n\nGenerate the BEFLIX-128 animation code now.'):''); copyText(full,this); fireToast('Prompt copied'); });
+function hashStr(s){ var h=2166136261>>>0,i; for(i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=(h+((h<<1)+(h<<4)+(h<<7)+(h<<8)+(h<<24)))>>>0; } return h>>>0; }
+function localComposeAnim(idea){ // seeded multi-frame motion (offline)
+  var seed=hashStr(idea.toLowerCase()); function rnd(){ seed=(seed*1664525+1013904223)>>>0; return seed/4294967296; }
+  var lower=idea.toLowerCase(); var lines=[]; var FR=14;
+  var motif=/spiral|swirl|galaxy/.test(lower)?'spiral':/bounce|ball|drop/.test(lower)?'bounce':/rain|fall/.test(lower)?'rain':/grow|bloom|expand|ring|pulse/.test(lower)?'pulse':'sweep';
+  for(var f=0;f<FR;f++){ var tF=f/(FR-1); lines.push('CLR 0');
+    if(motif==='spiral'){ var a=tF*6.5,r,cx=64,cy=48; for(r=2;r<30+tF*14;r+=4){ var x=Math.round(cx+Math.cos(a+r*0.3)*r),y=Math.round(cy+Math.sin(a+r*0.3)*r); lines.push('PNT '+x+' '+y+' 4 4 '+(3+((r/4)|0)%5)); } }
+    else if(motif==='bounce'){ var bx=10+Math.round(tF*100),by=Math.round(20+Math.abs(Math.sin(tF*Math.PI*2))*60); lines.push('PNT '+bx+' '+by+' 12 12 7'); lines.push('LIN 0 90 127 90 3'); }
+    else if(motif==='rain'){ var d; for(d=0;d<14;d++){ var rx=(hashStr(''+d)%128),ry=((hashStr(''+d)>>3)+f*9)%96; lines.push('LIN '+rx+' '+ry+' '+rx+' '+(ry+5)+' '+(2+d%5)); } }
+    else if(motif==='pulse'){ var rad=4+tF*44; var t2; for(t2=0;t2<360;t2+=14){ var rr=t2*Math.PI/180,px=Math.round(64+Math.cos(rr)*rad),py=Math.round(48+Math.sin(rr)*rad*0.75); lines.push('PNT '+px+' '+py+' 3 3 '+(7-((rad/8)|0)%5)); } }
+    else { var sx=Math.round(tF*110); lines.push('PNT '+sx+' 30 16 36 6'); lines.push('LIN '+sx+' 20 '+(sx+16)+' 20 7'); }
+    lines.push('REC 2');
+  }
+  return runBeflixAnim(lines);
+}
+
+/* ---- PLAYBACK: walk the active path as text-video ---- */
+var playing=false, playRAF=null, playList=[], playIdx=0, playLast=0, FPS=8;
+function startPlay(){ playList=activePath(); if(playList.length<2){fireToast('Fork or add frames to play');return;} playing=true; playIdx=0; playLast=performance.now(); document.getElementById('play-btn').textContent='Stop'; document.getElementById('play-btn').classList.add('on'); playStep(); }
+function stopPlay(){ if(!playing)return; playing=false; if(playRAF)cancelAnimationFrame(playRAF); var b=document.getElementById('play-btn'); if(b){b.textContent='Play'; b.classList.remove('on');} paintBoard(); }
+function playStep(){ if(!playing)return; playRAF=requestAnimationFrame(playStep); var now=performance.now(),dur=1000/FPS; if(now-playLast>=dur){ playLast=now-((now-playLast)%dur); var id=playList[playIdx%playList.length]; if(nodes[id])renderGridToBoard(nodes[id].grid); playIdx++; } }
+document.getElementById('play-btn').addEventListener('click',function(){ initAudio(); if(playing)stopPlay(); else startPlay(); });
+document.getElementById('fps').addEventListener('input',function(){ FPS=parseInt(this.value,10)||8; var l=document.getElementById('fps-val'); if(l)l.textContent=FPS; });
 
 /* ---- CAPTURE ---- */
 function renderFrameTo(grid,scale){ var c=document.createElement('canvas'); c.width=W*scale; c.height=H*scale; var x=c.getContext('2d'); x.fillStyle='#fff'; x.fillRect(0,0,c.width,c.height); x.fillStyle='#000'; for(var y=0;y<H;y++){ var rb=y*W; for(var gx=0;gx<W;gx++){ var v=grid[rb+gx]; if(v>0){ var r=DOTR[v]*0.5*scale; x.beginPath(); x.arc(gx*scale+scale/2,y*scale+scale/2,Math.max(0.5,r+scale*0.18),0,6.2832); x.fill(); } } } return c; }
 function dl(canvas,name){ var a=document.createElement('a'); a.download=name; a.href=canvas.toDataURL('image/png'); a.click(); }
-function downloadBlob(blob,name){var a=document.createElement('a');a.download=name;a.href=URL.createObjectURL(blob);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);},2000);}
-function filmToBeflix(){var all=[];for(var i=0;i<film.frames.length;i++){var f=film.frames[i];all.push('C '+f.label+(f.note?' \u2014 '+f.note:''));all=all.concat(frameToCmds(f.grid));all.push('REC '+f.hold);}return all.join('\n');}
-document.getElementById('cap-frame').addEventListener('click',function(){ playThud(); dl(renderFrameTo(curGrid(),8),'operator-frame-'+(myFrame+1)+'.png'); flash(); fireToast('Frame saved'); });
-document.getElementById('cap-sheet').addEventListener('click',function(){playThud();var cols=Math.min(5,film.frames.length),rows=Math.ceil(film.frames.length/cols),cw=W*2,ch=H*2+16,c=document.createElement('canvas');c.width=cols*cw;c.height=rows*ch;var x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.fillStyle='#000';x.font='12px monospace';for(var i=0;i<film.frames.length;i++){var ox=(i%cols)*cw,oy=Math.floor(i/cols)*ch,fc=renderFrameTo(film.frames[i].grid,2);x.drawImage(fc,ox,oy);x.fillText(String(i+1).padStart(2,'0')+'  '+film.frames[i].label+'  x'+film.frames[i].hold,ox+3,oy+ch-3);}dl(c,'operator-film-sheet.png');flash();fireToast('Contact sheet saved');});
-document.getElementById('cap-text').addEventListener('click',function(){playTick();copyText(filmToBeflix(),this);fireToast('Film BEFLIX copied');});
-document.getElementById('cap-beflix').addEventListener('click',function(){downloadBlob(new Blob([filmToBeflix()],{type:'text/plain;charset=utf-8'}),'operator-film.beflix');fireToast('BEFLIX downloaded');});
-document.getElementById('cap-project').addEventListener('click',function(){downloadBlob(new Blob([JSON.stringify(filmSnapshot(),null,2)],{type:'application/json'}),'operator-project.json');fireToast('Editable project saved');});
-document.getElementById('cap-import').addEventListener('click',function(){document.getElementById('project-file').click();});
-document.getElementById('project-file').addEventListener('change',function(){var file=this.files&&this.files[0];if(!file)return;file.text().then(function(text){var data=JSON.parse(text);if(!data.frames||!data.frames.length)throw new Error('Not an Operator project');submitFilmOp({type:'replace',state:data});fireToast('Project imported');}).catch(function(e){log('IMPORT',e.message);fireToast('Project import failed');});this.value='';});
-document.getElementById('cap-video').addEventListener('click',exportAnimatedFilm);
-async function exportAnimatedFilm(){if(!window.MediaRecorder||!HTMLCanvasElement.prototype.captureStream){fireToast('Video export unsupported \u2014 use project');return;}var mime=['video/webm;codecs=vp9','video/webm;codecs=vp8','video/mp4'].filter(function(m){return MediaRecorder.isTypeSupported(m);})[0];if(!mime){fireToast('No video encoder \u2014 use project');return;}var scale=4,c=document.createElement('canvas');c.width=W*scale;c.height=H*scale;var x=c.getContext('2d'),streamOut=c.captureStream(film.fps),chunks=[],rec=new MediaRecorder(streamOut,{mimeType:mime});rec.ondataavailable=function(e){if(e.data&&e.data.size)chunks.push(e.data);};var done=new Promise(function(resolve){rec.onstop=resolve;});rec.start();fireToast('Rendering film\u2026');for(var i=0;i<film.frames.length;i++){x.drawImage(renderFrameTo(film.frames[i].grid,scale),0,0);var track=streamOut.getVideoTracks()[0];if(track&&track.requestFrame)track.requestFrame();await new Promise(function(resolve){setTimeout(resolve,Math.max(40,1000/film.fps*(film.frames[i].hold||1)));});}rec.stop();await done;streamOut.getTracks().forEach(function(t){t.stop();});var ext=mime.indexOf('mp4')>=0?'mp4':'webm';downloadBlob(new Blob(chunks,{type:mime}),'operator-film.'+ext);fireToast('Animated film saved');}
-document.getElementById('cap-resync').addEventListener('click',function(){if(!(link&&link.kind==='webrtc')){fireToast('Not connected');return;}playClack();sendFilmState();sendCursor();fireToast('Film resynced to them');});
+document.getElementById('cap-frame').addEventListener('click',function(){ playThud(); dl(renderFrameTo(curGrid(),8),'operator-frame.png'); flash(); fireToast('Frame saved'); });
+document.getElementById('cap-sheet').addEventListener('click',function(){ playThud(); var path=activePath(); var cols=Math.min(5,path.length),rows=Math.ceil(path.length/cols),cw=W*2,ch=H*2; var c=document.createElement('canvas'); c.width=cols*cw; c.height=rows*ch; var x=c.getContext('2d'); x.fillStyle='#fff'; x.fillRect(0,0,c.width,c.height); path.forEach(function(id,i){ var fc=renderFrameTo(nodes[id].grid,2); x.drawImage(fc,(i%cols)*cw,Math.floor(i/cols)*ch); }); dl(c,'operator-branch-sheet.png'); flash(); fireToast('Branch sheet saved'); });
+document.getElementById('cap-text').addEventListener('click',function(){ playTick(); var path=activePath(),all=[]; path.forEach(function(id,i){ all.push('C FRAME '+(i+1)); all=all.concat(frameToCmds(nodes[id].grid)); all.push('REC 1'); }); copyText(all.join('\n'),this); fireToast('Branch BEFLIX copied'); });
+document.getElementById('cap-resync').addEventListener('click',function(){ if(!(link&&link.kind==='webrtc')){fireToast('Not connected');return;} playClack(); sendCtl(snapshotTree()); sendCursor(); fireToast('Tree resynced to them'); });
 
-/* ---- VOICE (mic toggle) ---- */
+/* ---- VOICE ---- */
 document.getElementById('mic').addEventListener('click',function(){ if(!stream){fireToast('Start camera first');return;} var at=stream.getAudioTracks()[0]; if(!at){fireToast('No microphone');return;} at.enabled=!at.enabled; this.classList.toggle('off',!at.enabled); this.textContent=at.enabled?'MIC':'MUTE'; playTick(); fireToast(at.enabled?'Mic live':'Muted'); });
 
-/* ---- chat (kept, in a panel) ---- */
+/* ---- chat ---- */
 document.getElementById('chat-send').addEventListener('click', sendChat);
 document.getElementById('chat-text').addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); sendChat(); } });
 
-/* ---- NAV: collapsible panels that SHRINK the canvas (never cover it) ---- */
-var PANELS={ 'tab-make':'panel-make', 'tab-save':'panel-save', 'tab-chat':'panel-chat' };
-function closePanels(){ ['panel-make','panel-save','panel-chat'].forEach(function(p){ var el=document.getElementById(p); if(el)el.classList.remove('open'); }); ['tab-make','tab-save','tab-chat'].forEach(function(t){ var b=document.getElementById(t); if(b)b.classList.remove('on'); }); }
-Object.keys(PANELS).forEach(function(tabId){ var b=document.getElementById(tabId); if(!b)return; b.addEventListener('click',function(){ playTick(); var pid=PANELS[tabId]; var pan=document.getElementById(pid); var wasOpen=pan.classList.contains('open'); closePanels(); if(!wasOpen){ pan.classList.add('open'); b.classList.add('on'); if(pid==='panel-chat')document.getElementById('chat-text').focus(); } setTimeout(fitBoard,0); }); });
+/* ---- NAV: panels shrink the canvas ---- */
+var PANELS={ 'tab-make':'panel-make', 'tab-branches':'panel-branches', 'tab-save':'panel-save', 'tab-chat':'panel-chat' };
+function closePanels(){ ['panel-make','panel-branches','panel-save','panel-chat'].forEach(function(p){ var el=document.getElementById(p); if(el)el.classList.remove('open'); }); ['tab-make','tab-branches','tab-save','tab-chat'].forEach(function(t){ var b=document.getElementById(t); if(b)b.classList.remove('on'); }); }
+Object.keys(PANELS).forEach(function(tabId){ var b=document.getElementById(tabId); if(!b)return; b.addEventListener('click',function(){ playTick(); var pid=PANELS[tabId]; var pan=document.getElementById(pid); var wasOpen=pan.classList.contains('open'); closePanels(); if(!wasOpen){ pan.classList.add('open'); b.classList.add('on'); if(pid==='panel-branches')renderBranches(); if(pid==='panel-chat')document.getElementById('chat-text').focus(); } setTimeout(fitBoard,0); }); });
 document.getElementById('tab-call').addEventListener('click',function(){ playTick(); resetSheet(); sheet.showModal(); });
 
 /* ---- SOUND + HAPTICS ---- */
@@ -948,14 +1005,19 @@ document.body.addEventListener('pointerdown', initAudio, { once:true });
 function fireToast(msg){ var t=document.getElementById('toast'); t.textContent=msg; t.classList.add('on'); clearTimeout(fireToast._t); fireToast._t=setTimeout(function(){ t.classList.remove('on'); },1400); }
 function flash(){ var f=document.getElementById('flash'); f.classList.add('on'); setTimeout(function(){ f.classList.remove('on'); },60); }
 
-/* ---- connect: host pushes film snapshot so joiner converges ---- */
+/* ---- connect: host pushes tree snapshot ---- */
 window.addEventListener('resize',function(){ fitFace(faceYou); fitFace(faceThem); fitBoard(); });
-fitBoard(); paintBoard(); renderTimeline(); syncEdlFields();
+fitBoard(); paintBoard(); renderStrip();
 var _origStart=startSending;
-startSending=function(){ _origStart(); setTimeout(function(){ fitBoard(); paintBoard(); renderTimeline(); if(link&&link.kind==='webrtc')filmTransportReady(); },300); };
+startSending=function(){ _origStart(); setTimeout(function(){ fitBoard(); paintBoard(); renderStrip(); if(link&&link.kind==='webrtc'){ if(isHostPeer)sendCtl(snapshotTree()); sendCursor(); } },300); };
+
+// ---- GLOBAL ERROR BOUNDARY: a thrown error degrades to a toast, never a dead room ----
+window.addEventListener('error', function(ev){ try{ log('ERR', (ev.message||'error')+' @'+(ev.lineno||'?')); fireToast('Recovered from an error'); }catch(_){} });
+window.addEventListener('unhandledrejection', function(ev){ try{ log('ERR','promise: '+((ev.reason&&ev.reason.message)||ev.reason||'rejected')); }catch(_){} });
 
 setUIState('OFFLINE');
-log('BOOT','operator film room ready');
+log('BOOT','operator film tree ready \u00b7 '+ME);
+
 
 })();
 </script>

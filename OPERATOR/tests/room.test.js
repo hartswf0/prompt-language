@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
-import { Room } from '../worker.js';
+import { Room, validateBeflix } from '../worker.js';
 
 class MemoryStorage {
   constructor() {
@@ -72,6 +72,18 @@ test('unknown peers cannot send or poll room signaling', async () => {
   assert.equal(poll.status, 403);
 });
 
+test('guest can request a host-led WebRTC restart', async () => {
+  const room = new Room({ storage: new MemoryStorage() }, {});
+  const host = await body(await room.fetch(request('join', { method: 'POST', body: {} })));
+  const guest = await body(await room.fetch(request('join', { method: 'POST', body: {} })));
+  const sent = await room.fetch(request('send', {
+    method: 'POST', body: { peerId: guest.peerId, msg: { type: 'restart' } },
+  }));
+  assert.equal(sent.status, 200);
+  const poll = await body(await room.fetch(request('poll', { query: { peerId: host.peerId, after: host.seq } })));
+  assert.deepEqual(poll.messages[0].msg, { type: 'restart' });
+});
+
 test('remaining guest is promoted when the host leaves', async () => {
   const room = new Room({ storage: new MemoryStorage() }, {});
   const host = await body(await room.fetch(request('join', { method: 'POST', body: {} })));
@@ -130,6 +142,38 @@ test('host persists a bounded film document across room sessions', async () => {
   }));
   assert.equal(removed.status, 200);
   assert.equal(await storage.get('film'), undefined);
+});
+
+test('film persistence accepts BEFLIX pause holds through 15 frames', async () => {
+  const room = new Room({ storage: new MemoryStorage() }, {});
+  const host = await body(await room.fetch(request('join', { method: 'POST', body: {} })));
+  const response = await room.fetch(request('film', {
+    method: 'POST',
+    body: { peerId: host.peerId, film: { frames: [{ id: 'frame-0015', grid: 'Ymxhbms=', label: 'PAUSE', note: '', hold: 15 }] } },
+  }));
+  assert.equal(response.status, 200);
+});
+
+test('BEFLIX composer output is bounded before reaching the browser', () => {
+  const code = Array.from({ length: 8 }, (_, index) => [
+    `C STATE ${index + 1}`,
+    'CLR 0',
+    `PNT ${index * 2} 20 4 4 7`,
+    'REC 5',
+  ].join('\n')).join('\n');
+  assert.equal(validateBeflix(code), code);
+  assert.equal(validateBeflix('CLR 0\nPNT 127 95 8 8 7\nREC 15'), null);
+  assert.equal(validateBeflix('CLR 0\nREC 5'), null);
+});
+
+test('composer endpoint requires a server-side API secret', async () => {
+  const room = new Room({ storage: new MemoryStorage() }, {});
+  const host = await body(await room.fetch(request('join', { method: 'POST', body: {} })));
+  const response = await room.fetch(request('compose', {
+    method: 'POST', body: { peerId: host.peerId, idea: 'a moving square' },
+  }));
+  assert.equal(response.status, 503);
+  assert.equal((await body(response)).error, 'composer-not-configured');
 });
 
 test('client keeps polling and queues ICE received before SDP', async () => {

@@ -26,6 +26,7 @@ new_sqlite_classes = ["Room"]
 [vars]
 ALLOWED_ORIGINS = "https://hartswf0.github.io,http://localhost:8000,http://127.0.0.1:8000"
 TURN_URLS = ""        # coturn only, e.g. "turn:turn.example.com:3478,turns:turn.example.com:5349"
+OPENAI_MODEL = "gpt-5.4-mini"
 
 # ---- Secret (set via CLI, NOT here) ----
 # For self-hosted coturn:
@@ -36,3 +37,6 @@ TURN_URLS = ""        # coturn only, e.g. "turn:turn.example.com:3478,turns:turn
 # For Cloudflare Realtime TURN, leave TURN_URLS empty and set both secrets:
 # npx wrangler secret put CF_TURN_KEY_ID
 # npx wrangler secret put CF_TURN_API_TOKEN
+#
+# For the optional BEFLIX animation composer:
+# npx wrangler secret put OPENAI_API_KEY

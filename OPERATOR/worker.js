@@ -14,7 +14,26 @@ const ROOM_TTL_MS = 15 * 60 * 1000;
 const FILM_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 const PEER_LEASE_MS = 2 * 60 * 1000;
 const TURN_TTL_S = 3600;
-const MESSAGE_TYPES = new Set(['offer', 'answer', 'ice']);
+const COMPOSE_COOLDOWN_MS = 15 * 1000;
+const MESSAGE_TYPES = new Set(['offer', 'answer', 'ice', 'restart']);
+const BEFLIX_COMPOSER_PROMPT = `You are a BEFLIX-128 animation composer. You generate frame-by-frame animation code for a 128-wide x 96-tall monochrome dot-matrix grid.
+COMMANDS (output ONLY these, one per line):
+  CLR v           — Fill entire grid with intensity v
+  PNT x y w h v   — Paint rectangle at (x,y) with width w, height h, intensity v
+  LIN x1 y1 x2 y2 v — Draw line from (x1,y1) to (x2,y2) in intensity v
+  REC n           — Record current grid state as n frames (higher n = longer hold)
+  SHF dx dy n     — Shift all pixels by (dx,dy) and record n frames
+INTENSITY: 0=White(no dot) 1=Tiny dot 2-3=Small 4-5=Medium 6=Large 7=Full black dot
+CINEMATIC RULES:
+1. Build each frame from scratch using CLR then layered PNT/LIN. Do NOT rely only on SHF.
+2. Use REC with VARYING values: REC 1 for fast action, REC 3-5 for holds, REC 8-15 for pauses.
+3. Layer multiple PNT commands per frame for depth. Use intensity variation for shading.
+4. Move objects smoothly: change x,y by small increments (1-4 pixels) for fluid motion.
+5. Use LIN for outlines, contours, and fine details. Use PNT for mass and fills.
+6. At least 8-12 distinct visual states. Total REC should sum to 40-120 frames.
+7. Use intensity gradient: value 1-2 for background haze, 4-5 for midground, 6-7 for foreground detail.
+8. Think cinematically: establish, build, climax, resolve.
+OUTPUT: Use C for comment lines. Output ONLY raw BEFLIX code. NO markdown. NO backticks.`;
 
 function configuredOrigins(env) {
   return (env.ALLOWED_ORIGINS || '')
@@ -81,7 +100,79 @@ function validFilmDocument(value) {
     && frame.note.length <= 120
     && Number.isInteger(frame.hold)
     && frame.hold >= 1
-    && frame.hold <= 12);
+    && frame.hold <= 15);
+}
+
+export function validateBeflix(code) {
+  if (typeof code !== 'string' || code.length < 1 || code.length > 96 * 1024) return null;
+  const lines = code.replace(/^```[^\n]*\n?/i, '').replace(/```\s*$/, '').split(/\r?\n/);
+  if (lines.length > 1200) return null;
+  let states = 0;
+  let duration = 0;
+  const valid = [];
+  for (const source of lines) {
+    const line = source.trim();
+    if (!line) continue;
+    if (/^C(?:\s|$)/.test(line)) {
+      if (line.length > 200) return null;
+      valid.push(line);
+      continue;
+    }
+    let match = line.match(/^CLR\s+([0-7])$/);
+    if (match) { valid.push(line); continue; }
+    match = line.match(/^PNT\s+(-?\d+)\s+(-?\d+)\s+(\d+)\s+(\d+)\s+([0-7])$/);
+    if (match) {
+      const [, x, y, w, h] = match.map(Number);
+      if (x < 0 || x >= 128 || y < 0 || y >= 96 || w < 1 || h < 1 || x + w > 128 || y + h > 96) return null;
+      valid.push(line); continue;
+    }
+    match = line.match(/^LIN\s+(-?\d+)\s+(-?\d+)\s+(-?\d+)\s+(-?\d+)\s+([0-7])$/);
+    if (match) {
+      const [, x1, y1, x2, y2] = match.map(Number);
+      if (x1 < 0 || x1 >= 128 || x2 < 0 || x2 >= 128 || y1 < 0 || y1 >= 96 || y2 < 0 || y2 >= 96) return null;
+      valid.push(line); continue;
+    }
+    match = line.match(/^REC\s+(\d+)$/);
+    if (match) {
+      const hold = Number(match[1]);
+      if (hold < 1 || hold > 15) return null;
+      states += 1; duration += hold; valid.push(line); continue;
+    }
+    match = line.match(/^SHF\s+(-?\d+)\s+(-?\d+)\s+(\d+)$/);
+    if (match) {
+      const dx = Number(match[1]); const dy = Number(match[2]); const hold = Number(match[3]);
+      if (Math.abs(dx) >= 128 || Math.abs(dy) >= 96 || hold < 1 || hold > 15) return null;
+      states += 1; duration += hold; valid.push(line); continue;
+    }
+    return null;
+  }
+  if (states < 8 || states > MAX_FILM_FRAMES || duration < 40 || duration > 120) return null;
+  return valid.join('\n');
+}
+
+function responseOutputText(payload) {
+  if (typeof payload.output_text === 'string') return payload.output_text;
+  return (payload.output || []).flatMap((item) => item.content || [])
+    .filter((part) => part.type === 'output_text' && typeof part.text === 'string')
+    .map((part) => part.text).join('\n');
+}
+
+async function composeBeflix(idea, env) {
+  const response = await fetch('https://api.openai.com/v1/responses', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${env.OPENAI_API_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: env.OPENAI_MODEL || 'gpt-5.4-mini',
+      instructions: BEFLIX_COMPOSER_PROMPT,
+      input: idea,
+      max_output_tokens: 6000,
+      store: false,
+    }),
+  });
+  if (!response.ok) throw new Error(`openai-${response.status}`);
+  const code = validateBeflix(responseOutputText(await response.json()));
+  if (!code) throw new Error('invalid-beflix-output');
+  return code;
 }
 
 function newPeerId() {
@@ -104,6 +195,7 @@ export default {
       return json(request, env, {
         ok: true,
         service: 'beflix-signaling',
+        composer: Boolean(env.OPENAI_API_KEY),
         turn: env.CF_TURN_KEY_ID && env.CF_TURN_API_TOKEN
           ? 'cloudflare'
           : env.TURN_SECRET && env.TURN_URLS
@@ -114,7 +206,7 @@ export default {
 
     if (path.endsWith('/turn') && request.method === 'GET') return handleTurn(request, env);
 
-    const match = path.match(/\/room\/([A-Za-z0-9_-]{16,64})\/(join|send|poll|leave|film)$/);
+    const match = path.match(/\/room\/([A-Za-z0-9_-]{16,64})\/(join|send|poll|leave|film|compose)$/);
     if (match) {
       const id = env.ROOMS.idFromName(match[1]);
       return env.ROOMS.get(id).fetch(request);
@@ -336,6 +428,27 @@ export class Room {
       peer.last = now;
       await this.saveMeta(meta, now);
       return json(request, this.env, { ok: true });
+    }
+
+    if (path.endsWith('/compose') && request.method === 'POST') {
+      if (!this.env.OPENAI_API_KEY) return json(request, this.env, { error: 'composer-not-configured' }, 503);
+      const body = await readJson(request, 16 * 1024);
+      const peer = body && findPeer(meta, body.peerId);
+      if (!peer) return json(request, this.env, { error: 'invalid-peer' }, 403);
+      const idea = typeof body.idea === 'string' ? body.idea.trim() : '';
+      if (!idea || idea.length > 1000) return json(request, this.env, { error: 'bad-idea' }, 400);
+      if (peer.lastCompose && now - peer.lastCompose < COMPOSE_COOLDOWN_MS) {
+        return json(request, this.env, { error: 'compose-rate-limited' }, 429);
+      }
+      peer.lastCompose = now;
+      peer.last = now;
+      await this.saveMeta(meta, now);
+      try {
+        return json(request, this.env, { code: await composeBeflix(idea, this.env) });
+      } catch (error) {
+        console.error('BEFLIX compose failed', error && error.message);
+        return json(request, this.env, { error: 'compose-failed' }, 502);
+      }
     }
 
     if (path.endsWith('/leave') && request.method === 'POST') {

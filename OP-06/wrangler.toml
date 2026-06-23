@@ -1,8 +1,13 @@
-# Archived OP-05 Worker snapshot. Do not deploy this file: production uses
-# ../OPERATOR/wrangler.toml and ../OPERATOR/worker.js.
-# Run Wrangler only from ../OPERATOR.
+# wrangler.toml — OP-06 local Worker snapshot
+#
+# Do not deploy this directory as production. OP-06 is a static GitHub Pages
+# client that talks to the maintained Worker in ../OPERATOR:
+#   https://beflix-call.hartswf0.workers.dev
+#
+# Keeping a different Worker name here prevents an accidental deploy from this
+# experimental folder from overwriting the live beflix-call service.
 
-name = "beflix-call-op05-legacy-do-not-deploy"
+name = "beflix-call-op06-legacy-do-not-deploy"
 main = "worker.js"
 compatibility_date = "2024-09-01"
 

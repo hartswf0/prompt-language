@@ -36,6 +36,12 @@ jobs:
           test -f OP-03/operator-edge.html
           test -f OP-04/operator-studio.html
           test -f OP-04/icaro-flip.html
+          test -f OP-05/operator-studio.html
+          test -f OP-05/README.md
+          test -f OP-06/operator-studio.html
+          test -f OP-06/README.md
+          test -f OP-06/worker.js
+          test -f OP-06/wrangler.toml
           test -f OPERATOR/beflix-call.html
           test -f PRETEXT/icaro-quine/index.html
           test -f PRETEXT/icaro-quine/icaro-quine.js
@@ -59,6 +65,18 @@ jobs:
 
       - name: Test Operator 04 film state
         run: node --test OP-04/tests/film.test.js
+
+      - name: Parse Operator 05 production studio
+        run: node -e 'const fs=require("fs");const h=fs.readFileSync("OP-05/operator-studio.html","utf8");const m=h.match(/<script>([\s\S]*?)<\/script>/);if(!m)throw Error("script missing");new Function(m[1])'
+
+      - name: Test Operator 05 production contracts
+        run: node --test OP-05/tests/studio.test.js
+
+      - name: Parse Operator 06 branch studio
+        run: node -e 'const fs=require("fs");const h=fs.readFileSync("OP-06/operator-studio.html","utf8");const m=h.match(/<script>([\s\S]*?)<\/script>/);if(!m)throw Error("script missing");new Function(m[1])'
+
+      - name: Test Operator 06 branch contracts
+        run: node --test OP-06/tests/studio.test.js
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5

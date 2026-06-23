@@ -24,11 +24,13 @@ No build step or package installation is required. The pages are self-contained 
 | `bcall-03.html` | BEFLIX Call 03 |
 | `bcall-04.html` | BEFLIX Call 04 |
 | `icaro-flip.html` | Icaro Flip — full frame timeline and mobile editing reference |
-| `OP-01/operator.html` | Operator 01 — split face/command quine prototype |
-| `OP-02/operator-edge.html` | Operator 02 — sparse binary edge-codec prototype |
-| `OP-03/operator-edge.html` | Operator 03 — adaptive edge call using the shared hardened Worker |
-| `OP-04/operator-studio.html` | Operator 04 — shared film EDL, synchronized frame edits, presence, and voice |
+| `OP-01/operator.html` | Operator 01 archive — split face/command quine prototype |
+| `OP-02/operator-edge.html` | Operator 02 archive — sparse binary edge-codec prototype |
+| `OP-03/operator-edge.html` | Operator 03 archive — adaptive edge call using the shared hardened Worker |
+| `OP-04/operator-studio.html` | Operator 04 archive — first shared-film EDL, synchronized frame edits, presence, and voice |
 | `OP-04/icaro-flip.html` | Icaro Flip reference colocated with Operator 04 |
+| `OP-05/operator-studio.html` | **Production candidate** — mobile shared-film studio, recovery, BEFLIX animation composition, and portable export |
+| `OP-06/operator-studio.html` | Branch studio — forked timeline preproduction, collaborator presence, voice, real Worker rooms, reconnect, and server-side BEFLIX composition |
 | `OPERATOR/beflix-call.html` | BEFLIX Call Operator — room signaling, reconnect, and chat |
 | `PRETEXT/icaro-quine/index.html` | Icaro Quine — canonical PRETEXT architecture reference |
 
@@ -45,6 +47,12 @@ One repository setting is required before the first deployment:
 3. Push to `main`, or run the **Deploy GitHub Pages** workflow manually.
 
 The deployment URL is `https://hartswf0.github.io/prompt-language/`. The workflow's `github-pages` environment records the exact URL after a successful deployment.
+
+## Operator production architecture
+
+Operator 05 is the maintained production client. Operator 06 is the branch-studio experiment and uses the same maintained Worker. Operator 01–04 remain accessible as design and protocol history, but their local Worker snapshots must not be deployed. The only maintained Cloudflare deployment lives in `OPERATOR/` and serves `https://beflix-call.hartswf0.workers.dev`.
+
+The static page works without a build step. Room signaling, durable project restoration, optional TURN credentials, and optional server-side BEFLIX composition use the Worker. Camera, voice, chat, cursor, and live film operations stay peer-to-peer. If the media link fails, editing continues locally and the project can be exported as JSON for lossless recovery.
 
 ## Prime prompt
 
