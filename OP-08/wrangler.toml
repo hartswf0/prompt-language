@@ -1,0 +1,42 @@
+# wrangler.toml — BEFLIX Call signaling + TURN Worker
+#
+# Deploy steps:
+#   npx wrangler login
+#   npx wrangler deploy
+#
+# Then paste the printed https URL into the app's "Server" box.
+
+name = "beflix-call"
+main = "worker.js"
+compatibility_date = "2026-06-01"
+
+# ---- Durable Object: one instance per room code ----
+[[durable_objects.bindings]]
+name = "ROOMS"
+class_name = "Room"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Room"]
+
+# ---- Variables ----
+# TURN server URLs (comma-separated). Leave empty for STUN-only (direct).
+# If you run your own coturn, or use a provider that gives you a static URL
+# with the REST/HMAC scheme, put the turn: / turns: URLs here.
+[vars]
+ALLOWED_ORIGINS = "https://hartswf0.github.io,http://localhost:8000,http://127.0.0.1:8000"
+TURN_URLS = ""        # coturn only, e.g. "turn:turn.example.com:3478,turns:turn.example.com:5349"
+OPENAI_MODEL = "gpt-5.4-mini"
+
+# ---- Secret (set via CLI, NOT here) ----
+# For self-hosted coturn:
+# npx wrangler secret put TURN_SECRET
+# This is the coturn "static-auth-secret". The Worker derives short-lived
+# per-session credentials from it; the secret itself never reaches the client.
+#
+# For Cloudflare Realtime TURN, leave TURN_URLS empty and set both secrets:
+# npx wrangler secret put CF_TURN_KEY_ID
+# npx wrangler secret put CF_TURN_API_TOKEN
+#
+# For the optional BEFLIX animation composer:
+# npx wrangler secret put OPENAI_API_KEY

@@ -1,5 +1,7 @@
 .DS_Store
 .vscode/
+.wrangler/
+**/.wrangler/
 
 # FMAS22 local fuel/raw artifacts. These are large generated files.
 FMAS22/.venv/
