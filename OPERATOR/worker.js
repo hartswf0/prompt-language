@@ -488,6 +488,17 @@ export class Room {
     if (path.includes('/trig/')) return handleThunderRoom(this, request, meta, now);
 
     if (path.endsWith('/join') && request.method === 'POST') {
+      const body = await readJson(request, 2048);
+      const intent = body && (body.intent === 'host' || body.intent === 'guest') ? body.intent : '';
+      if (body && body.reset === true && intent === 'host') {
+        meta.peers = [];
+        meta.seq = 0;
+        meta.epoch += 1;
+        await this.state.storage.delete('msgs');
+      }
+      if (intent === 'guest' && meta.peers.length === 0) {
+        return json(request, this.env, { error: 'host-not-ready' }, 409);
+      }
       if (meta.peers.length >= 2) return json(request, this.env, { error: 'room-full' }, 409);
       const peer = {
         id: newPeerId(),

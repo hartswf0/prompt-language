@@ -56,6 +56,47 @@ test('second peer receives an offer created after it joins', async () => {
   assert.deepEqual(poll.messages[0].msg, offer);
 });
 
+test('guest intent cannot become host before the host joins', async () => {
+  const room = new Room({ storage: new MemoryStorage() }, {});
+  const response = await room.fetch(request('join', {
+    method: 'POST',
+    body: { intent: 'guest' },
+  }));
+  assert.equal(response.status, 409);
+  assert.equal((await body(response)).error, 'host-not-ready');
+
+  const host = await body(await room.fetch(request('join', {
+    method: 'POST',
+    body: { intent: 'host', reset: true },
+  })));
+  assert.equal(host.role, 'host');
+
+  const guest = await body(await room.fetch(request('join', {
+    method: 'POST',
+    body: { intent: 'guest' },
+  })));
+  assert.equal(guest.role, 'guest');
+});
+
+test('host reset clears stale peers before joining permanent room', async () => {
+  const storage = new MemoryStorage();
+  const room = new Room({ storage }, {});
+  await room.fetch(request('join', { method: 'POST', body: {} }));
+  await room.fetch(request('join', { method: 'POST', body: {} }));
+
+  const full = await room.fetch(request('join', { method: 'POST', body: {} }));
+  assert.equal(full.status, 409);
+  assert.equal((await body(full)).error, 'room-full');
+
+  const resetHost = await body(await room.fetch(request('join', {
+    method: 'POST',
+    body: { intent: 'host', reset: true },
+  })));
+  assert.equal(resetHost.role, 'host');
+  assert.equal(resetHost.peers, 1);
+  assert.ok(resetHost.epoch > 1);
+});
+
 test('unknown peers cannot send or poll room signaling', async () => {
   const room = new Room({ storage: new MemoryStorage() }, {});
   await room.fetch(request('join', { method: 'POST', body: {} }));
