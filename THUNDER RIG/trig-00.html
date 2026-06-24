@@ -88,10 +88,16 @@ body{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;color:#ff
 .mini-btn:active { background:#fff; color:#000; }
 
 /* ---- MULTIPLAYER MODAL ---- */
-#mp-modal { position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); z-index:100; background:#000e; border:1px solid #f97316; padding:24px; width:min(320px, 90vw); display:none; flex-direction:column; gap:16px; box-shadow:0 10px 40px rgba(0,0,0,0.8); border-radius:4px; text-align:center; }
+#mp-modal { position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); z-index:100; background:#000e; border:1px solid #f97316; padding:24px; width:min(380px, 94vw); max-height:90vh; overflow:auto; display:none; flex-direction:column; gap:16px; box-shadow:0 10px 40px rgba(0,0,0,0.8); border-radius:4px; text-align:center; }
 #mp-modal.show { display:flex; }
 #mp-room-input { text-align:center; padding:12px; font-family:inherit; background:#111; color:#fff; border:1px solid #444; font-size:16px; font-weight:bold; text-transform:uppercase; letter-spacing:0.2em; outline:none; }
 #mp-link-output { width:100%; min-height:46px; padding:8px; font-family:inherit; background:#050505; color:#f97316; border:1px solid #333; font-size:9px; resize:none; user-select:text; -webkit-user-select:text; }
+#mp-chat-log { height:110px; overflow:auto; background:#050505; border:1px solid #333; color:#ddd; text-align:left; padding:8px; font-size:10px; line-height:1.35; user-select:text; -webkit-user-select:text; }
+.mp-chat-line { margin-bottom:5px; overflow-wrap:anywhere; }
+.mp-chat-name { color:#f97316; font-weight:700; }
+.mp-chat-self .mp-chat-name { color:#19e6c8; }
+#mp-chat-row { display:flex; gap:8px; }
+#mp-chat-input { flex:1; min-width:0; background:#080808; border:1px solid #444; color:#fff; padding:8px; font-family:inherit; font-size:11px; outline:none; user-select:text; -webkit-user-select:text; }
 
 /* ---- API MANAGER MODAL ---- */
 #api-modal { position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); z-index:101; background:#000f; border:1px solid #ff2e2e; padding:18px; width:min(440px, 94vw); max-height:88vh; overflow:auto; display:none; flex-direction:column; gap:12px; box-shadow:0 10px 40px rgba(0,0,0,0.85); border-radius:4px; }
@@ -406,6 +412,11 @@ h1{font-size:clamp(40px,12vw,72px);letter-spacing:-.02em;font-weight:700;line-he
         <button class="mini-btn" id="btn-mp-copy" style="flex:1; border-color:#f97316; color:#f97316; height:30px;">COPY LINK</button>
         <button class="mini-btn" id="btn-mp-leave" style="flex:1; border-color:#ff2e2e; color:#ff2e2e; height:30px;">LEAVE</button>
     </div>
+    <div id="mp-chat-log" aria-live="polite"></div>
+    <div id="mp-chat-row">
+        <input id="mp-chat-input" type="text" placeholder="ROOM CHAT" maxlength="220" autocomplete="off" spellcheck="false">
+        <button class="mini-btn" id="btn-mp-chat-send" style="border-color:#f97316; color:#f97316; height:34px;">SEND</button>
+    </div>
     <button class="mini-btn" id="btn-mp-close" style="border-color:#ff2e2e; color:#ff2e2e; height:24px; margin-top:8px;">CLOSE</button>
 </div>
 
@@ -554,13 +565,22 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 // --- CLOUDFLARE MULTIPLAYER + ROOM AI ---
 const WORKER_URL = (document.querySelector('meta[name="thunder-worker-url"]')?.content || 'https://beflix-call.hartswf0.workers.dev').replace(/\/+$/, '');
+const ROOM_STATE_MS = 90;
+const ROOM_POLL_MS = 120;
+const ROOM_RETRY_MS = 700;
+const ROOM_SNAPSHOT_MS = 3500;
+const REMOTE_CAR_LERP = 14;
+const REMOTE_BALL_LERP = 10;
 let currentRoom = null, currentPeerId = null, currentRole = '', currentRoomSeq = 0, roomPolling = false, roomPollTimer = null;
-let remoteCars = {}, remotePeers = {}, lastSync = 0, lastSnapshotCheck = 0, lastSnapshotJson = '', applyingRemoteSnapshot = false;
+let remoteCars = {}, remoteTargets = {}, remotePeers = {}, remoteBallTarget = null, lastSync = 0, lastSnapshotCheck = 0, lastSnapshotJson = '', applyingRemoteSnapshot = false, stateSendPending = false;
 let roomAIOffers = {}, pendingAIRequests = new Map();
 
 function thunderRoomUrl(room, op) { return `${WORKER_URL}/trig/${encodeURIComponent(room)}/${op}`; }
 function playerName() { return (localStorage.getItem('trig.playerName') || 'PLAYER-' + Math.random().toString(36).slice(2, 5).toUpperCase()).slice(0, 24); }
 function cssHexColor(hex) { return '#' + (hex >>> 0).toString(16).padStart(6, '0').slice(-6); }
+function roundedNumber(value, places = 3) { return Number(Number(value || 0).toFixed(places)); }
+function compactVec3(vector) { return [roundedNumber(vector.x), roundedNumber(vector.y), roundedNumber(vector.z)]; }
+function compactQuat(quat) { return [roundedNumber(quat.x, 4), roundedNumber(quat.y, 4), roundedNumber(quat.z, 4), roundedNumber(quat.w, 4)]; }
 function normalizeRoomCode(raw) {
     raw = (raw || '').trim();
     try {
@@ -641,7 +661,7 @@ async function leaveRoom() {
     const oldRoom = currentRoom, oldPeer = currentPeerId;
     currentRoom = null; currentPeerId = null; currentRole = ''; currentRoomSeq = 0;
     Object.values(remoteCars).forEach(car => scene.remove(car));
-    remoteCars = {}; remotePeers = {}; roomAIOffers = {}; pendingAIRequests.clear();
+    remoteCars = {}; remoteTargets = {}; remotePeers = {}; remoteBallTarget = null; roomAIOffers = {}; pendingAIRequests.clear();
     setRoomStatus('NOT CONNECTED', '#aaa');
     document.getElementById('mp-link-output').value = '';
     if (oldRoom && oldPeer) {
@@ -654,20 +674,34 @@ async function leaveRoom() {
 }
 function pollRoom() {
     if (!roomPolling || !currentRoom || !currentPeerId) return;
-    fetchJson(thunderRoomUrl(currentRoom, 'poll') + `?peerId=${encodeURIComponent(currentPeerId)}&after=${currentRoomSeq}`, {}, 15000)
+    let nextDelay = ROOM_POLL_MS;
+    fetchJson(thunderRoomUrl(currentRoom, 'poll') + `?peerId=${encodeURIComponent(currentPeerId)}&after=${currentRoomSeq}`, {}, 6000)
         .then(data => {
             currentRoomSeq = Math.max(currentRoomSeq, data.seq || currentRoomSeq);
             remotePeers = {}; (data.peers || []).forEach(p => { remotePeers[p.id] = p; });
-            (data.messages || []).forEach(handleRoomMessage);
+            Object.keys(remoteCars).forEach(peerId => {
+                if (!remotePeers[peerId]) {
+                    scene.remove(remoteCars[peerId]);
+                    delete remoteCars[peerId];
+                    delete remoteTargets[peerId];
+                }
+            });
+            const latestStateByPeer = new Map();
+            (data.messages || []).forEach(entry => {
+                if (entry?.msg?.type === 'state') latestStateByPeer.set(entry.from, entry);
+                else handleRoomMessage(entry);
+            });
+            latestStateByPeer.forEach(handleRoomMessage);
             setRoomStatus(`${currentRole.toUpperCase()} · ${currentRoom} · ${(data.peers || []).length}/8`, '#00ff88');
         })
-        .catch(err => { console.warn('room poll failed', err); setRoomStatus('ROOM RETRYING...', '#ffd23f'); })
-        .finally(() => { if (roomPolling) roomPollTimer = setTimeout(pollRoom, 300); });
+        .catch(err => { nextDelay = ROOM_RETRY_MS; console.warn('room poll failed', err); setRoomStatus('ROOM RETRYING...', '#ffd23f'); })
+        .finally(() => { if (roomPolling) roomPollTimer = setTimeout(pollRoom, nextDelay); });
 }
 function handleRoomMessage(entry) {
     const msg = entry && entry.msg;
     if (!msg || !msg.type) return;
     if (msg.type === 'state') return applyRemoteState(entry.from, msg);
+    if (msg.type === 'chat') return addChatLine(msg.name || remotePeers[entry.from]?.name || 'PLAYER', msg.text || '', false);
     if (msg.type === 'snapshot') return fetchRoomSnapshot(msg.version);
     if (msg.type === 'ai-status') { roomAIOffers[entry.from] = { ...msg, seenAt: Date.now() }; updateAIStatus(); return; }
     if (msg.type === 'ai-request') return handleRoomAIRequest(entry.from, msg);
@@ -678,11 +712,50 @@ function applyRemoteState(peerId, msg) {
     const peer = remotePeers[peerId] || {};
     if (!remoteCars[peerId]) remoteCars[peerId] = buildCar(Number.parseInt((msg.color || peer.color || '#ff2e2e').replace('#', ''), 16) || 0xff2e2e);
     const car = remoteCars[peerId];
-    if (Array.isArray(msg.pos)) car.position.fromArray(msg.pos);
-    if (Array.isArray(msg.rot)) car.quaternion.fromArray(msg.rot);
+    const target = remoteTargets[peerId] || {
+        pos: car.position.clone(),
+        quat: car.quaternion.clone(),
+        lastSeen: performance.now(),
+        ready: false
+    };
+    if (Array.isArray(msg.pos)) target.pos.fromArray(msg.pos);
+    if (Array.isArray(msg.rot)) target.quat.fromArray(msg.rot);
+    target.lastSeen = performance.now();
+    if (!target.ready) {
+        car.position.copy(target.pos);
+        car.quaternion.copy(target.quat);
+        target.ready = true;
+    }
+    remoteTargets[peerId] = target;
     if (msg.role === 'host' && msg.ball && Array.isArray(msg.ball.pos) && Array.isArray(msg.ball.vel)) {
-        B.pos.fromArray(msg.ball.pos);
-        B.vel.fromArray(msg.ball.vel);
+        remoteBallTarget = {
+            pos: new THREE.Vector3().fromArray(msg.ball.pos),
+            vel: new THREE.Vector3().fromArray(msg.ball.vel),
+            lastSeen: performance.now()
+        };
+    }
+}
+function updateRemoteInterpolation(dt) {
+    const now = performance.now();
+    const carAlpha = 1 - Math.exp(-REMOTE_CAR_LERP * dt);
+    Object.entries(remoteTargets).forEach(([peerId, target]) => {
+        const car = remoteCars[peerId];
+        if (!car) return;
+        if (now - target.lastSeen > 8000) {
+            scene.remove(car);
+            delete remoteCars[peerId];
+            delete remoteTargets[peerId];
+            return;
+        }
+        car.position.lerp(target.pos, carAlpha);
+        car.quaternion.slerp(target.quat, carAlpha);
+    });
+    if (remoteBallTarget && currentRole !== 'host' && now - remoteBallTarget.lastSeen < 3000) {
+        const ballAlpha = 1 - Math.exp(-REMOTE_BALL_LERP * dt);
+        B.pos.lerp(remoteBallTarget.pos, ballAlpha);
+        B.vel.lerp(remoteBallTarget.vel, ballAlpha);
+        ballMesh.position.copy(B.pos);
+        ballEdge.position.copy(B.pos);
     }
 }
 function currentRoomSnapshot() {
@@ -717,22 +790,49 @@ async function fetchRoomSnapshot(version = 0) {
 }
 function syncRoomState(now) {
     if (!currentRoom || !currentPeerId) return;
-    if (now - lastSync > 100) {
+    if (now - lastSync > ROOM_STATE_MS && !stateSendPending) {
         lastSync = now;
+        stateSendPending = true;
         roomSend({
             type: 'state',
             role: currentRole,
             color: cssHexColor(localColor),
-            pos: playerCar.position.toArray(),
-            rot: playerCar.quaternion.toArray(),
-            ball: currentRole === 'host' ? { pos: B.pos.toArray(), vel: B.vel.toArray() } : null
-        });
+            pos: compactVec3(playerCar.position),
+            rot: compactQuat(playerCar.quaternion),
+            ball: currentRole === 'host' ? { pos: compactVec3(B.pos), vel: compactVec3(B.vel) } : null
+        }).finally(() => { stateSendPending = false; });
     }
-    if (now - lastSnapshotCheck > 1500 && !transform.dragging && !DraftEngine.active) {
+    if (now - lastSnapshotCheck > ROOM_SNAPSHOT_MS && !transform.dragging && !DraftEngine.active) {
         lastSnapshotCheck = now;
         const json = JSON.stringify(currentRoomSnapshot());
         if (json !== lastSnapshotJson) postRoomSnapshot('auto');
     }
+}
+function addChatLine(name, text, self = false) {
+    const log = document.getElementById('mp-chat-log');
+    if (!log) return;
+    const cleanText = String(text || '').trim().slice(0, 220);
+    if (!cleanText) return;
+    const line = document.createElement('div');
+    line.className = 'mp-chat-line' + (self ? ' mp-chat-self' : '');
+    const who = document.createElement('span');
+    who.className = 'mp-chat-name';
+    who.textContent = `${String(name || 'PLAYER').slice(0, 24)}: `;
+    const body = document.createElement('span');
+    body.textContent = cleanText;
+    line.append(who, body);
+    log.appendChild(line);
+    while (log.children.length > 80) log.removeChild(log.firstChild);
+    log.scrollTop = log.scrollHeight;
+}
+async function sendChatMessage() {
+    const input = document.getElementById('mp-chat-input');
+    const text = (input?.value || '').trim().slice(0, 220);
+    if (!text) return;
+    if (!currentRoom || !currentPeerId) return notify('JOIN A ROOM TO CHAT');
+    input.value = '';
+    addChatLine(playerName(), text, true);
+    await roomSend({ type: 'chat', name: playerName(), text, t: Date.now() });
 }
 
 // --- UTILS & MATH ---
@@ -1598,6 +1698,13 @@ document.getElementById('btn-mp-leave').addEventListener('click', async () => {
     await leaveRoom();
     notify('LEFT ROOM');
 });
+document.getElementById('btn-mp-chat-send').addEventListener('click', sendChatMessage);
+document.getElementById('mp-chat-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        sendChatMessage();
+    }
+});
 
 // AI API Manager UI
 document.getElementById('btn-ai-api').addEventListener('click', () => {
@@ -2360,6 +2467,8 @@ function frame(now) {
     }
     
     if (inPlayMode) {
+        updateRemoteInterpolation(dt);
+
         // --- MULTIPLAYER SYNC LOOP ---
         syncRoomState(now);
 
