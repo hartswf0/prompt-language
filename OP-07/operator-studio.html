@@ -132,6 +132,7 @@
   .tlc{ position:relative; flex:0 0 auto; width:42px; height:32px; border:3px solid var(--k); background:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; }
   .tlc.me{ outline:3px solid var(--aC); outline-offset:1px; }
   .tlc.them{ border-color:var(--aA); }
+  .tlc.sel{ outline:3px solid var(--aA); outline-offset:1px; box-shadow:0 0 0 3px var(--w) inset; }
   canvas.tlthumb{ position:absolute; inset:0; width:100%; height:100%; image-rendering:pixelated; }
   .tlnum{ position:relative; z-index:2; font-size:11px; font-weight:700; color:var(--k); background:rgba(255,255,255,.7); padding:0 2px; }
   .tlthem{ position:absolute; z-index:3; bottom:-2px; left:50%; transform:translateX(-50%); background:var(--aA); color:#fff; font-size:7px; font-weight:700; letter-spacing:.05em; padding:0 3px; }
@@ -217,6 +218,10 @@
   .tlbr{ position:absolute; z-index:3; top:-2px; right:-2px; background:var(--aA); color:#fff; font-size:8px; font-weight:700; padding:0 2px; cursor:pointer; }
   #play-btn.on{ background:var(--aC); color:#fff; }
   #tl-note{ display:none; flex:0 0 auto; font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:#fff; background:var(--aA); padding:2px 8px; }
+  #tl-menu{ position:fixed; z-index:9000; display:none; min-width:190px; background:var(--w); border:3px solid var(--k); box-shadow:6px 6px 0 var(--k); padding:6px; }
+  #tl-menu .mt{ font-size:9px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; padding:4px 6px 7px; border-bottom:3px solid var(--k); margin-bottom:6px; }
+  #tl-menu button{ width:100%; min-height:32px; margin:3px 0; padding:5px 8px; font-size:10px; text-align:left; justify-content:flex-start; box-shadow:none; }
+  #tl-menu button.danger{ color:#fff; background:var(--aC); }
   .cnt{ flex:0 0 auto; align-self:center; font-size:9px; font-weight:700; opacity:.5; margin-left:auto; padding-right:4px; }
   #diag{ display:none; position:fixed; left:0; right:0; top:0; z-index:10000; background:var(--aC); color:#fff; font:700 11px/1.4 ui-monospace,monospace; padding:8px 12px; border-bottom:3px solid var(--k); word-break:break-word; }
   #diag b{ letter-spacing:.06em; }
@@ -278,10 +283,11 @@
   <details class="grp" open><summary>BEFLIX paste</summary>
     <div class="field"><label class="mini">Raw BEFLIX code</label><textarea id="beflix-code" placeholder="CLR 0&#10;PNT 54 40 20 12 7&#10;REC 4" style="width:100%;border:3px solid var(--k);padding:10px;font:11px/1.4 ui-monospace,monospace;height:96px;"></textarea></div>
     <div class="toolrow" style="margin-top:8px">
-      <button class="primary" id="beflix-apply" type="button">Apply frame</button>
-      <button id="beflix-seq" type="button">Append sequence</button>
+      <button class="primary" id="beflix-replace" type="button">Replace film</button>
+      <button id="beflix-apply" type="button">Apply frame</button>
+      <button id="beflix-seq" type="button">Append</button>
     </div>
-    <p class="mini" style="margin-top:6px">Paste CLR / PNT / LIN / REC / SHF. “Apply frame” uses the final rendered frame. “Append sequence” creates film frames from REC holds.</p>
+    <p class="mini" style="margin-top:6px">Paste CLR / PNT / LIN / REC / SHF. “Replace film” clears old scenes. “Apply frame” uses the final rendered frame. “Append” adds frames after the current branch.</p>
   </details>
   <details class="grp"><summary>AI</summary>
     <div class="field"><label class="mini">AI sequence</label><textarea id="ai-idea" placeholder="a spiral collapsing, a ball bouncing, rain falling&hellip;" style="width:100%;border:3px solid var(--k);padding:10px;font:11px/1.4 ui-monospace,monospace;height:64px;"></textarea></div>
@@ -332,6 +338,11 @@
   <details class="relay" style="margin-top:14px"><summary>Fix</summary>
     <button id="cap-resync" type="button" style="width:100%;margin-top:8px">Resync</button>
     <button id="cap-check" type="button" style="width:100%;margin-top:8px">Self-check</button>
+  </details>
+  <details class="relay" style="margin-top:14px"><summary>Timeline ops</summary>
+    <button id="tl-copy-selected" type="button" style="width:100%;margin-top:8px">Copy selected BEFLIX</button>
+    <button id="tl-dup-selected" type="button" style="width:100%;margin-top:8px">Duplicate selected</button>
+    <button id="tl-del-selected" type="button" style="width:100%;margin-top:8px;background:var(--aC);color:#fff;">Delete selected</button>
   </details>
   <input type="file" id="film-file" accept="application/json,.json" hidden>
 </div>
@@ -428,6 +439,16 @@
 <div id="toast">Ready</div>
 <div id="flash"></div>
 <div id="diag"></div>
+<div id="tl-menu" role="menu" aria-hidden="true">
+  <div class="mt" id="tl-menu-title">Frame</div>
+  <button type="button" data-act="go">Go to frame</button>
+  <button type="button" data-act="select">Select from here</button>
+  <button type="button" data-act="all">Select visible path</button>
+  <button type="button" data-act="copy">Copy selected BEFLIX</button>
+  <button type="button" data-act="dup">Duplicate selected</button>
+  <button type="button" data-act="clear">Clear selection</button>
+  <button type="button" data-act="del" class="danger">Delete selected</button>
+</div>
 
 <canvas id="cap" width="128" height="96" hidden></canvas>
 <video id="vid" autoplay playsinline muted hidden></video>
@@ -867,6 +888,7 @@ var nodes={};            // id -> { id, grid, parent, kids:[id], author }
 var rootId=null, myNode=null, theirNode=null;
 var theirPen={node:null,x:0,y:0,on:false}; var _penHide=null;
 var branchChoice={};     // nodeId -> childId to follow downstream
+var tlSelected={},tlSelectMode=false,tlAnchor=null,tlMenuTarget=null,tlLongTimer=null,tlLongFired=false;
 var localAudioTrack=null;
 var board=document.getElementById('board'), bctx=board.getContext('2d');
 
@@ -1005,6 +1027,26 @@ function gotoNode(id){ if(!nodes[id]||id===myNode)return; stopPlay(); myNode=id;
 function cycleBranch(id){ var k=nodes[id]&&nodes[id].kids; if(!k||k.length<2)return; var cur=branchChoice[id]||k[0]; var i=k.indexOf(cur); var nx=k[(i+1)%k.length]; branchChoice[id]=nx; myNode=nx; stopPlay(); playTick(); renderStrip(); renderBranches(); paintBoard(); sendCursor(); fireToast('Switched to branch '+((i+1)%k.length+1)+'/'+k.length); }
 function sendCursor(){ sendCtl('C '+myNode); }
 
+// ---- timeline selection + edit ops on the visible active path ----
+function selectedPathIds(){ var path=activePath(); var out=path.filter(function(id){return tlSelected[id]&&nodes[id];}); return out.length?out:(nodes[myNode]?[myNode]:[]); }
+function clearSelection(render){ tlSelected={}; tlSelectMode=false; tlAnchor=null; hideTlMenu(); if(render!==false)renderStrip(); }
+function selectOnly(id,render){ tlSelected={}; if(nodes[id]){tlSelected[id]=1;tlAnchor=id;tlSelectMode=true;} if(render!==false)renderStrip(); }
+function selectAllPath(){ var path=activePath(); tlSelected={}; path.forEach(function(id){tlSelected[id]=1;}); tlAnchor=path[0]||myNode; tlSelectMode=true; renderStrip(); fireToast(path.length+' frames selected'); }
+function selectRangeTo(id){ var path=activePath(),a=path.indexOf(tlAnchor||myNode),b=path.indexOf(id),i; if(a<0)a=path.indexOf(myNode); if(b<0)return; if(a<0)a=b; tlSelected={}; for(i=Math.min(a,b);i<=Math.max(a,b);i++)tlSelected[path[i]]=1; tlAnchor=path[a]; tlSelectMode=true; renderStrip(); fireToast((Math.abs(a-b)+1)+' frames selected'); }
+function copyToClipboardRaw(txt){ if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).catch(function(){});} else { var ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');}catch(e){} ta.remove(); } }
+function copySelectedBeflix(){ var ids=selectedPathIds(),lines=[]; ids.forEach(function(id,i){ if(!nodes[id])return; lines.push('C FRAME '+(i+1)); lines=lines.concat(frameToCmds(nodes[id].grid)); lines.push('REC 1'); }); copyToClipboardRaw(lines.join('\n')); fireToast(ids.length+' frame(s) copied'); }
+function duplicateSelectedFrames(){ var ids=selectedPathIds(); if(!ids.length)return; if(treeSize()+ids.length>NODE_MAX){fireToast('Tree at capacity');return;} stopPlay(); var prev=ids[ids.length-1],dupes=[]; ids.forEach(function(id){ var nid=mkId(); mkNode(prev,nodes[id].grid.slice(),nid); sendCtl('K '+prev+' '+nid); sendCtl('F '+nid+'\n'+frameToCmds(nodes[nid].grid).join('\n')); branchChoice[prev]=nid; prev=nid; dupes.push(nid); }); myNode=prev; tlSelected={}; dupes.forEach(function(id){tlSelected[id]=1;}); tlAnchor=dupes[0]; tlSelectMode=true; renderStrip(); renderBranches(); paintBoard(); sendCursor(); fireToast(dupes.length+' frame(s) duplicated'); }
+function removeNodeKeepChildren(id){ if(!nodes[id]||id===rootId)return false; var nd=nodes[id],par=nd.parent,kids=nd.kids.slice(),i; if(par&&nodes[par]){ nodes[par].kids=nodes[par].kids.filter(function(k){return k!==id;}); for(i=0;i<kids.length;i++){ if(nodes[kids[i]]){ nodes[kids[i]].parent=par; nodes[par].kids.push(kids[i]); } } nodes[par].kids.sort(); } Object.keys(branchChoice).forEach(function(k){ if(branchChoice[k]===id)branchChoice[k]=kids[0]||null; }); delete branchChoice[id]; delete nodes[id]; if(myNode===id)myNode=kids[0]||par||rootId; if(theirNode===id)theirNode=null; return true; }
+function deleteSelectedFrames(){ var ids=selectedPathIds().filter(function(id){return id!==rootId;}); if(!ids.length){fireToast('Cannot delete root frame');return;} stopPlay(); ids.sort(function(a,b){return depthOf(b)-depthOf(a);}); ids.forEach(removeNodeKeepChildren); if(!nodes[myNode])myNode=rootId; clearSelection(false); renderStrip(); renderBranches(); paintBoard(); sendCursor(); sendSnapshot('delete-selected'); fireToast(ids.length+' frame(s) deleted'); }
+function showTlMenu(x,y,id){ tlMenuTarget=id; var m=document.getElementById('tl-menu'),t=document.getElementById('tl-menu-title'); if(!m)return; var ids=selectedPathIds(); if(t)t.textContent=(ids.length>1?ids.length+' frames':'Frame '+(activePath().indexOf(id)+1)); m.style.display='block'; m.setAttribute('aria-hidden','false'); var w=m.offsetWidth||190,h=m.offsetHeight||260; m.style.left=Math.max(6,Math.min(window.innerWidth-w-8,x))+'px'; m.style.top=Math.max(6,Math.min(window.innerHeight-h-8,y))+'px'; }
+function hideTlMenu(){ var m=document.getElementById('tl-menu'); if(m){m.style.display='none';m.setAttribute('aria-hidden','true');} }
+function wireTimelineCell(cell,id){
+  cell.onclick=function(e){ if(tlLongFired){tlLongFired=false;return;} if(tlSelectMode||e.shiftKey||e.metaKey){ if(e.metaKey){ tlSelected[id]?delete tlSelected[id]:tlSelected[id]=1; tlAnchor=tlAnchor||id; tlSelectMode=true; renderStrip(); } else selectRangeTo(id); } else { clearSelection(false); gotoNode(id); } };
+  cell.oncontextmenu=function(e){ e.preventDefault(); if(!tlSelected[id])selectOnly(id,false); showTlMenu(e.clientX,e.clientY,id); renderStrip(); };
+  cell.addEventListener('pointerdown',function(e){ clearTimeout(tlLongTimer); tlLongFired=false; tlLongTimer=setTimeout(function(){ tlLongFired=true; if(!tlSelected[id])selectOnly(id,false); showTlMenu(e.clientX,e.clientY,id); renderStrip(); },560); });
+  ['pointerup','pointercancel','pointerleave'].forEach(function(ev){ cell.addEventListener(ev,function(){clearTimeout(tlLongTimer);}); });
+}
+
 // ---- snapshot (host -> joiner) ----
 function snapshotTree(){ var ids=Object.keys(nodes); var parts=[rootId+'~'+ids.length]; ids.forEach(function(id){ var nd=nodes[id]; parts.push(id+'|'+(nd.parent||'')+'|'+nd.author+'>'+frameToCmds(nd.grid).join('\n')); }); return 'Z '+parts.join('\f'); }
 function sendSnapshot(reason){ if(!(link&&link.kind==='webrtc'))return; sendCtl(snapshotTree()); sendCursor(); log('SYNC','snapshot '+(reason||'manual')+' \u00b7 '+treeSize()+' nodes'); }
@@ -1034,17 +1076,17 @@ function renderStrip(){
   var path=activePath(); var theirInPath=theirNode&&path.indexOf(theirNode)>=0;
   path.forEach(function(id,idx){
     var nd=nodes[id]; if(!nd)return;
-    var cell=document.createElement('div'); cell.className='tlc'+(id===myNode?' me':'')+(id===theirNode?' them':''); cell.setAttribute('data-idx',id);
+    var cell=document.createElement('div'); cell.className='tlc'+(id===myNode?' me':'')+(id===theirNode?' them':'')+(tlSelected[id]?' sel':''); cell.setAttribute('data-idx',id);
     var cv=document.createElement('canvas'); cv.width=46; cv.height=34; cv.className='tlthumb'; thumbInto(nd.grid,cv); cell.appendChild(cv);
     var num=document.createElement('span'); num.className='tlnum'; num.textContent=(idx+1); cell.appendChild(num);
     if(nd.kids.length>1){ var br=document.createElement('span'); br.className='tlbr'; br.textContent='\u2442'+nd.kids.length; br.onclick=function(e){ e.stopPropagation(); cycleBranch(id); }; cell.appendChild(br); }
     if(id===theirNode){ var t=document.createElement('span'); t.className='tlthem'+((theirPen.on&&theirPen.node===id)?' live':''); t.textContent='THEM'; cell.appendChild(t); }
-    cell.onclick=function(){ gotoNode(id); };
+    wireTimelineCell(cell,id);
     strip.appendChild(cell);
     if(id===myNode)cell.scrollIntoView({inline:'center',block:'nearest'});
   });
   var ben=document.getElementById('be-n'); if(ben)ben.textContent=(path.indexOf(myNode)+1);
-  var cnt=document.getElementById('tl-count'); if(cnt)cnt.textContent=path.length+' / '+Object.keys(nodes).length;
+  var cnt=document.getElementById('tl-count'); if(cnt){ var sc=selectedPathIds().filter(function(id){return tlSelected[id];}).length; cnt.textContent=path.length+' / '+Object.keys(nodes).length+(sc?' · '+sc+' sel':''); }
   var note=document.getElementById('tl-note'); if(note) note.style.display=(theirNode&&!theirInPath)?'block':'none';
 }
 function renderThumb(id){ var cell=document.querySelector('#tl-strip .tlc[data-idx="'+id+'"]'); if(cell){ var cv=cell.querySelector('canvas'); if(cv)thumbInto(nodes[id].grid,cv); } }
@@ -1162,7 +1204,7 @@ var ANIM_SYS=[
 'OUTPUT: Use C for comment lines. Output ONLY raw BEFLIX code. NO markdown. NO backticks.'
 ].join('\n');
 function runBeflixAnim(lines){
-  var mat=new Uint8Array(N), frames=[], CAP=80, i;
+  var mat=new Uint8Array(N), frames=[], CAP=Math.min(240,NODE_MAX), i;
   function rect(x,y,w,h,v){ if(w<=0||h<=0)return; var xe=Math.min(W,x+w),ye=Math.min(H,y+h),yy,xx; for(yy=Math.max(0,y);yy<ye;yy++){var rb=yy*W;for(xx=Math.max(0,x);xx<xe;xx++)mat[rb+xx]=v;} }
   for(i=0;i<lines.length&&frames.length<CAP;i++){ var t=(lines[i]||'').trim(); if(!t||t.charAt(0)==='C'||t.charAt(0)===';')continue; var p=t.split(/\s+/),op=p[0].toUpperCase();
     if(op==='CLR') mat.fill(clampInk(p[1]));
@@ -1193,6 +1235,21 @@ function appendPastedBeflixSequence(){
   appendSequence(frames);
   flash(); fireToast('BEFLIX sequence added \u00b7 '+frames.length+' frames');
 }
+function replacePastedBeflixFilm(){
+  var lines=pastedBeflixLines(); if(!lines)return;
+  var frames=runBeflixAnim(lines);
+  replaceFilmWithFrames(frames,'BEFLIX');
+}
+function replaceFilmWithFrames(frames,label){
+  stopPlay(); frames=(frames&&frames.length)?frames:[new Uint8Array(N)];
+  if(frames.length>NODE_MAX){frames=frames.slice(0,NODE_MAX);log('SEQ','replace trimmed to '+NODE_MAX);}
+  nodes={}; branchChoice={}; tlSelected={}; tlSelectMode=false; tlAnchor=null; theirPen.on=false;
+  rootId=mkNode(null,frames[0].slice()); myNode=rootId;
+  var prev=rootId;
+  for(var i=1;i<frames.length;i++){ var id=mkId(); mkNode(prev,frames[i].slice(),id); branchChoice[prev]=id; prev=id; }
+  renderStrip(); renderBranches(); paintBoard(); sendCursor(); sendSnapshot('replace-film');
+  flash(); fireToast((label||'Film')+' replaced \u00b7 '+frames.length+' frames');
+}
 function appendSequence(frames){ // chain frames as child nodes from myNode -> a new branch
   var room=NODE_MAX-treeSize(); if(room<=0){ fireToast('Tree at capacity ('+NODE_MAX+')'); return; }
   if(frames.length>room){ frames=frames.slice(0,room); log('SEQ','trimmed to '+room+' frames (cap)'); }
@@ -1200,6 +1257,7 @@ function appendSequence(frames){ // chain frames as child nodes from myNode -> a
   for(var i=0;i<frames.length;i++){ var id=mkId(); mkNode(prev, frames[i], id); sendCtl('K '+prev+' '+id); sendCtl('F '+id+'\n'+frameToCmds(frames[i]).join('\n')); branchChoice[prev]=id; prev=id; if(i===0)first=id; }
   myNode=prev; renderStrip(); renderBranches(); paintBoard(); sendCursor();
 }
+document.getElementById('beflix-replace').addEventListener('click', guard(replacePastedBeflixFilm,'beflix-replace'));
 document.getElementById('beflix-apply').addEventListener('click', guard(applyPastedBeflixFrame,'beflix-apply'));
 document.getElementById('beflix-seq').addEventListener('click', guard(appendPastedBeflixSequence,'beflix-seq'));
 function fetchT(url, opts, ms){ // fetch with a hard timeout so AI/network can't hang the room
@@ -1377,6 +1435,9 @@ function exportGIF(){
 }
 document.getElementById('film-gif').addEventListener('click', guard(function(){ playThud(); exportGIF(); },'film-gif'));
 document.getElementById('cap-resync').addEventListener('click',function(){ if(!(link&&link.kind==='webrtc')){fireToast('Not connected');return;} playClack(); sendSnapshot('button'); fireToast('Tree resynced to them'); });
+document.getElementById('tl-copy-selected').addEventListener('click',guard(copySelectedBeflix,'tl-copy'));
+document.getElementById('tl-dup-selected').addEventListener('click',guard(duplicateSelectedFrames,'tl-dup'));
+document.getElementById('tl-del-selected').addEventListener('click',guard(deleteSelectedFrames,'tl-del'));
 document.getElementById('cap-check').addEventListener('click', guard(function(){
   playTick();
   if(!nodes[myNode]) myNode = nodes[rootId]?rootId:(Object.keys(nodes)[0]||rootId); // repair cursor (I4)
@@ -1400,6 +1461,23 @@ Object.keys(PANELS).forEach(function(tabId){ var b=document.getElementById(tabId
 (function(){ var cv=document.getElementById('branch-canvas'); if(!cv)return; cv.addEventListener('click', guard(function(e){ var r=cv.getBoundingClientRect(); var px=(e.clientX-r.left)*(cv.width/Math.max(1,r.width)), py=(e.clientY-r.top)*(cv.height/Math.max(1,r.height)); for(var i=0;i<TREE_HIT.length;i++){ var h=TREE_HIT[i]; if(px>=h.x&&px<=h.x+h.w&&py>=h.y&&py<=h.y+h.h){ gotoNode(h.id); renderBranches(); return; } } },'tree-tap')); })();
 document.getElementById('tab-call').addEventListener('click',function(){ playTick(); openConnect(); });
 (function(){ var b=document.getElementById('tl-follow'); if(b)b.addEventListener('click',function(){ if(theirNode&&nodes[theirNode]){ gotoNode(theirNode); fireToast('Following collaborator'); } else requestSync('follow-missing'); }); })();
+(function(){
+  var menu=document.getElementById('tl-menu'); if(!menu)return;
+  menu.addEventListener('click',guard(function(e){
+    var b=e.target.closest('button[data-act]'); if(!b)return;
+    var act=b.getAttribute('data-act'), id=tlMenuTarget||myNode;
+    if(act==='go'){ clearSelection(false); gotoNode(id); }
+    else if(act==='select'){ selectOnly(id); }
+    else if(act==='all'){ selectAllPath(); }
+    else if(act==='copy'){ copySelectedBeflix(); }
+    else if(act==='dup'){ duplicateSelectedFrames(); }
+    else if(act==='clear'){ clearSelection(); }
+    else if(act==='del'){ deleteSelectedFrames(); }
+    if(act!=='select'&&act!=='all')hideTlMenu();
+  },'tl-menu'));
+  document.addEventListener('pointerdown',function(e){ if(menu.style.display==='block'&&!menu.contains(e.target)&&!e.target.closest('.tlc'))hideTlMenu(); });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape'){ clearSelection(); hideTlMenu(); } if((e.key==='Delete'||e.key==='Backspace')&&tlSelectMode){ e.preventDefault(); deleteSelectedFrames(); } });
+})();
 
 /* ---- SOUND + HAPTICS ---- */
 var audioCtx=null;
