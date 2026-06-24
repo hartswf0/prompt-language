@@ -1,0 +1,21 @@
+# OP-07 is a static client experiment.
+#
+# Do not deploy this directory as the production Worker. The maintained
+# multiplayer / TURN / composer Worker lives in ../OPERATOR and is deployed as:
+#
+#   https://beflix-call.hartswf0.workers.dev
+#
+# This legacy name prevents accidental `wrangler deploy` from OP-07 replacing
+# the live `beflix-call` Worker.
+
+name = "beflix-call-op07-legacy-do-not-deploy"
+main = "worker.js"
+compatibility_date = "2024-09-01"
+
+[[durable_objects.bindings]]
+name = "ROOMS"
+class_name = "Room"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Room"]
