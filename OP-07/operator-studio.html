@@ -252,7 +252,7 @@
     <span class="mini" style="flex:0 0 auto">FPS</span><input type="range" id="fps" min="1" max="24" value="8" style="width:54px;min-width:54px;flex:0 0 auto"><span class="mini" id="fps-val" style="flex:0 0 auto">8</span>
     <span class="cnt" id="tl-count">1 / 1</span>
   </div>
-  <div id="tl-note">A collaborator is on another branch &mdash; see <b>Branches</b></div>
+  <div id="tl-note">A collaborator is on another branch <button id="tl-follow" type="button" style="margin-left:8px;min-height:22px;padding:2px 8px;font-size:10px;">Follow them</button></div>
 </div>
 
 <div id="stage">
@@ -274,6 +274,14 @@
     <div class="row"><div style="flex:1"><label class="mini">X</label><input type="range" id="mk-x" min="0" max="127" value="6" style="width:100%"></div><div style="flex:1"><label class="mini">Y</label><input type="range" id="mk-y" min="0" max="95" value="40" style="width:100%"></div></div>
     <button class="primary" id="mk-stamp" type="button" style="width:100%">Stamp text</button>
     <div id="kbd" class="kbd"></div>
+  </details>
+  <details class="grp" open><summary>BEFLIX paste</summary>
+    <div class="field"><label class="mini">Raw BEFLIX code</label><textarea id="beflix-code" placeholder="CLR 0&#10;PNT 54 40 20 12 7&#10;REC 4" style="width:100%;border:3px solid var(--k);padding:10px;font:11px/1.4 ui-monospace,monospace;height:96px;"></textarea></div>
+    <div class="toolrow" style="margin-top:8px">
+      <button class="primary" id="beflix-apply" type="button">Apply frame</button>
+      <button id="beflix-seq" type="button">Append sequence</button>
+    </div>
+    <p class="mini" style="margin-top:6px">Paste CLR / PNT / LIN / REC / SHF. “Apply frame” uses the final rendered frame. “Append sequence” creates film frames from REC holds.</p>
   </details>
   <details class="grp"><summary>AI</summary>
     <div class="field"><label class="mini">AI sequence</label><textarea id="ai-idea" placeholder="a spiral collapsing, a ball bouncing, rain falling&hellip;" style="width:100%;border:3px solid var(--k);padding:10px;font:11px/1.4 ui-monospace,monospace;height:64px;"></textarea></div>
@@ -536,22 +544,29 @@ function makeWebRTC(pc,onFrame,isHost){
   var visual=null,control=null;
   function wire(ch){
     if(ch.label==='visual'){ visual=ch; visual.binaryType='arraybuffer'; ch.onmessage=function(e){onFrame(e.data);}; }
-    else if(ch.label==='control'){ control=ch; ch.onmessage=function(e){ onControl(e.data); }; }
+    else if(ch.label==='control'){
+      control=ch;
+      ch.onmessage=function(e){ onControl(e.data); };
+      ch.onopen=function(){ log('CTRL','open'); if(isHost)sendSnapshot('control-open'); else sendCtl('R'); sendCursor(); };
+      ch.onclose=function(){ log('CTRL','closed'); };
+    }
   }
   if(isHost){ var v=pc.createDataChannel('visual',{ordered:false,maxRetransmits:0}); v.binaryType='arraybuffer'; wire(v); wire(pc.createDataChannel('control',{ordered:true})); }
   else pc.ondatachannel=function(e){wire(e.channel);};
   return { kind:'webrtc',
     sendVisual:function(buf){ if(!visual||visual.readyState!=='open')return; if(visual.bufferedAmount>256*1024)return; visual.send(buf); },
-    sendControl:function(m){ if(control&&control.readyState==='open')control.send(m); },
-    bufferedAmount:function(){ return visual?visual.bufferedAmount:0; } };
+    sendControl:function(m){ if(control&&control.readyState==='open'){control.send(m); return true;} return false; },
+    bufferedAmount:function(){ return (visual?visual.bufferedAmount:0)+(control?control.bufferedAmount:0); } };
 }
 
 // Control-channel protocol (data-only, never executed):
 //   "K"        -> peer requests keyframe
 //   "M <text>" -> a chat message: becomes their ink AND a chat line.
+//   "R"        -> request a full tree snapshot after a lost/missed control msg.
 function onControl(data){
   if(typeof data!=='string'||!data.length) return;
   if(data==='K'){ forceKeyframe=true; return; }
+  if(data==='R'){ if(isHostPeer)sendSnapshot('peer-request'); return; }
   if(data.charAt(0)==='M'&&data.charAt(1)===' '){
     var text=data.slice(2); if(text.length>500)text=text.slice(0,500);
     themMsgs.push(text); while(themMsgs.length>200)themMsgs.shift();
@@ -563,10 +578,10 @@ function onControl(data){
   // BRANCHING TREE protocol — node-addressed edits + structure + presence.
   try{
   var sp=data.indexOf(' '), op=data.slice(0,sp), rest=data.slice(sp+1);
-  if(op==='F'){ var nl=data.indexOf('\n'); var id=data.slice(2,nl); var lines=data.slice(nl+1).split('\n'); if(nodes[id]){ nodes[id].grid=applyCmds(nodes[id].grid,lines); if(id===myNode)paintBoard(); renderThumb(id); } return; }
-  if(op==='K'){ var pr=rest.split(' '); var par=pr[0], nid=pr[1]; if(nodes[par]&&!nodes[nid]){ mkNode(par,null,nid,'PEER'); } renderStrip(); renderBranches(); return; }
+  if(op==='F'){ var nl=data.indexOf('\n'); var id=data.slice(2,nl); var lines=data.slice(nl+1).split('\n'); if(nodes[id]){ nodes[id].grid=applyCmds(nodes[id].grid,lines); if(id===myNode)paintBoard(); renderThumb(id); } else requestSync('missing-frame'); return; }
+  if(op==='K'){ var pr=rest.split(' '); var par=pr[0], nid=pr[1]; if(nodes[par]&&!nodes[nid]){ mkNode(par,null,nid,'PEER'); } else if(!nodes[par]) requestSync('missing-parent'); renderStrip(); renderBranches(); return; }
   if(op==='X'){ delNode(rest); renderStrip(); renderBranches(); paintBoard(); return; }
-  if(op==='C'){ theirNode=rest; renderStrip(); renderBranches(); var tg=document.getElementById('tag-them'); if(tg)tg.textContent=nodes[rest]?('f'+depthOf(rest)):'\u2014'; return; }
+  if(op==='C'){ theirNode=rest; if(rest&&!nodes[rest])requestSync('unknown-cursor'); renderStrip(); renderBranches(); var tg=document.getElementById('tag-them'); if(tg)tg.textContent=nodes[rest]?('f'+depthOf(rest)):'\u2014'; return; }
   if(op==='P'){ var c=rest.split(' '); setTheirPen(c[0],parseInt(c[1],10),parseInt(c[2],10)); return; }
   if(op==='Z'){ loadSnapshot(rest); return; }
   }catch(e){ log('RECV','bad msg: '+(e&&e.message||e)); }
@@ -706,6 +721,9 @@ document.getElementById('detail').addEventListener('change',function(){if(sendTi
 // ==================== ICE / RELAY / SERVER ====================
 var DEFAULT_ICE=[{urls:'stun:stun.l.google.com:19302'}];
 function getIceServers(){var raw=(document.getElementById('relay-cfg').value||'').trim();if(!raw)return DEFAULT_ICE.slice();try{var a=JSON.parse(raw);if(Array.isArray(a)&&a.length)return a;}catch(e){}return DEFAULT_ICE.slice();}
+var lastIceServers=[];
+function iceHasTurn(servers){return (servers||[]).some(function(s){var u=s.urls;u=Array.isArray(u)?u.join(' '):(''+u);return /\bturns?:/i.test(u);});}
+function updateIceDiagnostics(servers,source){lastIceServers=servers||[];var el=document.getElementById('relay-state'),has=iceHasTurn(lastIceServers);if(el)el.textContent=has?'TURN relay available ('+source+')':'No TURN relay \u2014 direct/STUN only';log('TURN',has?'relay available via '+source:'no relay; strict NAT/firewalls may fail');}
 function relayConfigured(){var raw=(document.getElementById('relay-cfg').value||'').trim();if(!raw)return{ok:false,reason:'none'};try{var a=JSON.parse(raw);if(!Array.isArray(a))return{ok:false,reason:'notarray'};var t=a.some(function(s){var u=s.urls;u=Array.isArray(u)?u.join(' '):(''+u);return u.indexOf('turn:')===0||u.indexOf('turns:')===0;});return{ok:true,turn:t};}catch(e){return{ok:false,reason:'badjson'};}}
 function refreshRelayState(){var r=relayConfigured(),el=document.getElementById('relay-state');if(!r.ok&&r.reason==='none')el.textContent='Direct only';else if(!r.ok)el.textContent='Invalid \u2014 direct only';else if(!r.turn)el.textContent='STUN only (direct)';else el.textContent='Relay ready';}
 document.getElementById('relay-cfg').addEventListener('input',refreshRelayState);
@@ -715,7 +733,7 @@ function storedServerUrl(){try{return localStorage.getItem(SERVER_STORAGE_KEY)||
 function initialServerUrl(){var query='';try{query=new URLSearchParams(location.search).get('server')||'';}catch(e){}var meta=document.querySelector('meta[name="beflix-worker-url"]');return normalizeServerUrl(query)||normalizeServerUrl(storedServerUrl())||normalizeServerUrl(meta&&meta.content);}
 function serverUrl(){return normalizeServerUrl(serverInput.value);}
 function refreshServerState(){var raw=(serverInput.value||'').trim(),u=serverUrl(),el=document.getElementById('server-state');if(serverHealthTimer)clearTimeout(serverHealthTimer);if(!raw)el.textContent='No server set \u2014 manual codes only';else if(!u)el.textContent='Use a valid https:// Worker URL';else{el.textContent='Worker URL saved \u2014 checking live capabilities';serverHealthTimer=setTimeout(checkServerHealth,200);}}
-function checkServerHealth(){var u=serverUrl(),el=document.getElementById('server-state');if(!u)return;fetchWithTimeout(u+'/health',{headers:{Accept:'application/json'}},8000).then(function(r){if(!r.ok)throw new Error('health-'+r.status);return r.json();}).then(function(d){var turn=d.turn==='cloudflare'?'Cloudflare TURN':(d.turn==='coturn'?'coturn TURN':'STUN only');var composer=d.composer?'composer live':'composer needs OPENAI_API_KEY';el.textContent='Rooms live \u00b7 '+turn+' \u00b7 '+composer;}).catch(function(e){el.textContent='Worker unreachable \u2014 room codes may fail';log('HEALTH',e.message);});}
+function checkServerHealth(){var u=serverUrl(),el=document.getElementById('server-state');if(!u)return;fetchWithTimeout(u+'/health',{headers:{Accept:'application/json'}},8000).then(function(r){if(!r.ok)throw new Error('health-'+r.status);return r.json();}).then(function(d){var turn=d.turn==='cloudflare'?'Cloudflare TURN':(d.turn==='coturn'?'coturn TURN':'STUN only / no relay');var composer=d.composer?'composer live':'composer needs OPENAI_API_KEY';el.textContent='Rooms live \u00b7 '+turn+' \u00b7 '+composer;}).catch(function(e){el.textContent='Worker unreachable \u2014 room codes may fail';log('HEALTH',e.message);});}
 function saveServer(){var u=serverUrl();try{if(u)localStorage.setItem(SERVER_STORAGE_KEY,u);else localStorage.removeItem(SERVER_STORAGE_KEY);}catch(e){}}
 function loadServer(){serverInput.value=initialServerUrl();saveServer();refreshServerState();}
 function fetchWithTimeout(url,opts,ms){var ctl=('AbortController' in window)?new AbortController():null;if(ctl)opts=Object.assign({},opts||{},{signal:ctl.signal});var to=setTimeout(function(){if(ctl)try{ctl.abort();}catch(e){}},ms||15000);return fetch(url,opts||{}).then(function(r){clearTimeout(to);return r;},function(e){clearTimeout(to);if(e&&e.name==='AbortError')throw new Error('timeout');throw e;});}
@@ -764,7 +782,7 @@ document.getElementById('manual-back').addEventListener('click',function(){ if(s
 
 // ---- arriving via an invite link: prefill, then show the single Join card ----
 function readInvite(){ try{ var h=location.hash||''; if(h.indexOf('join=')<0)return; var p=new URLSearchParams(h.replace(/^#/,'')); var code=(p.get('join')||'').replace(/[^A-Za-z0-9_-]/g,''), s=p.get('s'), server=''; if(s){ try{ server=atob(s)||''; }catch(e){} } if(server){ document.getElementById('server-url').value=server; saveServer(); } if(code)document.getElementById('room-code').value=code; pendingInvite={code:code,server:server}; refreshServerState(); openConnect(); log('INVITE','prefilled '+code); }catch(e){ log('INVITE','err '+(e&&e.message)); } }
-function fetchIceServers(){var u=serverUrl();if(u){return fetchWithTimeout(u+'/turn',{headers:{Accept:'application/json'}},12000).then(function(r){if(!r.ok)throw new Error('TURN endpoint returned '+r.status);return r.json();}).then(function(d){if(d&&Array.isArray(d.iceServers)&&d.iceServers.length){log('TURN','server gave '+d.iceServers.length);return d.iceServers;}return getIceServers();}).catch(function(e){log('TURN','fail '+e.message);return getIceServers();});}return Promise.resolve(getIceServers());}
+function fetchIceServers(){var u=serverUrl();if(u){return fetchWithTimeout(u+'/turn',{headers:{Accept:'application/json'}},12000).then(function(r){if(!r.ok)throw new Error('TURN endpoint returned '+r.status);return r.json();}).then(function(d){if(d&&Array.isArray(d.iceServers)&&d.iceServers.length){log('TURN','server gave '+d.iceServers.length);updateIceDiagnostics(d.iceServers,'server');return d.iceServers;}var fallback=getIceServers();updateIceDiagnostics(fallback,'local');return fallback;}).catch(function(e){log('TURN','fail '+e.message);var fallback=getIceServers();updateIceDiagnostics(fallback,'local');return fallback;});}var local=getIceServers();updateIceDiagnostics(local,'local');return Promise.resolve(local);}
 
 // ==================== CONNECT + GRACE ====================
 var sheet=document.getElementById('sheet'),pc=null,isHostPeer=false;
@@ -772,7 +790,7 @@ var GRACE_MS=10000,graceTimer=null,restarting=false,recoveryAttempts=0;
 function clearGrace(){if(graceTimer){clearTimeout(graceTimer);graceTimer=null;}}
 function startGrace(){if(graceTimer)return;log('GRACE','start');showRecover(true,'Reconnecting');setUIState('FROZEN');tryIceRestart();graceTimer=setTimeout(function(){graceTimer=null;var st=pc?pc.iceConnectionState:'none';log('GRACE','expired ice='+st);if(st==='connected'||st==='completed')recoverFromGrace();else recoverConnection(true);},GRACE_MS);}
 function recoverFromGrace(){clearGrace();recoveryAttempts=0;log('RECOVER','resuming');setUIState('CONNECTED');detectConnType();}
-function recoverConnection(auto){clearGrace();if(!room.code||!room.peerId||!serverUrl()){document.getElementById('rec-msg').textContent='Lost signal';document.getElementById('rec-act').textContent='Manual calls need fresh codes. Your branch is still editable.';return;}if(auto&&recoveryAttempts>=3){document.getElementById('rec-msg').textContent='Editing offline';document.getElementById('rec-act').textContent='Automatic retries paused. Keep editing, then try Call again.';return;}recoveryAttempts++;showRecover(true,'Reconnecting '+recoveryAttempts+'/3');try{initializeRoomPeer();if(room.role==='host')maybeStartHostOffer(2);else roomSend({type:'restart'}).catch(function(){});if(!room.polling)startRoomPoll();}catch(e){log('RECOVER','rebuild '+e.message);}}
+function recoverConnection(auto){clearGrace();if(!room.code||!room.peerId||!serverUrl()){document.getElementById('rec-msg').textContent='Lost signal';document.getElementById('rec-act').textContent='Manual calls need fresh codes. Your branch is still editable.';return;}if(auto&&recoveryAttempts>=3){document.getElementById('rec-msg').textContent=iceHasTurn(lastIceServers)?'Editing offline':'No relay path';document.getElementById('rec-act').textContent=iceHasTurn(lastIceServers)?'Automatic retries paused. Keep editing, then try Call again.':'Direct/STUN works on some networks but can fail across strict NAT/firewalls. Configure TURN on the OPERATOR Worker.';return;}recoveryAttempts++;showRecover(true,'Reconnecting '+recoveryAttempts+'/3');try{initializeRoomPeer();if(room.role==='host')maybeStartHostOffer(2);else roomSend({type:'restart'}).catch(function(){});if(!room.polling)startRoomPoll();}catch(e){log('RECOVER','rebuild '+e.message);}}
 function tryIceRestart(){if(restarting||!pc)return;restarting=true;if(!isHostPeer&&room.code&&room.peerId&&serverUrl()){roomSend({type:'restart'}).catch(function(){});if(!room.polling)startRoomPoll();log('ICE-RESTART','guest requested host re-offer');setTimeout(function(){restarting=false;},GRACE_MS);return;}if(!isHostPeer){restarting=false;return;}log('ICE-RESTART','host');try{if(pc.restartIce)pc.restartIce();if(room.code&&room.peerId&&serverUrl()){pc.createOffer({iceRestart:true}).then(function(o){return pc.setLocalDescription(o);}).then(function(){return roomSend({type:'offer',sdp:pc.localDescription});}).then(function(){if(!room.polling)startRoomPoll();log('ICE-RESTART','re-offer');}).catch(function(e){log('ICE-RESTART','err '+e.message);});}}catch(e){log('ICE-RESTART','err '+e.message);}setTimeout(function(){restarting=false;},GRACE_MS);}
 function newPeer(asHost,ice){connType='';isHostPeer=!!asHost;clearGrace();var servers=ice||getIceServers();pc=new RTCPeerConnection({iceServers:servers});log('PEER','role='+(asHost?'host':'guest')+' ice='+servers.length);
   // VOICE: send only the AUDIO track (video stays as text). Added before offer/answer so it's in the first SDP.
@@ -782,7 +800,7 @@ function newPeer(asHost,ice){connType='';isHostPeer=!!asHost;clearGrace();var se
   pc.onicegatheringstatechange=function(){log('GATHER',pc.iceGatheringState);};
   return pc;}
 function waitIce(){return new Promise(function(res){if(pc.iceGatheringState==='complete')return res();pc.onicegatheringstatechange=function(){log('GATHER',pc.iceGatheringState);if(pc.iceGatheringState==='complete')res();};setTimeout(res,2500);});}
-function detectConnType(){if(!pc||!pc.getStats)return;pc.getStats(null).then(function(stats){var local={},chosen=null;stats.forEach(function(r){if(r.type==='candidate-pair'&&(r.selected||r.nominated)&&r.state==='succeeded')chosen=r.localCandidateId;if(r.type==='local-candidate')local[r.id]=r;});connType=(chosen&&local[chosen])?(local[chosen].candidateType==='relay'?'relay':'direct'):'direct';log('CONN-TYPE',connType);if(uiState==='CONNECTED')setUIState('CONNECTED');}).catch(function(){});}
+function detectConnType(){if(!pc||!pc.getStats)return;pc.getStats(null).then(function(stats){var local={},chosen=null;stats.forEach(function(r){if(r.type==='candidate-pair'&&(r.selected||r.nominated)&&r.state==='succeeded')chosen=r.localCandidateId;if(r.type==='local-candidate')local[r.id]=r;});connType=(chosen&&local[chosen])?(local[chosen].candidateType==='relay'?'relay':'direct'):'direct';log('CONN-TYPE',connType+(iceHasTurn(lastIceServers)?' with-turn':' no-turn'));if(uiState==='CONNECTED'){setUIState('CONNECTED');if(connType==='direct'&&!iceHasTurn(lastIceServers)){whereEl.textContent='On call \u00b7 direct/no relay';}}}).catch(function(){});}
 function setStep(n){var els=document.querySelectorAll('#steps .step'),i;for(i=0;i<els.length;i++){var s=+els[i].getAttribute('data-step');els[i].classList.toggle('active',s===n);els[i].classList.toggle('done',s<n);}}
 function showPane(id){['pane-role','pane-host','pane-guest'].forEach(function(p){document.getElementById(p).classList.toggle('hidden',p!==id);});}
 document.getElementById('connect').addEventListener('click',function(){ openConnect(); });
@@ -858,6 +876,14 @@ function sendCtl(m){
     if(typeof m==='string' && m.length>MSG_MAX) log('SEND','large msg '+m.length+'B');
     if(link && link.kind==='webrtc' && typeof link.sendControl==='function'){ link.sendControl(m); }
   }catch(e){ log('SEND','dropped: '+(e&&e.message||e)); }
+}
+var _syncAskAt=0;
+function requestSync(reason){
+  var now=Date.now();
+  if(now-_syncAskAt<2500)return;
+  _syncAskAt=now;
+  log('SYNC','request '+(reason||'state'));
+  sendCtl('R');
 }
 // ---- error boundary: wrap any handler so one throw can't take down the room ----
 function guard(fn, label){
@@ -981,6 +1007,7 @@ function sendCursor(){ sendCtl('C '+myNode); }
 
 // ---- snapshot (host -> joiner) ----
 function snapshotTree(){ var ids=Object.keys(nodes); var parts=[rootId+'~'+ids.length]; ids.forEach(function(id){ var nd=nodes[id]; parts.push(id+'|'+(nd.parent||'')+'|'+nd.author+'>'+frameToCmds(nd.grid).join('\n')); }); return 'Z '+parts.join('\f'); }
+function sendSnapshot(reason){ if(!(link&&link.kind==='webrtc'))return; sendCtl(snapshotTree()); sendCursor(); log('SYNC','snapshot '+(reason||'manual')+' \u00b7 '+treeSize()+' nodes'); }
 function loadSnapshot(payload){ var segs=payload.split('\f'); var head=segs[0].split('~'); var newRoot=head[0];
   var nn={}, parsed=0; for(var i=1;i<segs.length&&parsed<NODE_MAX;i++){ var seg=segs[i]; var gt=seg.indexOf('>'); if(gt<0)continue; var meta=seg.slice(0,gt).split('|'); var id=meta[0],par=meta[1]||null,au=meta[2]||'?'; var g=applyCmds(new Uint8Array(N), seg.slice(gt+1).split('\n')); nn[id]={id:id,grid:g,parent:par,kids:[],author:au}; parsed++; }
   for(var id2 in nn){ var p=nn[id2].parent; if(p&&nn[p]){ nn[p].kids.push(id2); } }
@@ -1147,6 +1174,25 @@ function runBeflixAnim(lines){
   if(!frames.length)frames.push(mat.slice());
   return frames;
 }
+function pastedBeflixLines(){
+  var el=document.getElementById('beflix-code'), raw=(el&&el.value||'').trim();
+  if(!raw){ fireToast('Paste BEFLIX code first'); return null; }
+  var lines=raw.replace(/```[A-Za-z-]*\n?/g,'').replace(/```/g,'').split(/\r?\n/).map(function(s){return s.trim();}).filter(function(s){return s&&/^(C|CLR|PNT|LIN|REC|SHF)\b/i.test(s);});
+  if(!lines.length){ fireToast('No valid BEFLIX commands'); return null; }
+  return lines;
+}
+function applyPastedBeflixFrame(){
+  var lines=pastedBeflixLines(); if(!lines)return;
+  var frames=runBeflixAnim(lines), last=frames[frames.length-1];
+  editNode(myNode, frameToCmds(last));
+  flash(); fireToast('BEFLIX frame applied');
+}
+function appendPastedBeflixSequence(){
+  var lines=pastedBeflixLines(); if(!lines)return;
+  var frames=runBeflixAnim(lines);
+  appendSequence(frames);
+  flash(); fireToast('BEFLIX sequence added \u00b7 '+frames.length+' frames');
+}
 function appendSequence(frames){ // chain frames as child nodes from myNode -> a new branch
   var room=NODE_MAX-treeSize(); if(room<=0){ fireToast('Tree at capacity ('+NODE_MAX+')'); return; }
   if(frames.length>room){ frames=frames.slice(0,room); log('SEQ','trimmed to '+room+' frames (cap)'); }
@@ -1154,6 +1200,8 @@ function appendSequence(frames){ // chain frames as child nodes from myNode -> a
   for(var i=0;i<frames.length;i++){ var id=mkId(); mkNode(prev, frames[i], id); sendCtl('K '+prev+' '+id); sendCtl('F '+id+'\n'+frameToCmds(frames[i]).join('\n')); branchChoice[prev]=id; prev=id; if(i===0)first=id; }
   myNode=prev; renderStrip(); renderBranches(); paintBoard(); sendCursor();
 }
+document.getElementById('beflix-apply').addEventListener('click', guard(applyPastedBeflixFrame,'beflix-apply'));
+document.getElementById('beflix-seq').addEventListener('click', guard(appendPastedBeflixSequence,'beflix-seq'));
 function fetchT(url, opts, ms){ // fetch with a hard timeout so AI/network can't hang the room
   var ctl=('AbortController' in window)?new AbortController():null; if(ctl)opts=Object.assign({},opts,{signal:ctl.signal});
   var to=setTimeout(function(){ if(ctl)try{ctl.abort();}catch(e){} }, ms||30000);
@@ -1328,7 +1376,7 @@ function exportGIF(){
   }catch(e){ fireToast('GIF failed'); log('GIF','err '+(e&&e.message)); } }, 30);
 }
 document.getElementById('film-gif').addEventListener('click', guard(function(){ playThud(); exportGIF(); },'film-gif'));
-document.getElementById('cap-resync').addEventListener('click',function(){ if(!(link&&link.kind==='webrtc')){fireToast('Not connected');return;} playClack(); sendCtl(snapshotTree()); sendCursor(); fireToast('Tree resynced to them'); });
+document.getElementById('cap-resync').addEventListener('click',function(){ if(!(link&&link.kind==='webrtc')){fireToast('Not connected');return;} playClack(); sendSnapshot('button'); fireToast('Tree resynced to them'); });
 document.getElementById('cap-check').addEventListener('click', guard(function(){
   playTick();
   if(!nodes[myNode]) myNode = nodes[rootId]?rootId:(Object.keys(nodes)[0]||rootId); // repair cursor (I4)
@@ -1351,6 +1399,7 @@ Object.keys(PANELS).forEach(function(tabId){ var b=document.getElementById(tabId
 (function(){ var bd=document.getElementById('backdrop'); if(bd)bd.addEventListener('click',function(){ closePanels(); }); })();
 (function(){ var cv=document.getElementById('branch-canvas'); if(!cv)return; cv.addEventListener('click', guard(function(e){ var r=cv.getBoundingClientRect(); var px=(e.clientX-r.left)*(cv.width/Math.max(1,r.width)), py=(e.clientY-r.top)*(cv.height/Math.max(1,r.height)); for(var i=0;i<TREE_HIT.length;i++){ var h=TREE_HIT[i]; if(px>=h.x&&px<=h.x+h.w&&py>=h.y&&py<=h.y+h.h){ gotoNode(h.id); renderBranches(); return; } } },'tree-tap')); })();
 document.getElementById('tab-call').addEventListener('click',function(){ playTick(); openConnect(); });
+(function(){ var b=document.getElementById('tl-follow'); if(b)b.addEventListener('click',function(){ if(theirNode&&nodes[theirNode]){ gotoNode(theirNode); fireToast('Following collaborator'); } else requestSync('follow-missing'); }); })();
 
 /* ---- SOUND + HAPTICS ---- */
 var audioCtx=null;
@@ -1371,7 +1420,7 @@ function flash(){ var f=document.getElementById('flash'); f.classList.add('on');
 window.addEventListener('resize',function(){ fitFace(faceYou); fitFace(faceThem); fitBoard(); });
 fitBoard(); paintBoard(); renderStrip();
 var _origStart=startSending;
-startSending=function(){ _origStart(); setTimeout(function(){ fitBoard(); paintBoard(); renderStrip(); if(link&&link.kind==='webrtc'){ if(isHostPeer)sendCtl(snapshotTree()); sendCursor(); } },300); };
+startSending=function(){ _origStart(); setTimeout(function(){ fitBoard(); paintBoard(); renderStrip(); if(link&&link.kind==='webrtc'){ if(isHostPeer)sendSnapshot('start'); else sendCursor(); } },300); };
 
 // ---- GLOBAL ERROR BOUNDARY: a thrown error degrades to a toast, never a dead room ----
 window.addEventListener('error', function(ev){ try{ log('ERR', (ev.message||'error')+' @'+(ev.lineno||'?')); fireToast('Recovered from an error'); }catch(_){} });
