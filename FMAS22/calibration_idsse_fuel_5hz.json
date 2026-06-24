@@ -1,0 +1,62 @@
+{
+  "source": "idsse-fuel",
+  "data_kind": "frame-dense",
+  "validation": [
+    "frame 27: ball wildly off pitch",
+    "frame 28: ball wildly off pitch",
+    "frame 29: ball wildly off pitch",
+    "frame 30: ball wildly off pitch",
+    "frame 31: ball wildly off pitch",
+    "frame 32: ball wildly off pitch",
+    "frame 33: ball wildly off pitch",
+    "frame 34: ball wildly off pitch",
+    "frame 35: ball wildly off pitch",
+    "frame 36: ball wildly off pitch",
+    "frame 37: ball wildly off pitch"
+  ],
+  "movement": {
+    "team_spread_m": {
+      "mean": 16.85,
+      "median": 17.15,
+      "p25": 14.6,
+      "p75": 19.68,
+      "p90": 21.61,
+      "n": 10028
+    },
+    "players_within_12m": {
+      "mean": 3.96,
+      "median": 3,
+      "p25": 2,
+      "p75": 6,
+      "p90": 8,
+      "n": 5014
+    },
+    "team_width_m": {
+      "mean": 39.51,
+      "median": 38.12,
+      "p25": 31.49,
+      "p75": 46.0,
+      "p90": 58.43,
+      "n": 5014
+    },
+    "team_length_m": {
+      "mean": 50.73,
+      "median": 51.36,
+      "p25": 44.38,
+      "p75": 58.54,
+      "p90": 64.85,
+      "n": 5014
+    }
+  },
+  "decisions": {
+    "pass_length_m": null,
+    "pass_completion": null,
+    "shot_conversion": null,
+    "shot_distance_m": null,
+    "action_mix": {
+      "pass": 0.0,
+      "carry": 0.0,
+      "shot": 0.0
+    }
+  }
+}

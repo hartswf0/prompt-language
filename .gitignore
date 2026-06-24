@@ -1,2 +1,13 @@
 .DS_Store
 .vscode/
+
+# FMAS22 local fuel/raw artifacts. These are large generated files.
+FMAS22/.venv/
+FMAS22/__pycache__/
+FMAS22/26/__pycache__/
+FMAS22/_cache/
+FMAS22/idsse_raw/
+FMAS22/sample/*.jsonl
+FMAS22/**/sample/*.jsonl
+FMAS22/*.npz
+FMAS22/**/*.npz

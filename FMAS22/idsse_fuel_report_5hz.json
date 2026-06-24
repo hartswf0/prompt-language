@@ -1,0 +1,72 @@
+{
+  "source": "idsse",
+  "output_rate_hz": 5.0,
+  "matches": [
+    {
+      "competition_id": "DFL-COM-000001",
+      "match_id": "DFL-MAT-J03WMX",
+      "frames": 29194,
+      "rate_hz": 5.0,
+      "home": "1. FC K\u00f6ln",
+      "away": "FC Bayern M\u00fcnchen",
+      "license": "CC BY 4.0"
+    },
+    {
+      "competition_id": "DFL-COM-000001",
+      "match_id": "DFL-MAT-J03WN1",
+      "frames": 28313,
+      "rate_hz": 5.0,
+      "home": "VfL Bochum 1848",
+      "away": "Bayer 04 Leverkusen",
+      "license": "CC BY 4.0"
+    },
+    {
+      "competition_id": "DFL-COM-000002",
+      "match_id": "DFL-MAT-J03WOH",
+      "frames": 27443,
+      "rate_hz": 5.0,
+      "home": "Fortuna D\u00fcsseldorf",
+      "away": "SSV Jahn Regensburg",
+      "license": "CC BY 4.0"
+    },
+    {
+      "competition_id": "DFL-COM-000002",
+      "match_id": "DFL-MAT-J03WOY",
+      "frames": 28508,
+      "rate_hz": 5.0,
+      "home": "Fortuna D\u00fcsseldorf",
+      "away": "F.C. Hansa Rostock",
+      "license": "CC BY 4.0"
+    },
+    {
+      "competition_id": "DFL-COM-000002",
+      "match_id": "DFL-MAT-J03WPY",
+      "frames": 29243,
+      "rate_hz": 5.0,
+      "home": "Fortuna D\u00fcsseldorf",
+      "away": "1. FC N\u00fcrnberg",
+      "license": "CC BY 4.0"
+    },
+    {
+      "competition_id": "DFL-COM-000002",
+      "match_id": "DFL-MAT-J03WQQ",
+      "frames": 28469,
+      "rate_hz": 5.0,
+      "home": "Fortuna D\u00fcsseldorf",
+      "away": "FC St. Pauli",
+      "license": "CC BY 4.0"
+    },
+    {
+      "competition_id": "DFL-COM-000002",
+      "match_id": "DFL-MAT-J03WR9",
+      "frames": 29362,
+      "rate_hz": 5.0,
+      "home": "Fortuna D\u00fcsseldorf",
+      "away": "1. FC Kaiserslautern",
+      "license": "CC BY 4.0"
+    }
+  ],
+  "canonical": "/Users/gaia/Prompt language/FMAS22/sample/idsse_fuel_5hz.jsonl",
+  "calibration": "/Users/gaia/Prompt language/FMAS22/calibration_idsse_fuel_5hz.json",
+  "frames": 200532
+}

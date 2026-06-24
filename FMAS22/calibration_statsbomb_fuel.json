@@ -1,0 +1,43 @@
+{
+  "source": "statsbomb-fuel",
+  "data_kind": "event-only",
+  "validation": [
+    "frame 9: player p9 out of pitch (56.2,70.3)",
+    "frame 10: player p9 out of pitch (56.2,70.3)",
+    "frame 11: player p10 out of pitch (51.4,70.3)",
+    "frame 17: player p13 out of pitch (61.3,71.4)",
+    "frame 18: player p7 out of pitch (58.6,69.3)",
+    "frame 19: player p7 out of pitch (58.6,69.3)",
+    "frame 31: player p16 out of pitch (105.1,29.4)",
+    "frame 32: player p15 out of pitch (105.2,31.3)",
+    "frame 48: player p7 out of pitch (53.4,70.5)",
+    "frame 49: player p7 out of pitch (53.4,70.5)",
+    "frame 51: player p10 out of pitch (52.7,70.2)"
+  ],
+  "movement": "n/a (event-only source)",
+  "decisions": {
+    "pass_length_m": {
+      "mean": 17.83,
+      "median": 14.61,
+      "p25": 9.65,
+      "p75": 22.14,
+      "p90": 33.13,
+      "n": 118907
+    },
+    "pass_completion": 0.821,
+    "shot_conversion": 0.123,
+    "shot_distance_m": {
+      "mean": 16.09,
+      "median": 15.15,
+      "p25": 10.34,
+      "p75": 21.43,
+      "p90": 26.1,
+      "n": 2889
+    },
+    "action_mix": {
+      "pass": 0.548,
+      "carry": 0.438,
+      "shot": 0.013
+    }
+  }
+}

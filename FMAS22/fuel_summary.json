@@ -1,0 +1,52 @@
+{
+  "ready_for_sim_update": true,
+  "decision_fuel": {
+    "statsbomb_matches": 120,
+    "statsbomb_frames": 343700,
+    "idsse_matches": 7,
+    "idsse_frames": 200532,
+    "idsse_rate_hz": 5.0,
+    "pass_n": 118907,
+    "shot_n": 2889
+  },
+  "movement_fuel": {
+    "team_spread_m": {
+      "mean": 16.85,
+      "median": 17.15,
+      "p25": 14.6,
+      "p75": 19.68,
+      "p90": 21.61,
+      "n": 10028
+    },
+    "players_within_12m": {
+      "mean": 3.96,
+      "median": 3,
+      "p25": 2,
+      "p75": 6,
+      "p90": 8,
+      "n": 5014
+    },
+    "team_width_m": {
+      "mean": 39.51,
+      "median": 38.12,
+      "p25": 31.49,
+      "p75": 46.0,
+      "p90": 58.43,
+      "n": 5014
+    },
+    "team_length_m": {
+      "mean": 50.73,
+      "median": 51.36,
+      "p25": 44.38,
+      "p75": 58.54,
+      "p90": 64.85,
+      "n": 5014
+    }
+  },
+  "outputs": {
+    "combined_calibration": "FMAS22/calibration_fuel.json",
+    "statsbomb_calibration": "FMAS22/calibration_statsbomb_fuel.json",
+    "idsse_calibration": "FMAS22/calibration_idsse_fuel_5hz.json",
+    "idsse_policy_table": "FMAS22/sim_table_idsse_fuel_5hz.json"
+  }
+}

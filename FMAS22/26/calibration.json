@@ -1,0 +1,57 @@
+{
+  "source": "synthetic",
+  "data_kind": "frame-dense",
+  "validation": "clean",
+  "movement": {
+    "team_spread_m": {
+      "mean": 25.24,
+      "median": 25.24,
+      "p25": 25.17,
+      "p75": 25.32,
+      "p90": 25.36,
+      "n": 10000
+    },
+    "players_within_12m": {
+      "mean": 2.26,
+      "median": 2,
+      "p25": 2,
+      "p75": 3,
+      "p90": 3,
+      "n": 5000
+    },
+    "team_width_m": {
+      "mean": 45.42,
+      "median": 45.42,
+      "p25": 45.26,
+      "p75": 45.58,
+      "p90": 45.74,
+      "n": 5000
+    },
+    "team_length_m": {
+      "mean": 67.63,
+      "median": 67.62,
+      "p25": 67.44,
+      "p75": 67.81,
+      "p90": 68.0,
+      "n": 5000
+    }
+  },
+  "decisions": {
+    "pass_length_m": {
+      "mean": 34.68,
+      "median": 31.69,
+      "p25": 23.94,
+      "p75": 46.33,
+      "p90": 50.86,
+      "n": 507
+    },
+    "pass_completion": 0.771,
+    "shot_conversion": null,
+    "shot_distance_m": null,
+    "action_mix": {
+      "pass": 1.0,
+      "carry": 0.0,
+      "shot": 0.0
+    }
+  }
+}

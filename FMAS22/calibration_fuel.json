@@ -1,0 +1,98 @@
+{
+  "source": "statsbomb-fuel + idsse-fuel",
+  "data_kind": "event decisions + frame-dense all-22 movement",
+  "validation": {
+    "statsbomb": [
+      "frame 9: player p9 out of pitch (56.2,70.3)",
+      "frame 10: player p9 out of pitch (56.2,70.3)",
+      "frame 11: player p10 out of pitch (51.4,70.3)",
+      "frame 17: player p13 out of pitch (61.3,71.4)",
+      "frame 18: player p7 out of pitch (58.6,69.3)",
+      "frame 19: player p7 out of pitch (58.6,69.3)",
+      "frame 31: player p16 out of pitch (105.1,29.4)",
+      "frame 32: player p15 out of pitch (105.2,31.3)",
+      "frame 48: player p7 out of pitch (53.4,70.5)",
+      "frame 49: player p7 out of pitch (53.4,70.5)",
+      "frame 51: player p10 out of pitch (52.7,70.2)"
+    ],
+    "idsse": [
+      "frame 27: ball wildly off pitch",
+      "frame 28: ball wildly off pitch",
+      "frame 29: ball wildly off pitch",
+      "frame 30: ball wildly off pitch",
+      "frame 31: ball wildly off pitch",
+      "frame 32: ball wildly off pitch",
+      "frame 33: ball wildly off pitch",
+      "frame 34: ball wildly off pitch",
+      "frame 35: ball wildly off pitch",
+      "frame 36: ball wildly off pitch",
+      "frame 37: ball wildly off pitch"
+    ]
+  },
+  "fuel": {
+    "statsbomb_matches": 120,
+    "statsbomb_frames": 343700,
+    "idsse_matches": 7,
+    "idsse_frames": 200532,
+    "idsse_rate_hz": 5.0
+  },
+  "movement": {
+    "team_spread_m": {
+      "mean": 16.85,
+      "median": 17.15,
+      "p25": 14.6,
+      "p75": 19.68,
+      "p90": 21.61,
+      "n": 10028
+    },
+    "players_within_12m": {
+      "mean": 3.96,
+      "median": 3,
+      "p25": 2,
+      "p75": 6,
+      "p90": 8,
+      "n": 5014
+    },
+    "team_width_m": {
+      "mean": 39.51,
+      "median": 38.12,
+      "p25": 31.49,
+      "p75": 46.0,
+      "p90": 58.43,
+      "n": 5014
+    },
+    "team_length_m": {
+      "mean": 50.73,
+      "median": 51.36,
+      "p25": 44.38,
+      "p75": 58.54,
+      "p90": 64.85,
+      "n": 5014
+    }
+  },
+  "decisions": {
+    "pass_length_m": {
+      "mean": 17.83,
+      "median": 14.61,
+      "p25": 9.65,
+      "p75": 22.14,
+      "p90": 33.13,
+      "n": 118907
+    },
+    "pass_completion": 0.821,
+    "shot_conversion": 0.123,
+    "shot_distance_m": {
+      "mean": 16.09,
+      "median": 15.15,
+      "p25": 10.34,
+      "p75": 21.43,
+      "p90": 26.1,
+      "n": 2889
+    },
+    "action_mix": {
+      "pass": 0.548,
+      "carry": 0.438,
+      "shot": 0.013
+    }
+  }
+}
