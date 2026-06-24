@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>LOCUS · Queryable Jurisdiction Map</title>
+<style>
+/*
+  LOCUS QUERYABLE JURISDICTION MAP  (single file, no framework, offline-capable)
+
+  DATA: by default reads ./locus-export.json (schema documented below). Set
+  CONFIG.endpoint to a CORS query URL to fetch live instead — same render path.
+  With neither present it falls back to an embedded sample so the map always runs.
+
+  QUERY BY: place (pan/zoom/click the real coordinate map) AND law type
+  (topic + stratum filters + full-text search). Map and result list stay synced.
+
+  HONESTY: every provision keeps its epistemic stratum (verified source text vs
+  model-derived interpretation vs absent provenance) and synthetic scores are
+  shown as model-chain correlations, never as measurements.
+
+  No emoji — all icons are drawn vector marks.
+*/
+:root{
+  --bg:#0c1110; --panel:#121917; --panel2:#19221e; --line:#26322c;
+  --ink:#e9efe9; --dim:#8ba095; --faint:#5d6f67;
+  --src:#5fd3a0; --srcbg:#11241b;
+  --struct:#d8c067; --structbg:#241f0d;
+  --derived:#e8728f; --derivedbg:#281218;
+  --absent:#7e8a84; --absentbg:#1a201d;
+  --land:#1a2420; --landln:#2c3a33; --sea:#0c1110;
+  --accent:#5fd3a0;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased;overscroll-behavior:none}
+body{display:flex;flex-direction:column;height:100dvh;overflow:hidden}
+
+/* header */
+header{flex:0 0 auto;padding:calc(env(safe-area-inset-top) + 10px) 14px 8px;
+  background:var(--panel);border-bottom:1px solid var(--line);z-index:20}
+.kick{display:flex;align-items:center;gap:7px;font-size:10px;letter-spacing:.16em;
+  font-weight:700;color:var(--dim);text-transform:uppercase}
+.kick i{width:14px;height:2px;background:var(--derived)}
+h1{margin:4px 0 0;font-size:17px;font-weight:650;font-family:Georgia,serif;letter-spacing:-.01em}
+.srcline{font-size:10.5px;color:var(--faint);margin-top:2px;display:flex;gap:6px;align-items:center;
+  font-variant-numeric:tabular-nums}
+.srcdot{width:7px;height:7px;border-radius:50%;background:var(--struct)}
+.srcdot.live{background:var(--src)} .srcdot.sample{background:var(--struct)} .srcdot.file{background:var(--src)}
+
+/* query bar */
+.qbar{flex:0 0 auto;display:flex;gap:8px;padding:9px 14px;background:var(--panel);
+  border-bottom:1px solid var(--line);z-index:19;align-items:center}
+.search{flex:1;display:flex;align-items:center;gap:8px;background:var(--panel2);
+  border:1px solid var(--line);border-radius:9px;padding:8px 11px}
+.search svg{flex:0 0 auto}
+.search input{flex:1;background:none;border:none;color:var(--ink);font:inherit;font-size:13px;outline:none}
+.search input::placeholder{color:var(--faint)}
+.qbtn{appearance:none;background:var(--panel2);border:1px solid var(--line);color:var(--dim);
+  border-radius:9px;padding:8px 11px;font:inherit;font-size:12px;font-weight:600;cursor:pointer;
+  display:flex;align-items:center;gap:6px;white-space:nowrap}
+.qbtn[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#06140e}
+
+/* filter chips row (law type) */
+.filters{flex:0 0 auto;display:flex;gap:7px;padding:8px 14px;overflow-x:auto;
+  background:var(--panel);border-bottom:1px solid var(--line);z-index:18;
+  scrollbar-width:none}
+.filters::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;appearance:none;background:var(--panel2);border:1px solid var(--line);
+  color:var(--dim);border-radius:20px;padding:6px 12px;font:inherit;font-size:11.5px;
+  font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.chip[aria-pressed=true]{color:var(--ink)}
+.chip .cdot{width:7px;height:7px;border-radius:50%}
+.chip.count{font-variant-numeric:tabular-nums}
+
+/* stage: map + sheet */
+.stage{flex:1 1 auto;position:relative;overflow:hidden}
+#mapHost{position:absolute;inset:0;touch-action:none;background:
+  radial-gradient(120% 90% at 50% 0%, #10171400, #0c111000),var(--sea)}
+svg#map{display:block;width:100%;height:100%}
+.maphint{position:absolute;left:14px;top:12px;font-size:10.5px;color:var(--faint);
+  background:#0c1110cc;padding:5px 9px;border-radius:7px;border:1px solid var(--line);
+  pointer-events:none;backdrop-filter:blur(4px)}
+.zoomctl{position:absolute;right:12px;bottom:calc(var(--sheetH,46vh) + 12px);display:flex;
+  flex-direction:column;gap:6px;z-index:8;transition:bottom .25s ease}
+.zoomctl button{width:38px;height:38px;border-radius:10px;background:#121917e6;
+  border:1px solid var(--line);color:var(--ink);font-size:20px;font-weight:300;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+.reset-view{position:absolute;left:12px;bottom:calc(var(--sheetH,46vh) + 12px);
+  background:#121917e6;border:1px solid var(--line);color:var(--dim);border-radius:10px;
+  padding:9px 12px;font:inherit;font-size:11.5px;font-weight:600;cursor:pointer;z-index:8;
+  display:flex;align-items:center;gap:7px;backdrop-filter:blur(6px);transition:bottom .25s ease}
+
+/* bottom sheet — results / detail */
+.sheet{position:absolute;left:0;right:0;bottom:0;height:var(--sheetH,46vh);
+  background:var(--panel);border-top:1px solid var(--line);border-radius:16px 16px 0 0;
+  display:flex;flex-direction:column;z-index:10;box-shadow:0 -8px 30px -12px #000a;
+  transition:height .25s ease}
+.grip{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:6px;
+  padding:8px 0 4px;cursor:grab;user-select:none}
+.grip .bar{width:38px;height:4px;border-radius:3px;background:var(--line)}
+.sheet-head{flex:0 0 auto;display:flex;align-items:baseline;justify-content:space-between;
+  padding:2px 16px 10px;gap:10px;border-bottom:1px solid var(--line)}
+.sheet-head .stitle{font-size:14px;font-weight:650;display:flex;align-items:center;gap:8px}
+.sheet-head .scount{font-size:11px;color:var(--faint);font-variant-numeric:tabular-nums}
+.sheet-body{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding:8px 14px calc(env(safe-area-inset-bottom) + 14px)}
+
+/* result row (place) */
+.placecard{background:var(--panel2);border:1px solid var(--line);border-radius:11px;
+  margin:9px 0;overflow:hidden}
+.placecard-h{display:flex;align-items:center;gap:10px;padding:12px 13px;cursor:pointer;user-select:none}
+.pc-dot{width:11px;height:11px;border-radius:50%;flex:0 0 auto;position:relative}
+.pc-dot::after{content:"";position:absolute;inset:-3px;border-radius:50%;border:1px solid currentColor;opacity:.3}
+.pc-name{flex:1;min-width:0}
+.pc-name .nm{font-size:14.5px;font-weight:650}
+.pc-name .meta{font-size:10.5px;color:var(--faint);margin-top:1px}
+.pc-badge{font-size:11px;font-weight:700;font-variant-numeric:tabular-nums;padding:3px 9px;
+  border-radius:20px;background:var(--panel);color:var(--dim);display:flex;align-items:center;gap:5px;flex:0 0 auto}
+.pc-chev{color:var(--faint);transition:transform .22s;font-size:13px}
+.placecard[data-open=true] .pc-chev{transform:rotate(90deg)}
+.pc-stones{max-height:0;overflow:hidden;transition:max-height .32s ease}
+.placecard[data-open=true] .pc-stones{max-height:4000px}
+.pc-stones-inner{padding:0 12px 11px}
+
+/* a provision (law) */
+.stone{background:var(--panel);border-left:3px solid var(--line);border-radius:8px;
+  padding:11px 12px;margin:8px 0}
+.s-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;margin-bottom:7px}
+.s-head{font-size:10.5px;color:var(--faint);font-family:"SF Mono",ui-monospace,monospace;
+  font-weight:600;display:flex;align-items:center;gap:6px}
+.strat{display:inline-flex;align-items:center;gap:5px;font-size:9px;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;padding:3px 7px;border-radius:4px;white-space:nowrap}
+.strat .sw{width:6px;height:6px;border-radius:50%}
+.law-text{font-family:Georgia,serif;font-size:14px;line-height:1.5}
+.s-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+.tag{font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px;display:inline-flex;align-items:center;gap:5px}
+.tag.derived{background:var(--derivedbg);color:var(--derived)}
+.tag.src{background:var(--srcbg);color:var(--src)}
+.mism{margin-top:8px;font-size:11px;line-height:1.4;color:#e0a25c;background:#241608;
+  padding:7px 9px;border-radius:6px;border-left:2px solid #b06a2a}
+.scores{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:9px}
+.sc{background:#1f1216;border:1px solid #3a1f26;border-radius:7px;padding:6px 8px}
+.sc .scl{font-size:9.5px;color:var(--dim);font-weight:600;display:flex;justify-content:space-between;align-items:center}
+.sc .track{height:4px;background:#3a1f26;border-radius:3px;margin:5px 0 4px;overflow:hidden}
+.sc .fill{height:100%;background:linear-gradient(90deg,#a83c54,var(--derived));border-radius:3px}
+.sc .scv{font-family:"SF Mono",ui-monospace,monospace;font-size:11px;font-weight:700;color:var(--derived)}
+.sc .scr{font-size:8.5px;color:#9a6f78;font-family:"SF Mono",ui-monospace,monospace}
+
+/* provenance strip per place */
+.provstrip{display:flex;align-items:center;gap:9px;padding:9px 11px;background:var(--panel);
+  border:1px solid var(--line);border-radius:8px;margin:8px 0 2px}
+.provstrip .pv{font-family:Georgia,serif;font-size:20px;font-weight:700;color:var(--derived);flex:0 0 auto}
+.provstrip .pv span{opacity:.4;font-size:13px}
+.provstrip .pt{font-size:10.5px;line-height:1.4;color:var(--dim)}
+
+/* empty / loading states */
+.empty{padding:40px 20px;text-align:center;color:var(--faint);font-size:13px;line-height:1.6}
+.empty b{display:block;color:var(--dim);font-size:14px;margin-bottom:6px;font-family:Georgia,serif}
+
+/* legend dock */
+footer{flex:0 0 auto;display:flex;gap:13px;justify-content:center;flex-wrap:wrap;
+  padding:9px 12px calc(env(safe-area-inset-bottom) + 9px);background:var(--panel);
+  border-top:1px solid var(--line);z-index:20}
+.leg{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--dim);font-weight:600}
+.leg .d{width:8px;height:8px;border-radius:50%}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="kick"><i></i>LOCUS · QUERYABLE JURISDICTION MAP</div>
+  <h1>Local law, by place and by type</h1>
+  <div class="srcline"><span class="srcdot sample" id="srcDot"></span><span id="srcLabel">loading…</span></div>
+</header>
+
+<div class="qbar">
+  <div class="search">
+    <svg width="15" height="15" viewBox="0 0 16 16"><circle cx="7" cy="7" r="5" fill="none" stroke="#8ba095" stroke-width="1.6"/><line x1="11" y1="11" x2="14.5" y2="14.5" stroke="#8ba095" stroke-width="1.6" stroke-linecap="round"/></svg>
+    <input id="searchInput" type="search" placeholder="Search provision text…" autocomplete="off" autocapitalize="off" spellcheck="false"/>
+  </div>
+  <button class="qbtn" id="scoreBtn" aria-pressed="false" title="Rank by a normative score">
+    <svg width="13" height="13" viewBox="0 0 16 16"><rect x="2" y="9" width="3" height="5" fill="currentColor"/><rect x="6.5" y="5" width="3" height="9" fill="currentColor"/><rect x="11" y="2" width="3" height="12" fill="currentColor"/></svg>
+    Rank
+  </button>
+</div>
+
+<div class="filters" id="filterRow"><!-- topic + stratum chips injected --></div>
+
+<div class="stage">
+  <div id="mapHost">
+    <svg id="map" viewBox="0 0 1000 620" preserveAspectRatio="xMidYMid meet"></svg>
+    <div class="maphint" id="mapHint">Pinch / scroll to zoom · drag to pan · tap a city</div>
+  </div>
+  <button class="reset-view" id="resetView">
+    <svg width="12" height="12" viewBox="0 0 16 16"><path d="M8 2a6 6 0 1 0 6 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M8 2v3M8 2l-2.2 1.4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    Reset view
+  </button>
+  <div class="zoomctl">
+    <button id="zoomIn" aria-label="Zoom in">+</button>
+    <button id="zoomOut" aria-label="Zoom out">−</button>
+  </div>
+
+  <div class="sheet" id="sheet">
+    <div class="grip" id="grip"><div class="bar"></div></div>
+    <div class="sheet-head">
+      <span class="stitle" id="sheetTitle">All jurisdictions</span>
+      <span class="scount" id="sheetCount"></span>
+    </div>
+    <div class="sheet-body" id="sheetBody"></div>
+  </div>
+</div>
+
+<footer id="legend"></footer>
+
+<script>
+"use strict";
+
+/* ============================================================
+   CONFIG — how the map gets its data
+   ------------------------------------------------------------
+   1) FILE  : place locus-export.json next to this HTML (schema below).
+   2) ENDPOINT: set endpoint to a CORS-enabled query URL. The map will
+      GET `${endpoint}?bbox=W,S,E,N&topic=...&q=...` and expect the same
+      JSON shape. Leave null to use the file / embedded sample.
+   ============================================================ */
+const CONFIG = {
+  endpoint: null,                 // e.g. "https://your-host/locus/query"
+  file: "locus-export.json",      // tried if no endpoint
+  attribution: "LOCUS-v1 · LocalLaws (CC BY-NC 4.0)"
+};
+
+/* ============================================================
+   EXPORT SCHEMA  (locus-export.json)
+   {
+     "meta": { "name": "...", "source": "LOCUS-v1", "snapshot": "2026-..." },
+     "places": [
+       {
+         "id": "atl-ga",
+         "city": "Atlanta", "state": "GA",
+         "lat": 33.749, "lng": -84.388,
+         "provenance_present": 0,        // 0..6 fields actually in the row
+         "provisions": [
+           {
+             "code": "Atlanta Code §16-12-1",
+             "stratum": "source|structural|derived|absent",
+             "text": "full provision text",
+             "function": "Rule", "function_verified": false,
+             "topic": "Public Order", "topic_verified": false,
+             "mislabel_note": null,       // or string flag
+             "scores": {                  // model-derived, with GPT correlation
+               "opacity":     [0.34, 0.90],
+               "paternalism": [0.61, 0.82],
+               "discretion":  [0.40, 0.88],
+               "salience":    [0.55, 0.94]
+             }
+           }
+         ]
+       }
+     ]
+   }
+   ============================================================ */
+
+const STRATA = {
+  source:{name:"Source text", c:"--src", bg:"--srcbg", note:"Extracted characters. Trustworthy as text; currentness unproven."},
+  structural:{name:"Structural", c:"--struct", bg:"--structbg", note:"Header/jurisdiction fields attached at ingestion."},
+  derived:{name:"Model-derived", c:"--derived", bg:"--derivedbg", note:"A model-chain interpretation, not a measurement."},
+  absent:{name:"Absent", c:"--absent", bg:"--absentbg", note:"Not in the public release; unverifiable from this row."}
+};
+const SCORE_KEYS = [["opacity","Opacity"],["paternalism","Paternalism"],["discretion","Discretion"],["salience","Salience"]];
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+
+/* ---------- embedded fallback sample (true LOCUS row shape) ---------- */
+const SAMPLE = {
+  meta:{name:"LOCUS sample", source:"LOCUS-v1 (sample)", snapshot:"embedded"},
+  places:[
+    {id:"atl-ga",city:"Atlanta",state:"GA",lat:33.749,lng:-84.388,provenance_present:0,provisions:[
+      {code:"Atlanta Code §16-12-1",stratum:"source",text:"It is unlawful to consume an open container of an alcoholic beverage on any public street, sidewalk, or in any public park except within a licensed entertainment district.",function:"Rule",function_verified:false,topic:"Public Order",topic_verified:false,mislabel_note:null,scores:{opacity:[.34,.90],paternalism:[.61,.82],discretion:[.40,.88],salience:[.55,.94]}},
+      {code:"Atlanta Code §150-200",stratum:"derived",text:"No vehicle shall idle for more than fifteen minutes while parked, standing, or stopped, except as necessary for traffic conditions.",function:"Enforcement",function_verified:false,topic:"Sanitation",topic_verified:false,mislabel_note:"Text governs vehicle idling; label 'Sanitation' may be boundary noise.",scores:{opacity:[.58,.90],paternalism:[.44,.82],discretion:[.66,.88],salience:[.38,.94]}}
+    ]},
+    {id:"mac-ga",city:"Macon",state:"GA",lat:32.841,lng:-83.632,provenance_present:0,provisions:[
+      {code:"Macon-Bibb §22-41",stratum:"structural",text:"All meetings of the commission, including committee and special sessions, shall be open to the public, with notice posted not less than seventy-two hours in advance.",function:"Process",function_verified:false,topic:"Nuisance",topic_verified:false,mislabel_note:"Text concerns public-meeting notice. Label 'Nuisance' is the documented misclassification pattern.",scores:{opacity:[.71,.90],paternalism:[.30,.82],discretion:[.50,.88],salience:[.63,.94]}}
+    ]},
+    {id:"sav-ga",city:"Savannah",state:"GA",lat:32.081,lng:-81.091,provenance_present:0,provisions:[
+      {code:"Savannah Code §6-1004",stratum:"source",text:"Persons of legal drinking age may possess an open container of a malt beverage or wine, not exceeding sixteen fluid ounces, within the designated Historic District.",function:"Rule",function_verified:false,topic:"Public Order",topic_verified:false,mislabel_note:null,scores:{opacity:[.28,.90],paternalism:[.35,.82],discretion:[.38,.88],salience:[.49,.94]}}
+    ]},
+    {id:"tpa-fl",city:"Tampa",state:"FL",lat:27.951,lng:-82.457,provenance_present:0,provisions:[
+      {code:"Tampa Code §14-43",stratum:"source",text:"No person shall consume or possess an open container of an alcoholic beverage upon the public right-of-way except within the Ybor City designated entertainment area.",function:"Rule",function_verified:false,topic:"Public Order",topic_verified:false,mislabel_note:null,scores:{opacity:[.33,.90],paternalism:[.59,.82],discretion:[.42,.88],salience:[.57,.94]}},
+      {code:"Tampa Code §22-100",stratum:"derived",text:"Short-term rental of a residential dwelling for fewer than thirty days requires a certificate of use and payment of the applicable tourist development tax.",function:"Enforcement",function_verified:false,topic:"Zoning",topic_verified:false,mislabel_note:null,scores:{opacity:[.69,.90],paternalism:[.36,.82],discretion:[.55,.88],salience:[.72,.94]}}
+    ]},
+    {id:"mia-fl",city:"Miami",state:"FL",lat:25.762,lng:-80.192,provenance_present:0,provisions:[
+      {code:"Miami Code §37-3",stratum:"derived",text:"It shall be unlawful to feed pigeons or other wild birds on any public property within the city limits.",function:"Enforcement",function_verified:false,topic:"Animals",topic_verified:false,mislabel_note:null,scores:{opacity:[.41,.90],paternalism:[.72,.82],discretion:[.58,.88],salience:[.44,.94]}},
+      {code:"Miami Code §38-71",stratum:"source",text:"No person shall sleep, lie down, or store personal property in or upon any public sidewalk so as to obstruct passage.",function:"Rule",function_verified:false,topic:"Public Order",topic_verified:false,mislabel_note:null,scores:{opacity:[.52,.90],paternalism:[.78,.82],discretion:[.69,.88],salience:[.71,.94]}}
+    ]},
+    {id:"nash-tn",city:"Nashville",state:"TN",lat:36.163,lng:-86.781,provenance_present:0,provisions:[
+      {code:"Metro Code §11.12.070",stratum:"source",text:"It is unlawful to operate an amplified sound system on a transportation vehicle for hire between 10:00 p.m. and the following 6:00 a.m. in residential zones.",function:"Rule",function_verified:false,topic:"Noise",topic_verified:false,mislabel_note:null,scores:{opacity:[.47,.90],paternalism:[.50,.82],discretion:[.61,.88],salience:[.58,.94]}}
+    ]},
+    {id:"atx-tx",city:"Austin",state:"TX",lat:30.267,lng:-97.743,provenance_present:0,provisions:[
+      {code:"Austin Code §9-4-11",stratum:"derived",text:"Sitting or lying on a public sidewalk in the downtown area is prohibited between 7:00 a.m. and 10:00 p.m.",function:"Enforcement",function_verified:false,topic:"Health",topic_verified:false,mislabel_note:"Text is a sit-lie public-order rule; label 'Health' likely boundary noise.",scores:{opacity:[.55,.90],paternalism:[.74,.82],discretion:[.66,.88],salience:[.69,.94]}},
+      {code:"Austin Code §10-1-2",stratum:"source",text:"A short-term rental operating without a valid license commits an offense punishable by a fine not to exceed two thousand dollars per day.",function:"Enforcement",function_verified:false,topic:"Zoning",topic_verified:false,mislabel_note:null,scores:{opacity:[.62,.90],paternalism:[.40,.82],discretion:[.52,.88],salience:[.66,.94]}}
+    ]},
+    {id:"den-co",city:"Denver",state:"CO",lat:39.739,lng:-104.990,provenance_present:0,provisions:[
+      {code:"DRMC §38-86.2",stratum:"source",text:"It shall be unlawful for any person to camp upon any public or private property without the express written consent of the owner.",function:"Rule",function_verified:false,topic:"Public Order",topic_verified:false,mislabel_note:null,scores:{opacity:[.49,.90],paternalism:[.71,.82],discretion:[.64,.88],salience:[.73,.94]}}
+    ]},
+    {id:"chi-il",city:"Chicago",state:"IL",lat:41.878,lng:-87.630,provenance_present:0,provisions:[
+      {code:"Muni Code §8-4-015",stratum:"source",text:"No person shall solicit any contribution while standing on the roadway portion of any street so as to impede the flow of vehicular traffic.",function:"Rule",function_verified:false,topic:"Public Order",topic_verified:false,mislabel_note:null,scores:{opacity:[.51,.90],paternalism:[.45,.82],discretion:[.72,.88],salience:[.55,.94]}},
+      {code:"Muni Code §7-28-720",stratum:"derived",text:"The owner of a dog that defecates on public property shall immediately remove the excrement and dispose of it in a sanitary manner.",function:"Enforcement",function_verified:false,topic:"Animals",topic_verified:false,mislabel_note:null,scores:{opacity:[.36,.90],paternalism:[.55,.82],discretion:[.47,.88],salience:[.42,.94]}}
+    ]},
+    {id:"nyc-ny",city:"New York",state:"NY",lat:40.713,lng:-74.006,provenance_present:0,provisions:[
+      {code:"NYC Admin §10-125",stratum:"source",text:"No person shall consume an alcoholic beverage, or possess an open container containing one, in any public place except where specifically authorized.",function:"Rule",function_verified:false,topic:"Public Order",topic_verified:false,mislabel_note:null,scores:{opacity:[.39,.90],paternalism:[.62,.82],discretion:[.50,.88],salience:[.60,.94]}}
+    ]},
+    {id:"sea-wa",city:"Seattle",state:"WA",lat:47.606,lng:-122.332,provenance_present:0,provisions:[
+      {code:"SMC §15.48.040",stratum:"derived",text:"Storage of personal property in a public place that obstructs pedestrian or vehicular movement is prohibited and may be removed by the city.",function:"Enforcement",function_verified:false,topic:"Nuisance",topic_verified:false,mislabel_note:null,scores:{opacity:[.57,.90],paternalism:[.66,.82],discretion:[.70,.88],salience:[.64,.94]}}
+    ]},
+    {id:"la-ca",city:"Los Angeles",state:"CA",lat:34.052,lng:-118.244,provenance_present:0,provisions:[
+      {code:"LAMC §41.18",stratum:"source",text:"No person shall sit, lie, or sleep in or upon any street, sidewalk, or public right-of-way within five hundred feet of a designated sensitive use.",function:"Rule",function_verified:false,topic:"Public Order",topic_verified:false,mislabel_note:null,scores:{opacity:[.60,.90],paternalism:[.75,.82],discretion:[.68,.88],salience:[.74,.94]}},
+      {code:"LAMC §85.02",stratum:"derived",text:"No person shall use a vehicle as a dwelling on a residential street between the hours of 9:00 p.m. and 6:00 a.m.",function:"Enforcement",function_verified:false,topic:"Zoning",topic_verified:false,mislabel_note:null,scores:{opacity:[.54,.90],paternalism:[.73,.82],discretion:[.65,.88],salience:[.70,.94]}}
+    ]},
+    {id:"sf-ca",city:"San Francisco",state:"CA",lat:37.775,lng:-122.419,provenance_present:0,provisions:[
+      {code:"SF Police Code §168",stratum:"source",text:"It is unlawful to sit or lie upon a public sidewalk in a commercial district between 7:00 a.m. and 11:00 p.m.",function:"Rule",function_verified:false,topic:"Public Order",topic_verified:false,mislabel_note:null,scores:{opacity:[.53,.90],paternalism:[.72,.82],discretion:[.63,.88],salience:[.68,.94]}}
+    ]},
+    {id:"phx-az",city:"Phoenix",state:"AZ",lat:33.448,lng:-112.074,provenance_present:0,provisions:[
+      {code:"Phoenix Code §23-48.01",stratum:"source",text:"No person shall use a public street or sidewalk for camping purposes except as may be specifically authorized.",function:"Rule",function_verified:false,topic:"Public Order",topic_verified:false,mislabel_note:null,scores:{opacity:[.50,.90],paternalism:[.70,.82],discretion:[.62,.88],salience:[.67,.94]}}
+    ]},
+    {id:"bos-ma",city:"Boston",state:"MA",lat:42.360,lng:-71.058,provenance_present:0,provisions:[
+      {code:"Boston Code §16-12.10",stratum:"derived",text:"The keeping of more than three dogs over the age of six months at any single dwelling unit requires a multiple-dog license.",function:"Enforcement",function_verified:false,topic:"Animals",topic_verified:false,mislabel_note:null,scores:{opacity:[.44,.90],paternalism:[.48,.82],discretion:[.46,.88],salience:[.40,.94]}}
+    ]},
+    {id:"msp-mn",city:"Minneapolis",state:"MN",lat:44.978,lng:-93.265,provenance_present:0,provisions:[
+      {code:"MCO §389.65",stratum:"source",text:"No person shall keep chickens within the city without a permit, and no roosters shall be kept at any time.",function:"Rule",function_verified:false,topic:"Animals",topic_verified:false,mislabel_note:null,scores:{opacity:[.38,.90],paternalism:[.52,.82],discretion:[.44,.88],salience:[.41,.94]}}
+    ]}
+  ]
+};
+
+/* ---------- drawn marks ---------- */
+function mark(t,c,s){s=s||13;c=c||"currentColor";
+  if(t==="verified")return`<svg width="${s}" height="${s}" viewBox="0 0 16 16"><path d="M3 8.5l3 3 7-8" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  if(t==="absent")return`<svg width="${s}" height="${s}" viewBox="0 0 16 16"><line x1="4" y1="4" x2="12" y2="12" stroke="${c}" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="4" x2="4" y2="12" stroke="${c}" stroke-width="2" stroke-linecap="round"/></svg>`;
+  if(t==="derived")return`<svg width="${s}" height="${s}" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.5" fill="none" stroke="${c}" stroke-width="1.6" stroke-dasharray="2.2 2.2"/></svg>`;
+  if(t==="flag")return`<svg width="${s}" height="${s}" viewBox="0 0 16 16"><line x1="4" y1="1.5" x2="4" y2="15" stroke="${c}" stroke-width="1.6" stroke-linecap="round"/><path d="M4 2.5h8l-2 2.5 2 2.5H4z" fill="${c}"/></svg>`;
+  if(t==="scroll")return`<svg width="${s}" height="${s}" viewBox="0 0 16 16"><rect x="3" y="2.5" width="10" height="11" rx="1.4" fill="none" stroke="${c}" stroke-width="1.4"/><line x1="5.5" y1="6" x2="10.5" y2="6" stroke="${c}" stroke-width="1.2"/><line x1="5.5" y1="8.5" x2="10.5" y2="8.5" stroke="${c}" stroke-width="1.2"/><line x1="5.5" y1="11" x2="8.5" y2="11" stroke="${c}" stroke-width="1.2"/></svg>`;
+  if(t==="pin")return`<svg width="${s}" height="${s}" viewBox="0 0 16 16"><path d="M8 1.5c2.5 0 4.3 2 4.3 4.4 0 3-4.3 8.1-4.3 8.1S3.7 8.9 3.7 5.9C3.7 3.5 5.5 1.5 8 1.5z" fill="none" stroke="${c}" stroke-width="1.5"/><circle cx="8" cy="5.9" r="1.6" fill="${c}"/></svg>`;
+  return"";
+}
+function stratChip(s){const st=STRATA[s];return`<span class="strat" style="background:${css(st.bg)};color:${css(st.c)}"><span class="sw" style="background:${css(st.c)}"></span>${st.name}</span>`;}
+
+/* ============================================================
+   PROJECTION  — lat/lng -> map coords (continental US, Albers-ish)
+   Simple conic-ish linear fit tuned to CONUS bounds.
+   ============================================================ */
+const VB={w:1000,h:620};
+const BOUNDS={west:-125,east:-66,north:49.5,south:24.5};
+function project(lng,lat){
+  const x=(lng-BOUNDS.west)/(BOUNDS.east-BOUNDS.west)*VB.w;
+  // pseudo-conic: squeeze latitude with a gentle curve so US looks right
+  const t=(BOUNDS.north-lat)/(BOUNDS.north-BOUNDS.south);
+  const curve=t + Math.sin(t*Math.PI)*0.04;
+  const y=curve*VB.h;
+  return [x,y];
+}
+
+/* state label anchors (approx centroids) for context graticule */
+const STATE_ANCHORS=[
+  ["WA",-120.4,47.4],["OR",-120.5,43.9],["CA",-119.4,37.2],["NV",-116.9,39.3],["ID",-114.6,44.4],
+  ["MT",-109.6,47.0],["WY",-107.5,43.0],["UT",-111.6,39.3],["AZ",-111.6,34.2],["CO",-105.5,39.0],
+  ["NM",-106.0,34.4],["ND",-100.5,47.5],["SD",-100.3,44.4],["NE",-99.8,41.5],["KS",-98.3,38.5],
+  ["OK",-97.5,35.5],["TX",-99.3,31.4],["MN",-94.3,46.3],["IA",-93.5,42.0],["MO",-92.5,38.4],
+  ["AR",-92.4,34.8],["LA",-92.0,31.0],["WI",-89.9,44.6],["IL",-89.2,40.0],["MS",-89.7,32.7],
+  ["MI",-84.7,44.3],["IN",-86.3,40.0],["KY",-85.3,37.5],["TN",-86.4,35.8],["AL",-86.8,32.8],
+  ["GA",-83.5,32.7],["FL",-81.7,28.3],["OH",-82.8,40.3],["WV",-80.6,38.6],["NC",-79.4,35.6],
+  ["SC",-80.9,33.9],["VA",-78.7,37.6],["PA",-77.7,40.9],["NY",-75.5,42.9],["VT",-72.7,44.0],
+  ["NH",-71.6,43.7],["ME",-69.2,45.4],["MA",-71.8,42.3],["CT",-72.7,41.6],["RI",-71.5,41.7],
+  ["NJ",-74.5,40.1],["DE",-75.5,39.0],["MD",-76.8,39.0]
+];
+
+/* ---------- state ---------- */
+let DATA=null;
+let view={k:1,x:0,y:0};         // zoom/pan transform
+let activePlace=null;
+const activeTopics=new Set();   // empty = all
+const activeStrata=new Set();   // empty = all
+let searchQ="";
+let scoreRank=null;             // null or score key for ranking
+const openPlaces=new Set();
+
+/* ---------- data load ---------- */
+async function loadData(){
+  const setSrc=(label,cls)=>{document.getElementById("srcLabel").textContent=label;
+    document.getElementById("srcDot").className="srcdot "+cls;};
+  // try endpoint
+  if(CONFIG.endpoint){
+    try{
+      setSrc("querying live endpoint…","live");
+      const u=new URL(CONFIG.endpoint);
+      const r=await fetch(u.toString(),{headers:{"Accept":"application/json"}});
+      if(!r.ok) throw new Error("HTTP "+r.status);
+      DATA=normalize(await r.json());
+      setSrc("live · "+(DATA.meta.source||"endpoint")+" · "+countProvisions()+" provisions","live");
+      return;
+    }catch(e){ console.warn("endpoint failed:",e); }
+  }
+  // try file
+  try{
+    setSrc("reading "+CONFIG.file+"…","file");
+    const r=await fetch(CONFIG.file,{headers:{"Accept":"application/json"}});
+    if(!r.ok) throw new Error("HTTP "+r.status);
+    DATA=normalize(await r.json());
+    setSrc("file · "+(DATA.meta.source||CONFIG.file)+" · "+countProvisions()+" provisions","file");
+    return;
+  }catch(e){ console.warn("file load failed, using embedded sample:",e); }
+  // fallback
+  DATA=normalize(SAMPLE);
+  setSrc("sample · drop locus-export.json to load real data · "+countProvisions()+" provisions","sample");
+}
+function normalize(j){
+  const d={meta:j.meta||{},places:(j.places||[]).map(p=>({
+    id:p.id||(p.city+"-"+p.state).toLowerCase().replace(/\s+/g,""),
+    city:p.city,state:p.state,lat:+p.lat,lng:+p.lng,
+    provenance_present:p.provenance_present||0,
+    provisions:(p.provisions||[]).map(s=>({
+      code:s.code||"§ —", stratum:STRATA[s.stratum]?s.stratum:"derived",
+      text:s.text||"", function:s.function||"—", function_verified:!!s.function_verified,
+      topic:s.topic||"—", topic_verified:!!s.topic_verified,
+      mislabel_note:s.mislabel_note||null,
+      scores:s.scores||{}
+    }))
+  }))};
+  return d;
+}
+function countProvisions(){return DATA.places.reduce((a,p)=>a+p.provisions.length,0);}
+
+/* ---------- query: which provisions pass the current filters ---------- */
+function provisionPasses(s){
+  if(activeTopics.size && !activeTopics.has(s.topic)) return false;
+  if(activeStrata.size && !activeStrata.has(s.stratum)) return false;
+  if(searchQ){
+    const hay=(s.text+" "+s.code+" "+s.topic+" "+s.function).toLowerCase();
+    if(!hay.includes(searchQ)) return false;
+  }
+  return true;
+}
+function placeMatches(p){ return p.provisions.some(provisionPasses); }
+function matchingProvisions(p){ return p.provisions.filter(provisionPasses); }
+
+/* aggregate score for ranking/heat */
+function placeScore(p,key){
+  const vals=matchingProvisions(p).map(s=>s.scores[key]&&s.scores[key][0]).filter(v=>typeof v==="number");
+  if(!vals.length) return null;
+  return Math.max(...vals); // worst-case surfacing
+}
+
+/* ---------- build topic + stratum filter chips ---------- */
+function buildFilters(){
+  const topics=new Map();
+  DATA.places.forEach(p=>p.provisions.forEach(s=>topics.set(s.topic,(topics.get(s.topic)||0)+1)));
+  const row=document.getElementById("filterRow");
+  let html="";
+  // stratum chips
+  Object.entries(STRATA).forEach(([k,st])=>{
+    html+=`<button class="chip strat-chip" data-strat="${k}" aria-pressed="false">
+      <span class="cdot" style="background:${css(st.c)}"></span>${st.name}</button>`;
+  });
+  html+=`<span style="width:1px;background:var(--line);flex:0 0 auto;margin:2px 2px"></span>`;
+  // topic chips, sorted by frequency
+  [...topics.entries()].sort((a,b)=>b[1]-a[1]).forEach(([t,n])=>{
+    html+=`<button class="chip topic-chip count" data-topic="${t}" aria-pressed="false">${t}<span style="opacity:.5">${n}</span></button>`;
+  });
+  row.innerHTML=html;
+  row.querySelectorAll(".topic-chip").forEach(c=>c.addEventListener("click",()=>{
+    const t=c.dataset.topic;
+    activeTopics.has(t)?activeTopics.delete(t):activeTopics.add(t);
+    c.setAttribute("aria-pressed",activeTopics.has(t)?"true":"false");
+    refresh();
+  }));
+  row.querySelectorAll(".strat-chip").forEach(c=>c.addEventListener("click",()=>{
+    const k=c.dataset.strat;
+    activeStrata.has(k)?activeStrata.delete(k):activeStrata.add(k);
+    c.setAttribute("aria-pressed",activeStrata.has(k)?"true":"false");
+    refresh();
+  }));
+}
+
+/* ============================================================
+   MAP rendering
+   ============================================================ */
+const mapSvg=document.getElementById("map");
+function renderMap(){
+  let g="";
+  // subtle land cell backdrop via state anchors (context only, not borders)
+  // graticule
+  for(let lng=-120;lng<=-70;lng+=10){
+    const [x1,y1]=project(lng,BOUNDS.north),[x2,y2]=project(lng,BOUNDS.south);
+    g+=`<line x1="${x1.toFixed(0)}" y1="${y1.toFixed(0)}" x2="${x2.toFixed(0)}" y2="${y2.toFixed(0)}" stroke="${css('--landln')}" stroke-width="0.6" opacity=".5"/>`;
+  }
+  for(let lat=25;lat<=49;lat+=5){
+    const [x1,y1]=project(BOUNDS.west,lat),[x2,y2]=project(BOUNDS.east,lat);
+    g+=`<line x1="${x1.toFixed(0)}" y1="${y1.toFixed(0)}" x2="${x2.toFixed(0)}" y2="${y2.toFixed(0)}" stroke="${css('--landln')}" stroke-width="0.6" opacity=".5"/>`;
+  }
+  // state labels
+  STATE_ANCHORS.forEach(([ab,lng,lat])=>{
+    const [x,y]=project(lng,lat);
+    g+=`<text x="${x.toFixed(0)}" y="${y.toFixed(0)}" text-anchor="middle" font-size="${11/view.k}" fill="${css('--landln')}" font-weight="700" style="pointer-events:none">${ab}</text>`;
+  });
+
+  const heat=scoreRank;
+  // city nodes
+  DATA.places.forEach(p=>{
+    const matches=matchingProvisions(p);
+    const dim = (activeTopics.size||activeStrata.size||searchQ) && matches.length===0;
+    const [x,y]=project(p.lng,p.lat);
+    const n=matches.length || (dim?0:p.provisions.length);
+    // ring tone: dominant stratum among matches (or all)
+    const pool = matches.length?matches:p.provisions;
+    const order={derived:3,structural:2,source:1,absent:0};
+    let dom="source",best=-1; pool.forEach(s=>{if(order[s.stratum]>best){best=order[s.stratum];dom=s.stratum;}});
+    let col=css(STRATA[dom].c);
+    let r=(6+ (matches.length?matches.length:p.provisions.length)*1.6)/Math.sqrt(view.k);
+    let fillop=dim?0.12:1;
+
+    if(heat){
+      const sv=placeScore(p,heat);
+      if(sv==null){ col=css('--faint'); }
+      else { // map 0..1 to derived intensity
+        col=css('--derived'); r=(6+sv*10)/Math.sqrt(view.k);
+      }
+    }
+    const sel=activePlace===p.id;
+    g+=`<g class="cnode" data-id="${p.id}" style="cursor:pointer;opacity:${dim?0.35:1}">
+      <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(r+5/Math.sqrt(view.k)).toFixed(1)}" fill="${col}" opacity="${sel?0.22:0}"/>
+      <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.toFixed(1)}" fill="${css('--panel2')}" stroke="${col}" stroke-width="${(sel?2.4:1.5)/Math.sqrt(view.k)}" fill-opacity="${fillop}"/>
+      ${n>0?`<text x="${x.toFixed(1)}" y="${(y+ r*0.34).toFixed(1)}" text-anchor="middle" font-size="${(r*0.95).toFixed(1)}" font-weight="700" fill="${col}" font-family="ui-monospace,monospace" style="pointer-events:none">${heat&&placeScore(p,heat)!=null?Math.round(placeScore(p,heat)*100):n}</text>`:""}
+      <text x="${x.toFixed(1)}" y="${(y-r-4/Math.sqrt(view.k)).toFixed(1)}" text-anchor="middle" font-size="${(9/Math.sqrt(view.k)).toFixed(1)}" font-weight="700" fill="${css('--ink')}" font-family="Georgia,serif" style="pointer-events:none" opacity="${dim?0.4:0.92}">${p.city}</text>
+    </g>`;
+  });
+
+  mapSvg.innerHTML=`<g transform="translate(${view.x} ${view.y}) scale(${view.k})">${g}</g>`;
+  mapSvg.querySelectorAll(".cnode").forEach(node=>{
+    node.addEventListener("click",ev=>{
+      ev.stopPropagation();
+      selectPlace(node.dataset.id,true);
+    });
+  });
+}
+
+/* ============================================================
+   SHEET (results / detail)
+   ============================================================ */
+function renderSheet(){
+  const body=document.getElementById("sheetBody");
+  const title=document.getElementById("sheetTitle");
+  const count=document.getElementById("sheetCount");
+
+  const filtered = DATA.places.filter(placeMatches);
+  // ranking
+  let places=filtered.slice();
+  if(scoreRank){
+    places.sort((a,b)=>(placeScore(b,scoreRank)||-1)-(placeScore(a,scoreRank)||-1));
+  }else{
+    places.sort((a,b)=>matchingProvisions(b).length-matchingProvisions(a).length);
+  }
+
+  const totalProv=places.reduce((a,p)=>a+matchingProvisions(p).length,0);
+  const activeFilterLabel=[
+    [...activeStrata].map(s=>STRATA[s].name),
+    [...activeTopics]
+  ].flat().join(" · ");
+
+  title.innerHTML = activePlace
+    ? `${mark("pin",css('--accent'),14)} ${places.find(p=>p.id===activePlace)?.city||""}`
+    : (activeFilterLabel? activeFilterLabel : (scoreRank? `Ranked by ${scoreRank}` : "All jurisdictions"));
+  count.textContent = `${places.length} place${places.length!==1?"s":""} · ${totalProv} provision${totalProv!==1?"s":""}`;
+
+  if(!places.length){
+    body.innerHTML=`<div class="empty"><b>No provisions match</b>Clear a filter or change your search to widen the field.</div>`;
+    return;
+  }
+
+  // if a place is selected, float it to top + auto-open
+  if(activePlace){ openPlaces.add(activePlace);
+    places.sort((a,b)=> (a.id===activePlace?-1:0) - (b.id===activePlace?-1:0)); }
+
+  body.innerHTML = places.map(p=>{
+    const matches=matchingProvisions(p);
+    if(!matches.length) return "";
+    const order={derived:3,structural:2,source:1,absent:0};
+    let dom="source",best=-1; matches.forEach(s=>{if(order[s.stratum]>best){best=order[s.stratum];dom=s.stratum;}});
+    const col=css(STRATA[dom].c);
+    const open=openPlaces.has(p.id);
+
+    const stones=matches.map(s=>{
+      const sc=SCORE_KEYS.filter(([k])=>s.scores[k]).map(([k,lab])=>{
+        const [v,r]=s.scores[k];
+        const hot = scoreRank===k;
+        const rLabel = r ? `r=${r}→GPT` : "LOCUS score";
+        return `<div class="sc" style="${hot?`border-color:${css('--derived')}`:""}">
+          <div class="scl">${lab} ${mark("derived",css('--derived'),9)}</div>
+          <div class="track"><div class="fill" style="width:${v*100}%"></div></div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline">
+            <span class="scv">${v.toFixed(2)}</span><span class="scr">${rLabel}</span></div>
+        </div>`;}).join("");
+      return `<div class="stone" style="border-left-color:${css(STRATA[s.stratum].c)}">
+        <div class="s-top">
+          <span class="s-head">${mark("scroll",css('--faint'),11)} ${hi(s.code)}</span>
+          ${stratChip(s.stratum)}
+        </div>
+        <div class="law-text">${hi(s.text)}</div>
+        <div class="s-tags">
+          <span class="tag ${s.function_verified?'src':'derived'}">${mark(s.function_verified?'verified':'derived',s.function_verified?css('--src'):css('--derived'),10)} ${s.function}</span>
+          <span class="tag ${s.topic_verified?'src':'derived'}">${mark(s.topic_verified?'verified':'derived',s.topic_verified?css('--src'):css('--derived'),10)} ${s.topic}</span>
+        </div>
+        ${s.mislabel_note?`<div class="mism">${mark("flag","#e0a25c",11)} ${s.mislabel_note}</div>`:""}
+        ${sc?`<div class="scores">${sc}</div>`:""}
+      </div>`;
+    }).join("");
+
+    return `<div class="placecard" data-id="${p.id}" data-open="${open?'true':'false'}">
+      <div class="placecard-h">
+        <span class="pc-dot" style="background:${col};color:${col}"></span>
+        <div class="pc-name"><div class="nm">${p.city}, ${p.state}</div>
+          <div class="meta">${p.lat.toFixed(3)}, ${p.lng.toFixed(3)} · ${matches.length} of ${p.provisions.length} shown</div></div>
+        <span class="pc-badge">${mark("scroll",css('--dim'),11)} ${matches.length}</span>
+        <span class="pc-chev">›</span>
+      </div>
+      <div class="pc-stones"><div class="pc-stones-inner">
+        <div class="provstrip">
+          <span class="pv">${p.provenance_present}<span>/6</span></span>
+          <span class="pt">provenance fields present. These provisions locate <em>what to read</em>, not prove <em>what governs</em> here.</span>
+        </div>
+        ${stones}
+      </div></div>
+    </div>`;
+  }).join("");
+
+  body.querySelectorAll(".placecard-h").forEach(h=>{
+    h.addEventListener("click",()=>{
+      const card=h.closest(".placecard"); const id=card.dataset.id;
+      const isOpen=card.dataset.open==="true";
+      card.dataset.open=isOpen?"false":"true";
+      isOpen?openPlaces.delete(id):openPlaces.add(id);
+    });
+  });
+}
+
+/* highlight search term in text */
+function hi(str){
+  if(!searchQ) return esc(str);
+  const i=str.toLowerCase().indexOf(searchQ);
+  if(i<0) return esc(str);
+  return esc(str.slice(0,i))+`<mark style="background:${css('--accent')};color:#06140e;border-radius:2px;padding:0 1px">`+esc(str.slice(i,i+searchQ.length))+"</mark>"+esc(str.slice(i+searchQ.length));
+}
+function esc(s){return s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
+
+/* ---------- select place: center map + open sheet ---------- */
+function selectPlace(id,fromMap){
+  activePlace=(activePlace===id && fromMap)?null:id;
+  if(activePlace){
+    const p=DATA.places.find(x=>x.id===activePlace);
+    if(p && fromMap){
+      // ease-zoom toward the city
+      const [x,y]=project(p.lng,p.lat);
+      const targetK=Math.max(view.k,2.2);
+      view.k=targetK;
+      view.x=VB.w/2 - x*targetK;
+      view.y=VB.h/2 - y*targetK;
+      clampView();
+      renderMap();
+      if(window.innerHeight){ setSheetH(0.62); }
+    }
+    openPlaces.add(activePlace);
+  }
+  refresh();
+}
+
+/* ============================================================
+   pan / zoom interaction
+   ============================================================ */
+function clampView(){
+  view.k=Math.max(0.85,Math.min(8,view.k));
+}
+function applyZoom(factor,cx,cy){
+  const rect=mapSvg.getBoundingClientRect();
+  const sx=(cx-rect.left)/rect.width*VB.w;
+  const sy=(cy-rect.top)/rect.height*VB.h;
+  const wx=(sx-view.x)/view.k, wy=(sy-view.y)/view.k;
+  view.k*=factor; clampView();
+  view.x=sx-wx*view.k; view.y=sy-wy*view.k;
+  renderMap();
+}
+(function wirePanZoom(){
+  const host=document.getElementById("mapHost");
+  let dragging=false,lastX=0,lastY=0,pointers=new Map(),pinchDist=0;
+  host.addEventListener("pointerdown",e=>{
+    host.setPointerCapture(e.pointerId);
+    pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(pointers.size===1){dragging=true;lastX=e.clientX;lastY=e.clientY;}
+    if(pointers.size===2){const p=[...pointers.values()];pinchDist=Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y);}
+    document.getElementById("mapHint").style.opacity="0";
+  });
+  host.addEventListener("pointermove",e=>{
+    if(!pointers.has(e.pointerId))return;
+    pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(pointers.size===2){
+      const p=[...pointers.values()];const d=Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y);
+      const cx=(p[0].x+p[1].x)/2,cy=(p[0].y+p[1].y)/2;
+      if(pinchDist) applyZoom(d/pinchDist,cx,cy);
+      pinchDist=d;return;
+    }
+    if(dragging){
+      const rect=mapSvg.getBoundingClientRect();
+      view.x+=(e.clientX-lastX)/rect.width*VB.w;
+      view.y+=(e.clientY-lastY)/rect.height*VB.h;
+      lastX=e.clientX;lastY=e.clientY;renderMap();
+    }
+  });
+  function up(e){pointers.delete(e.pointerId);if(pointers.size<2)pinchDist=0;if(pointers.size===0)dragging=false;}
+  host.addEventListener("pointerup",up);host.addEventListener("pointercancel",up);
+  host.addEventListener("wheel",e=>{e.preventDefault();applyZoom(e.deltaY<0?1.12:0.89,e.clientX,e.clientY);},{passive:false});
+  host.addEventListener("click",()=>{ /* tap empty space clears selection */
+    if(activePlace){activePlace=null;refresh();}
+  });
+})();
+document.getElementById("zoomIn").addEventListener("click",()=>applyZoom(1.3,innerWidth/2,innerHeight*0.3));
+document.getElementById("zoomOut").addEventListener("click",()=>applyZoom(0.77,innerWidth/2,innerHeight*0.3));
+document.getElementById("resetView").addEventListener("click",()=>{view={k:1,x:0,y:0};activePlace=null;refresh();});
+
+/* ---------- sheet drag-resize ---------- */
+function setSheetH(frac){
+  frac=Math.max(0.16,Math.min(0.88,frac));
+  document.documentElement.style.setProperty("--sheetH",(frac*100).toFixed(1)+"vh");
+}
+(function wireSheet(){
+  const grip=document.getElementById("grip");let sy=0,sh=0,drag=false;
+  const start=y=>{drag=true;sy=y;sh=document.getElementById("sheet").getBoundingClientRect().height;};
+  const move=y=>{if(!drag)return;const dy=sy-y;setSheetH((sh+dy)/innerHeight);};
+  grip.addEventListener("pointerdown",e=>{grip.setPointerCapture(e.pointerId);start(e.clientY);});
+  grip.addEventListener("pointermove",e=>move(e.clientY));
+  grip.addEventListener("pointerup",()=>drag=false);
+})();
+setSheetH(0.46);
+
+/* ---------- rank button ---------- */
+document.getElementById("scoreBtn").addEventListener("click",()=>{
+  const keys=[null,"paternalism","opacity","discretion","salience"];
+  const i=keys.indexOf(scoreRank);
+  scoreRank=keys[(i+1)%keys.length];
+  const btn=document.getElementById("scoreBtn");
+  btn.setAttribute("aria-pressed",scoreRank?"true":"false");
+  // rebuild button: icon + label, no fragile node walking
+  const icon=`<svg width="13" height="13" viewBox="0 0 16 16"><rect x="2" y="9" width="3" height="5" fill="currentColor"/><rect x="6.5" y="5" width="3" height="9" fill="currentColor"/><rect x="11" y="2" width="3" height="12" fill="currentColor"/></svg>`;
+  btn.innerHTML = icon + " " + (scoreRank ? ("Rank: "+scoreRank) : "Rank");
+  refresh();
+});
+
+/* ---------- search ---------- */
+let searchTimer=null;
+document.getElementById("searchInput").addEventListener("input",e=>{
+  clearTimeout(searchTimer);
+  searchTimer=setTimeout(()=>{searchQ=e.target.value.trim().toLowerCase();refresh();},120);
+});
+
+/* ---------- legend ---------- */
+function renderLegend(){
+  document.getElementById("legend").innerHTML=Object.values(STRATA).map(st=>
+    `<span class="leg" title="${st.note}"><span class="d" style="background:${css(st.c)}"></span>${st.name}</span>`).join("");
+}
+
+/* ---------- refresh all synced views ---------- */
+function refresh(){ renderMap(); renderSheet(); }
+
+/* ---------- boot ---------- */
+(async function(){
+  renderLegend();
+  await loadData();
+  buildFilters();
+  refresh();
+})();
+window.addEventListener("resize",()=>renderMap(),{passive:true});
+</script>
+</body>
+</html>
