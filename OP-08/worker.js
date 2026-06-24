@@ -10,6 +10,10 @@ const MAX_MSGS = 64;
 const MAX_MSG_BYTES = 16 * 1024;
 const MAX_FILM_BYTES = 512 * 1024;
 const MAX_FILM_FRAMES = 48;
+const MAX_THUNDER_PEERS = 8;
+const MAX_THUNDER_MSGS = 256;
+const MAX_THUNDER_MSG_BYTES = 96 * 1024;
+const MAX_THUNDER_SNAPSHOT_BYTES = 768 * 1024;
 const ROOM_TTL_MS = 15 * 60 * 1000;
 const FILM_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 const PEER_LEASE_MS = 2 * 60 * 1000;
@@ -206,6 +210,12 @@ export default {
 
     if (path.endsWith('/turn') && request.method === 'GET') return handleTurn(request, env);
 
+    const thunderMatch = path.match(/\/trig\/([A-Za-z0-9_-]{8,64})\/(join|send|poll|leave|snapshot)$/);
+    if (thunderMatch) {
+      const id = env.ROOMS.idFromName(`trig:${thunderMatch[1]}`);
+      return env.ROOMS.get(id).fetch(request);
+    }
+
     const match = path.match(/\/room\/([A-Za-z0-9_-]{16,64})\/(join|send|poll|leave|film|compose)$/);
     if (match) {
       const id = env.ROOMS.idFromName(match[1]);
@@ -295,6 +305,134 @@ function findPeer(meta, peerId) {
   return meta.peers.find((peer) => peer.id === peerId);
 }
 
+function safeShortString(value, fallback = '', max = 40) {
+  return typeof value === 'string' ? value.slice(0, max) : fallback;
+}
+
+async function handleThunderRoom(room, request, meta, now) {
+  const url = new URL(request.url);
+  const path = url.pathname;
+
+  if (path.endsWith('/join') && request.method === 'POST') {
+    const body = await readJson(request, 2048);
+    if (meta.peers.length >= MAX_THUNDER_PEERS) return json(request, room.env, { error: 'room-full' }, 409);
+    const peer = {
+      id: newPeerId(),
+      role: meta.peers.length === 0 ? 'host' : 'player',
+      name: safeShortString(body && body.name, 'PLAYER', 24),
+      color: safeShortString(body && body.color, '#19e6c8', 16),
+      last: now,
+    };
+    meta.peers.push(peer);
+    await room.saveMeta(meta, now);
+    return json(request, room.env, {
+      peerId: peer.id,
+      role: peer.role,
+      seq: meta.seq,
+      peers: meta.peers.map((item) => ({
+        id: item.id,
+        role: item.role,
+        name: item.name || 'PLAYER',
+        color: item.color || '#19e6c8',
+      })),
+      maxPeers: MAX_THUNDER_PEERS,
+    });
+  }
+
+  if (path.endsWith('/send') && request.method === 'POST') {
+    const body = await readJson(request, MAX_THUNDER_MSG_BYTES);
+    const peer = body && findPeer(meta, body.peerId);
+    if (!peer) return json(request, room.env, { error: 'invalid-peer' }, 403);
+    if (!body.msg || typeof body.msg !== 'object' || typeof body.msg.type !== 'string') {
+      return json(request, room.env, { error: 'bad-message' }, 400);
+    }
+    const encoded = JSON.stringify(body.msg);
+    if (new TextEncoder().encode(encoded).byteLength > MAX_THUNDER_MSG_BYTES) {
+      return json(request, room.env, { error: 'too-large' }, 413);
+    }
+
+    peer.last = now;
+    meta.seq += 1;
+    const messages = (await room.state.storage.get('trig_msgs')) || [];
+    messages.push({ seq: meta.seq, from: peer.id, msg: body.msg, time: now });
+    if (messages.length > MAX_THUNDER_MSGS) messages.splice(0, messages.length - MAX_THUNDER_MSGS);
+    await room.state.storage.put('trig_msgs', messages);
+    await room.saveMeta(meta, now);
+    return json(request, room.env, { ok: true, seq: meta.seq });
+  }
+
+  if (path.endsWith('/poll') && request.method === 'GET') {
+    const peerId = url.searchParams.get('peerId') || '';
+    const peer = findPeer(meta, peerId);
+    if (!peer) return json(request, room.env, { error: 'invalid-peer' }, 403);
+    const after = Math.max(0, Number.parseInt(url.searchParams.get('after') || '0', 10) || 0);
+    const messages = (await room.state.storage.get('trig_msgs')) || [];
+    peer.last = now;
+    await room.saveMeta(meta, now);
+    return json(request, room.env, {
+      messages: messages.filter((entry) => entry.seq > after && entry.from !== peer.id),
+      seq: meta.seq,
+      peers: meta.peers.map((item) => ({
+        id: item.id,
+        role: item.role,
+        name: item.name || 'PLAYER',
+        color: item.color || '#19e6c8',
+      })),
+    });
+  }
+
+  if (path.endsWith('/snapshot') && request.method === 'GET') {
+    const peerId = url.searchParams.get('peerId') || '';
+    const peer = findPeer(meta, peerId);
+    if (!peer) return json(request, room.env, { error: 'invalid-peer' }, 403);
+    const record = await room.state.storage.get('trig_snapshot');
+    peer.last = now;
+    await room.saveMeta(meta, now);
+    return json(request, room.env, record || { snapshot: null, version: 0, updated: 0 });
+  }
+
+  if (path.endsWith('/snapshot') && request.method === 'POST') {
+    const body = await readJson(request, MAX_THUNDER_SNAPSHOT_BYTES);
+    const peer = body && findPeer(meta, body.peerId);
+    if (!peer) return json(request, room.env, { error: 'invalid-peer' }, 403);
+    if (!body.snapshot || typeof body.snapshot !== 'object') return json(request, room.env, { error: 'bad-snapshot' }, 400);
+    const previous = await room.state.storage.get('trig_snapshot');
+    const version = (previous && Number(previous.version) || 0) + 1;
+    const record = {
+      snapshot: body.snapshot,
+      version,
+      updated: now,
+      author: peer.id,
+    };
+    await room.state.storage.put('trig_snapshot', record);
+
+    peer.last = now;
+    meta.seq += 1;
+    const messages = (await room.state.storage.get('trig_msgs')) || [];
+    messages.push({ seq: meta.seq, from: peer.id, msg: { type: 'snapshot', version }, time: now });
+    if (messages.length > MAX_THUNDER_MSGS) messages.splice(0, messages.length - MAX_THUNDER_MSGS);
+    await room.state.storage.put('trig_msgs', messages);
+    await room.saveMeta(meta, now);
+    return json(request, room.env, { ok: true, version, seq: meta.seq });
+  }
+
+  if (path.endsWith('/leave') && request.method === 'POST') {
+    const body = await readJson(request, 1024);
+    const peer = body && findPeer(meta, body.peerId);
+    if (!peer) return json(request, room.env, { error: 'invalid-peer' }, 403);
+    meta.peers = meta.peers.filter((candidate) => candidate.id !== peer.id);
+    if (meta.peers.length === 0) {
+      await room.state.storage.deleteAll();
+    } else {
+      reconcilePeers(meta, now);
+      await room.saveMeta(meta, now);
+    }
+    return json(request, room.env, { ok: true });
+  }
+
+  return json(request, room.env, { error: 'bad-thunder-operation' }, 400);
+}
+
 function reconcilePeers(meta, now) {
   const previousHost = meta.peers.find((peer) => peer.role === 'host');
   meta.peers = meta.peers.filter((peer) => now - peer.last <= PEER_LEASE_MS);
@@ -346,6 +484,8 @@ export class Room {
     const url = new URL(request.url);
     const path = url.pathname;
     const meta = await this.loadMeta(now);
+
+    if (path.includes('/trig/')) return handleThunderRoom(this, request, meta, now);
 
     if (path.endsWith('/join') && request.method === 'POST') {
       if (meta.peers.length >= 2) return json(request, this.env, { error: 'room-full' }, 409);
