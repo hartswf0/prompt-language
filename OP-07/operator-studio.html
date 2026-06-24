@@ -146,7 +146,7 @@
   /* stage: the current frame, fills remaining space */
   #stage{ flex:1 1 auto; min-height:0; position:relative; background:var(--k); padding:4px; display:flex; align-items:center; justify-content:center; overflow:hidden; }
   #board-wrap{ position:relative; background:var(--w); box-shadow:0 0 0 3px var(--k); overflow:hidden; }
-  canvas#board{ image-rendering:pixelated; image-rendering:crisp-edges; display:block; touch-action:none; cursor:crosshair; background:var(--w); }
+  canvas#board{ image-rendering:auto; display:block; touch-action:none; cursor:crosshair; background:var(--w); }
   #board-empty{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:5px; font-size:13px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--k); opacity:.4; padding:1rem; pointer-events:none; }
   #board-empty span{ font-weight:400; font-size:10px; text-transform:none; letter-spacing:0; opacity:.85; }
 
@@ -262,7 +262,7 @@
 
 <div id="stage">
   <div id="board-wrap">
-    <canvas id="board" width="128" height="96"></canvas>
+    <canvas id="board" width="640" height="480"></canvas>
     <div id="board-empty"><span id="be-n">1</span></div>
   </div>
   <div class="recover" id="recover" role="alert"><div class="msg" id="rec-msg">Lost signal</div><div class="act" id="rec-act">Waiting&hellip;</div></div>
@@ -467,7 +467,7 @@
      costs ~0 per frame.
    - Old-phone-safe: one Sobel pass + browser-native downscale, no shaders.
    ==================================================================== */
-var W=128,H=96,N=W*H;
+var W=128,H=96,N=W*H,BOARD_CELL=5,BOARD_W=W*BOARD_CELL,BOARD_H=H*BOARD_CELL;
 var RAMP=[' ','.',':','-','=','+','#','@'];
 
 // ---- bounded log ----
@@ -890,7 +890,9 @@ var theirPen={node:null,x:0,y:0,on:false}; var _penHide=null;
 var branchChoice={};     // nodeId -> childId to follow downstream
 var tlSelected={},tlSelectMode=false,tlAnchor=null,tlMenuTarget=null,tlLongTimer=null,tlLongFired=false;
 var localAudioTrack=null;
-var board=document.getElementById('board'), bctx=board.getContext('2d');
+var board=document.getElementById('board');
+board.width=BOARD_W; board.height=BOARD_H;
+var bctx=board.getContext('2d');
 
 // ---- resilient transmit: the missing piece. Never throws if the channel is mid-close. ----
 function sendCtl(m){
@@ -989,7 +991,7 @@ var film0=new Uint8Array(N);
 function applyCmds(base, lines){
   var g=base?base.slice():new Uint8Array(N), li;
   for(li=0; li<lines.length; li++){ var t=lines[li]; if(!t)continue; var p=t.split(/\s+/), op=p[0];
-    if(op==='CLR'){ g.fill(clampInk(p[1])); }
+    if(op==='CLR'){ var bg=clampInk(p[1]); g=new Uint8Array(N); if(bg)g.fill(bg); }
     else if(op==='PNT'){ var x=ipt(p[1]),y=ipt(p[2]),w=ipt(p[3]),h=ipt(p[4]),v=clampInk(p[5]); if(w<=0||h<=0||w>W||h>H)continue; var xe=Math.min(W,x+w),ye=Math.min(H,y+h),yy,xx,rb; for(yy=Math.max(0,y);yy<ye;yy++){rb=yy*W;for(xx=Math.max(0,x);xx<xe;xx++)g[rb+xx]=v;} }
     else if(op==='LIN'){ linInto(g, ipt(p[1]),ipt(p[2]),ipt(p[3]),ipt(p[4]), clampInk(p[5])); }
   }
@@ -1064,10 +1066,11 @@ function loadSnapshot(payload){ var segs=payload.split('\f'); var head=segs[0].s
 function setTheirPen(id,x,y){ if(x<0||!id||!nodes[id]){ theirPen.on=false; } else { theirPen.node=id; theirPen.x=x; theirPen.y=y; theirPen.on=true; } if(_penHide)clearTimeout(_penHide); _penHide=setTimeout(function(){ theirPen.on=false; paintBoard(); renderStrip(); },1600); paintBoard(); renderStrip(); }
 
 /* ---- RENDER ---- */
-var DOTR=[0,0.10,0.20,0.30,0.42,0.55,0.72,0.92];
-function renderGridToBoard(grid){ bctx.clearRect(0,0,W,H); bctx.fillStyle='#fff'; bctx.fillRect(0,0,W,H); bctx.fillStyle='#000'; var any=false; for(var y=0;y<H;y++){ var rb=y*W; for(var x=0;x<W;x++){ var v=grid[rb+x]; if(v>0){ any=true; var r=DOTR[v]*0.5; bctx.beginPath(); bctx.arc(x+0.5,y+0.5,Math.max(0.18,r+0.18),0,6.2832); bctx.fill(); } } } return any; }
+var DOTR=[0,0.08,0.13,0.19,0.26,0.32,0.39,0.45]; // cell-relative, matched to icaro-flip dot stamp radii
+function dotRadius(v,scale){ return Math.max(0.4*(scale/BOARD_CELL), (DOTR[v]||0)*scale); }
+function renderGridToBoard(grid){ bctx.setTransform(1,0,0,1,0,0); bctx.clearRect(0,0,BOARD_W,BOARD_H); bctx.fillStyle='#fff'; bctx.fillRect(0,0,BOARD_W,BOARD_H); bctx.fillStyle='#000'; var any=false; for(var y=0;y<H;y++){ var rb=y*W; for(var x=0;x<W;x++){ var v=grid[rb+x]; if(v>0){ any=true; bctx.beginPath(); bctx.arc(x*BOARD_CELL+BOARD_CELL/2,y*BOARD_CELL+BOARD_CELL/2,dotRadius(v,BOARD_CELL),0,6.2832); bctx.fill(); } } } return any; }
 function paintBoard(){ var grid=curGrid(); var any=renderGridToBoard(grid);
-  if(theirPen.on&&theirPen.node===myNode){ bctx.fillStyle='#000'; bctx.fillRect(theirPen.x-3,theirPen.y,7,1); bctx.fillRect(theirPen.x,theirPen.y-3,1,7); bctx.strokeStyle='#000'; bctx.lineWidth=0.6; bctx.strokeRect(theirPen.x-4,theirPen.y-4,8,8); }
+  if(theirPen.on&&theirPen.node===myNode){ var c=BOARD_CELL; bctx.fillStyle='#000'; bctx.fillRect((theirPen.x-3)*c,theirPen.y*c,7*c,Math.max(1,c/2)); bctx.fillRect(theirPen.x*c,(theirPen.y-3)*c,Math.max(1,c/2),7*c); bctx.strokeStyle='#000'; bctx.lineWidth=1; bctx.strokeRect((theirPen.x-4)*c,(theirPen.y-4)*c,8*c,8*c); }
   var be=document.getElementById('board-empty'); _frameEmpty=!any; if(be)be.style.display=(_frameEmpty&&_boardOK)?'flex':'none';
 }
 function thumbInto(grid,cv){ var x=cv.getContext('2d'); x.fillStyle='#fff'; x.fillRect(0,0,cv.width,cv.height); x.fillStyle='#000'; for(var gy=0;gy<H;gy+=2){ for(var gx=0;gx<W;gx+=2){ if(grid[gy*W+gx]>0) x.fillRect((gx/W*cv.width)|0,(gy/H*cv.height)|0,1,1); } } }
@@ -1206,8 +1209,8 @@ var ANIM_SYS=[
 function runBeflixAnim(lines){
   var mat=new Uint8Array(N), frames=[], CAP=Math.min(240,NODE_MAX), i;
   function rect(x,y,w,h,v){ if(w<=0||h<=0)return; var xe=Math.min(W,x+w),ye=Math.min(H,y+h),yy,xx; for(yy=Math.max(0,y);yy<ye;yy++){var rb=yy*W;for(xx=Math.max(0,x);xx<xe;xx++)mat[rb+xx]=v;} }
-  for(i=0;i<lines.length&&frames.length<CAP;i++){ var t=(lines[i]||'').trim(); if(!t||t.charAt(0)==='C'||t.charAt(0)===';')continue; var p=t.split(/\s+/),op=p[0].toUpperCase();
-    if(op==='CLR') mat.fill(clampInk(p[1]));
+  for(i=0;i<lines.length&&frames.length<CAP;i++){ var t=(lines[i]||'').trim(); if(!t||t.charAt(0)===';'||/^C(?:\s|$)/i.test(t))continue; var p=t.split(/\s+/),op=p[0].toUpperCase();
+    if(op==='CLR'){ var bg=clampInk(p[1]); mat=new Uint8Array(N); if(bg)mat.fill(bg); }
     else if(op==='PNT') rect(ipt(p[1]),ipt(p[2]),ipt(p[3]),ipt(p[4]),clampInk(p[5]));
     else if(op==='LIN') linInto(mat,ipt(p[1]),ipt(p[2]),ipt(p[3]),ipt(p[4]),clampInk(p[5]));
     else if(op==='REC'){ var n=Math.min(ipt(p[1])||1,CAP),r; for(r=0;r<n&&frames.length<CAP;r++)frames.push(mat.slice()); }
@@ -1216,11 +1219,19 @@ function runBeflixAnim(lines){
   if(!frames.length)frames.push(mat.slice());
   return frames;
 }
+function extractBeflixCommands(raw){
+  raw=(''+(raw||'')).replace(/```[A-Za-z-]*\n?/g,' ').replace(/```/g,' ');
+  var re=/\b(?:CLR\s+-?\d+|PNT\s+-?\d+\s+-?\d+\s+-?\d+\s+-?\d+\s+-?\d+|LIN\s+-?\d+\s+-?\d+\s+-?\d+\s+-?\d+\s+-?\d+|REC\s+-?\d+|SHF\s+-?\d+\s+-?\d+\s+-?\d+)\b/gi;
+  var out=[],m;
+  while((m=re.exec(raw))&&out.length<5000)out.push(m[0].trim().toUpperCase().replace(/\s+/g,' '));
+  return out;
+}
 function pastedBeflixLines(){
   var el=document.getElementById('beflix-code'), raw=(el&&el.value||'').trim();
   if(!raw){ fireToast('Paste BEFLIX code first'); return null; }
-  var lines=raw.replace(/```[A-Za-z-]*\n?/g,'').replace(/```/g,'').split(/\r?\n/).map(function(s){return s.trim();}).filter(function(s){return s&&/^(C|CLR|PNT|LIN|REC|SHF)\b/i.test(s);});
+  var lines=extractBeflixCommands(raw);
   if(!lines.length){ fireToast('No valid BEFLIX commands'); return null; }
+  log('BEFLIX','parsed '+lines.length+' commands');
   return lines;
 }
 function applyPastedBeflixFrame(){
@@ -1267,7 +1278,7 @@ function fetchT(url, opts, ms){ // fetch with a hard timeout so AI/network can't
 }
 function aiViaServer(idea){ var u=serverUrl(); if(!u)throw new Error('no-server'); if(!room.code||!room.peerId)throw new Error('join-room-first'); return fetchT(u.replace(/\/$/,'')+'/room/'+encodeURIComponent(room.code)+'/compose',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({peerId:room.peerId,idea:idea})},60000).then(function(r){ return r.json().then(function(j){ if(!r.ok)throw new Error(j.error||('server '+r.status)); return j; }); }).then(function(j){ return (j.code||j.text||'').split('\n'); }); }
 function aiViaKey(idea,key){ return fetchT('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1500,system:ANIM_SYS,messages:[{role:'user',content:idea}]})},30000).then(function(r){ if(!r.ok)throw new Error('API '+r.status); return r.json(); }).then(function(d){ return (d.content||[]).filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('\n').replace(/```[A-Za-z-]*\n?/g,'').replace(/```/g,'').split('\n'); }); }
-function cleanAnim(lines){ return lines.map(function(s){return s.trim();}).filter(function(s){return /^(CLR|PNT|LIN|REC|SHF)\b/i.test(s);}); }
+function cleanAnim(lines){ return extractBeflixCommands((lines||[]).join('\n')); }
 async function aiCompose(){
   var idea=(document.getElementById('ai-idea').value||'').trim(); if(!idea){fireToast('Describe a sequence');return;}
   var key=(document.getElementById('ai-key').value||'').trim(); stopPlay(); playThud(); fireToast('Composing sequence\u2026');
@@ -1363,7 +1374,7 @@ document.getElementById('play-btn').addEventListener('click',function(){ initAud
 document.getElementById('fps').addEventListener('input',function(){ FPS=parseInt(this.value,10)||8; var l=document.getElementById('fps-val'); if(l)l.textContent=FPS; });
 
 /* ---- CAPTURE ---- */
-function renderFrameTo(grid,scale){ var c=document.createElement('canvas'); c.width=W*scale; c.height=H*scale; var x=c.getContext('2d'); x.fillStyle='#fff'; x.fillRect(0,0,c.width,c.height); x.fillStyle='#000'; for(var y=0;y<H;y++){ var rb=y*W; for(var gx=0;gx<W;gx++){ var v=grid[rb+gx]; if(v>0){ var r=DOTR[v]*0.5*scale; x.beginPath(); x.arc(gx*scale+scale/2,y*scale+scale/2,Math.max(0.5,r+scale*0.18),0,6.2832); x.fill(); } } } return c; }
+function renderFrameTo(grid,scale){ var c=document.createElement('canvas'); c.width=W*scale; c.height=H*scale; var x=c.getContext('2d'); x.fillStyle='#fff'; x.fillRect(0,0,c.width,c.height); x.fillStyle='#000'; for(var y=0;y<H;y++){ var rb=y*W; for(var gx=0;gx<W;gx++){ var v=grid[rb+gx]; if(v>0){ x.beginPath(); x.arc(gx*scale+scale/2,y*scale+scale/2,dotRadius(v,scale),0,6.2832); x.fill(); } } } return c; }
 function dl(canvas,name){ var a=document.createElement('a'); a.download=name; a.href=canvas.toDataURL('image/png'); a.click(); }
 document.getElementById('cap-frame').addEventListener('click',function(){ playThud(); dl(renderFrameTo(curGrid(),8),'operator-frame.png'); flash(); fireToast('Frame saved'); });
 document.getElementById('cap-sheet').addEventListener('click',function(){ playThud(); var path=activePath(); var cols=Math.min(5,path.length),rows=Math.ceil(path.length/cols),cw=W*2,ch=H*2; var c=document.createElement('canvas'); c.width=cols*cw; c.height=rows*ch; var x=c.getContext('2d'); x.fillStyle='#fff'; x.fillRect(0,0,c.width,c.height); path.forEach(function(id,i){ var fc=renderFrameTo(nodes[id].grid,2); x.drawImage(fc,(i%cols)*cw,Math.floor(i/cols)*ch); }); dl(c,'operator-branch-sheet.png'); flash(); fireToast('Branch sheet saved'); });
