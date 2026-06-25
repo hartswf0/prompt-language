@@ -767,6 +767,7 @@ var CARDS=['card-start','card-invite','card-join','card-server','card-manual'], 
 function showCard(id){ CARDS.forEach(function(c){ var el=document.getElementById(c); if(el)el.classList.toggle('hidden', c!==id); }); }
 function serverKnown(){ return !!serverUrl(); }
 function makeRoomCode(){var bytes=new Uint8Array(16),out='',i;crypto.getRandomValues(bytes);for(i=0;i<bytes.length;i++)out+=('0'+bytes[i].toString(16)).slice(-2);return out;}
+function myClientId(){try{var c=sessionStorage.getItem('operator.clientid');if(c&&/^[A-Za-z0-9_-]{16,80}$/.test(c))return c;}catch(e){}var code='c'+makeRoomCode();try{sessionStorage.setItem('operator.clientid',code);}catch(e){}return code;}
 function myCode(){ try{ var c=localStorage.getItem('operator.mycode'); if(c&&/^[A-Za-z0-9_-]{16,64}$/.test(c))return c; }catch(e){} var code=makeRoomCode(); try{ localStorage.setItem('operator.mycode',code); }catch(e){} return code; }
 function applyServerCtx(){ var first=(serverCtx==='first'); document.getElementById('server-h').textContent=first?'Server':'Settings'; document.getElementById('server-codes').classList.toggle('hidden',!first); document.getElementById('server-back').classList.toggle('hidden',first); }
 function goLiveAsHost(){ // become host of MY permanent room; camera + room start so the link is live
@@ -847,7 +848,7 @@ function joinRoom(recovery,intent){
   log('ROOM',(recovery?'rejoining ':'joining ')+code+' as '+intent);
   if(!recovery)roomReset();
   room.code=code;room.rejoining=!!recovery;
-  var joinBody={intent:intent};
+  var joinBody={intent:intent,clientId:myClientId()};
   if(!recovery&&intent==='host')joinBody.reset=true;
   return fetchWithTimeout(u+'/room/'+encodeURIComponent(code)+'/join',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(joinBody)},15000)
     .then(function(r){return r.json().then(function(body){if(!r.ok){var error=new Error(body.error||('join-'+r.status));error.status=r.status;throw error;}return body;});})

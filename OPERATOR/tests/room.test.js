@@ -97,6 +97,42 @@ test('host reset clears stale peers before joining permanent room', async () => 
   assert.ok(resetHost.epoch > 1);
 });
 
+test('repeat joins from the same browser tab do not consume extra room slots', async () => {
+  const room = new Room({ storage: new MemoryStorage() }, {});
+  const hostClient = 'client-host-0001';
+  const guestClient = 'client-guest-0001';
+
+  const host = await body(await room.fetch(request('join', {
+    method: 'POST',
+    body: { intent: 'host', reset: true, clientId: hostClient },
+  })));
+  assert.equal(host.role, 'host');
+  assert.equal(host.peers, 1);
+
+  const duplicateHost = await body(await room.fetch(request('join', {
+    method: 'POST',
+    body: { intent: 'host', reset: true, clientId: hostClient },
+  })));
+  assert.equal(duplicateHost.peerId, host.peerId);
+  assert.equal(duplicateHost.role, 'host');
+  assert.equal(duplicateHost.peers, 1);
+
+  const guest = await body(await room.fetch(request('join', {
+    method: 'POST',
+    body: { intent: 'guest', clientId: guestClient },
+  })));
+  assert.equal(guest.role, 'guest');
+  assert.equal(guest.peers, 2);
+
+  const duplicateGuest = await body(await room.fetch(request('join', {
+    method: 'POST',
+    body: { intent: 'guest', clientId: guestClient },
+  })));
+  assert.equal(duplicateGuest.peerId, guest.peerId);
+  assert.equal(duplicateGuest.role, 'guest');
+  assert.equal(duplicateGuest.peers, 2);
+});
+
 test('unknown peers cannot send or poll room signaling', async () => {
   const room = new Room({ storage: new MemoryStorage() }, {});
   await room.fetch(request('join', { method: 'POST', body: {} }));

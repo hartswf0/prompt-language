@@ -309,6 +309,10 @@ function safeShortString(value, fallback = '', max = 40) {
   return typeof value === 'string' ? value.slice(0, max) : fallback;
 }
 
+function safeClientId(value) {
+  return typeof value === 'string' && /^[A-Za-z0-9_-]{12,80}$/.test(value) ? value : '';
+}
+
 async function handleThunderRoom(room, request, meta, now) {
   const url = new URL(request.url);
   const path = url.pathname;
@@ -490,6 +494,19 @@ export class Room {
     if (path.endsWith('/join') && request.method === 'POST') {
       const body = await readJson(request, 2048);
       const intent = body && (body.intent === 'host' || body.intent === 'guest') ? body.intent : '';
+      const clientId = safeClientId(body && body.clientId);
+      const existing = clientId ? meta.peers.find((peer) => peer.clientId === clientId) : null;
+      if (existing) {
+        existing.last = now;
+        await this.saveMeta(meta, now);
+        return json(request, this.env, {
+          peerId: existing.id,
+          role: existing.role,
+          seq: meta.seq,
+          peers: meta.peers.length,
+          epoch: meta.epoch,
+        });
+      }
       if (body && body.reset === true && intent === 'host') {
         meta.peers = [];
         meta.seq = 0;
@@ -503,6 +520,7 @@ export class Room {
       const peer = {
         id: newPeerId(),
         role: meta.peers.length === 0 ? 'host' : 'guest',
+        clientId: clientId || undefined,
         last: now,
       };
       meta.peers.push(peer);
