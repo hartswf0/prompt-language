@@ -120,6 +120,10 @@
   button.ic.primary{ background:var(--w);color:var(--k); }
   button.ic.off{ opacity:.45; text-decoration:line-through; }
   button.ic:disabled{ opacity:.3; }
+  @media (max-width:560px){
+    #bar{ padding-right:68px; }
+    #logopen{ position:fixed; top:max(6px,env(safe-area-inset-top)); right:6px; z-index:120; min-height:36px; padding:7px 10px; background:var(--aB); color:var(--k); border-color:var(--w); box-shadow:0 0 0 2px var(--k); }
+  }
   #bar .status-self .ind{ background:var(--w); }
   #bar.s-live .ind{ background:var(--w); animation:blink 1.1s steps(1) infinite; }
   #bar.s-conn .ind{ background:linear-gradient(90deg,var(--w) 50%,transparent 50%); animation:blink .7s steps(1) infinite; }
@@ -128,10 +132,12 @@
   /* faces: thin presence tiles */
   #faces{ flex:0 0 46px; display:grid; grid-template-columns:1fr 1fr; gap:2px; background:var(--k); padding:2px 2px 0; }
   .ftile{ position:relative; background:var(--w); overflow:hidden; display:flex; align-items:center; justify-content:center; }
-  .ftile.self-tile{ box-shadow:inset 0 0 0 3px var(--aC); }
-  .ftile.remote-tile{ box-shadow:inset 0 0 0 3px var(--aA); }
-  .ftile.self-tile .flabel{ background:var(--aC); color:var(--w); }
-  .ftile.remote-tile .flabel{ background:var(--aA); color:var(--w); }
+  .ftile.self-tile{ box-shadow:inset 0 0 0 3px var(--k); }
+  .ftile.remote-tile{ box-shadow:inset 0 0 0 3px var(--k); }
+  .ftile.host-tile{ box-shadow:inset 0 0 0 3px var(--aC); }
+  .ftile.guest-tile{ box-shadow:inset 0 0 0 3px var(--aA); }
+  .ftile.host-tile .flabel{ background:var(--aC); color:var(--w); }
+  .ftile.guest-tile .flabel{ background:var(--aA); color:var(--w); }
   .flabel{ position:absolute; top:0; left:0; right:0; z-index:2; font-size:8px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; padding:1px 5px; background:var(--k); color:var(--w); display:flex; }
   .flabel .tag{ margin-left:auto; opacity:.6; font-style:normal; }
   .ftile .placeholder{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; text-align:center; font-size:9px; opacity:.5; padding:.2rem; pointer-events:none; }
@@ -142,11 +148,11 @@
   #tl-strip{ flex:1 1 auto; display:flex; gap:5px; padding:2px 6px; overflow-x:auto; align-items:center; -webkit-overflow-scrolling:touch; }
   #tl-strip::-webkit-scrollbar{ display:none; }
   .tlc{ position:relative; flex:0 0 auto; width:42px; height:32px; border:3px solid var(--k); background:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; }
-  .tlc.me{ outline:3px solid var(--aC); outline-offset:1px; }
-  .tlc.them{ border-color:var(--aA); }
-  .tlc.au-me{ box-shadow:inset 0 -5px 0 var(--aC); }
-  .tlc.au-them{ box-shadow:inset 0 -5px 0 var(--aA); }
   .tlc.au-other{ box-shadow:inset 0 -5px 0 var(--aB); }
+  .tlc.au-host{ box-shadow:inset 0 -5px 0 var(--aC); }
+  .tlc.au-guest{ box-shadow:inset 0 -5px 0 var(--aA); }
+  .tlc.cursor-host{ outline:3px solid var(--aC); outline-offset:1px; }
+  .tlc.cursor-guest{ outline:3px solid var(--aA); outline-offset:1px; }
   canvas.tlthumb{ position:absolute; inset:0; width:100%; height:100%; image-rendering:pixelated; }
   .tlnum{ position:relative; z-index:2; font-size:11px; font-weight:700; color:var(--k); background:rgba(255,255,255,.7); padding:0 2px; }
   .tlauth{ position:absolute; z-index:3; top:-2px; left:-2px; background:var(--k); color:var(--w); font-size:7px; font-weight:700; letter-spacing:.04em; padding:0 3px; }
@@ -248,12 +254,12 @@
   #edl-viz{ margin-top:8px; border:3px solid var(--k); max-height:150px; overflow:auto; background:var(--w); }
   .edl-row{ display:grid; grid-template-columns:34px 48px 1fr 42px; align-items:center; gap:6px; padding:5px 7px; border-bottom:2px solid var(--k); font-size:10px; font-weight:700; letter-spacing:.03em; }
   .edl-row:last-child{ border-bottom:0; }
-  .edl-row.me{ background:linear-gradient(90deg,rgba(230,0,0,.16),transparent); }
-  .edl-row.them{ background:linear-gradient(90deg,rgba(0,51,204,.16),transparent); }
+  .edl-row.host{ background:linear-gradient(90deg,rgba(230,0,0,.16),transparent); }
+  .edl-row.guest{ background:linear-gradient(90deg,rgba(0,51,204,.16),transparent); }
   .edl-row.both{ background:linear-gradient(90deg,rgba(230,0,0,.16),rgba(0,51,204,.16)); }
   .edl-dot{ width:13px; height:13px; border:2px solid var(--k); background:var(--aB); display:inline-block; }
-  .edl-dot.me{ background:var(--aC); }
-  .edl-dot.them{ background:var(--aA); }
+  .edl-dot.host{ background:var(--aC); }
+  .edl-dot.guest{ background:var(--aA); }
   .edl-loc{ opacity:.6; text-transform:uppercase; }
 </style>
 </head>
@@ -273,8 +279,8 @@
 </div>
 
 <div id="faces">
-  <div class="ftile self-tile"><span class="flabel">YOU<i class="tag" id="tag-you">self</i></span><pre class="facetext" id="face-you"></pre></div>
-  <div class="ftile remote-tile"><span class="flabel">THEM<i class="tag" id="tag-them">&mdash;</i></span><pre class="facetext" id="face-them"></pre><div class="placeholder" id="ph-them">no one</div></div>
+  <div class="ftile self-tile" id="tile-you"><span class="flabel"><b id="label-you">LOCAL</b><i class="tag" id="tag-you">self</i></span><pre class="facetext" id="face-you"></pre></div>
+  <div class="ftile remote-tile" id="tile-them"><span class="flabel"><b id="label-them">REMOTE</b><i class="tag" id="tag-them">&mdash;</i></span><pre class="facetext" id="face-them"></pre><div class="placeholder" id="ph-them">no one</div></div>
 </div>
 
 <div id="timeline">
@@ -283,11 +289,12 @@
     <button id="op-ext" type="button">+Frame</button>
     <button id="op-fork" type="button">Fork</button>
     <button id="op-del" type="button">Del</button>
+    <button id="op-select" type="button">Select</button>
     <button id="play-btn" type="button">Play</button>
     <span class="mini" style="flex:0 0 auto">FPS</span><input type="range" id="fps" min="1" max="24" value="8" style="width:54px;min-width:54px;flex:0 0 auto"><span class="mini" id="fps-val" style="flex:0 0 auto">8</span>
     <span class="cnt" id="tl-count">1 / 1</span>
   </div>
-  <div id="tl-note">A collaborator is on another branch &mdash; see <b>Branches</b></div>
+  <div id="tl-note">Remote participant is on another branch &mdash; see <b>Branches</b></div>
 </div>
 
 <div id="stage">
@@ -342,7 +349,7 @@
     <input type="file" id="img-file" accept="image/*,video/*" hidden>
   </details>
   <details class="grp"><summary>Face</summary>
-    <div class="toolrow"><button id="trace-you" type="button">My face</button><button id="trace-them" type="button">Their face</button></div>
+    <div class="toolrow"><button id="trace-you" type="button">Drop local face</button><button id="trace-them" type="button">Drop remote face</button></div>
     <button id="wipe-frame" type="button" style="width:100%;margin-top:8px">Clear frame</button>
   </details>
 </div>
@@ -386,7 +393,7 @@
 </div>
 
 <div class="panel" id="panel-chat">
-  <h3>Chat &mdash; your words draw your face</h3>
+  <h3>Chat &mdash; words draw faces</h3>
   <div class="chat-log" id="chat-log" aria-live="polite"></div>
   <div class="chat-input"><input id="chat-text" type="text" maxlength="500" placeholder="Type&hellip;" autocomplete="off"><button id="chat-send" type="button">Send</button></div>
 </div>
@@ -450,7 +457,7 @@
       </div>
       <div class="cc hidden" id="card-server">
         <h3 class="cc-h" id="server-h">Server</h3>
-        <div class="copy-row"><input id="server-url" type="text" placeholder="https://operator.YOU.workers.dev" autocomplete="off"><button id="server-copy" type="button">Copy</button></div>
+        <div class="copy-row"><input id="server-url" type="text" placeholder="https://operator.example.workers.dev" autocomplete="off"><button id="server-copy" type="button">Copy</button></div>
         <div class="relay-state" id="server-state">No server set</div>
         <button id="server-save" class="primary cc-big" type="button">Save</button>
         <details class="relay" id="relay-box" style="margin-top:12px"><summary>Relay</summary><textarea id="relay-cfg" placeholder='[{"urls":"stun:stun.cloudflare.com:3478"}]'></textarea><div class="relay-state" id="relay-state">Direct only</div></details>
@@ -464,13 +471,13 @@
       </div>
     </div>
     <div id="pane-host" class="hidden">
-      <div class="field"><label>Step A &mdash; send this to them</label><div class="copy-row"><textarea id="host-out" readonly placeholder="creating&hellip;"></textarea><button id="host-copy" type="button">Copy</button></div></div>
-      <div class="field"><label>Step B &mdash; paste their reply, then Connect</label><textarea id="host-in" placeholder="their reply"></textarea><div class="row"><button id="host-apply" class="primary" type="button">Connect</button></div></div>
+      <div class="field"><label>Step A &mdash; HOST sends this to GUEST</label><div class="copy-row"><textarea id="host-out" readonly placeholder="creating&hellip;"></textarea><button id="host-copy" type="button">Copy</button></div></div>
+      <div class="field"><label>Step B &mdash; HOST pastes GUEST reply, then Connect</label><textarea id="host-in" placeholder="GUEST reply"></textarea><div class="row"><button id="host-apply" class="primary" type="button">Connect</button></div></div>
       <p class="waiting hidden" id="host-wait">Connecting&hellip;</p>
     </div>
     <div id="pane-guest" class="hidden">
-      <div class="field"><label>Step A &mdash; paste their code</label><textarea id="guest-in" placeholder="their code"></textarea><div class="row"><button id="guest-make" class="primary" type="button">Make reply</button></div></div>
-      <div class="field hidden" id="guest-out-field"><label>Step B &mdash; send this back</label><div class="copy-row"><textarea id="guest-out" readonly></textarea><button id="guest-copy" type="button">Copy</button></div><p class="waiting" id="guest-wait">Then wait &mdash; connects automatically.</p></div>
+      <div class="field"><label>Step A &mdash; GUEST pastes HOST code</label><textarea id="guest-in" placeholder="HOST code"></textarea><div class="row"><button id="guest-make" class="primary" type="button">Make reply</button></div></div>
+      <div class="field hidden" id="guest-out-field"><label>Step B &mdash; GUEST sends this reply to HOST</label><div class="copy-row"><textarea id="guest-out" readonly></textarea><button id="guest-copy" type="button">Copy</button></div><p class="waiting" id="guest-wait">Then wait &mdash; connects automatically.</p></div>
     </div>
   </div>
 </dialog>
@@ -640,7 +647,7 @@ function onControl(data){
   if(op==='F'){ var nl=data.indexOf('\n'); var id=data.slice(2,nl); var lines=data.slice(nl+1).split('\n'); if(nodes[id]){ nodes[id].grid=applyCmds(nodes[id].grid,lines); if(id===myNode)paintBoard(); renderThumb(id); } else requestSync('missing-frame'); return; }
   if(op==='K'){ var pr=rest.split(' '); var par=pr[0], nid=pr[1]; if(nodes[par]&&!nodes[nid]){ mkNode(par,null,nid,'PEER'); } else if(!nodes[par]) requestSync('missing-parent'); renderStrip(); renderBranches(); return; }
   if(op==='X'){ delNode(rest); renderStrip(); renderBranches(); paintBoard(); return; }
-  if(op==='C'){ theirNode=rest; if(rest&&!nodes[rest])requestSync('unknown-cursor'); renderStrip(); renderBranches(); var tg=document.getElementById('tag-them'); if(tg)tg.textContent=nodes[rest]?('f'+depthOf(rest)):'\u2014'; return; }
+  if(op==='C'){ theirNode=rest; if(rest&&!nodes[rest])requestSync('unknown-cursor'); renderStrip(); renderBranches(); var tg=document.getElementById('tag-them'); if(tg)tg.textContent=nodes[rest]?(roleLabel(effectiveRemoteRole()||'remote')+' f'+depthOf(rest)):'\u2014'; return; }
   if(op==='P'){ var c=rest.split(' '); setTheirPen(c[0],parseInt(c[1],10),parseInt(c[2],10)); return; }
   if(op==='Z'){ loadSnapshot(rest); return; }
   }catch(e){ log('RECV','bad msg: '+(e&&e.message||e)); }
@@ -658,7 +665,7 @@ function sendChat(){
 function renderChat(who,text){
   var box=document.getElementById('chat-log'); if(!box)return;
   var d=document.createElement('div'); d.className='cm'+(who==='me'?' me':'');
-  var w=document.createElement('span'); w.className='cw'; w.textContent=(who==='me'?'you ':'them ');
+  var w=document.createElement('span'); w.className='cw'; w.textContent=(who==='me'?(roleLabel(effectiveLocalRole()||'local')+' '):(roleLabel(effectiveRemoteRole()||'remote')+' '));
   var t=document.createElement('span'); t.textContent=text;
   d.appendChild(w); d.appendChild(t); box.appendChild(d); box.scrollTop=box.scrollHeight;
   while(box.children.length>200) box.removeChild(box.firstChild);
@@ -687,7 +694,8 @@ function receiveFrame(data){
   lastSeq=dec.seq; gotRemote=true; lastRxMs=Date.now();
   themGrid=dec.grid;
   document.getElementById('ph-them').classList.add('hidden');
-  document.getElementById('tag-them').textContent=connType?('live '+(connType==='relay'?'(relay)':'(direct)')):'live';
+  document.getElementById('tag-them').textContent=(roleLabel(effectiveRemoteRole()||'remote')+' '+(connType?(connType==='relay'?'relay':'direct'):'live'));
+  updateParticipantLabels();
   paintFace(dec.grid, faceThem, themInk);
   if(uiState==='FROZEN') setUIState(link&&link.kind==='webrtc'?'CONNECTED':'SELF');
 }
@@ -720,8 +728,8 @@ var faceYou=document.getElementById('face-you'), faceThem=document.getElementByI
 /* ==================== STATE MACHINE ==================== */
 var connType='';
 var STATES={
-  OFFLINE:{cls:'',where:'Off',what:'Press Call to start a call and get your link'},
-  SELF:{cls:'s-self',where:'Ready',what:'Press Call \u2014 share your link, they step in'},
+  OFFLINE:{cls:'',where:'Off',what:'Press Call to start as HOST and get a GUEST link'},
+  SELF:{cls:'s-self',where:'Ready',what:'Press Call \u2014 HOST shares, GUEST joins'},
   CONNECTING:{cls:'s-conn',where:'Connecting',what:'Connecting \u2014 wait a few seconds'},
   CONNECTED:{cls:'s-live',where:'On a call',what:'Open Make to draw on the same film'},
   FROZEN:{cls:'s-frozen',where:'No signal',what:'Signal dropped \u2014 wait, or press End'}
@@ -729,6 +737,23 @@ var STATES={
 var uiState='OFFLINE';
 var statusEl=document.getElementById('bar'),whereEl=document.getElementById('st-where'),roleChip=document.getElementById('role-chip');
 var localRole='none', intendedRole='';
+function roleLabel(role){ return role==='host'?'HOST':(role==='guest'?'GUEST':(role==='wait'?'WAIT':'LOCAL')); }
+function roleClass(role){ return role==='host'?'host':(role==='guest'?'guest':''); }
+function roleColor(role){ return role==='host'?'#e60000':(role==='guest'?'#0033cc':'#c8a800'); }
+function effectiveLocalRole(){ var r=(typeof room!=='undefined'&&room&&room.role)||localRole; if(r==='wait')r=intendedRole; return (r==='host'||r==='guest')?r:''; }
+function effectiveRemoteRole(){ var r=effectiveLocalRole(); return r==='host'?'guest':(r==='guest'?'host':''); }
+function setTileRole(tile,role){ if(!tile)return; tile.classList.remove('host-tile','guest-tile'); if(role==='host')tile.classList.add('host-tile'); if(role==='guest')tile.classList.add('guest-tile'); }
+function updateParticipantLabels(){
+  var mine=effectiveLocalRole(), remote=effectiveRemoteRole();
+  var ly=document.getElementById('label-you'), lt=document.getElementById('label-them');
+  if(ly)ly.textContent=mine?roleLabel(mine):'LOCAL';
+  if(lt)lt.textContent=remote?roleLabel(remote):'REMOTE';
+  setTileRole(document.getElementById('tile-you'),mine);
+  setTileRole(document.getElementById('tile-them'),remote);
+  var ty=document.getElementById('trace-you'), tt=document.getElementById('trace-them');
+  if(ty)ty.textContent='Drop '+(mine?roleLabel(mine):'local')+' face';
+  if(tt)tt.textContent='Drop '+(remote?roleLabel(remote):'remote')+' face';
+}
 function setLocalRole(role, detail){
   localRole=role||'none';
   if(roleChip){
@@ -737,6 +762,7 @@ function setLocalRole(role, detail){
   }
   var tag=document.getElementById('tag-you');
   if(tag)tag.textContent=role==='host'?'HOST':(role==='guest'?'GUEST':(role==='wait'?'WAIT':'self'));
+  updateParticipantLabels();
 }
 function setUIState(name){
   if(!STATES[name])return; if(name!==uiState)log('STATE',uiState+' -> '+name); uiState=name; var s=STATES[name];
@@ -747,7 +773,8 @@ function setUIState(name){
   document.getElementById('connect').disabled=(name==='OFFLINE');
   if(localRole==='none')document.getElementById('tag-you').textContent=(name==='CONNECTED')?'live':'self';
   var fc=document.getElementById('faces'); if(fc)fc.style.display=(name==='OFFLINE')?'none':'';
-  var br=document.getElementById('bar'); if(br)br.style.display=(name==='OFFLINE')?'none':'';
+  var br=document.getElementById('bar'); if(br)br.style.display='';
+  updateParticipantLabels();
   setTimeout(fitBoard,0);
 }
 function showRecover(onCall,title){document.getElementById('rec-msg').textContent=title||(onCall?'Lost signal':'Camera stopped');document.getElementById('rec-act').textContent=onCall?(title?'Network dropped \u2014 restoring automatically\u2026':'Recovering. If frozen, press End.'):'Press Start to retry.';}
@@ -802,10 +829,10 @@ function normalizeServerUrl(raw){raw=(''+(raw||'')).trim().replace(/\/+$/,'');re
 function storedServerUrl(){try{return localStorage.getItem(SERVER_STORAGE_KEY)||localStorage.getItem('operator.server')||'';}catch(e){return '';}}
 function initialServerUrl(){var query='';try{query=new URLSearchParams(location.search).get('server')||'';}catch(e){}var meta=document.querySelector('meta[name="beflix-worker-url"]');return normalizeServerUrl(query)||normalizeServerUrl(storedServerUrl())||normalizeServerUrl(meta&&meta.content);}
 function serverUrl(){return normalizeServerUrl(serverInput.value);}
-function refreshServerState(){var raw=(serverInput.value||'').trim(),u=serverUrl(),el=document.getElementById('server-state');if(serverHealthTimer)clearTimeout(serverHealthTimer);if(!raw)el.textContent='No server set \u2014 manual codes only';else if(!u)el.textContent='Use a valid https:// Worker URL';else{el.textContent='Worker URL saved \u2014 checking live capabilities';serverHealthTimer=setTimeout(checkServerHealth,200);}}
+function refreshServerState(checkNow){var raw=(serverInput.value||'').trim(),u=serverUrl(),el=document.getElementById('server-state');if(serverHealthTimer)clearTimeout(serverHealthTimer);if(!raw)el.textContent='No server set \u2014 manual codes only';else if(!u)el.textContent='Use a valid https:// Worker URL';else{el.textContent=checkNow===false?'Worker URL saved':'Worker URL saved \u2014 checking live capabilities';if(checkNow!==false)serverHealthTimer=setTimeout(checkServerHealth,200);}}
 function checkServerHealth(){var u=serverUrl(),el=document.getElementById('server-state');if(!u)return;fetchWithTimeout(u+'/health',{headers:{Accept:'application/json'}},8000).then(function(r){if(!r.ok)throw new Error('health-'+r.status);return r.json();}).then(function(d){var turn=d.turn==='cloudflare'?'Cloudflare TURN':(d.turn==='coturn'?'coturn TURN':'STUN only / no relay');var composer=d.composer?'composer live':'composer needs OPENAI_API_KEY';el.textContent='Rooms live \u00b7 '+turn+' \u00b7 '+composer;}).catch(function(e){el.textContent='Worker unreachable \u2014 room codes may fail';log('HEALTH',e.message);});}
 function saveServer(){var u=serverUrl();try{if(u)localStorage.setItem(SERVER_STORAGE_KEY,u);else localStorage.removeItem(SERVER_STORAGE_KEY);}catch(e){}}
-function loadServer(){serverInput.value=initialServerUrl();saveServer();refreshServerState();}
+function loadServer(){serverInput.value=initialServerUrl();saveServer();refreshServerState(false);}
 function fetchWithTimeout(url,opts,ms){var ctl=('AbortController' in window)?new AbortController():null;if(ctl)opts=Object.assign({},opts||{},{signal:ctl.signal});var to=setTimeout(function(){if(ctl)try{ctl.abort();}catch(e){}},ms||15000);return fetch(url,opts||{}).then(function(r){clearTimeout(to);return r;},function(e){clearTimeout(to);if(e&&e.name==='AbortError')throw new Error('timeout');throw e;});}
 // ---- one-tap invite link: encodes room code (+ server) so the other person just taps it ----
 function inviteURL(){ var code=(document.getElementById('room-code').value||'').trim().replace(/[^A-Za-z0-9_-]/g,''); if(!code)return ''; var base=location.origin+location.pathname; var h='#join='+encodeURIComponent(code)+'&role=guest'; var u=serverUrl(); if(u){ try{ h+='&s='+btoa(u); }catch(e){} } return base+h; }
@@ -820,10 +847,10 @@ function updateHostInviteState(){
 }
 function refreshInvite(){ var el=document.getElementById('invite-link'); if(!el)return; var url=inviteURL(); el.value=url; updateHostInviteState(); }
 document.getElementById('room-code').addEventListener('input',refreshInvite);
-document.getElementById('server-url').addEventListener('input',function(){ saveServer(); refreshInvite(); refreshServerState(); });
+document.getElementById('server-url').addEventListener('input',function(){ saveServer(); refreshInvite(); refreshServerState(false); });
 document.getElementById('server-copy').addEventListener('click',function(){ if(!serverUrl()){ fireToast('Paste your server URL first'); return; } copyField('server-url',this); });
 document.getElementById('invite-copy').addEventListener('click',function(){ if(!inviteURL()){ fireToast('Start a call first'); return; } if(!hostReadyForInvite()){ fireToast('Wait for HOST READY'); return; } copyField('invite-link',this); fireToast('Guest link copied'); });
-document.getElementById('invite-share').addEventListener('click',function(){ var url=inviteURL(); if(!url){ fireToast('Start a call first'); return; } if(!hostReadyForInvite()){ fireToast('Wait for HOST READY'); return; } if(navigator.share){ navigator.share({title:'OPERATOR',text:'Join my OPERATOR call',url:url}).catch(function(){}); } else { copyField('invite-link',document.getElementById('invite-copy')); fireToast('Guest link copied \u2014 send it to them'); } });
+document.getElementById('invite-share').addEventListener('click',function(){ var url=inviteURL(); if(!url){ fireToast('Start a call first'); return; } if(!hostReadyForInvite()){ fireToast('Wait for HOST READY'); return; } if(navigator.share){ navigator.share({title:'OPERATOR',text:'Join as GUEST',url:url}).catch(function(){}); } else { copyField('invite-link',document.getElementById('invite-copy')); fireToast('Guest link copied \u2014 send to GUEST'); } });
 
 // ======== CONNECT FLOW: one permanent link, auto-live ========
 var CARDS=['card-start','card-invite','card-join','card-server','card-manual'], pendingInvite=null, serverCtx='first';
@@ -841,7 +868,7 @@ function goLiveAsHost(){ // become host of MY permanent room; camera + room star
   document.getElementById('room-wait').classList.remove('hidden');
   startCamera(function(){ joinRoom(false,'host'); });
 }
-function openConnect(){ showPane('pane-role'); document.getElementById('sh-title').textContent='Connect'; refreshServerState(); refreshRelayState();
+function openConnect(){ showPane('pane-role'); document.getElementById('sh-title').textContent='Connect'; refreshServerState(false); refreshRelayState();
   if(pendingInvite&&pendingInvite.code){ document.getElementById('join-sub').textContent='Room: \u201c'+pendingInvite.code+'\u201d'; document.getElementById('join-wait').classList.add('hidden'); showCard('card-join'); if(!sheet.open)sheet.showModal(); return; }
   if(!serverKnown()){ serverCtx='first'; applyServerCtx(); showCard('card-server'); if(!sheet.open)sheet.showModal(); return; }
   if(!(document.getElementById('room-code').value||'').trim()) document.getElementById('room-code').value=myCode();
@@ -851,7 +878,7 @@ function openConnect(){ showPane('pane-role'); document.getElementById('sh-title
   showCard('card-invite'); if(!sheet.open)sheet.showModal();
   goLiveAsHost();
 }
-document.getElementById('paste-join').addEventListener('click', guard(function(){ var raw=(document.getElementById('paste-link').value||'').trim(); if(!raw){ fireToast('Paste their link'); return; } var code=raw, server=''; var hi=raw.indexOf('#join='); if(hi>=0){ try{ var p=new URLSearchParams(raw.slice(hi+1)); code=p.get('join')||''; var s=p.get('s'); if(s)server=atob(s)||''; }catch(e){} } code=(''+code).trim().replace(/[^A-Za-z0-9_-]/g,''); if(server){ document.getElementById('server-url').value=server; saveServer(); refreshServerState(); } if(!code){ fireToast('Could not read that link'); return; } if(code.length<16){ fireToast('Room code too short'); return; } if(!serverKnown()){ serverCtx='first'; applyServerCtx(); showCard('card-server'); fireToast('That link has no server \u2014 add yours'); return; } resetGuestClient(code); intendedRole='guest'; setLocalRole('guest','GUEST LINK'); document.getElementById('room-code').value=code; document.getElementById('join-sub').textContent='Room: \u201c'+code+'\u201d \u00b7 waiting for HOST READY'; document.getElementById('join-wait').classList.remove('hidden'); showCard('card-join'); startCamera(function(){ joinRoom(false,'guest'); }); },'paste-join'));
+document.getElementById('paste-join').addEventListener('click', guard(function(){ var raw=(document.getElementById('paste-link').value||'').trim(); if(!raw){ fireToast('Paste HOST link'); return; } var code=raw, server=''; var hi=raw.indexOf('#join='); if(hi>=0){ try{ var p=new URLSearchParams(raw.slice(hi+1)); code=p.get('join')||''; var s=p.get('s'); if(s)server=atob(s)||''; }catch(e){} } code=(''+code).trim().replace(/[^A-Za-z0-9_-]/g,''); if(server){ document.getElementById('server-url').value=server; saveServer(); refreshServerState(); } if(!code){ fireToast('Could not read that link'); return; } if(code.length<16){ fireToast('Room code too short'); return; } if(!serverKnown()){ serverCtx='first'; applyServerCtx(); showCard('card-server'); fireToast('That link has no server \u2014 add yours'); return; } resetGuestClient(code); intendedRole='guest'; setLocalRole('guest','GUEST LINK'); document.getElementById('room-code').value=code; document.getElementById('join-sub').textContent='Room: \u201c'+code+'\u201d \u00b7 waiting for HOST READY'; document.getElementById('join-wait').classList.remove('hidden'); showCard('card-join'); startCamera(function(){ joinRoom(false,'guest'); }); },'paste-join'));
 document.getElementById('start-back').addEventListener('click',function(){ if(pendingInvite&&pendingInvite.code)showCard('card-join'); else { if(!(document.getElementById('room-code').value||'').trim())document.getElementById('room-code').value=myCode(); refreshInvite(); showCard('card-invite'); goLiveAsHost(); } });
 document.getElementById('start-settings').addEventListener('click',function(){ serverCtx='settings'; applyServerCtx(); showCard('card-server'); });
 document.getElementById('invite-haslink').addEventListener('click',function(){ showCard('card-start'); });
@@ -865,7 +892,7 @@ document.getElementById('manual-back').addEventListener('click',function(){ if(s
 
 // ---- arriving via an invite link: prefill, then show the single Join card ----
 function resetForGuestInvite(code){ clearGrace(); hostWaitAttempts=0; resetGuestClient(code); if(pc&&uiState!=='CONNECTED'){try{pc.close();}catch(e){}pc=null;} if(room&&room.code&&room.peerId)leaveRoom(); else roomReset(); link=makeLoopback(function(){}); intendedRole='guest'; setLocalRole('guest','GUEST LINK'); }
-function readInvite(){ try{ var h=location.hash||''; if(h.indexOf('join=')<0)return; var p=new URLSearchParams(h.replace(/^#/,'')); var code=(p.get('join')||'').replace(/[^A-Za-z0-9_-]/g,''), s=p.get('s'), server='', role=p.get('role')||'guest'; if(s){ try{ server=atob(s)||''; }catch(e){} } if(server){ document.getElementById('server-url').value=server; saveServer(); } if(code){ resetForGuestInvite(code); document.getElementById('room-code').value=code; } pendingInvite={code:code,server:server,role:role}; refreshServerState(); openConnect(); log('INVITE','prefilled '+code+' role=guest'); }catch(e){ log('INVITE','err '+(e&&e.message)); } }
+function readInvite(){ try{ var h=location.hash||''; if(h.indexOf('join=')<0)return; var p=new URLSearchParams(h.replace(/^#/,'')); var code=(p.get('join')||'').replace(/[^A-Za-z0-9_-]/g,''), s=p.get('s'), server='', role=p.get('role')||'guest'; if(s){ try{ server=atob(s)||''; }catch(e){} } if(server){ document.getElementById('server-url').value=server; saveServer(); } if(code){ resetForGuestInvite(code); document.getElementById('room-code').value=code; } pendingInvite={code:code,server:server,role:role}; refreshServerState(false); openConnect(); log('INVITE','prefilled '+code+' role=guest'); }catch(e){ log('INVITE','err '+(e&&e.message)); } }
 function fetchIceServers(){var u=serverUrl();if(u){return fetchWithTimeout(u+'/turn',{headers:{Accept:'application/json'}},12000).then(function(r){if(!r.ok)throw new Error('TURN endpoint returned '+r.status);return r.json();}).then(function(d){if(d&&Array.isArray(d.iceServers)&&d.iceServers.length){log('TURN','server gave '+d.iceServers.length);updateIceDiagnostics(d.iceServers,'server');return d.iceServers;}var fallback=getIceServers();updateIceDiagnostics(fallback,'local');return fallback;}).catch(function(e){log('TURN','fail '+e.message);var fallback=getIceServers();updateIceDiagnostics(fallback,'local');return fallback;});}var local=getIceServers();updateIceDiagnostics(local,'local');return Promise.resolve(local);}
 
 // ==================== CONNECT + GRACE ====================
@@ -893,9 +920,9 @@ sheet.addEventListener('cancel',function(){cancelPeer();});
 function cancelPeer(){if(pc&&uiState!=='CONNECTED'){try{pc.close();}catch(e){}pc=null;clearGrace();leaveRoom();if(capturing)setUIState('SELF');}}
 document.getElementById('be-host').addEventListener('click',function(){setUIState('CONNECTING');setStep(2);showPane('pane-host');document.getElementById('sh-title').textContent='You start';log('ROLE','host(manual)');fetchIceServers().then(function(ice){newPeer(true,ice);link=makeWebRTC(pc,receiveFrame,true);return pc.createOffer().then(function(o){return pc.setLocalDescription(o);}).then(waitIce).then(function(){document.getElementById('host-out').value=JSON.stringify(pc.localDescription);});}).catch(function(e){flashRecover('Setup failed',e.message);});});
 document.getElementById('host-copy').addEventListener('click',function(){copyField('host-out',this);});
-document.getElementById('host-apply').addEventListener('click',function(){var raw=document.getElementById('host-in').value.trim();if(!raw){flashRecover('Nothing to connect','Paste their reply first.');return;}var d;try{d=JSON.parse(raw);}catch(e){flashRecover('Code looks wrong','Copy their whole reply again.');return;}document.getElementById('host-wait').classList.remove('hidden');pc.setRemoteDescription(d).catch(function(e){flashRecover('Could not connect','Reply invalid. Ask them to resend.');});});
+document.getElementById('host-apply').addEventListener('click',function(){var raw=document.getElementById('host-in').value.trim();if(!raw){flashRecover('Nothing to connect','Paste GUEST reply first.');return;}var d;try{d=JSON.parse(raw);}catch(e){flashRecover('Code looks wrong','Copy the whole GUEST reply again.');return;}document.getElementById('host-wait').classList.remove('hidden');pc.setRemoteDescription(d).catch(function(e){flashRecover('Could not connect','GUEST reply invalid. Ask GUEST to resend.');});});
 document.getElementById('be-guest').addEventListener('click',function(){setUIState('CONNECTING');setStep(2);showPane('pane-guest');document.getElementById('sh-title').textContent='You join';log('ROLE','guest(manual)');fetchIceServers().then(function(ice){newPeer(false,ice);link=makeWebRTC(pc,receiveFrame,false);});});
-document.getElementById('guest-make').addEventListener('click',function(){var raw=document.getElementById('guest-in').value.trim();if(!raw){flashRecover('Nothing to read','Paste their code first.');return;}var d;try{d=JSON.parse(raw);}catch(e){flashRecover('Code looks wrong','Copy their whole code again.');return;}pc.setRemoteDescription(d).then(function(){return pc.createAnswer();}).then(function(a){return pc.setLocalDescription(a);}).then(waitIce).then(function(){document.getElementById('guest-out').value=JSON.stringify(pc.localDescription);document.getElementById('guest-out-field').classList.remove('hidden');}).catch(function(e){flashRecover('Could not read code','Ask them to resend.');});});
+document.getElementById('guest-make').addEventListener('click',function(){var raw=document.getElementById('guest-in').value.trim();if(!raw){flashRecover('Nothing to read','Paste HOST code first.');return;}var d;try{d=JSON.parse(raw);}catch(e){flashRecover('Code looks wrong','Copy the whole HOST code again.');return;}pc.setRemoteDescription(d).then(function(){return pc.createAnswer();}).then(function(a){return pc.setLocalDescription(a);}).then(waitIce).then(function(){document.getElementById('guest-out').value=JSON.stringify(pc.localDescription);document.getElementById('guest-out-field').classList.remove('hidden');}).catch(function(e){flashRecover('Could not read code','Ask HOST to resend.');});});
 document.getElementById('guest-copy').addEventListener('click',function(){copyField('guest-out',this);});
 function copyField(id,btn){var ta=document.getElementById(id);ta.select();var done=function(){var o=btn.textContent;btn.textContent='Copied';setTimeout(function(){btn.textContent=o;},1200);};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(ta.value).then(done,function(){try{document.execCommand('copy');done();}catch(e){}});}else{try{document.execCommand('copy');done();}catch(e){}}}
 
@@ -927,7 +954,7 @@ function joinRoom(recovery,intent){
       if(e.message==='host-not-ready'&&intent==='guest'&&!recovery){
         hostWaitAttempts++;
         setLocalRole('wait','WAITING HOST');
-        var jw=document.getElementById('join-wait'); if(jw){ jw.classList.remove('hidden'); setWaitLine(jw,'Waiting for HOST to press Call and keep their tab open'); }
+        var jw=document.getElementById('join-wait'); if(jw){ jw.classList.remove('hidden'); setWaitLine(jw,'Waiting for HOST to press Call and keep HOST tab open'); }
         if(hostWaitAttempts===1)fireToast('Waiting for HOST');
         var delay=Math.min(5000,900+hostWaitAttempts*300);
         setTimeout(function(){
@@ -952,7 +979,7 @@ function drainRemoteCandidates(){var items=room.pendingRemote.splice(0);return i
 function leaveRoom(){if(!room.code||!room.peerId||!serverUrl()){roomReset();return;}var url=serverUrl()+'/room/'+encodeURIComponent(room.code)+'/leave',body=JSON.stringify({peerId:room.peerId});room.polling=false;if(room.pollTimer)clearTimeout(room.pollTimer);fetchWithTimeout(url,{method:'POST',headers:{'Content-Type':'application/json'},body:body,keepalive:true},6000).catch(function(){});roomReset();}
 
 // end call
-document.getElementById('hang').addEventListener('click',function(){log('HANGUP','user');clearGrace();leaveRoom();if(pc){try{pc.close();}catch(e){}pc=null;}link=makeLoopback(function(){});connType='';lastSeq=-1;gotRemote=false;lastRxMs=0;themGrid=null;faceThem.textContent='';document.getElementById('ph-them').classList.remove('hidden');document.getElementById('tag-them').textContent='\u2014';theirNode=null;theirPen.on=false;renderStrip();renderBranches();document.getElementById('recover').style.display='none';setUIState('SELF');});
+document.getElementById('hang').addEventListener('click',function(){log('HANGUP','user');clearGrace();leaveRoom();if(pc){try{pc.close();}catch(e){}pc=null;}link=makeLoopback(function(){});connType='';lastSeq=-1;gotRemote=false;lastRxMs=0;themGrid=null;localRole='none';intendedRole='';faceThem.textContent='';document.getElementById('ph-them').classList.remove('hidden');document.getElementById('tag-them').textContent='\u2014';theirNode=null;theirPen.on=false;setLocalRole('none');renderStrip();renderBranches();document.getElementById('recover').style.display='none';setUIState('SELF');});
 
 // log panel
 var logsheet=document.getElementById('logsheet');
@@ -969,7 +996,7 @@ window.addEventListener('resize',function(){ fitFace(faceYou); fitFace(faceThem)
 /* ============================================================
    BRANCHING FILM TREE — the shared object is a TREE of frames,
    not a line. Each node is a 128x96 BEFLIX frame. +Frame extends
-   your branch; FORK splits a new branch from where you stand
+   current branch; FORK splits a new branch from the active frame
    (git / Twine / Xanadu / writer's room). A path through the tree
    is a playable film. Different authors hold different branches.
    Protocol (control channel, frame/node-addressed):
@@ -1108,10 +1135,10 @@ function activePath(){ var up=pathToRoot(myNode), seen={}; up.forEach(function(x
 }
 function leaves(){ var out=[],id; for(id in nodes){ if(!nodes[id].kids.length) out.push(id); } return out; }
 function depthOf(id){ return pathToRoot(id).length; }
-function authorRole(author){ if(!author)return'other'; return author===ME?'me':'them'; }
-function authorLabel(author){ if(!author)return'?'; return author===ME?'YOU':(author==='PEER'?'THEM':author); }
-function authorClass(author){ var r=authorRole(author); return r==='me'?'au-me':(r==='them'?'au-them':'au-other'); }
-function authorColor(author){ var r=authorRole(author); return r==='me'?'#e60000':(r==='them'?'#0033cc':'#c8a800'); }
+function authorRole(author){ if(!author)return'other'; if(author===ME)return effectiveLocalRole()||'local'; if(author==='PEER')return effectiveRemoteRole()||'remote'; return 'other'; }
+function authorLabel(author){ var r=authorRole(author); if(r==='host'||r==='guest')return roleLabel(r); if(author===ME)return'LOCAL'; if(author==='PEER')return'REMOTE'; return author||'?'; }
+function authorClass(author){ var r=authorRole(author); return r==='host'?'au-host':(r==='guest'?'au-guest':'au-other'); }
+function authorColor(author){ return roleColor(authorRole(author)); }
 function escHtml(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];}); }
 function pathFrames(){ var path=activePath(); return path.map(function(id,idx){ var nd=nodes[id]; return {index:idx+1,id:id,node:nd,grid:nd.grid,author:nd.author,parent:nd.parent,kids:nd.kids.slice()}; }); }
 function branchRecords(){
@@ -1120,9 +1147,10 @@ function branchRecords(){
   });
 }
 function relationForNode(id){
-  if(id===myNode&&id===theirNode)return'BOTH';
-  if(id===myNode)return'YOU';
-  if(id===theirNode)return'THEM';
+  var here=[];
+  if(id===myNode)here.push(roleLabel(effectiveLocalRole()||'local'));
+  if(id===theirNode)here.push(roleLabel(effectiveRemoteRole()||'remote'));
+  if(here.length)return here.join('+');
   return'';
 }
 function makeEDLRecords(){
@@ -1134,7 +1162,7 @@ function makeEDLRecords(){
 }
 function edlText(){
   var fpsEl=document.getElementById('fps'), fps=fpsEl?(parseInt(fpsEl.value,10)||FPS):FPS;
-  var out=['OPERATOR EDL','SAVED '+new Date().toISOString(),'FPS '+fps,'ROOT '+rootId,'YOU '+ME,'ACTIVE '+myNode,'COLLABORATOR '+(theirNode||'OFFLINE'),''];
+  var out=['OPERATOR EDL','SAVED '+new Date().toISOString(),'FPS '+fps,'ROOT '+rootId,'LOCAL_ROLE '+(effectiveLocalRole()||'UNKNOWN'),'REMOTE_ROLE '+(effectiveRemoteRole()||'UNKNOWN'),'LOCAL_ID '+ME,'ACTIVE '+myNode,'REMOTE_NODE '+(theirNode||'OFFLINE'),''];
   out.push('ACTIVE PATH');
   makeEDLRecords().forEach(function(r){
     out.push(String(r.frame).padStart(3,'0')+'  node='+r.id+'  author='+r.author_label+'('+r.author+')  relation='+(r.relation||'-')+'  parent='+(r.parent||'-')+'  kids='+(r.children.length?r.children.join(','):'-'));
@@ -1155,7 +1183,7 @@ function renderEdlViz(){
   box.innerHTML='';
   if(!path.length){ box.textContent='No frames yet'; return; }
   path.forEach(function(id,idx){
-    var nd=nodes[id], rel=relationForNode(id), role=rel==='BOTH'?'both':(rel==='YOU'?'me':(rel==='THEM'?'them':authorRole(nd.author)));
+    var nd=nodes[id], rel=relationForNode(id), role=(rel.indexOf('+')>=0)?'both':(rel==='HOST'?'host':(rel==='GUEST'?'guest':authorRole(nd.author)));
     var row=document.createElement('div'); row.className='edl-row '+role;
     var f=document.createElement('span'); f.textContent=String(idx+1).padStart(2,'0'); row.appendChild(f);
     var au=document.createElement('span'); var dot=document.createElement('i'); dot.className='edl-dot '+authorRole(nd.author); au.appendChild(dot); au.appendChild(document.createTextNode(' '+authorLabel(nd.author))); row.appendChild(au);
@@ -1164,8 +1192,8 @@ function renderEdlViz(){
     box.appendChild(row);
   });
   if(theirNode&&!theirInPath&&nodes[theirNode]){
-    var off=document.createElement('div'); off.className='edl-row them';
-    ['OFF','THEM',theirNode.slice(-6)+' · on another branch','BRANCH'].forEach(function(t,i){ var s=document.createElement('span'); s.textContent=t; if(i===3)s.className='edl-loc'; off.appendChild(s); });
+    var off=document.createElement('div'); off.className='edl-row '+(roleClass(effectiveRemoteRole())||'guest');
+    ['OFF',roleLabel(effectiveRemoteRole()||'remote'),theirNode.slice(-6)+' · on another branch','BRANCH'].forEach(function(t,i){ var s=document.createElement('span'); s.textContent=t; if(i===3)s.className='edl-loc'; off.appendChild(s); });
     box.appendChild(off);
   }
 }
@@ -1218,12 +1246,15 @@ function renderStrip(){
   var path=activePath(); var theirInPath=theirNode&&path.indexOf(theirNode)>=0;
   path.forEach(function(id,idx){
     var nd=nodes[id]; if(!nd)return;
-    var cell=document.createElement('div'); cell.className='tlc '+authorClass(nd.author)+(id===myNode?' me':'')+(id===theirNode?' them':''); cell.setAttribute('data-idx',id);
+    var myR=effectiveLocalRole(), theirR=effectiveRemoteRole();
+    var myCursor=(id===myNode&&roleClass(myR))?(' cursor-'+roleClass(myR)):'';
+    var theirCursor=(id===theirNode&&roleClass(theirR))?(' cursor-'+roleClass(theirR)):'';
+    var cell=document.createElement('div'); cell.className='tlc '+authorClass(nd.author)+myCursor+theirCursor; cell.setAttribute('data-idx',id);
     var cv=document.createElement('canvas'); cv.width=46; cv.height=34; cv.className='tlthumb'; thumbInto(nd.grid,cv); cell.appendChild(cv);
     var au=document.createElement('span'); au.className='tlauth'; au.textContent=authorLabel(nd.author).slice(0,4); cell.appendChild(au);
     var num=document.createElement('span'); num.className='tlnum'; num.textContent=(idx+1); cell.appendChild(num);
     if(nd.kids.length>1){ var br=document.createElement('span'); br.className='tlbr'; br.textContent='\u2442'+nd.kids.length; br.onclick=function(e){ e.stopPropagation(); cycleBranch(id); }; cell.appendChild(br); }
-    if(id===theirNode){ var t=document.createElement('span'); t.className='tlthem'+((theirPen.on&&theirPen.node===id)?' live':''); t.textContent='THEM'; cell.appendChild(t); }
+    if(id===theirNode){ var t=document.createElement('span'); t.className='tlthem'+((theirPen.on&&theirPen.node===id)?' live':''); t.textContent=roleLabel(effectiveRemoteRole()||'remote'); cell.appendChild(t); }
     cell.onclick=function(){ if(_suppressClick){ _suppressClick=false; return; } gotoNode(id); };
     cell.oncontextmenu=function(e){ e.preventDefault(); showCtx(e.clientX,e.clientY,id); };
     var _lp=null;
@@ -1235,7 +1266,7 @@ function renderStrip(){
     if(id===myNode)cell.scrollIntoView({inline:'center',block:'nearest'});
   });
   var ben=document.getElementById('be-n'); if(ben)ben.textContent=(path.indexOf(myNode)+1);
-  var cnt=document.getElementById('tl-count'); if(cnt){ var mePos=path.indexOf(myNode)+1, themPos=theirNode?path.indexOf(theirNode)+1:0; cnt.textContent='YOU '+mePos+'/'+path.length+' · THEM '+(themPos>0?themPos:'BRANCH')+' · '+Object.keys(nodes).length; }
+  var cnt=document.getElementById('tl-count'); if(cnt){ var mePos=path.indexOf(myNode)+1, themPos=theirNode?path.indexOf(theirNode)+1:0; cnt.textContent=roleLabel(effectiveLocalRole()||'local')+' '+mePos+'/'+path.length+' · '+roleLabel(effectiveRemoteRole()||'remote')+' '+(themPos>0?themPos:'BRANCH')+' · '+Object.keys(nodes).length; }
   var note=document.getElementById('tl-note'); if(note) note.style.display=(theirNode&&!theirInPath)?'block':'none';
   renderEdlViz();
 }
@@ -1273,11 +1304,11 @@ function renderBranches(){
     var t=document.createElement('canvas'); t.width=NW; t.height=NH; thumbInto(nodes[id2].grid,t); x.drawImage(t,nx,ny);
     x.fillStyle=authorColor(nodes[id2].author); x.fillRect(nx,ny+NH-4,NW,4);
     var me=(id2===myNode), them=(id2===theirNode), onAp=apS[id2];
-    x.lineWidth=(me||them)?4:(onAp?3:2); x.strokeStyle=me?'#e60000':(them?'#0033cc':(onAp?'#000':'#aaa'));
+    x.lineWidth=(me||them)?4:(onAp?3:2); x.strokeStyle=me?roleColor(effectiveLocalRole()||'local'):(them?roleColor(effectiveRemoteRole()||'remote'):(onAp?'#000':'#aaa'));
     x.strokeRect(nx-0.5,ny-0.5,NW+1,NH+1);
     x.fillStyle='#000'; x.fillRect(nx,ny,15,12); x.fillStyle='#fff'; x.font='700 9px ui-monospace,monospace'; x.textBaseline='top'; x.fillText(String(pos[id2].y+1),nx+2,ny+2);
     x.fillStyle=authorColor(nodes[id2].author); x.fillRect(nx+16,ny,20,12); x.fillStyle='#fff'; x.font='700 7px ui-monospace,monospace'; x.fillText(authorLabel(nodes[id2].author).slice(0,3),nx+18,ny+3);
-    if(them){ x.fillStyle='#0033cc'; x.fillRect(nx+NW-15,ny,15,12); x.fillStyle='#fff'; x.fillText('T',nx+NW-11,ny+2); }
+    if(them){ x.fillStyle=roleColor(effectiveRemoteRole()||'remote'); x.fillRect(nx+NW-22,ny,22,12); x.fillStyle='#fff'; x.fillText(roleLabel(effectiveRemoteRole()||'remote').slice(0,1),nx+NW-16,ny+2); }
     TREE_HIT.push({id:id2,x:nx,y:ny,w:NW,h:NH});
   }
 }
@@ -1305,6 +1336,11 @@ document.getElementById('brush').addEventListener('input',function(){ brush=pars
 document.getElementById('op-ext').addEventListener('click', guard(extend,'extend'));
 document.getElementById('op-fork').addEventListener('click', guard(fork,'fork'));
 document.getElementById('op-del').addEventListener('click', guard(doDel,'delete'));
+document.getElementById('op-select').addEventListener('click', function(){
+  var cell=document.querySelector('#tl-strip .tlc[data-idx="'+myNode+'"]');
+  var r=cell?cell.getBoundingClientRect():document.getElementById('stage').getBoundingClientRect();
+  showCtx(Math.max(8,r.left+8),Math.max(8,r.bottom+8),myNode);
+});
 document.getElementById('script-replace').addEventListener('click', guard(function(){ runScript(true); },'script-replace'));
 document.getElementById('script-append').addEventListener('click', guard(function(){ runScript(false); },'script-append'));
 document.getElementById('ctx-goto').addEventListener('click', guard(function(){ var id=_ctxId; hideCtx(); if(id)gotoNode(id); },'ctx-goto'));
@@ -1317,8 +1353,8 @@ document.getElementById('img-pick').addEventListener('click', function(){ docume
 document.getElementById('img-file').addEventListener('change', guard(function(e){ var f=e.target.files&&e.target.files[0]; e.target.value=''; importMedia(f); },'img-import'));
 document.addEventListener('pointerdown', function(e){ var m=document.getElementById('ctx'); if(m&&m.classList.contains('on')&&e.target&&!(e.target.closest&&e.target.closest('#ctx')))hideCtx(); });
 
-document.getElementById('trace-you').addEventListener('click',function(){ if(!youGrid){fireToast('Start camera first');return;} playThud(); draw(frameToCmds(youGrid)); flash(); fireToast('Your face dropped in'); });
-document.getElementById('trace-them').addEventListener('click',function(){ if(!themGrid){fireToast('No one connected');return;} playThud(); draw(frameToCmds(themGrid)); flash(); fireToast('Their face dropped in'); });
+document.getElementById('trace-you').addEventListener('click',function(){ if(!youGrid){fireToast('Start camera first');return;} playThud(); draw(frameToCmds(youGrid)); flash(); fireToast((roleLabel(effectiveLocalRole()||'local'))+' face dropped in'); });
+document.getElementById('trace-them').addEventListener('click',function(){ if(!themGrid){fireToast('No remote participant connected');return;} playThud(); draw(frameToCmds(themGrid)); flash(); fireToast((roleLabel(effectiveRemoteRole()||'remote'))+' face dropped in'); });
 document.getElementById('wipe-frame').addEventListener('click',function(){ playThud(); draw(['CLR 0']); flash(); fireToast('Frame cleared'); });
 ['drift','cascade','collapse','orbit','dissolve','breach','loop'].forEach(function(k){ var b=document.getElementById('fl-'+k); if(b)b.addEventListener('click', guard(function(){ riverFlowGo(k); },'flow-'+k)); });
 document.getElementById('fl-inherit').addEventListener('click', guard(inheritFrame,'inherit'));
@@ -1402,7 +1438,7 @@ var _ctxId=null, _suppressClick=false;
 function showCtx(x,y,id){ _ctxId=id; var m=document.getElementById('ctx'); if(!m)return; var h=document.getElementById('ctx-h'); var path=activePath(); var pos=path.indexOf(id); if(h)h.textContent='Frame '+(pos>=0?(pos+1):'\u00b7'); m.style.left=Math.max(6,Math.min(x,window.innerWidth-162))+'px'; m.style.top=Math.max(6,Math.min(y,window.innerHeight-214))+'px'; m.classList.add('on'); playTick(); }
 function hideCtx(){ var m=document.getElementById('ctx'); if(m)m.classList.remove('on'); _ctxId=null; }
 function nodeLabel(){ var path=activePath(); var pos=path.indexOf(myNode); var kc=nodes[myNode]?nodes[myNode].kids.length:0; return 'frame '+(pos>=0?(pos+1):'?')+' / '+path.length+(kc>1?' \u00b7 branch point':(kc===0?' \u00b7 tip':'')); }
-function refreshNodeCode(){ var here=document.getElementById('here'); if(here)here.textContent='You are here \u00b7 '+nodeLabel(); var ta=document.getElementById('node-code'); if(ta)ta.value=frameToCmds(curGrid()).join('\n'); }
+function refreshNodeCode(){ var here=document.getElementById('here'); if(here)here.textContent='Current frame \u00b7 '+nodeLabel(); var ta=document.getElementById('node-code'); if(ta)ta.value=frameToCmds(curGrid()).join('\n'); }
 function applyCodeToFrame(){ var ta=document.getElementById('node-code'); if(!ta||!nodes[myNode])return; var g=applyCmds(new Uint8Array(N), (ta.value||'').split('\n')); nodes[myNode].grid=g; sendCtl('F '+myNode+'\n'+frameToCmds(g).join('\n')); paintBoard(); renderThumb(myNode); renderBranches(); refreshNodeCode(); fireToast('This frame set from code'); }
 function codeAsNewBranch(){ var ta=document.getElementById('node-code'); if(!ta)return; var g=applyCmds(new Uint8Array(N), (ta.value||'').split('\n')); stopPlay(); appendSequence([g]); refreshNodeCode(); fireToast('New branch from code'); }
 function gridFromSource(src){ try{ capCtx.drawImage(src,0,0,W,H); }catch(e){ return new Uint8Array(N); } var img=capCtx.getImageData(0,0,W,H).data,i,p,l,mn=255,mx=0; for(i=0;i<N;i++){p=i*4;l=img[p]*0.299+img[p+1]*0.587+img[p+2]*0.114;lumaBuf[i]=l;if(l<mn)mn=l;if(l>mx)mx=l;} var range=mx-mn||1; for(i=0;i<N;i++) lumaBuf[i]=(lumaBuf[i]-mn)/range*255; return edgeGrid(lumaBuf); }
@@ -1535,6 +1571,8 @@ function makeTwinDoc(){
     width:W,
     height:H,
     fps:FPS,
+    localRole:effectiveLocalRole()||'unknown',
+    remoteRole:effectiveRemoteRole()||'unknown',
     me:ME,
     root:rootId,
     active:myNode,
@@ -1542,7 +1580,7 @@ function makeTwinDoc(){
     frames:treeSize(),
     activePath:activePath(),
     tree:snapshotTree().slice(2),
-    nodes:ids.map(function(id){ var nd=nodes[id]; return {id:id,parent:nd.parent,author:nd.author,kids:nd.kids.slice(),commands:frameToCmds(nd.grid)}; }),
+    nodes:ids.map(function(id){ var nd=nodes[id]; return {id:id,parent:nd.parent,author:nd.author,author_label:authorLabel(nd.author),author_role:authorRole(nd.author),relation:relationForNode(id),kids:nd.kids.slice(),commands:frameToCmds(nd.grid)}; }),
     edl:makeEDLRecords()
   };
 }
@@ -1552,7 +1590,7 @@ document.getElementById('film-save').addEventListener('click', guard(function(){
 document.getElementById('film-open').addEventListener('click', function(){ document.getElementById('film-file').click(); });
 document.getElementById('film-file').addEventListener('change', function(e){ var f=e.target.files&&e.target.files[0]; if(!f){return;} var rd=new FileReader(); rd.onload=function(){ openFilmText(rd.result); }; rd.onerror=function(){ fireToast('Could not read that file'); }; rd.readAsText(f); this.value=''; });
 function exportEDL(){ try{ var txt=edlText(); deliver(new Blob([txt],{type:'text/plain'}),'operator-edl-'+stamp()+'.edl.txt','text/plain'); fireToast('EDL saved'); }catch(e){ fireToast('EDL failed'); log('EDL','err '+(e&&e.message)); } }
-function exportEDLJSON(){ try{ var doc={format:'operator-edl',v:1,saved:new Date().toISOString(),fps:FPS,me:ME,root:rootId,active:myNode,collaborator:theirNode,edl:makeEDLRecords(),branches:branchRecords()}; deliver(new Blob([JSON.stringify(doc,null,2)],{type:'application/json'}),'operator-edl-'+stamp()+'.json','application/json'); fireToast('EDL JSON saved'); }catch(e){ fireToast('EDL JSON failed'); log('EDL','json err '+(e&&e.message)); } }
+function exportEDLJSON(){ try{ var doc={format:'operator-edl',v:1,saved:new Date().toISOString(),fps:FPS,localRole:effectiveLocalRole()||'unknown',remoteRole:effectiveRemoteRole()||'unknown',me:ME,root:rootId,active:myNode,collaborator:theirNode,edl:makeEDLRecords(),branches:branchRecords()}; deliver(new Blob([JSON.stringify(doc,null,2)],{type:'application/json'}),'operator-edl-'+stamp()+'.json','application/json'); fireToast('EDL JSON saved'); }catch(e){ fireToast('EDL JSON failed'); log('EDL','json err '+(e&&e.message)); } }
 function pickMimeType(fmt){
   var webm=['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'];
   var mp4=['video/mp4;codecs=h264','video/mp4'];
@@ -1590,9 +1628,9 @@ function exportFlipbookHTML(){
     var title='OPERATOR FLIPBOOK '+stamp();
     var doc=document.implementation.createHTMLDocument(title);
     var meta=doc.createElement('meta'); meta.name='viewport'; meta.content='width=device-width,initial-scale=1'; doc.head.appendChild(meta);
-    var style=doc.createElement('style'); style.textContent='body{margin:0;background:#fff;color:#000;font:11px ui-monospace,monospace}header{padding:14px;border-bottom:3px solid #000;position:sticky;top:0;background:#fff}h1{font-size:16px;margin:0}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:10px}.card{break-inside:avoid;border:3px solid #000;padding:6px}.meta{display:flex;gap:8px;font-weight:700;margin-bottom:5px}.me{color:#e60000}.them{color:#0033cc}img{width:100%;image-rendering:auto;display:block}@media print{header{position:static}.grid{grid-template-columns:repeat(3,1fr)}.card{page-break-inside:avoid}}'; doc.head.appendChild(style);
+    var style=doc.createElement('style'); style.textContent='body{margin:0;background:#fff;color:#000;font:11px ui-monospace,monospace}header{padding:14px;border-bottom:3px solid #000;position:sticky;top:0;background:#fff}h1{font-size:16px;margin:0}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:10px}.card{break-inside:avoid;border:3px solid #000;padding:6px}.meta{display:flex;gap:8px;font-weight:700;margin-bottom:5px}.host{color:#e60000}.guest{color:#0033cc}.local,.remote,.other{color:#000}img{width:100%;image-rendering:auto;display:block}@media print{header{position:static}.grid{grid-template-columns:repeat(3,1fr)}.card{page-break-inside:avoid}}'; doc.head.appendChild(style);
     var header=doc.createElement('header'), h1=doc.createElement('h1'), info=doc.createElement('div'), main=doc.createElement('main');
-    h1.textContent=title; info.textContent=frames.length+' frames · '+FPS+' fps · red=you · blue=collaborator'; main.className='grid';
+    h1.textContent=title; info.textContent=frames.length+' frames · '+FPS+' fps · red=HOST · blue=GUEST'; main.className='grid';
     header.appendChild(h1); header.appendChild(info); doc.body.appendChild(header); doc.body.appendChild(main);
     frames.forEach(function(f){
       var card=doc.createElement('section'), metaRow=doc.createElement('div'), n=doc.createElement('span'), au=doc.createElement('span'), rel=doc.createElement('span'), img=doc.createElement('img');
@@ -1607,16 +1645,16 @@ function exportFlipbookHTML(){
 function exportBranchingHTML(){
   try{
     var active=activePath();
-    var recs=branchRecords().map(function(r){ var nd=nodes[r.id]; return {id:r.id,parent:r.parent,kids:r.kids,author:r.author,depth:r.depth,onActive:r.onActive,relation:relationForNode(r.id),src:renderFrameTo(nd.grid,4).toDataURL('image/png')}; });
-    var pack={title:'OPERATOR BRANCHING '+stamp(),saved:new Date().toISOString(),fps:FPS,me:ME,root:rootId,active:myNode,collaborator:theirNode,activePath:active,nodes:recs,edl:edlText()};
+    var recs=branchRecords().map(function(r){ var nd=nodes[r.id]; return {id:r.id,parent:r.parent,kids:r.kids,author:r.author,author_label:authorLabel(r.author),author_role:authorRole(r.author),depth:r.depth,onActive:r.onActive,relation:relationForNode(r.id),src:renderFrameTo(nd.grid,4).toDataURL('image/png')}; });
+    var pack={title:'OPERATOR BRANCHING '+stamp(),saved:new Date().toISOString(),fps:FPS,localRole:effectiveLocalRole()||'unknown',remoteRole:effectiveRemoteRole()||'unknown',me:ME,root:rootId,active:myNode,collaborator:theirNode,activePath:active,nodes:recs,edl:edlText()};
     var json=JSON.stringify(pack).replace(/<\//g,'<\\/');
     var doc=document.implementation.createHTMLDocument('OPERATOR BRANCHING');
     var meta=doc.createElement('meta'); meta.name='viewport'; meta.content='width=device-width,initial-scale=1'; doc.head.appendChild(meta);
-    var style=doc.createElement('style'); style.textContent='body{margin:0;background:#fff;color:#000;font:12px ui-monospace,monospace;display:grid;grid-template-columns:1fr 340px;height:100vh}main{display:flex;flex-direction:column;min-width:0}header{padding:10px 12px;border-bottom:3px solid #000;font-weight:700}.stage{flex:1;display:flex;align-items:center;justify-content:center;background:#000;padding:12px}#big{max-width:100%;max-height:100%;background:#fff;image-rendering:auto}.strip{display:flex;gap:6px;overflow:auto;border-top:3px solid #000;padding:6px}.node{width:76px;flex:0 0 auto;border:3px solid #000;background:#fff;position:relative;cursor:pointer}.node.me{outline:3px solid #e60000}.node.them{outline:3px solid #0033cc}.node img{width:100%;display:block}.tag{position:absolute;top:0;left:0;background:#000;color:#fff;font-size:9px;font-weight:700;padding:1px 3px}.bar{height:5px;background:#c8a800}.bar.me{background:#e60000}.bar.them{background:#0033cc}aside{border-left:3px solid #000;overflow:auto}h2{font-size:12px;margin:0;padding:9px 10px;border-bottom:3px solid #000}.tree,.edl{padding:10px;white-space:pre-wrap}.row{padding:4px 0;border-bottom:1px solid #000}.active{background:#000;color:#fff}@media(max-width:780px){body{display:block;height:auto}aside{border-left:0;border-top:3px solid #000}.stage{height:58vh}}'; doc.head.appendChild(style);
+    var style=doc.createElement('style'); style.textContent='body{margin:0;background:#fff;color:#000;font:12px ui-monospace,monospace;display:grid;grid-template-columns:1fr 340px;height:100vh}main{display:flex;flex-direction:column;min-width:0}header{padding:10px 12px;border-bottom:3px solid #000;font-weight:700}.stage{flex:1;display:flex;align-items:center;justify-content:center;background:#000;padding:12px}#big{max-width:100%;max-height:100%;background:#fff;image-rendering:auto}.strip{display:flex;gap:6px;overflow:auto;border-top:3px solid #000;padding:6px}.node{width:76px;flex:0 0 auto;border:3px solid #000;background:#fff;position:relative;cursor:pointer}.node.host{outline:3px solid #e60000}.node.guest{outline:3px solid #0033cc}.node img{width:100%;display:block}.tag{position:absolute;top:0;left:0;background:#000;color:#fff;font-size:9px;font-weight:700;padding:1px 3px}.bar{height:5px;background:#c8a800}.bar.host{background:#e60000}.bar.guest{background:#0033cc}aside{border-left:3px solid #000;overflow:auto}h2{font-size:12px;margin:0;padding:9px 10px;border-bottom:3px solid #000}.tree,.edl{padding:10px;white-space:pre-wrap}.row{padding:4px 0;border-bottom:1px solid #000}.active{background:#000;color:#fff}@media(max-width:780px){body{display:block;height:auto}aside{border-left:0;border-top:3px solid #000}.stage{height:58vh}}'; doc.head.appendChild(style);
     var main=doc.createElement('main'), head=doc.createElement('header'), stage=doc.createElement('div'), big=doc.createElement('img'), strip=doc.createElement('div'), aside=doc.createElement('aside'), h2a=doc.createElement('h2'), tree=doc.createElement('div'), h2b=doc.createElement('h2'), edl=doc.createElement('pre');
     head.id='head'; stage.className='stage'; big.id='big'; strip.className='strip'; strip.id='strip'; h2a.textContent='BRANCH GRAPH'; tree.className='tree'; tree.id='tree'; h2b.textContent='EDL'; edl.className='edl'; edl.id='edl';
     stage.appendChild(big); main.appendChild(head); main.appendChild(stage); main.appendChild(strip); aside.appendChild(h2a); aside.appendChild(tree); aside.appendChild(h2b); aside.appendChild(edl); doc.body.appendChild(main); doc.body.appendChild(aside);
-    var viewerJS='var DATA='+json+';var by={};DATA.nodes.forEach(function(n){by[n.id]=n});function role(a){return a===DATA.me?"me":"them"}function label(a){return a===DATA.me?"YOU":(a==="PEER"?"THEM":a)}function draw(id){var n=by[id];if(!n)return;document.getElementById("big").src=n.src;document.getElementById("head").textContent=DATA.title+" · node "+id+" · author "+label(n.author)+(n.relation?" · "+n.relation:"");document.querySelectorAll(".node").forEach(function(e){e.classList.toggle("active",e.dataset.id===id)})}function init(){var strip=document.getElementById("strip");DATA.activePath.forEach(function(id,i){var n=by[id],d=document.createElement("div"),tag=document.createElement("span"),img=document.createElement("img"),bar=document.createElement("div");d.className="node "+(n.relation==="YOU"?"me":(n.relation==="THEM"?"them":""));d.dataset.id=id;d.onclick=function(){draw(id)};tag.className="tag";tag.textContent=(i+1)+" "+label(n.author);img.src=n.src;bar.className="bar "+role(n.author);d.appendChild(tag);d.appendChild(img);d.appendChild(bar);strip.appendChild(d)});var tree=document.getElementById("tree");DATA.nodes.forEach(function(n){var r=document.createElement("div");r.className="row";r.textContent=Array(n.depth).join("··")+n.id+" · "+label(n.author)+" · kids "+n.kids.length;tree.appendChild(r)});document.getElementById("edl").textContent=DATA.edl;draw(DATA.active)}init();';
+    var viewerJS='var DATA='+json+';var by={};DATA.nodes.forEach(function(n){by[n.id]=n});function role(n){return n.author_role||"other"}function label(n){return n.author_label||n.author||"?"}function relationClass(n){return n.relation==="HOST"?"host":(n.relation==="GUEST"?"guest":role(n))}function draw(id){var n=by[id];if(!n)return;document.getElementById("big").src=n.src;document.getElementById("head").textContent=DATA.title+" · node "+id+" · author "+label(n)+(n.relation?" · "+n.relation:"");document.querySelectorAll(".node").forEach(function(e){e.classList.toggle("active",e.dataset.id===id)})}function init(){var strip=document.getElementById("strip");DATA.activePath.forEach(function(id,i){var n=by[id],d=document.createElement("div"),tag=document.createElement("span"),img=document.createElement("img"),bar=document.createElement("div");d.className="node "+relationClass(n);d.dataset.id=id;d.onclick=function(){draw(id)};tag.className="tag";tag.textContent=(i+1)+" "+label(n);img.src=n.src;bar.className="bar "+role(n);d.appendChild(tag);d.appendChild(img);d.appendChild(bar);strip.appendChild(d)});var tree=document.getElementById("tree");DATA.nodes.forEach(function(n){var r=document.createElement("div");r.className="row";r.textContent=Array(n.depth).join("··")+n.id+" · "+label(n)+" · kids "+n.kids.length;tree.appendChild(r)});document.getElementById("edl").textContent=DATA.edl;draw(DATA.active)}init();';
     var script=doc.createElement('script'); script.textContent=viewerJS; doc.body.appendChild(script);
     var html=String.fromCharCode(60)+'!doctype html>\n'+doc.documentElement.outerHTML;
     deliver(new Blob([html],{type:'text/html'}),'operator-branching-'+stamp()+'.html','text/html');
@@ -1681,7 +1719,7 @@ document.getElementById('film-flipbook').addEventListener('click', guard(functio
 document.getElementById('film-branch-html').addEventListener('click', guard(function(){ playThud(); exportBranchingHTML(); },'film-branch-html'));
 document.getElementById('film-edl').addEventListener('click', guard(function(){ playThud(); exportEDL(); },'film-edl'));
 document.getElementById('film-edl-json').addEventListener('click', guard(function(){ playThud(); exportEDLJSON(); },'film-edl-json'));
-document.getElementById('cap-resync').addEventListener('click',function(){ if(!(link&&link.kind==='webrtc')){fireToast('Not connected');return;} playClack(); sendSnapshot('button'); fireToast('Tree resynced to them'); });
+document.getElementById('cap-resync').addEventListener('click',function(){ if(!(link&&link.kind==='webrtc')){fireToast('Not connected');return;} playClack(); sendSnapshot('button'); fireToast('Tree resynced to remote participant'); });
 document.getElementById('cap-check').addEventListener('click', guard(function(){
   playTick();
   if(!nodes[myNode]) myNode = nodes[rootId]?rootId:(Object.keys(nodes)[0]||rootId); // repair cursor (I4)
