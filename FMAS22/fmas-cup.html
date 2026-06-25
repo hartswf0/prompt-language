@@ -1246,6 +1246,11 @@ function gameURL(index=currentIndex){
   try{const u=new URL(location.href);u.search='';u.searchParams.set('game',f.id);u.hash='';return u.toString()}
   catch(e){return `fmas-cup.html?game=${encodeURIComponent(f.id)}`}
 }
+function sharePageURL(index=currentIndex){
+  const f=FIXTURES[index]||FIXTURES[0];
+  try{return new URL(`games/${encodeURIComponent(f.id)}/`,location.href).toString()}
+  catch(e){return `games/${encodeURIComponent(f.id)}/`}
+}
 function syncGameURL(index=currentIndex,replace=false){
   if(typeof history==='undefined'||!history.pushState)return;
   const f=FIXTURES[index]||FIXTURES[0];
@@ -1254,21 +1259,28 @@ function syncGameURL(index=currentIndex,replace=false){
   try{history[fn]({game:f.id},'',gameURL(index))}catch(e){}
 }
 function setIntroKit(id,kit){const e=$(id);if(!e)return;e.style.setProperty('--kit',kit.base);e.style.setProperty('--trim',kit.trim)}
+function updateFavicon(){
+  const f=match.fixture,h=teamShort(f.home),a=teamShort(f.away);
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="32" height="64" fill="${f.homeKit.base}"/><rect x="32" width="32" height="64" fill="${f.awayKit.base}"/><rect y="42" width="32" height="22" fill="${f.homeKit.trim}"/><rect x="32" y="42" width="32" height="22" fill="${f.awayKit.trim}"/><rect x="1.5" y="1.5" width="61" height="61" fill="none" stroke="#fff" stroke-width="3"/><text x="16" y="34" font-family="monospace" font-size="12" font-weight="700" text-anchor="middle" fill="#fff">${h}</text><text x="48" y="34" font-family="monospace" font-size="12" font-weight="700" text-anchor="middle" fill="#fff">${a}</text></svg>`;
+  let link=document.querySelector('link[rel="icon"]');if(!link){link=document.createElement('link');link.rel='icon';document.head.appendChild(link)}
+  link.type='image/svg+xml';link.href='data:image/svg+xml,'+encodeURIComponent(svg);
+}
 function updateSplash(){
-  const f=match.fixture,h=TEAMS[f.home],a=TEAMS[f.away],url=gameURL(currentIndex);
+  const f=match.fixture,h=TEAMS[f.home],a=TEAMS[f.away],url=sharePageURL(currentIndex);
   document.title=`${fixtureLabel(f)} — FÚTBOLMAS-22`;
   $('introHome').textContent=h.display;$('introAway').textContent=a.display;
   $('introGroup').textContent=`GROUP ${f.group} · ${f.id}`;
   $('introDate').textContent=`${dateLabel(f.date)} · ${f.time} ET`;
   $('introUrl').textContent=url;
   setIntroKit('introHomeKit',f.homeKit);setIntroKit('introAwayKit',f.awayKit);
+  updateFavicon();
 }
 function copyTextValue(text){
   if(navigator.clipboard&&navigator.clipboard.writeText)return navigator.clipboard.writeText(text);
   return new Promise((resolve,reject)=>{try{const ta=document.createElement('textarea');ta.value=text;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();resolve()}catch(e){reject(e)}})
 }
 async function shareCurrentGame(){
-  const f=match.fixture,url=gameURL(currentIndex),title=`${fixtureLabel(f)} · FÚTBOLMAS-22`,text=`Open this FÚTBOLMAS-22 match: ${fixtureLabel(f)}.`;
+  const f=match.fixture,url=sharePageURL(currentIndex),title=`${fixtureLabel(f)} · FÚTBOLMAS-22`,text=`Open this FÚTBOLMAS-22 match: ${fixtureLabel(f)}.`;
   if(navigator.share){try{await navigator.share({title,text,url});return}catch(e){if(e&&e.name==='AbortError')return}}
   try{await copyTextValue(url);$('ticker').textContent=`Game URL copied · ${f.id}`;$('ticker').classList.remove('goal')}
   catch(e){$('ticker').textContent=`Copy URL: ${url}`;$('ticker').classList.remove('goal')}
