@@ -373,6 +373,7 @@
       <button id="film-mp4" type="button">MP4</button>
       <button id="film-flipbook" type="button">Flipbook HTML</button>
       <button id="film-branch-html" type="button">Branching HTML</button>
+      <button id="film-twee" type="button">Twee graph</button>
       <button id="cap-text" type="button">Copy BEFLIX</button>
     </div>
   </div>
@@ -1146,6 +1147,25 @@ function branchRecords(){
     var nd=nodes[id]; return {id:id,parent:nd.parent,author:nd.author,depth:depthOf(id),kids:nd.kids.slice(),onActive:activePath().indexOf(id)>=0};
   });
 }
+function cleanPassageName(s){ return String(s==null?'':s).replace(/[\[\]\n\r]/g,' ').replace(/\s+/g,' ').trim()||'Frame'; }
+function passageTitleFor(id,idx){ var nd=nodes[id]; return cleanPassageName(String(idx+1).padStart(3,'0')+' '+authorLabel(nd&&nd.author)+' '+id.slice(-6)); }
+function makeSceneGraph(){
+  var recs=branchRecords(), pos=layoutTree(), names={}, edges=[];
+  recs.forEach(function(r,i){ names[r.id]=passageTitleFor(r.id,i); });
+  recs.forEach(function(r){ r.kids.forEach(function(k){ edges.push({from:r.id,to:k,fromPassage:names[r.id],toPassage:names[k]}); }); });
+  return {
+    root:rootId,
+    active:myNode,
+    remote:theirNode||null,
+    localRole:effectiveLocalRole()||'unknown',
+    remoteRole:effectiveRemoteRole()||'unknown',
+    nodes:recs.map(function(r){
+      var nd=nodes[r.id], p=pos[r.id]||{x:0,y:r.depth};
+      return {id:r.id,passage:names[r.id],parent:r.parent,parentPassage:r.parent?names[r.parent]:null,kids:r.kids.slice(),kidPassages:r.kids.map(function(k){return names[k];}),depth:r.depth,x:p.x,y:p.y,author:nd.author,author_label:authorLabel(nd.author),author_role:authorRole(nd.author),relation:relationForNode(r.id),onActive:r.onActive};
+    }),
+    edges:edges
+  };
+}
 function relationForNode(id){
   var here=[];
   if(id===myNode)here.push(roleLabel(effectiveLocalRole()||'local'));
@@ -1580,6 +1600,7 @@ function makeTwinDoc(){
     frames:treeSize(),
     activePath:activePath(),
     tree:snapshotTree().slice(2),
+    sceneGraph:makeSceneGraph(),
     nodes:ids.map(function(id){ var nd=nodes[id]; return {id:id,parent:nd.parent,author:nd.author,author_label:authorLabel(nd.author),author_role:authorRole(nd.author),relation:relationForNode(id),kids:nd.kids.slice(),commands:frameToCmds(nd.grid)}; }),
     edl:makeEDLRecords()
   };
@@ -1591,6 +1612,53 @@ document.getElementById('film-open').addEventListener('click', function(){ docum
 document.getElementById('film-file').addEventListener('change', function(e){ var f=e.target.files&&e.target.files[0]; if(!f){return;} var rd=new FileReader(); rd.onload=function(){ openFilmText(rd.result); }; rd.onerror=function(){ fireToast('Could not read that file'); }; rd.readAsText(f); this.value=''; });
 function exportEDL(){ try{ var txt=edlText(); deliver(new Blob([txt],{type:'text/plain'}),'operator-edl-'+stamp()+'.edl.txt','text/plain'); fireToast('EDL saved'); }catch(e){ fireToast('EDL failed'); log('EDL','err '+(e&&e.message)); } }
 function exportEDLJSON(){ try{ var doc={format:'operator-edl',v:1,saved:new Date().toISOString(),fps:FPS,localRole:effectiveLocalRole()||'unknown',remoteRole:effectiveRemoteRole()||'unknown',me:ME,root:rootId,active:myNode,collaborator:theirNode,edl:makeEDLRecords(),branches:branchRecords()}; deliver(new Blob([JSON.stringify(doc,null,2)],{type:'application/json'}),'operator-edl-'+stamp()+'.json','application/json'); fireToast('EDL JSON saved'); }catch(e){ fireToast('EDL JSON failed'); log('EDL','json err '+(e&&e.message)); } }
+function tweeIfid(){
+  try{ if(crypto&&crypto.randomUUID)return crypto.randomUUID().toUpperCase(); }catch(e){}
+  return 'OPERATOR-'+stamp()+'-'+Math.random().toString(16).slice(2,10).toUpperCase();
+}
+function exportTwee(){
+  try{
+    var graph=makeSceneGraph(), recs=branchRecords(), title='OPERATOR TWIN '+stamp(), start=(graph.nodes[0]&&graph.nodes[0].passage)||'START', lines=[];
+    var nameById={}; graph.nodes.forEach(function(n){ nameById[n.id]=n.passage; });
+    lines.push(':: StoryTitle');
+    lines.push(title);
+    lines.push('');
+    lines.push(':: StoryData');
+    lines.push(JSON.stringify({ifid:tweeIfid(),format:'Harlowe','format-version':'3.3.9',start:start,'tag-colors':{host:'red',guest:'blue',root:'green',active:'yellow',remote:'blue',fork:'orange'}},null,2));
+    lines.push('');
+    lines.push(':: StoryStylesheet [stylesheet]');
+    lines.push('body{background:#fff;color:#000}.operator-node{font-family:ui-monospace,Menlo,Consolas,monospace}.operator-node h1{font-size:1.15em}.operator-meta,.operator-code{border:2px solid #000;padding:.75em;white-space:pre-wrap;background:#fff}.operator-links a{font-weight:700}.host{color:#e60000}.guest{color:#0033cc}');
+    lines.push('');
+    recs.forEach(function(r,i){
+      var nd=nodes[r.id], gnode=graph.nodes.filter(function(n){return n.id===r.id;})[0]||{}, tags=['operator','frame'];
+      if(r.id===rootId)tags.push('root');
+      if(r.id===myNode)tags.push('active');
+      if(r.id===theirNode)tags.push('remote');
+      var ar=authorRole(nd.author); if(ar)tags.push(ar);
+      tags.push(r.kids.length?'fork':'leaf');
+      var pmeta={position:String(Math.round((gnode.x||0)*170+40))+','+String(Math.round((gnode.y||0)*130+40)),size:'150,110'};
+      lines.push(':: '+nameById[r.id]+' ['+tags.join(' ')+'] '+JSON.stringify(pmeta));
+      var meta={id:r.id,parent:r.parent,parentPassage:r.parent?nameById[r.parent]:null,kids:r.kids,kidPassages:r.kids.map(function(k){return nameById[k];}),depth:r.depth,author:nd.author,author_label:authorLabel(nd.author),author_role:authorRole(nd.author),relation:relationForNode(r.id),root:r.id===rootId,active:r.id===myNode,remote:r.id===theirNode,width:W,height:H,fps:FPS};
+      lines.push('<div class="operator-node '+escHtml(meta.author_role)+'">');
+      lines.push('<h1>Frame '+String(i+1).padStart(3,'0')+' · '+escHtml(authorLabel(nd.author))+'</h1>');
+      lines.push('<p><b>Node</b> '+escHtml(r.id)+' · <b>Depth</b> '+r.depth+' · <b>Children</b> '+r.kids.length+'</p>');
+      lines.push('<pre class="operator-meta" data-kind="operator-metadata">'+escHtml(JSON.stringify(meta,null,2))+'</pre>');
+      lines.push('<pre class="operator-code" data-kind="beflix">C OPERATOR NODE '+escHtml(r.id)+'\n'+escHtml(frameToCmds(nd.grid).join('\n'))+'</pre>');
+      lines.push('<div class="operator-links">');
+      if(r.kids.length){
+        lines.push('<p><b>Children</b></p>');
+        r.kids.forEach(function(k,ki){ lines.push('* [[child '+String(ki+1).padStart(2,'0')+' · '+escHtml(k.slice(-6))+'->'+nameById[k]+']]'); });
+      } else {
+        lines.push('<p><b>END OF BRANCH</b></p>');
+      }
+      lines.push('</div>');
+      lines.push('</div>');
+      lines.push('');
+    });
+    deliver(new Blob([lines.join('\n')],{type:'text/plain'}),'operator-twin-'+stamp()+'.twee','text/plain');
+    fireToast('Twee scene graph saved ('+recs.length+' passages)');
+  }catch(e){ fireToast('Twee failed'); log('TWEE','err '+(e&&e.message)); }
+}
 function pickMimeType(fmt){
   var webm=['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'];
   var mp4=['video/mp4;codecs=h264','video/mp4'];
@@ -1626,17 +1694,14 @@ function exportFlipbookHTML(){
   try{
     var frames=pathFrames(); if(!frames.length){ fireToast('Nothing to export'); return; }
     var title='OPERATOR FLIPBOOK '+stamp();
+    var pack={title:title,saved:new Date().toISOString(),fps:FPS,width:W,height:H,frames:frames.map(function(f){ return {index:f.index,id:f.id,parent:f.parent,kids:f.kids,author:f.author,author_label:authorLabel(f.author),author_role:authorRole(f.author),relation:relationForNode(f.id),src:renderFrameTo(f.grid,4).toDataURL('image/png')}; })};
+    var json=JSON.stringify(pack).replace(/<\//g,'<\\/');
     var doc=document.implementation.createHTMLDocument(title);
     var meta=doc.createElement('meta'); meta.name='viewport'; meta.content='width=device-width,initial-scale=1'; doc.head.appendChild(meta);
-    var style=doc.createElement('style'); style.textContent='body{margin:0;background:#fff;color:#000;font:11px ui-monospace,monospace}header{padding:14px;border-bottom:3px solid #000;position:sticky;top:0;background:#fff}h1{font-size:16px;margin:0}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:10px}.card{break-inside:avoid;border:3px solid #000;padding:6px}.meta{display:flex;gap:8px;font-weight:700;margin-bottom:5px}.host{color:#e60000}.guest{color:#0033cc}.local,.remote,.other{color:#000}img{width:100%;image-rendering:auto;display:block}@media print{header{position:static}.grid{grid-template-columns:repeat(3,1fr)}.card{page-break-inside:avoid}}'; doc.head.appendChild(style);
-    var header=doc.createElement('header'), h1=doc.createElement('h1'), info=doc.createElement('div'), main=doc.createElement('main');
-    h1.textContent=title; info.textContent=frames.length+' frames · '+FPS+' fps · red=HOST · blue=GUEST'; main.className='grid';
-    header.appendChild(h1); header.appendChild(info); doc.body.appendChild(header); doc.body.appendChild(main);
-    frames.forEach(function(f){
-      var card=doc.createElement('section'), metaRow=doc.createElement('div'), n=doc.createElement('span'), au=doc.createElement('span'), rel=doc.createElement('span'), img=doc.createElement('img');
-      card.className='card'; metaRow.className='meta'; n.textContent=String(f.index).padStart(3,'0'); au.className=authorRole(f.author); au.textContent=authorLabel(f.author); rel.textContent=relationForNode(f.id)||''; img.alt='frame '+f.index; img.src=renderFrameTo(f.grid,4).toDataURL('image/png');
-      metaRow.appendChild(n); metaRow.appendChild(au); metaRow.appendChild(rel); card.appendChild(metaRow); card.appendChild(img); main.appendChild(card);
-    });
+    var style=doc.createElement('style'); style.textContent=':root{--k:#000;--w:#fff;--r:#e60000;--b:#0033cc;--y:#c8a800}*{box-sizing:border-box}body{margin:0;background:#d8d8d2;color:#000;font:12px ui-monospace,Menlo,Consolas,monospace;display:grid;grid-template-columns:330px 1fr;height:100vh;overflow:hidden}aside{background:#f7f7f2;border-right:3px solid #000;display:flex;flex-direction:column;min-height:0}header{background:#000;color:#fff;padding:14px 16px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}header span{color:var(--r)}.sc{padding:16px;overflow:auto}.stat{border:3px solid #000;background:#fff;padding:10px;margin-bottom:12px}.row{display:flex;gap:8px;margin:8px 0}.field{margin:12px 0;border-bottom:2px dashed #aaa;padding-bottom:12px}.field label{display:block;font-size:9px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#555;margin-bottom:5px}select,input,button{font:inherit;font-weight:900;border:3px solid #000;background:#fff;color:#000;padding:9px;min-height:40px;border-radius:0}button{width:100%;cursor:pointer;box-shadow:3px 3px 0 #000}button.primary{background:#000;color:#fff}.stage{overflow:auto;padding:34px 18px;display:flex;justify-content:center}.zoom{transform-origin:top center}.page{background:#fff;border:3px solid #000;box-shadow:0 10px 28px rgba(0,0,0,.18);margin:0 auto 34px;display:grid;padding:10mm;overflow:hidden}.page.a4.portrait{width:210mm;height:297mm}.page.a4.landscape{width:297mm;height:210mm}.page.letter.portrait{width:215.9mm;height:279.4mm}.page.letter.landscape{width:279.4mm;height:215.9mm}.card{border:1.5px dashed #777;display:flex;min-width:0;min-height:0;overflow:hidden;position:relative;background:#fff}.card:after{content:\"CUT\";position:absolute;top:2px;right:3px;font-size:6px;color:#777}.bind{background:#fdfdfa;border-right:1.5px dashed #aaa;display:flex;align-items:center;justify-content:space-around;flex-direction:column;flex:0 0 auto;color:#777;font-size:6px}.bind.top{width:100%;border-right:0;border-bottom:1.5px dashed #aaa;flex-direction:row}.hole{width:5px;height:5px;border:1px solid #777;border-radius:50%}.staple{width:12px;height:2px;background:#777}.card-body{flex:1;display:flex;flex-direction:column;min-width:0;min-height:0;padding:6px;position:relative}.frame{flex:1;min-height:0;display:flex;align-items:center;justify-content:center}.frame img{max-width:100%;max-height:100%;object-fit:contain}.meta{position:absolute;top:7px;left:7px;background:rgba(255,255,255,.86);border:1px solid #000;padding:1px 3px;font-size:7px;font-weight:900}.host{color:var(--r)}.guest{color:var(--b)}.empty{display:flex;align-items:center;justify-content:center;opacity:.25;font-weight:900}.note{font-size:10px;line-height:1.4;color:#555}@media(max-width:800px){body{display:block;height:auto;overflow:auto}aside{border-right:0;border-bottom:3px solid #000}.stage{overflow:visible}}@media print{@page{size:A4 portrait;margin:0}body{display:block;height:auto;overflow:visible;background:#fff}aside{display:none}.stage{display:block;overflow:visible;padding:0}.zoom{transform:none!important}.page{box-shadow:none;border:0;margin:0;break-after:page;page-break-after:always}.page:last-child{break-after:auto;page-break-after:auto}}'; doc.head.appendChild(style);
+    doc.body.innerHTML='<aside><header>OPERATOR<span>FLIP</span><div style="font-size:9px;opacity:.65;margin-top:4px">print flipbook export</div></header><div class="sc"><div class="stat"><div>Total frames: <b id="stat-frames">0</b></div><div>Sheets: <b id="stat-pages">0</b></div><div>Cards/page: <b id="stat-cards">0</b></div></div><div class="field"><label>Grid preset</label><select id="preset"><option value="3x6">3x6 · 18/page</option><option value="3x5" selected>3x5 · 15/page</option><option value="3x4">3x4 · 12/page</option><option value="2x4">2x4 · 8/page</option></select><div class="row"><input id="cols" type="number" min="1" max="8" value="3"><input id="rows" type="number" min="1" max="10" value="5"></div></div><div class="field"><label>Paper</label><div class="row"><select id="paper"><option value="a4" selected>A4</option><option value="letter">US Letter</option></select><select id="orient"><option value="portrait" selected>Portrait</option><option value="landscape">Landscape</option></select></div></div><div class="field"><label>Pagination flow</label><select id="mode"><option value="stack" selected>Stack-cut optimized</option><option value="sequential">Sequential grid</option></select><p class="note">Stack-cut puts frame stacks in matching card slots across sheets.</p></div><div class="field"><label>Binding safe margin</label><div class="row"><select id="bind"><option value="left" selected>Left spine</option><option value="top">Top spine</option><option value="none">None</option></select><select id="bindsize"><option value="10">10mm</option><option value="14" selected>14mm</option><option value="18">18mm</option><option value="22">22mm</option></select></div></div><div class="field"><label>Preview zoom</label><input id="zoom" type="range" min=".35" max="1.25" step=".05" value=".7" style="width:100%"></div><button class="primary" id="print" type="button">Print / Save PDF</button><button id="render" type="button" style="margin-top:8px">Render</button></div></aside><main class="stage"><div class="zoom" id="zoomwrap"><div id="pages"></div></div></main>';
+    var viewerJS='var DATA='+json+';function $(id){return document.getElementById(id)}function addBind(card,side,size){if(side===\"none\")return;if(side===\"left\"){var b=document.createElement(\"div\");b.className=\"bind\";b.style.width=size+\"mm\";b.innerHTML=\"<i class=staple></i><i class=hole></i><i class=hole></i><i class=staple></i>\";card.appendChild(b)}else{card.style.flexDirection=\"column\";var t=document.createElement(\"div\");t.className=\"bind top\";t.style.height=size+\"mm\";t.innerHTML=\"<i class=staple></i><i class=hole></i><i class=hole></i>\";card.appendChild(t)}}function render(){var cols=Math.max(1,parseInt($(\"cols\").value,10)||3),rows=Math.max(1,parseInt($(\"rows\").value,10)||5),cards=cols*rows,total=Math.ceil(DATA.frames.length/cards),paper=$(\"paper\").value,orient=$(\"orient\").value,mode=$(\"mode\").value,bind=$(\"bind\").value,bindsize=$(\"bindsize\").value;$(\"stat-frames\").textContent=DATA.frames.length;$(\"stat-pages\").textContent=total;$(\"stat-cards\").textContent=cards;$(\"zoomwrap\").style.transform=\"scale(\"+$(\"zoom\").value+\")\";var css=\"@media print{@page{size:\"+(paper===\"letter\"?\"letter\":\"A4\")+\" \"+orient+\";margin:0}}\";var st=$(\"print-dynamic\")||document.createElement(\"style\");st.id=\"print-dynamic\";st.textContent=css;document.head.appendChild(st);var root=$(\"pages\");root.innerHTML=\"\";for(var p=0;p<total;p++){var page=document.createElement(\"section\");page.className=\"page \"+paper+\" \"+orient;page.style.gridTemplateColumns=\"repeat(\"+cols+\",1fr)\";page.style.gridTemplateRows=\"repeat(\"+rows+\",1fr)\";for(var slot=0;slot<cards;slot++){var idx=mode===\"sequential\"?(p*cards+slot):(slot*total+p),f=DATA.frames[idx],card=document.createElement(\"div\");card.className=\"card\";if(f){addBind(card,bind,bindsize);var body=document.createElement(\"div\"),fr=document.createElement(\"div\"),img=document.createElement(\"img\"),meta=document.createElement(\"div\");body.className=\"card-body\";fr.className=\"frame\";img.src=f.src;img.alt=\"frame \"+f.index;meta.className=\"meta \"+(f.author_role||\"\");meta.textContent=\"#\"+String(f.index).padStart(3,\"0\")+\" \"+(f.author_label||\"\")+(f.relation?\" · \"+f.relation:\"\");fr.appendChild(img);body.appendChild(fr);body.appendChild(meta);card.appendChild(body)}else{card.innerHTML=\"<div class=empty>EMPTY</div>\"}page.appendChild(card)}root.appendChild(page)}}$(\"preset\").onchange=function(){var p=this.value.split(\"x\");$(\"cols\").value=p[0];$(\"rows\").value=p[1];render()};[\"cols\",\"rows\",\"paper\",\"orient\",\"mode\",\"bind\",\"bindsize\",\"zoom\"].forEach(function(id){$(id).addEventListener(id===\"zoom\"?\"input\":\"change\",render)});$(\"render\").onclick=render;$(\"print\").onclick=function(){render();window.print()};render();';
+    var script=doc.createElement('script'); script.textContent=viewerJS; doc.body.appendChild(script);
     var html=String.fromCharCode(60)+'!doctype html>\n'+doc.documentElement.outerHTML;
     deliver(new Blob([html],{type:'text/html'}),'operator-flipbook-'+stamp()+'.html','text/html');
     fireToast('Flipbook HTML saved');
@@ -1717,6 +1782,7 @@ document.getElementById('film-webm').addEventListener('click', guard(function(){
 document.getElementById('film-mp4').addEventListener('click', guard(function(){ playThud(); exportVideo('mp4'); },'film-mp4'));
 document.getElementById('film-flipbook').addEventListener('click', guard(function(){ playThud(); exportFlipbookHTML(); },'film-flipbook'));
 document.getElementById('film-branch-html').addEventListener('click', guard(function(){ playThud(); exportBranchingHTML(); },'film-branch-html'));
+document.getElementById('film-twee').addEventListener('click', guard(function(){ playThud(); exportTwee(); },'film-twee'));
 document.getElementById('film-edl').addEventListener('click', guard(function(){ playThud(); exportEDL(); },'film-edl'));
 document.getElementById('film-edl-json').addEventListener('click', guard(function(){ playThud(); exportEDLJSON(); },'film-edl-json'));
 document.getElementById('cap-resync').addEventListener('click',function(){ if(!(link&&link.kind==='webrtc')){fireToast('Not connected');return;} playClack(); sendSnapshot('button'); fireToast('Tree resynced to remote participant'); });
