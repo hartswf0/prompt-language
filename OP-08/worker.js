@@ -495,8 +495,17 @@ export class Room {
       const body = await readJson(request, 2048);
       const intent = body && (body.intent === 'host' || body.intent === 'guest') ? body.intent : '';
       const clientId = safeClientId(body && body.clientId);
+      if (body && body.reset === true && intent === 'host') {
+        meta.peers = [];
+        meta.seq = 0;
+        meta.epoch += 1;
+        await this.state.storage.delete('msgs');
+      }
       const existing = clientId ? meta.peers.find((peer) => peer.clientId === clientId) : null;
       if (existing) {
+        if (intent && existing.role !== intent) {
+          return json(request, this.env, { error: 'role-conflict', role: existing.role, requested: intent }, 409);
+        }
         existing.last = now;
         await this.saveMeta(meta, now);
         return json(request, this.env, {
@@ -506,12 +515,6 @@ export class Room {
           peers: meta.peers.length,
           epoch: meta.epoch,
         });
-      }
-      if (body && body.reset === true && intent === 'host') {
-        meta.peers = [];
-        meta.seq = 0;
-        meta.epoch += 1;
-        await this.state.storage.delete('msgs');
       }
       if (intent === 'guest' && meta.peers.length === 0) {
         return json(request, this.env, { error: 'host-not-ready' }, 409);
