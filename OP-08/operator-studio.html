@@ -365,7 +365,8 @@
 <div class="panel" id="panel-save">
   <h3 style="color:var(--aC)">Save</h3>
   <button class="primary" id="film-save" type="button" style="width:100%">Twin file</button>
-  <button id="film-open" type="button" style="width:100%;margin-top:8px">Open twin</button>
+  <button id="film-open" type="button" style="width:100%;margin-top:8px">Load file</button>
+  <div class="mini" style="margin-top:6px">Loads twin JSON, scene-pack JSON, raw BEFLIX, or Twee with BEFLIX blocks.</div>
   <div style="border-top:3px solid var(--k); margin-top:14px; padding-top:12px;">
     <div class="save-grid">
       <button class="primary" id="film-gif" type="button" style="background:var(--aA);color:#fff;border-color:var(--k)">GIF</button>
@@ -390,7 +391,7 @@
     <button id="cap-resync" type="button" style="width:100%;margin-top:8px">Resync</button>
     <button id="cap-check" type="button" style="width:100%;margin-top:8px">Self-check</button>
   </details>
-  <input type="file" id="film-file" accept="application/json,.json" hidden>
+  <input type="file" id="film-file" accept="application/json,text/plain,.json,.twee,.tw,.bfx,.txt" hidden>
 </div>
 
 <div class="panel" id="panel-chat">
@@ -1628,7 +1629,94 @@ function makeTwinDoc(){
   };
 }
 function saveFilm(){ try{ var doc=makeTwinDoc(); var blob=new Blob([JSON.stringify(doc,null,2)],{type:'application/json'}); deliver(blob,'operator-twin-'+stamp()+'.json','application/json'); fireToast('Twin saved ('+treeSize()+' frames)'); }catch(e){ fireToast('Could not save'); log('SAVE','err '+(e&&e.message)); } }
-function openFilmText(txt){ try{ var doc=JSON.parse(txt); var payload=(doc&&typeof doc.tree==='string')?doc.tree:(typeof doc==='string'?doc:''); if(!payload){ fireToast('Not an OPERATOR film file'); return; } loadSnapshot(payload); sendSnapshot('open-film'); }catch(e){ fireToast('Could not read that file'); log('OPEN','err '+(e&&e.message)); } }
+function safeSceneId(s){ return String(s||'scene').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'').slice(0,40)||'scene'; }
+function openBeflixScenePack(doc){
+  var scenes=(doc&&doc.scenes)||[], maxTotal=Math.min(NODE_MAX, doc.max_nodes||NODE_MAX), root='legos_root', nn={}, made=1;
+  if(!scenes.length){ fireToast('Scene pack has no scenes'); return false; }
+  nn[root]={id:root,grid:new Uint8Array(N),parent:null,kids:[],author:ME};
+  for(var s=0;s<scenes.length&&made<maxTotal;s++){
+    var sc=scenes[s]||{}, sid=safeSceneId(sc.id||sc.title||('scene_'+(s+1)));
+    var raw=Array.isArray(sc.beflix)?sc.beflix.join('\n'):(sc.beflix||sc.code||'');
+    var lines=extractBeflixCommands(raw), frames=runBeflixAnim(lines);
+    var limit=Math.max(1,Math.min(frames.length, sc.max_frames||24, maxTotal-made));
+    var prev=root, step=Math.max(1,Math.ceil(frames.length/limit));
+    for(var i=0;i<limit&&made<maxTotal;i++){
+      var fid=sid+'_f'+String(i+1).padStart(3,'0');
+      nn[fid]={id:fid,grid:frames[Math.min(frames.length-1,i*step)].slice(),parent:prev,kids:[],author:ME};
+      nn[prev].kids.push(fid);
+      prev=fid; made++;
+    }
+  }
+  for(var id in nn){ nn[id].kids.sort(); }
+  var probs=validateTree(nn,root);
+  if(probs.length){ fireToast('Scene pack rejected'); log('OPEN','scene pack rejected: '+probs[0]); return false; }
+  nodes=nn; rootId=root; myNode=root; theirNode=null; theirPen.on=false; branchChoice={}; renderStrip(); renderBranches(); paintBoard(); refreshNodeCode(); sendCursor(); sendSnapshot('open-scene-pack'); fireToast('Scene pack loaded · '+(made-1)+' frames'); return true;
+}
+function openRawBeflixText(txt,label){
+  var lines=extractBeflixCommands(txt); if(!lines.length)return false;
+  var frames=runBeflixAnim(lines), built=buildLinearTree(frames), probs=validateTree(built.nodes,built.rootId);
+  if(probs.length){ log('OPEN','raw BEFLIX rejected: '+probs[0]); return false; }
+  nodes=built.nodes; rootId=built.rootId; myNode=built.rootId; theirNode=null; theirPen.on=false; branchChoice={}; renderStrip(); renderBranches(); paintBoard(); refreshNodeCode(); sendCursor(); sendSnapshot('open-beflix'); fireToast((label||'BEFLIX')+' loaded · '+frames.length+' frames'); return true;
+}
+function isInsideFence(text,idx){ var before=text.slice(0,idx), m=before.match(/```/g); return !!(m&&m.length%2); }
+function plainTweeBody(s){
+  return String(s||'')
+    .replace(/<!--[\s\S]*?-->/g,' ')
+    .replace(/\[\[([^\]|>-]+)(?:->|\|)[^\]]+\]\]/g,'$1')
+    .replace(/\[\[([^\]]+)\]\]/g,'$1')
+    .replace(/\([^)]*:\s*[^)]*\)/g,' ')
+    .replace(/<[^>]+>/g,' ')
+    .replace(/[`*_#{}]/g,' ')
+    .replace(/\s+/g,' ')
+    .trim();
+}
+function textCardCmds(title,body){
+  var c=document.createElement('canvas'); c.width=W; c.height=H;
+  var x=c.getContext('2d',{willReadFrequently:true}); x.fillStyle='#fff'; x.fillRect(0,0,W,H);
+  x.fillStyle='#000'; x.textBaseline='top';
+  function wrap(text,xx,yy,maxW,lineH,maxLines,font){
+    x.font=font; var words=String(text||'').split(/\s+/), line='', out=[], i;
+    for(i=0;i<words.length;i++){ var t=line?(line+' '+words[i]):words[i]; if(x.measureText(t).width>maxW&&line){ out.push(line); line=words[i]; } else line=t; if(out.length>=maxLines)break; }
+    if(line&&out.length<maxLines)out.push(line);
+    out.forEach(function(l,j){ x.fillText(l,xx,yy+j*lineH); });
+  }
+  x.strokeStyle='#000'; x.lineWidth=2; x.strokeRect(2,2,W-4,H-4);
+  wrap(String(title||'TWEE PASSAGE').toUpperCase(),7,8,114,10,2,'700 9px ui-monospace,monospace');
+  x.fillRect(7,31,114,2);
+  wrap(plainTweeBody(body).slice(0,360),7,40,114,8,6,'700 7px ui-monospace,monospace');
+  var img=x.getImageData(0,0,W,H).data,g=new Uint8Array(N);
+  for(var y=0;y<H;y++)for(var xx=0;xx<W;xx++){ var p=(y*W+xx)*4, l=img[p]*0.299+img[p+1]*0.587+img[p+2]*0.114; if(l<180)g[y*W+xx]=7; }
+  return frameToCmds(g);
+}
+function scenesFromTwee(txt){
+  var scenes=[], pass=/^::\s+([^\n\[{]+)[^\n]*\n([\s\S]*?)(?=^::\s+|\s*$)/gm, m;
+  while((m=pass.exec(txt))){
+    var title=m[1].trim(), body=m[2], block=/<!--\s*BEFLIX[^\n]*\n?([\s\S]*?)\/BEFLIX\s*-->/gi, b, n=0;
+    if(/^Story(?:Title|Data|Stylesheet)$/i.test(title))continue;
+    while((b=block.exec(body))){
+      if(isInsideFence(body,b.index))continue;
+      var code=(b[1]||'').trim();
+      var cm=/^\s*C\s+(?:SCENE\s+)?(.+)$/im.exec(code), sceneTitle=cm?cm[1].trim():title;
+      if(extractBeflixCommands(code).length)scenes.push({id:safeSceneId(sceneTitle||title)+'_'+(++n),title:sceneTitle||title,beflix:code.split(/\r?\n/),max_frames:24});
+    }
+    if(!n)scenes.push({id:safeSceneId(title),title:title,beflix:textCardCmds(title,body),max_frames:1});
+    if(scenes.length>=NODE_MAX-1)break;
+  }
+  return scenes;
+}
+function openFilmText(txt){
+  try{
+    var doc=JSON.parse(txt);
+    if(doc&&(doc.format==='operator-beflix-scenes'||doc.format==='legos-beflix-scenes'||Array.isArray(doc.scenes))){ openBeflixScenePack(doc); return; }
+    if(doc&&Array.isArray(doc.cells)){ openBeflixScenePack({format:'operator-beflix-scenes',scenes:doc.cells.map(function(c,i){return{id:c.id||c.name||('cell_'+i),title:c.name||c.id||('Cell '+(i+1)),beflix:(c.code||c.beflix||'').split(/\r?\n/),max_frames:24};})}); return; }
+    var payload=(doc&&typeof doc.tree==='string')?doc.tree:(typeof doc==='string'?doc:'');
+    if(payload){ loadSnapshot(payload); sendSnapshot('open-film'); return; }
+  }catch(e){}
+  var tweeScenes=scenesFromTwee(txt);
+  if(tweeScenes.length){ openBeflixScenePack({format:'operator-beflix-scenes',scenes:tweeScenes}); return; }
+  if(openRawBeflixText(txt,'BEFLIX'))return;
+  fireToast('No loadable film data found'); log('OPEN','unsupported file');
+}
 document.getElementById('film-save').addEventListener('click', guard(function(){ playThud(); saveFilm(); },'film-save'));
 document.getElementById('film-open').addEventListener('click', function(){ document.getElementById('film-file').click(); });
 document.getElementById('film-file').addEventListener('change', function(e){ var f=e.target.files&&e.target.files[0]; if(!f){return;} var rd=new FileReader(); rd.onload=function(){ openFilmText(rd.result); }; rd.onerror=function(){ fireToast('Could not read that file'); }; rd.readAsText(f); this.value=''; });

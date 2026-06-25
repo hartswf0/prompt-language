@@ -1,0 +1,1130 @@
+:: StoryTitle
+ZORK I LEGOS STATEGRAPH · BEFLIX
+
+:: StoryData
+{
+  "ifid": "B7D2CB10-24E7-4B6E-9A36-LEGOSZORK0001",
+  "format": "Harlowe",
+  "format-version": "3.3.9",
+  "start": "Start",
+  "tag-colors": {
+    "index": "gray",
+    "state-unit": "blue",
+    "atom": "green",
+    "validator": "orange",
+    "data": "purple",
+    "beflix": "red"
+  }
+}
+
+:: StoryStylesheet [stylesheet]
+body {
+  background: #fff;
+  color: #000;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+}
+.legos-card, .legos-data {
+  border: 2px solid #000;
+  padding: 0.8rem;
+  margin: 0.8rem 0;
+  background: #fff;
+}
+.legos-data {
+  white-space: pre-wrap;
+  font-size: 0.9rem;
+}
+.past { border-left: 8px solid #777; padding-left: 0.6rem; }
+.present { border-left: 8px solid #000; padding-left: 0.6rem; }
+.future { border-left: 8px solid #c8a800; padding-left: 0.6rem; }
+.nav a { font-weight: 700; }
+
+/* ---- BEFLIX integration ---- */
+.beflix-stage {
+  border: 2px solid #000;
+  margin: 0.8rem 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #fff;
+}
+.beflix-stage canvas {
+  display: block;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  background: #fff;
+  width: 100%;
+  max-width: 512px;
+  height: auto;
+}
+.beflix-bar {
+  width: 100%;
+  border-top: 2px solid #000;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+}
+.beflix-bar button {
+  flex: 1 1 auto;
+  min-width: 70px;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-weight: 700;
+  background: #fff;
+  color: #000;
+  border: none;
+  border-right: 2px solid #000;
+  padding: 0.45rem 0.3rem;
+  cursor: pointer;
+}
+.beflix-bar button:last-child { border-right: none; }
+.beflix-bar button:hover { background: #000; color: #fff; }
+.beflix-bar button[data-on="1"] { background: #000; color: #fff; }
+.beflix-cap {
+  width: 100%;
+  border-top: 1px solid #000;
+  font-size: 0.66rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  opacity: 0.7;
+  padding: 0.35rem 0.5rem;
+  box-sizing: border-box;
+}
+.beflix-code {
+  width: 100%;
+  border-top: 1px solid #000;
+  font-size: 0.66rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-word;
+  padding: 0.4rem 0.5rem;
+  box-sizing: border-box;
+  background: #fff;
+}
+.beflix-code .c { opacity: 0.5; }
+.beflix-code .k { font-weight: 700; }
+
+:: StoryJavaScript [script]
+/* ============================================================
+   ZORK · BEFLIX-128  —  embedded interpreter + routine library
+   Lives once in StoryJavaScript; every SU passage renders through it.
+
+   A state unit declares a BEFLIX PROGRAM (a function of the live state
+   axes). The same program renders every state of its rooms — empty,
+   blocked, cleared, dark, thief-passing — by reading the axes, not by
+   storing baked frames. This is the Engine Contract, executable.
+
+   COST DISCIPLINE baked in:
+     HOT primitives (passage/rock/lampcone/figure/glint) -> min prims
+     HEAVY plates (round_room/aragain/hades/dam)          -> full detail
+     round_room                                           -> CACHED
+     lampcone                                             -> the leverage routine
+   ============================================================ */
+(function(){
+  "use strict";
+  var W = 128, H = 96, IMAX = 7;
+
+  /* ---- the shared grid + a per-render cost meter ---- */
+  var grid = new Uint8Array(W*H);
+  var COST = {}, STACK = [];
+  function enter(n){ STACK.push(n); if(!COST[n]) COST[n]={calls:0,prims:0}; COST[n].calls++; }
+  function leave(){ STACK.pop(); }
+  function tick(n){ if(STACK.length) COST[STACK[STACK.length-1]].prims += n; }
+  function idx(x,y){ return (y|0)*W + (x|0); }
+  function inb(x,y){ return x>=0&&x<W&&y>=0&&y<H; }
+
+  /* ---- the five base ops ---- */
+  function CLR(v){ grid.fill(v&IMAX); tick(1); }
+  function PNT(x,y,w,h,v){ v&=IMAX;x|=0;y|=0;w|=0;h|=0;
+    for(var j=0;j<h;j++){ var yy=y+j; if(yy<0||yy>=H) continue;
+      for(var i=0;i<w;i++){ var xx=x+i; if(xx<0||xx>=W) continue; grid[idx(xx,yy)]=v; } } tick(1); }
+  function LIN(x1,y1,x2,y2,v){ v&=IMAX;x1|=0;y1|=0;x2|=0;y2|=0;
+    var dx=Math.abs(x2-x1),dy=-Math.abs(y2-y1),sx=x1<x2?1:-1,sy=y1<y2?1:-1,err=dx+dy;
+    for(;;){ if(inb(x1,y1)) grid[idx(x1,y1)]=v; if(x1===x2&&y1===y2) break;
+      var e2=2*err; if(e2>=dy){err+=dy;x1+=sx;} if(e2<=dx){err+=dx;y1+=sy;} } tick(1); }
+  function SHF(dx,dy){ var out=new Uint8Array(W*H);dx|=0;dy|=0;
+    for(var y=0;y<H;y++)for(var x=0;x<W;x++){ var sx=x-dx,sy=y-dy; out[idx(x,y)]=inb(sx,sy)?grid[idx(sx,sy)]:0; }
+    grid.set(out); tick(1); }
+
+  /* ============================================================
+     TIER A — HOT PRIMITIVES (min prims; the frame budget)
+     ============================================================ */
+  function passage(x,y){ enter('passage'); PNT(x,y,8,12,0); PNT(x,y,8,1,7); LIN(x,y,x,y+12,5); leave(); }
+  function rock(x,y,w,h){ enter('rock'); PNT(x,y,w,h,1);
+    for(var i=0;i<w;i+=12) LIN(x+i,y,x+i,y+h,2); PNT(x,y,w,1,6); PNT(x,y,1,h,6); leave(); }
+  function lampcone(x,y){ enter('lampcone'); // THE LEVERAGE ROUTINE: 3 prims over every lit frame
+    PNT(x-6,y-2,12,6,1); PNT(x-12,y+4,24,8,1); PNT(x-20,y+12,40,10,1); leave(); }
+  function figure(x,y,pose){ enter('figure');
+    PNT(x-1,y-8,3,4,7); PNT(x-1,y-4,3,6,7);
+    if(pose==='CLIMB'){ LIN(x-2,y-4,x-3,y-9,7);LIN(x+2,y-4,x+3,y-9,7);LIN(x-1,y+2,x-2,y-2,7);LIN(x+1,y+2,x+2,y-2,7); }
+    else if(pose==='CROSS'){ LIN(x-1,y+2,x-4,y+6,7);LIN(x+1,y+2,x+4,y+5,7);LIN(x-2,y-3,x-6,y-4,7); }
+    else if(pose==='DIG'){ LIN(x+1,y-3,x+8,y+2,7);LIN(x-1,y+2,x-3,y+7,7);LIN(x+1,y+2,x+2,y+7,7); }
+    else { LIN(x-1,y+2,x-2,y+8,7);LIN(x+1,y+2,x+2,y+8,7);LIN(x-1,y-3,x-4,y-1,7); } leave(); }
+  function glint(x,y){ enter('glint'); PNT(x,y,2,2,7); LIN(x-2,y,x+3,y,3); LIN(x,y-2,x,y+3,3); leave(); }
+
+  /* shared mediums */
+  function water(x,y,w,h,lvl){ enter('water'); PNT(x,y,w,h,lvl<1?1:lvl>4?4:lvl);
+    for(var i=0;i<w;i+=4) LIN(x+i,y,x+i+2,y,6); leave(); }
+  function haze(x,y,w,h,d){ enter('haze');
+    for(var j=0;j<h;j+=d) for(var i=((j/d)&1?2:0);i<w;i+=d*2) PNT(x+i,y+j,1,1,3); leave(); }
+  function shaft(x,y,depth){ enter('shaft'); PNT(x,y,10,depth,0); LIN(x,y,x,y+depth,6); LIN(x+10,y,x+10,y+depth,6); leave(); }
+
+  /* ============================================================
+     TIER B — PROPS (objects, drawn anywhere, state-parameterized)
+     ============================================================ */
+  function trapdoor(x,y,open){ enter('trapdoor');
+    if(open){ PNT(x,y,16,3,0); LIN(x,y,x+16,y,7); PNT(x,y-6,16,3,7); }
+    else { PNT(x,y,16,3,6); LIN(x,y,x+16,y,7); LIN(x,y+3,x+16,y+3,7); } leave(); }
+  function rug(x,y){ enter('rug'); PNT(x,y,22,4,3); for(var i=0;i<22;i+=3) PNT(x+i,y,1,4,6); leave(); }
+  function caseBox(x,y,filled){ enter('case');
+    PNT(x,y,18,12,1); PNT(x,y,18,1,7); PNT(x,y+11,18,1,7); PNT(x,y,1,12,7); PNT(x+17,y,1,12,7);
+    for(var s=0;s<filled&&s<3;s++) glint(x+4+s*5,y+5); leave(); }
+  function bell(x,y){ enter('bell'); PNT(x,y,6,5,6); PNT(x+2,y+5,2,1,7); PNT(x+1,y-1,4,1,4); leave(); }
+  function candle(x,y,lit){ enter('candle'); PNT(x,y,1,4,6); if(lit){ PNT(x,y-2,1,2,7); PNT(x-1,y-1,3,1,2);} leave(); }
+  function rope(x,y,tied){ enter('rope'); if(tied){ LIN(x,y,x,y+24,5); PNT(x-1,y,3,1,7);} else { for(var i=0;i<5;i++) PNT(x+(i%2),y+i*2,2,2,5);} leave(); }
+  function bolt(x,y,turned){ enter('bolt'); PNT(x,y,5,5,6); LIN(x,y,x+5,y+5,1); if(turned){ LIN(x,y+2,x+5,y+2,7);} else { LIN(x+2,y,x+2,y+5,7);} leave(); }
+  function press(x,y,closed){ enter('press'); PNT(x,y,20,16,3); PNT(x,y,20,1,7); PNT(x+6,y-4,8,4,6); PNT(x+18,y+6,3,2,7);
+    if(closed) PNT(x+2,y+13,16,2,7); else PNT(x+2,y+8,16,2,1); leave(); }
+  function basket(x,y){ enter('basket'); LIN(x+5,y-8,x+5,y,4); PNT(x,y,10,5,2); PNT(x,y,10,1,7); PNT(x,y+4,10,1,7); leave(); }
+  function nest(x,y,egg){ enter('nest'); PNT(x,y,10,4,4); for(var i=0;i<10;i+=2)PNT(x+i,y,1,4,6); if(egg){ PNT(x+3,y-3,4,4,5); PNT(x+4,y-3,2,1,7);} leave(); }
+  function mailbox(x,y,open){ enter('mailbox'); PNT(x,y,7,5,6); LIN(x+3,y+5,x+3,y+9,5); if(open){ PNT(x+7,y,3,5,1); PNT(x+8,y+1,4,3,7);} leave(); }
+  function buoy(x,y){ enter('buoy'); PNT(x,y,3,4,7); PNT(x-1,y+4,5,1,4); leave(); }
+  function gratingBars(x,y,w,h){ enter('grating'); PNT(x,y,w,h,1); for(var i=0;i<w;i+=4) LIN(x+i,y,x+i,y+h,6); leave(); }
+
+  /* ============================================================
+     TIER C — AGENTS (the only movers; axis-state parameterized)
+     ============================================================ */
+  function troll(x,y,state){ enter('troll');
+    if(state==='GONE'){ leave(); return; }
+    if(state==='FALLING'){ PNT(x-6,y-4,14,14,7); LIN(x-8,y-6,x+12,y-14,6); LIN(x+12,y,x+20,y-4,2); LIN(x+12,y+4,x+22,y+2,2); }
+    else { PNT(x-5,y-16,12,18,7); PNT(x-3,y-22,8,7,7); LIN(x-10,y-10,x+12,y-6,7); PNT(x+9,y-9,5,4,7); } leave(); }
+  function cyclops(x,y,state){ enter('cyclops');
+    if(state==='GONE'){ leave(); return; }
+    if(state==='FLEEING'){ PNT(x-8,y-18,18,22,7); LIN(x+10,y-10,x+18,y-8,2); LIN(x+10,y,x+20,y+2,2);
+      LIN(x+22,y-16,x+30,y-20,7); LIN(x+24,y-8,x+32,y-6,7); LIN(x+23,y,x+33,y+4,7); }
+    else { PNT(x-10,y-16,22,20,7); PNT(x-2,y-10,3,3,0); } leave(); }
+  function thief(x,y){ enter('thief'); PNT(x-2,y-12,5,14,7); LIN(x+3,y-8,x+9,y-12,7); glint(x+9,y-12); leave(); }
+  function bat(x,y){ enter('bat'); PNT(x-1,y,3,2,7); LIN(x-1,y,x-7,y-3,6); LIN(x+2,y,x+8,y-3,6); leave(); }
+  function spirits(x,y,w,h){ enter('spirits'); haze(x,y,w,h,4); leave(); }
+  function grue(){ enter('grue'); CLR(7); leave(); }
+  function hand(x,y){ enter('hand'); PNT(x-1,y,3,8,7); LIN(x-1,y-2,x-3,y-4,7); LIN(x+1,y-2,x+3,y-4,7); LIN(x,y-2,x,y-5,7); leave(); }
+
+  /* ============================================================
+     TIER D — PLATES (rooms = compositions; heavy ones detailed)
+     ============================================================ */
+  var _roundCache = null;
+  function plate_round_room(){ enter('plate_round_room');
+    if(_roundCache){ grid.set(_roundCache); tick(1); leave(); return; } // CACHED recall
+    CLR(0); rock(0,0,W,H);
+    var cx=64,cy=48,spokes=[[64,4],[104,12],[112,44],[104,76],[64,84],[24,76],[16,44],[24,12]];
+    for(var k=0;k<spokes.length;k++){ passage(spokes[k][0]-4,spokes[k][1]); LIN(cx,cy,spokes[k][0],spokes[k][1]+6,3); }
+    PNT(cx-12,cy-12,24,24,1); LIN(cx-12,cy-12,cx+12,cy-12,6); LIN(cx-12,cy+12,cx+12,cy+12,6);
+    _roundCache = grid.slice(); leave(); }
+  function plate_aragain(){ enter('plate_aragain'); CLR(0); rock(0,60,W,36);
+    for(var i=40;i<88;i+=2) LIN(i,0,i-4,60,5);
+    for(var r=0;r<5;r++){ var yy=18+r*3; for(var x=18;x<110;x+=3) PNT(x, yy-Math.round(8*Math.sin((x-18)/92*Math.PI)),1,1,6-r); }
+    PNT(0,72,128,24,0); LIN(0,72,128,72,6); leave(); }
+  function plate_hades(){ enter('plate_hades'); CLR(0); haze(0,0,W,H,5);
+    PNT(38,24,6,56,6); PNT(84,24,6,56,6); PNT(38,24,52,6,6);
+    for(var i=0;i<5;i++){ PNT(40,32+i*9,2,6,7); PNT(86,32+i*9,2,6,7); } glint(64,52); PNT(62,48,5,5,5); leave(); }
+  function plate_dam(){ enter('plate_dam'); CLR(0); water(0,0,W,22,3); rock(0,22,W,12);
+    PNT(20,40,40,28,2); PNT(20,40,40,1,7); PNT(20,67,40,1,7);
+    for(var i=0;i<3;i++)for(var j=0;j<2;j++) glint(30+i*12,48+j*10);
+    bolt(96,46,false); PNT(0,80,128,16,1); for(var s=0;s<128;s+=10) PNT(s,80,2,16,5); leave(); }
+  function plate_machine_room(){ enter('plate_machine_room'); CLR(0); rock(0,0,W,H); press(54,44,false); passage(8,52); passage(112,52); leave(); }
+  function plate_temple(){ enter('plate_temple'); CLR(0); rock(0,0,W,H);
+    PNT(40,64,48,8,3); PNT(48,56,32,8,3); PNT(56,48,16,8,3); bell(58,36); candle(46,54,false); candle(80,54,false); passage(8,40); passage(112,40); leave(); }
+  /* lighter plates */
+  function plate_west_house(){ enter('plate_west_house'); CLR(0);
+    PNT(28,30,72,50,1); PNT(28,30,72,1,7); PNT(28,79,72,1,7); PNT(28,30,1,50,7); PNT(99,30,1,50,7);
+    LIN(40,42,84,42,7); LIN(40,42,62,30,7); LIN(84,42,62,30,7);
+    PNT(56,52,16,28,3); LIN(56,52,84,80,1); LIN(72,52,56,80,1);
+    for(var i=0;i<W;i+=5) PNT(i,84,2,12,4); mailbox(14,68,false); leave(); }
+  function plate_forest(){ enter('plate_forest'); CLR(0); for(var i=8;i<W;i+=18) PNT(i,10,3,86,5); PNT(0,88,W,8,1); leave(); }
+  function plate_clearing(){ enter('plate_clearing'); CLR(0); for(var i=0;i<W;i+=22) PNT(i,8,3,40,5); gratingBars(48,60,32,24); LIN(64,60,64,96,2); leave(); }
+  function plate_living_room(){ enter('plate_living_room'); CLR(0); rock(0,0,W,H); caseBox(20,18,0); rug(50,66); trapdoor(52,72,false); passage(104,40); leave(); }
+  function plate_kitchen(){ enter('plate_kitchen'); CLR(0); rock(0,0,W,H);
+    PNT(40,60,40,4,3); PNT(48,52,6,8,5); PNT(64,50,4,10,5); PNT(96,8,16,40,0); LIN(96,8,96,48,6); LIN(112,8,112,48,6); PNT(20,30,12,16,1); leave(); }
+  function plate_attic(){ enter('plate_attic'); CLR(0); PNT(0,0,W,H,2); LIN(0,20,W,40,7); rope(24,46,false); LIN(70,56,96,52,6); glint(96,52); leave(); }
+  function plate_cellar(){ enter('plate_cellar'); CLR(0); rock(0,0,W,H); trapdoor(56,8,true); passage(104,52); leave(); }
+  function plate_troll_room(){ enter('plate_troll_room'); CLR(0); rock(0,0,W,H); PNT(20,80,88,8,4); passage(8,40); passage(60,38); passage(112,40); leave(); }
+  function plate_maze(){ enter('plate_maze'); CLR(0); rock(0,0,W,H); passage(8,30); passage(56,50); passage(108,28); glint(40,82); glint(70,80); leave(); }
+  function plate_cyclops_room(){ enter('plate_cyclops_room'); CLR(0); rock(0,0,W,H); for(var i=0;i<6;i++) LIN(90,72-i*10,110,66-i*10,5); leave(); }
+  function plate_grating_room(){ enter('plate_grating_room'); CLR(0); rock(0,0,W,H); gratingBars(40,12,40,16); LIN(60,28,60,40,2); glint(64,70); leave(); }
+  function plate_dome_room(){ enter('plate_dome_room'); CLR(0); PNT(0,60,W,36,0); for(var i=0;i<W;i+=10) PNT(i,52,3,8,6); LIN(0,52,W,52,7); rope(64,52,false); leave(); }
+  function plate_reservoir(){ enter('plate_reservoir'); CLR(0); rock(0,0,W,14); water(0,14,W,70,3); PNT(0,84,W,12,2); leave(); }
+  function plate_frigid_river(){ enter('plate_frigid_river'); CLR(0); rock(0,0,W,16); rock(0,78,W,18); water(0,16,W,62,2); for(var i=0;i<W;i+=6) LIN(i,40,i+8,40,5); buoy(70,44); leave(); }
+  function plate_gas_room(){ enter('plate_gas_room'); CLR(0); rock(0,0,W,H); haze(0,0,W,H,8); glint(60,70); leave(); }
+  function plate_coal_mine(){ enter('plate_coal_mine'); CLR(0); PNT(0,0,W,H,3); passage(20,40); passage(80,30); passage(50,60); leave(); }
+  function plate_shaft_room(){ enter('plate_shaft_room'); CLR(0); rock(0,0,W,H); shaft(58,30,60); basket(56,28); leave(); }
+  function plate_loud_room(){ enter('plate_loud_room'); CLR(0); rock(0,0,W,H);
+    for(var i=0;i<5;i++){ LIN(20,48,40-i*4,30-i*6,4); LIN(108,48,88+i*4,30-i*6,4); } PNT(60,60,8,6,7); glint(64,52); passage(8,40); passage(112,40); leave(); }
+
+  /* ============================================================
+     PART 3 — PROGRAMS (one per state unit; functions of the axes)
+     Each reads the live axes so ONE program renders every state.
+     ============================================================ */
+  var PROGS = {
+
+    su_surface_house: function(S){
+      if(S.descended){ plate_cellar(); if(S.lit) lampcone(64,60); figure(64,62,'STAND'); return ['C descended','plate_cellar','trapdoor -> sealed']; }
+      plate_west_house(); if(S.opened) mailbox(14,68,true); figure(60,80,'STAND');
+      return ['plate_west_house', S.opened?'mailbox 14 68 OPEN':'C mailbox closed','figure 60 80 STAND']; },
+
+    su_light_darkness: function(S){
+      if(!S.lit){ if(S.grue){ grue(); return ['C SEAM: grue death','CLR 7']; }
+        CLR(7); PNT(62,46,2,2,0); PNT(60,48,1,1,0); PNT(66,46,1,1,0); return ['C DARK: room erased','CLR 7','C located disturbance']; }
+      plate_troll_room(); figure(30,72,'STAND'); lampcone(30,70);
+      return ['plate_troll_room (any lit room)','figure 30 72','lampcone 30 70  C the leverage routine']; },
+
+    su_troll_gate: function(S){
+      plate_troll_room();
+      var st = S.troll || 'BARS'; troll(64,70,st); figure(24,72,'STAND'); if(S.lit) lampcone(24,70);
+      return ['plate_troll_room','troll 64 70 '+st, st==='FALLING'?'C SEAM: troll slain':'C blocking','figure 24 72']; },
+
+    su_maze_grating: function(S){
+      if(S.gratingOpen){ plate_grating_room(); if(S.lit) lampcone(64,60); return ['plate_grating_room','grating -> open (shortcut)']; }
+      plate_maze(); for(var i=0;i<4;i++) glint(20+i*22,86); figure(30,60,'STAND'); if(S.lit) lampcone(30,58);
+      return ['plate_maze','C dropped objects as markers','figure 30 60']; },
+
+    su_cyclops_gate: function(S){
+      plate_cyclops_room(); var st=S.cyclops||'SLEEP'; cyclops(70,60,st); figure(20,64,'STAND'); if(S.lit) lampcone(20,62);
+      return ['plate_cyclops_room','cyclops 70 60 '+st, st==='FLEEING'?'C SEAM: word breaks wall':'C asleep','figure 20 64']; },
+
+    su_thief_economy: function(S){
+      plate_maze(); if(S.thiefDead){ figure(60,60,'STAND'); for(var i=0;i<3;i++) glint(40+i*16,40); }
+      else { thief(80,60); figure(30,60,'STAND'); } if(S.lit) lampcone(S.thiefDead?60:30,58);
+      return ['plate_maze', S.thiefDead?'C thief defeated, treasure recovered':'thief 80 60  C one routine, any room']; },
+
+    su_egg_canary_bauble: function(S){
+      if(S.bauble){ plate_forest(); glint(64,70); figure(40,80,'STAND'); return ['plate_forest','C canary wound -> bauble falls','glint 64 70']; }
+      plate_maze(); nest(58,40,!S.eggOpen); if(S.eggOpen) thief(50,55); if(S.lit) lampcone(80,58);
+      return ['C up-tree egg / treasure room','nest 58 40 '+(S.eggOpen?'EMPTY':'EGG'), S.eggOpen?'thief opens it (delegation)':'C cannot open safely']; },
+
+    su_temple_hades: function(S){
+      if(S.exorcised){ plate_hades(); hand(64,70); if(S.lit) lampcone(64,60); return ['C SEAM: exorcised','plate_hades','hand 64 70  C take skull']; }
+      plate_temple(); if(S.ritual){ candle(46,54,true); candle(80,54,true); glint(58,30); } figure(100,46,'STAND'); if(S.lit) lampcone(100,44);
+      return ['plate_temple', S.ritual?'candle LIT x2  C bell+book+candle':'C ritual not begun','figure 100 46']; },
+
+    su_dam_reservoir: function(S){
+      plate_dam(); if(S.drained){ bolt(96,46,true); PNT(0,80,128,16,0); } figure(12,60,'STAND'); if(S.lit) lampcone(12,58);
+      return ['plate_dam','bolt 96 46 '+(S.drained?'TURNED':'closed'), S.drained?'C SEAM: reservoir drained':'C water held','figure 12 60']; },
+
+    su_river_rainbow: function(S){
+      if(S.rainbow){ plate_aragain(); PNT(96,30,8,8,7); glint(100,34); figure(20,64,'STAND'); return ['C SEAM: rainbow solid','plate_aragain','C pot of gold appears']; }
+      plate_frigid_river(); figure(64,46,'CROSS'); if(S.lit) lampcone(64,40);
+      return ['plate_frigid_river','figure 64 46 CROSS  C in the boat','buoy 70 44']; },
+
+    su_mine_gas_basket: function(S){
+      plate_gas_room(); if(!S.batRepelled) bat(80,30); hand(60,68); figure(30,72,'CROSS'); if(S.lit) lampcone(30,68);
+      return ['plate_gas_room', S.batRepelled?'C garlic carried, bat gone':'bat 80 30  C abducts','hand 60 68  C sapphire, lamp only','figure 30 72 CROSS']; },
+
+    su_machine_diamond: function(S){
+      plate_machine_room(); press(54,44,!!S.pressed); if(S.pressed) glint(64,52); figure(20,60,'STAND'); if(S.lit) lampcone(20,58);
+      return ['plate_machine_room','press 54 44 '+(S.pressed?'CLOSED':'open'), S.pressed?'C SEAM: coal -> diamond':'C coal in hopper','figure 20 60']; },
+
+    su_loud_room: function(S){
+      plate_loud_room(); if(S.quiet){ /* echo-lines suppressed by plate state */ glint(64,52); hand(60,64); } figure(24,64,'STAND'); if(S.lit) lampcone(24,62);
+      return ['plate_loud_room', S.quiet?'C said ECHO -> room quiets':'C commands echo','C platinum bar', S.quiet?'hand 60 64  C take bar':'']; },
+
+    su_trophy_endgame: function(S){
+      plate_living_room();
+      var f = S.full ? 3 : (S.deposited||1);
+      caseBox(20,18,f);
+      if(S.full){ PNT(50,60,28,20,1); LIN(50,60,78,80,6); LIN(78,60,50,80,6); }
+      hand(24,30); figure(90,60,'STAND'); if(S.lit) lampcone(90,58);
+      return ['plate_living_room','case -> '+f+'/3 filled', S.full?'C WIN: Stone Barrow map':'C deposit a treasure','hand 24 30']; }
+  };
+
+  /* ============================================================
+     PART 4 — RENDER + STATE
+     ============================================================ */
+  // default axis state per unit (the "present" first-look)
+  var DEFAULTS = {
+    su_surface_house:   { lit:true, opened:false, descended:false },
+    su_light_darkness:  { lit:true, grue:false },
+    su_troll_gate:      { lit:true, troll:'BARS' },
+    su_maze_grating:    { lit:true, gratingOpen:false },
+    su_cyclops_gate:    { lit:true, cyclops:'SLEEP' },
+    su_thief_economy:   { lit:true, thiefDead:false },
+    su_egg_canary_bauble:{ lit:true, eggOpen:false, bauble:false },
+    su_temple_hades:    { lit:true, ritual:false, exorcised:false },
+    su_dam_reservoir:   { lit:true, drained:false },
+    su_river_rainbow:   { lit:true, rainbow:false },
+    su_mine_gas_basket: { lit:true, batRepelled:false },
+    su_machine_diamond: { lit:true, pressed:false },
+    su_loud_room:       { lit:true, quiet:false },
+    su_trophy_endgame:  { lit:true, deposited:1, full:false }
+  };
+  // toggle definitions per unit: [label, axisKey, valueWhenOn, valueWhenOff]
+  var TOGGLES = {
+    su_surface_house:   [['LIT','lit',true,false],['OPEN MAIL','opened',true,false],['DESCEND','descended',true,false]],
+    su_light_darkness:  [['LIT','lit',true,false],['GRUE','grue',true,false]],
+    su_troll_gate:      [['LIT','lit',true,false],['SLAY','troll','FALLING','BARS']],
+    su_maze_grating:    [['LIT','lit',true,false],['OPEN GRATE','gratingOpen',true,false]],
+    su_cyclops_gate:    [['LIT','lit',true,false],['SAY NAME','cyclops','FLEEING','SLEEP']],
+    su_thief_economy:   [['LIT','lit',true,false],['KILL THIEF','thiefDead',true,false]],
+    su_egg_canary_bauble:[['LIT','lit',true,false],['EGG OPEN','eggOpen',true,false],['BAUBLE','bauble',true,false]],
+    su_temple_hades:    [['LIT','lit',true,false],['RITUAL','ritual',true,false],['EXORCISE','exorcised',true,false]],
+    su_dam_reservoir:   [['LIT','lit',true,false],['DRAIN','drained',true,false]],
+    su_river_rainbow:   [['LIT','lit',true,false],['RAINBOW','rainbow',true,false]],
+    su_mine_gas_basket: [['LIT','lit',true,false],['GARLIC','batRepelled',true,false]],
+    su_machine_diamond: [['LIT','lit',true,false],['PRESS','pressed',true,false]],
+    su_loud_room:       [['LIT','lit',true,false],['ECHO','quiet',true,false]],
+    su_trophy_endgame:  [['LIT','lit',true,false],['FILL CASE','full',true,false]]
+  };
+
+  function renderTo(canvas, prog, S){
+    for(var k in COST) delete COST[k];
+    STACK.length = 0;
+    grid.fill(0);
+    var code = prog(S) || [];
+    // paint to canvas: intensity -> dot size (Knowlton halftone)
+    var ctx = canvas.getContext('2d');
+    var scale = canvas._scale || 4;
+    ctx.fillStyle = '#fff'; ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle = '#000';
+    for(var y=0;y<H;y++) for(var x=0;x<W;x++){
+      var v = grid[idx(x,y)]; if(!v) continue;
+      var frac = v/IMAX, d = Math.max(1, Math.round(scale*frac)), off = Math.floor((scale-d)/2);
+      ctx.fillRect(x*scale+off, y*scale+off, d, d);
+    }
+    return code;
+  }
+
+  function codeHTML(lines){
+    return lines.filter(function(L){return L;}).map(function(L){
+      if(L.indexOf('C ')===0) return '<span class="c">'+esc(L)+'</span>';
+      var sp = L.indexOf(' ');
+      if(sp>0) return '<span class="k">'+esc(L.slice(0,sp))+'</span>'+esc(L.slice(sp));
+      return '<span class="k">'+esc(L)+'</span>';
+    }).join('\n');
+  }
+  function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  /* ============================================================
+     PART 5 — MOUNT into each passage that carries a stage
+     Harlowe renders passages; we scan for our marker and build the
+     canvas + toggle bar + live code readout, wired to the axes.
+     ============================================================ */
+  function mountStages(root){
+    var stages = (root||document).querySelectorAll('.beflix-stage[data-prog]');
+    for(var i=0;i<stages.length;i++){ buildStage(stages[i]); }
+  }
+  function buildStage(stage){
+    if(stage._built) return; stage._built = true;
+    var progId = stage.getAttribute('data-prog');
+    var prog = PROGS[progId]; if(!prog){ stage.textContent = '[no BEFLIX program: '+progId+']'; return; }
+    var S = {}; var d = DEFAULTS[progId]||{}; for(var k in d) S[k]=d[k];
+
+    var scale = 4;
+    var canvas = document.createElement('canvas');
+    canvas.width = W*scale; canvas.height = H*scale; canvas._scale = scale;
+    stage.appendChild(canvas);
+
+    var bar = document.createElement('div'); bar.className='beflix-bar';
+    var caption = document.createElement('div'); caption.className='beflix-cap';
+    var codeEl = document.createElement('div'); codeEl.className='beflix-code';
+
+    function paint(){
+      var code = renderTo(canvas, prog, S);
+      codeEl.innerHTML = codeHTML(code);
+      // cost summary in the caption
+      var tc=0,tp=0,n=0; for(var k in COST){ tc+=COST[k].calls; tp+=COST[k].prims; n++; }
+      caption.textContent = n+' routines · '+tc+' calls · '+tp+' prims  —  same program, every state';
+    }
+    var toggles = TOGGLES[progId]||[['LIT','lit',true,false]];
+    for(var t=0;t<toggles.length;t++){
+      (function(def){
+        var btn = document.createElement('button');
+        btn.textContent = def[0];
+        function sync(){ var on = (S[def[1]]===def[2]); btn.setAttribute('data-on', on?'1':'0'); }
+        btn.addEventListener('click', function(){
+          var on = (S[def[1]]===def[2]);
+          S[def[1]] = on ? def[3] : def[2];
+          sync(); paint();
+        });
+        sync();
+        bar.appendChild(btn);
+      })(toggles[t]);
+    }
+    stage.appendChild(bar);
+    stage.appendChild(caption);
+    stage.appendChild(codeEl);
+    paint();
+  }
+
+  // Harlowe fires 'showpassage' style hooks via DOM mutation; observe and mount.
+  function boot(){
+    mountStages(document);
+    var mo = new MutationObserver(function(muts){
+      for(var i=0;i<muts.length;i++){
+        var m = muts[i];
+        for(var j=0;j<m.addedNodes.length;j++){
+          var n = m.addedNodes[j];
+          if(n.nodeType===1){ if(n.matches&&n.matches('.beflix-stage[data-prog]')) buildStage(n); mountStages(n); }
+        }
+      }
+    });
+    mo.observe(document.body, {childList:true, subtree:true});
+  }
+  if(document.readyState!=='loading') boot();
+  else document.addEventListener('DOMContentLoaded', boot);
+
+  // expose for debugging / external drive
+  window.ZBEFLIX = { PROGS:PROGS, render:renderTo, grid:function(){return grid;}, COST:COST };
+})();
+
+:: Start [index] {"position":"0,0","size":"180,120"}
+# ZORK I LEGOS STATEGRAPH · BEFLIX
+
+This Twee file turns the Zork LEGOS decomposition into a loadable Twine graph, with a live BEFLIX-128 engine embedded.
+
+The rule holds: do not bake twenty-one CINEOSIS images for every atom. Load the atoms, select a state unit. The BEFLIX engine renders that unit — and every state of its rooms — from ONE program that reads the state axes. Coded images, not baked frames.
+
+<div class="legos-card">
+Core path:
+
+* [[State Units]]
+* [[Atom Index]]
+* [[Timeline Phases]]
+* [[Engine Contract]]
+* [[BEFLIX Engine]]
+* [[Validator Checklist]]
+* [[LEGOS Engine JSON]]
+</div>
+
+Start the playable/filmable chain here: [[SU 01 Surface House]]
+
+:: Engine Contract [index] {"position":"220,0","size":"180,120"}
+# Engine Contract
+
+The engine consumes a selected `state_unit`, not the whole document.
+
+Each state unit carries:
+
+* LEGOS atom references.
+* A PAST state.
+* A PRESENT action.
+* A FUTURE consequence.
+* An ABC CINEOSIS seed.
+* A BEFLIX PROGRAM — a function of the state axes.
+
+The BEFLIX program is the executable form of PAST/PRESENT/FUTURE: flip an axis (LIT->DARK, troll BARS->FALLING, reservoir held->drained) and the SAME program renders the new state. No baked frames.
+
+The engine then expands a selected unit into:
+
+* premise · temporal engine · ABC model
+* 21-image matrix · shot sequence
+* sound map · edit map
+* BEFLIX (already live below each unit)
+
+[[Start]] · [[BEFLIX Engine]]
+
+:: BEFLIX Engine [index beflix] {"position":"440,0","size":"200,140"}
+# BEFLIX Engine
+
+The interpreter lives once in `StoryJavaScript`. It is a real BEFLIX-128 machine: a 128×96 grid, the five base ops (`CLR`/`PNT`/`LIN`/`SHF` + render), and a routine library in cost tiers.
+
+<div class="legos-card">
+**Cost discipline (baked in):**
+
+* HOT primitives — `passage`, `rock`, `lampcone`, `figure`, `glint` — stripped to minimum prims. They are the frame budget.
+* HEAVY plates — `round_room`, `aragain`, `hades`, `dam` — full detail, called rarely.
+* `round_room` is CACHED: built once, recalled cheap. The one hot-and-heavy routine.
+* `lampcone` is the leverage routine: 3 prims layered over every lit frame. LIT draws it; DARK is `CLR 7` — free.
+</div>
+
+Every state unit below carries a live stage. Use the buttons to flip the state axes and watch one program render every state. The caption shows the measured routine/call/prim cost for the current frame.
+
+[[Start]] · [[State Units]]
+
+:: State Units [index] {"position":"0,170","size":"220,180"}
+# State Units
+
+These are the LEGO clusters the engine composes from. Each has a live BEFLIX stage.
+
+1. [[SU 01 Surface House]]
+2. [[SU 02 Light Darkness]]
+3. [[SU 03 Troll Gate]]
+4. [[SU 04 Maze Grating]]
+5. [[SU 05 Cyclops Gate]]
+6. [[SU 06 Thief Economy]]
+7. [[SU 07 Egg Canary Bauble]]
+8. [[SU 08 Temple Hades]]
+9. [[SU 09 Dam Reservoir]]
+10. [[SU 10 River Rainbow]]
+11. [[SU 11 Mine Gas Basket]]
+12. [[SU 12 Machine Diamond]]
+13. [[SU 13 Loud Room]]
+14. [[SU 14 Trophy Endgame]]
+
+[[Start]]
+
+:: SU 01 Surface House [state-unit] {"position":"260,170","size":"240,180"}
+# SU 01 — Surface House
+
+<div class="legos-card">
+LEGOS atoms:
+
+locations: `loc_whouse_w`, `loc_kitchen`, `loc_living`, `loc_attic`, `loc_cellar`  
+entities: `ent_adv`, `ent_lamp_leaf`, `ent_lamp`, `ent_sword`, `ent_rug`, `ent_trapdr`  
+obstacles: concealed entry, unarmed descent, unknown underground  
+shifts: `sh_descend`
+</div>
+
+<div class="beflix-stage" data-prog="su_surface_house"></div>
+
+<div class="past">PAST: the house is already a sealed interface to an older empire; the mailbox and leaflet are residue from prior adventurers.</div>
+
+<div class="present">PRESENT: the adventurer reads, enters, takes lamp and sword, lifts the rug, and opens the trapdoor.</div>
+
+<div class="future">FUTURE: descent commits the player to darkness, one-way movement, and treasure recovery.</div>
+
+ABC seed: a nameless body crosses from domestic surface into subterranean machine-space; rug, lamp, sword, window, and trapdoor become a temporal hinge.
+
+<div class="nav">[[State Units]] · [[next->SU 02 Light Darkness]]</div>
+
+:: SU 02 Light Darkness [state-unit] {"position":"540,170","size":"240,180"}
+# SU 02 — Light / Darkness
+
+<div class="legos-card">
+LEGOS atoms:
+
+locations: all dark rooms  
+entities: `ent_lamp`, `ent_torch`, `ent_grue`, `ent_adv`  
+goals: `g_light`, `g_survive`  
+obstacles: `o_dark`, `o_battery`
+</div>
+
+<div class="beflix-stage" data-prog="su_light_darkness"></div>
+
+<div class="past">PAST: the underground already contains darkness as a predator; earlier bodies failed where light failed.</div>
+
+<div class="present">PRESENT: the lamp burns down while the adventurer chooses routes, carrying finite safety through rooms that erase the map.</div>
+
+<div class="future">FUTURE: permanent torchlight or death by grue; every delay becomes visible as battery loss.</div>
+
+ABC seed: light is not decoration; it is a consumable body. The film watches the lamp become time. (Toggle LIT off: the room is erased — `CLR 7`. Toggle GRUE: the terminal.)
+
+<div class="nav">[[prev->SU 01 Surface House]] · [[next->SU 03 Troll Gate]]</div>
+
+:: SU 03 Troll Gate [state-unit] {"position":"820,170","size":"240,180"}
+# SU 03 — Troll Gate
+
+<div class="legos-card">
+LEGOS atoms:
+
+locations: `loc_troll`, `loc_cellar`, `loc_roundroom`  
+entities: `ent_adv`, `ent_troll`, `ent_sword`  
+obstacles: `o_troll`  
+shifts: `sh_troll`
+</div>
+
+<div class="beflix-stage" data-prog="su_troll_gate"></div>
+
+<div class="past">PAST: the passage has been held by force before the player arrives; the troll is a living lock.</div>
+
+<div class="present">PRESENT: sword and body confront axe and appetite; movement through the map requires violence.</div>
+
+<div class="future">FUTURE: the gate opens, but the empire teaches that tools solve space by changing bodies.</div>
+
+ABC seed: a narrow room compresses map logic into combat; the sword glints before a tunnel becomes passable. (SLAY flips the same plate from BARS to FALLING — one program, two states.)
+
+<div class="nav">[[prev->SU 02 Light Darkness]] · [[next->SU 04 Maze Grating]]</div>
+
+:: SU 04 Maze Grating [state-unit] {"position":"1100,170","size":"240,180"}
+# SU 04 — Maze / Grating
+
+<div class="legos-card">
+LEGOS atoms:
+
+locations: `loc_maze`, `loc_grating`, `loc_clearing`  
+entities: `ent_adv`, `ent_skeleton`, `ent_keys`  
+obstacles: `o_maze`  
+relations: mapping through dropped objects; key opens grate
+</div>
+
+<div class="beflix-stage" data-prog="su_maze_grating"></div>
+
+<div class="past">PAST: the skeleton proves the maze has already consumed another route-maker.</div>
+
+<div class="present">PRESENT: the adventurer turns spatial confusion into a readable graph by marking, testing, and recovering the key.</div>
+
+<div class="future">FUTURE: the grating creates a surface shortcut and changes the underground from trap into network.</div>
+
+ABC seed: repetition becomes legible only when objects are sacrificed as markers.
+
+<div class="nav">[[prev->SU 03 Troll Gate]] · [[next->SU 05 Cyclops Gate]]</div>
+
+:: SU 05 Cyclops Gate [state-unit] {"position":"1380,170","size":"240,180"}
+# SU 05 — Cyclops Gate
+
+<div class="legos-card">
+LEGOS atoms:
+
+locations: `loc_cyclops`, `loc_treasure`, `loc_living`  
+entities: `ent_adv`, `ent_cyclops`  
+obstacles: `o_cyclops`  
+shifts: `sh_ulysses`
+</div>
+
+<div class="beflix-stage" data-prog="su_cyclops_gate"></div>
+
+<div class="past">PAST: myth is stored as a password; the cyclops carries an old story as a vulnerability.</div>
+
+<div class="present">PRESENT: the player speaks the right name and language acts physically on the map.</div>
+
+<div class="future">FUTURE: the cyclops flees and breaks open a shortcut; speech becomes architecture.</div>
+
+ABC seed: a monster's memory is stronger than its body; a word opens a wall.
+
+<div class="nav">[[prev->SU 04 Maze Grating]] · [[next->SU 06 Thief Economy]]</div>
+
+:: SU 06 Thief Economy [state-unit] {"position":"1660,170","size":"240,180"}
+# SU 06 — Thief Economy
+
+<div class="legos-card">
+LEGOS atoms:
+
+locations: `loc_maze`, `loc_treasure`  
+entities: `ent_adv`, `ent_thief`, `ent_case`  
+goals: `g_case`, `g_thief`  
+obstacles: `o_thief`  
+shifts: `sh_killthief`
+</div>
+
+<div class="beflix-stage" data-prog="su_thief_economy"></div>
+
+<div class="past">PAST: the thief has already built a parallel economy of stolen treasure.</div>
+
+<div class="present">PRESENT: the player and thief compete for the same objects; inventory becomes unstable.</div>
+
+<div class="future">FUTURE: defeating the thief returns dispersed treasure and stabilizes the trophy case path.</div>
+
+ABC seed: the antagonist is not merely blocking; he edits the location of value. (The thief is ONE routine, drawn into any room.)
+
+<div class="nav">[[prev->SU 05 Cyclops Gate]] · [[next->SU 07 Egg Canary Bauble]]</div>
+
+:: SU 07 Egg Canary Bauble [state-unit] {"position":"1940,170","size":"240,180"}
+# SU 07 — Egg / Canary / Bauble
+
+<div class="legos-card">
+LEGOS atoms:
+
+locations: `loc_uptree`, `loc_forest`, `loc_treasure`  
+entities: `t_egg`, `t_canary`, `t_bauble`, `ent_thief`  
+obstacles: `o_fragile`  
+shifts: `sh_canary`
+</div>
+
+<div class="beflix-stage" data-prog="su_egg_canary_bauble"></div>
+
+<div class="past">PAST: the jeweled egg encloses another mechanism; value is nested inside value.</div>
+
+<div class="present">PRESENT: the player cannot safely open the egg, so the thief must act on it first.</div>
+
+<div class="future">FUTURE: the canary is wound, a bird answers, and the bauble falls into the world.</div>
+
+ABC seed: the correct action is delayed authorship; let the enemy transform the fragile object.
+
+<div class="nav">[[prev->SU 06 Thief Economy]] · [[next->SU 08 Temple Hades]]</div>
+
+:: SU 08 Temple Hades [state-unit] {"position":"2220,170","size":"240,180"}
+# SU 08 — Temple / Hades
+
+<div class="legos-card">
+LEGOS atoms:
+
+locations: `loc_temple`, `loc_altar`, `loc_entrhades`, `loc_hades`  
+entities: `ent_bell`, `ent_book`, `ent_candles`, `ent_spirits`, `t_skull`  
+obstacles: `o_spirits`  
+shifts: `sh_exorcism`
+</div>
+
+<div class="beflix-stage" data-prog="su_temple_hades"></div>
+
+<div class="past">PAST: ritual objects preserve a prior covenant with the dead.</div>
+
+<div class="present">PRESENT: bell, book, and candle are sequenced into a visible rite that changes an invisible barrier.</div>
+
+<div class="future">FUTURE: the spirits clear, the skull is claimable, and death becomes an inventory problem.</div>
+
+ABC seed: sound, flame, text, and bone convert a blocked threshold into a room.
+
+<div class="nav">[[prev->SU 07 Egg Canary Bauble]] · [[next->SU 09 Dam Reservoir]]</div>
+
+:: SU 09 Dam Reservoir [state-unit] {"position":"2500,170","size":"240,180"}
+# SU 09 — Dam / Reservoir
+
+<div class="legos-card">
+LEGOS atoms:
+
+locations: `loc_damroom`, `loc_damlobby`, `loc_maint`, `loc_resv_s`, `loc_resv`, `loc_resv_n`  
+entities: `ent_adv`, `ent_wrench`, `t_trunk`  
+obstacles: `o_water`  
+shifts: `sh_drain`
+</div>
+
+<div class="beflix-stage" data-prog="su_dam_reservoir"></div>
+
+<div class="past">PAST: the reservoir holds a drowned route and a hidden treasure under managed water.</div>
+
+<div class="present">PRESENT: button, bolt, wrench, and control panel make infrastructure visible as puzzle grammar.</div>
+
+<div class="future">FUTURE: the waterline drops; the trunk appears; traversal and treasure state both change.</div>
+
+ABC seed: an old dam edits geography. Water is the obstacle, archive, and reveal.
+
+<div class="nav">[[prev->SU 08 Temple Hades]] · [[next->SU 10 River Rainbow]]</div>
+
+:: SU 10 River Rainbow [state-unit] {"position":"2780,170","size":"240,180"}
+# SU 10 — River / Rainbow
+
+<div class="legos-card">
+LEGOS atoms:
+
+locations: `loc_riverside`, `loc_river1`, `loc_sandy`, `loc_aragain`, `loc_endrainbow`  
+entities: `ent_boat`, `ent_pump`, `ent_shovel`, `ent_sceptre`, `t_emerald`, `t_scarab`, `t_pot`  
+shifts: `sh_rainbow`
+</div>
+
+<div class="beflix-stage" data-prog="su_river_rainbow"></div>
+
+<div class="past">PAST: river motion already imposes one-way time; the rainbow is visible but not yet solid.</div>
+
+<div class="present">PRESENT: inflate boat, travel downstream, dig sand, recover hidden objects, wave sceptre.</div>
+
+<div class="future">FUTURE: color becomes bridge; the pot of gold appears where optics become architecture.</div>
+
+ABC seed: a fragile vehicle carries the player through irreversible water toward a bridge made from light. (RAINBOW swaps the river plate for the solidified falls — the SEAM.)
+
+<div class="nav">[[prev->SU 09 Dam Reservoir]] · [[next->SU 11 Mine Gas Basket]]</div>
+
+:: SU 11 Mine Gas Basket [state-unit] {"position":"3060,170","size":"240,180"}
+# SU 11 — Mine / Gas / Basket
+
+<div class="legos-card">
+LEGOS atoms:
+
+locations: `loc_squeaky`, `loc_shaft`, `loc_gasroom`, `loc_drafty`, `loc_coalmine`  
+entities: `ent_garlic`, `ent_bat`, `ent_lamp`, `ent_torch`, `ent_coal`, `t_bracelet`  
+obstacles: `o_bat`, `o_gas`, `o_carry`  
+shifts: `sh_garlic`
+</div>
+
+<div class="beflix-stage" data-prog="su_mine_gas_basket"></div>
+
+<div class="past">PAST: the mine is built around constraints: narrow passages, gas, baskets, and prior industrial danger.</div>
+
+<div class="present">PRESENT: garlic changes the bat, lamp replaces flame, and the basket moves objects where the body cannot.</div>
+
+<div class="future">FUTURE: the player can reach the machine path with coal and safe light, but only by obeying material limits.</div>
+
+ABC seed: the body is too large, flame is forbidden, and the basket becomes a second body. (GARLIC removes the bat — same plate.)
+
+<div class="nav">[[prev->SU 10 River Rainbow]] · [[next->SU 12 Machine Diamond]]</div>
+
+:: SU 12 Machine Diamond [state-unit] {"position":"3340,170","size":"240,180"}
+# SU 12 — Machine / Diamond
+
+<div class="legos-card">
+LEGOS atoms:
+
+locations: `loc_machine`, `loc_drafty`  
+entities: `ent_coal`, `ent_screw`, `t_diamond`  
+goals: `g_diamond`  
+shifts: `sh_diamond`
+</div>
+
+<div class="beflix-stage" data-prog="su_machine_diamond"></div>
+
+<div class="past">PAST: the machine preserves empire technology as an idle transformation engine.</div>
+
+<div class="present">PRESENT: coal is inserted; the screwdriver activates the switch; pressure converts material state.</div>
+
+<div class="future">FUTURE: coal becomes diamond; industrial action becomes treasure.</div>
+
+ABC seed: black mineral enters a machine and returns as compressed light. (PRESS closes the machine — the SEAM.)
+
+<div class="nav">[[prev->SU 11 Mine Gas Basket]] · [[next->SU 13 Loud Room]]</div>
+
+:: SU 13 Loud Room [state-unit] {"position":"3620,170","size":"240,180"}
+# SU 13 — Loud Room
+
+<div class="legos-card">
+LEGOS atoms:
+
+locations: `loc_loud`  
+entities: `t_bar`  
+obstacles: `o_loud`  
+shifts: `sh_echo`
+</div>
+
+<div class="beflix-stage" data-prog="su_loud_room"></div>
+
+<div class="past">PAST: the room has turned language into uncontrolled repetition.</div>
+
+<div class="present">PRESENT: the command `echo` names the room's behavior and cancels it.</div>
+
+<div class="future">FUTURE: sound quiets; the platinum bar becomes obtainable.</div>
+
+ABC seed: a room that repeats commands is silenced when it hears its own mechanism named. (ECHO quiets the room and reveals the bar.)
+
+<div class="nav">[[prev->SU 12 Machine Diamond]] · [[next->SU 14 Trophy Endgame]]</div>
+
+:: SU 14 Trophy Endgame [state-unit] {"position":"3900,170","size":"240,180"}
+# SU 14 — Trophy / Endgame
+
+<div class="legos-card">
+LEGOS atoms:
+
+locations: `loc_living`, `loc_stone_barrow`  
+entities: `ent_case`, all treasures  
+goals: `g_case`, `g_master`  
+shifts: `sh_win`
+</div>
+
+<div class="beflix-stage" data-prog="su_trophy_endgame"></div>
+
+<div class="past">PAST: the trophy case has waited as an empty grammar for recovered empire objects.</div>
+
+<div class="present">PRESENT: each treasure is deposited; the house becomes a ledger of solved transformations.</div>
+
+<div class="future">FUTURE: the final treasure produces a map to the Stone Barrow; completion opens the next game.</div>
+
+ABC seed: the opening room returns transformed; the ordinary case becomes a portal because every object now carries a solved past. (FILL CASE flips to the WIN state — Stone Barrow map.)
+
+<div class="nav">[[prev->SU 13 Loud Room]] · [[State Units]] · [[Start]]</div>
+
+:: Atom Index [index atom] {"position":"0,420","size":"220,180"}
+# Atom Index
+
+* [[Locations]]
+* [[Entities]]
+* [[Goals]]
+* [[Obstacles]]
+* [[Shifts]]
+* [[Relations]]
+* [[State Axes]]
+
+[[Start]]
+
+:: Locations [atom] {"position":"260,420","size":"260,220"}
+# Locations
+
+surface: `loc_whouse_w`, `loc_whouse_n`, `loc_whouse_s`, `loc_forest`, `loc_clearing`, `loc_canyon_v`, `loc_canyon_b`, `loc_uptree`, `loc_behind`
+
+house: `loc_kitchen`, `loc_living`, `loc_attic`
+
+underground hub: `loc_cellar`, `loc_troll`, `loc_maze`, `loc_cyclops`, `loc_treasure`, `loc_grating`, `loc_eastwest`, `loc_chasm`, `loc_roundroom`, `loc_narrow`, `loc_mirror_n`, `loc_mirror_s`, `loc_winding`
+
+temple: `loc_templenorth`, `loc_temple`, `loc_altar`, `loc_egypt`, `loc_torch`, `loc_dome`, `loc_entrhades`, `loc_hades`
+
+dam / river: `loc_damroom`, `loc_damlobby`, `loc_maint`, `loc_resv_s`, `loc_resv`, `loc_resv_n`, `loc_stream_v`, `loc_atlantis`, `loc_riverside`, `loc_river1`, `loc_sandy`, `loc_aragain`, `loc_endrainbow`
+
+mine: `loc_studio`, `loc_gallery`, `loc_cellar_mine`, `loc_squeaky`, `loc_shaft`, `loc_coalmine`, `loc_ladder_t`, `loc_ladder_b`, `loc_gasroom`, `loc_drafty`, `loc_machine`, `loc_timber`
+
+runtime additions needed: `loc_loud`, `loc_stone_barrow`, exact maze cells, exact river cells.
+
+[[Atom Index]]
+
+:: Entities [atom] {"position":"560,420","size":"300,240"}
+# Entities
+
+player: `ent_adv`
+
+antagonists / creatures: `ent_thief`, `ent_troll`, `ent_cyclops`, `ent_bat`, `ent_grue`, `ent_spirits`, `ent_skeleton`
+
+master container: `ent_case`
+
+tools: `ent_lamp`, `ent_sword`, `ent_rug`, `ent_trapdr`, `ent_lamp_leaf`, `ent_torch`, `ent_garlic`, `ent_rope`, `ent_knife`, `ent_keys`, `ent_wrench`, `ent_screw`, `ent_match`, `ent_pump`, `ent_boat`, `ent_shovel`, `ent_sceptre`, `ent_coal`, `ent_bell`, `ent_book`, `ent_candles`
+
+treasures: `t_egg`, `t_canary`, `t_bauble`, `t_painting`, `t_coffin`, `t_sceptre2`, `t_torch2`, `t_pot`, `t_chalice`, `t_trident`, `t_trunk`, `t_bracelet`, `t_emerald`, `t_scarab`, `t_bar`, `t_coins`, `t_skull`, `t_diamond`, `t_jade`
+
+alias cleanup needed before strict runtime: merge `ent_sceptre` / `t_sceptre2`, merge `ent_torch` / `t_torch2` as tool-plus-treasure entities or keep explicit aliases.
+
+[[Atom Index]]
+
+:: Goals [atom] {"position":"900,420","size":"260,180"}
+# Goals
+
+* `g_master`: become Master Adventurer.
+* `g_case`: fill the trophy case with all treasures.
+* `g_light`: maintain light source.
+* `g_survive`: survive thief, troll, cyclops, bat, grue.
+* `g_drain`: drain the reservoir.
+* `g_exorcise`: clear Hades.
+* `g_rainbow`: make the rainbow solid.
+* `g_diamond`: transmute coal into diamond.
+* `g_thief`: antagonist goal; hoard treasures.
+
+[[Atom Index]]
+
+:: Obstacles [atom] {"position":"1200,420","size":"280,220"}
+# Obstacles
+
+* `o_dark`: darkness / grue death.
+* `o_battery`: finite lamp battery.
+* `o_thief`: thief steals and relocates treasure.
+* `o_troll`: troll blocks passage.
+* `o_cyclops`: cyclops blocks stair.
+* `o_maze`: maze disorients.
+* `o_water`: reservoir blocks access.
+* `o_spirits`: spirits guard Hades.
+* `o_gas`: open flame explodes in gas room.
+* `o_bat`: bat abducts.
+* `o_carry`: inventory and body-size constraints.
+* `o_loud`: commands echo.
+* `o_fragile`: egg / painting fragility.
+
+[[Atom Index]]
+
+:: Shifts [atom] {"position":"1520,420","size":"300,260"}
+# Shifts
+
+* `sh_descend`: enter underground; trapdoor slams.
+* `sh_troll`: slay troll; passage opens.
+* `sh_ulysses`: speak myth-name; cyclops flees and breaks shortcut.
+* `sh_drain`: operate dam; reservoir drains.
+* `sh_exorcism`: bell / book / candle ritual; Hades opens.
+* `sh_canary`: thief opens egg; canary summons bauble.
+* `sh_killthief`: defeat thief; recover stolen treasure.
+* `sh_rainbow`: wave sceptre; rainbow becomes bridge.
+* `sh_diamond`: coal through machine; diamond appears.
+* `sh_echo`: say echo; loud room quiets.
+* `sh_garlic`: carry garlic; bat does not abduct.
+* `sh_win`: deposit final treasure; Stone Barrow map appears.
+
+Each shift maps to an axis flip in the BEFLIX programs — the SEAM toggles on each stage.
+
+[[Atom Index]]
+
+:: Relations [atom] {"position":"1860,420","size":"340,300"}
+# Relations
+
+Key morphisms:
+
+* `[descends_into] ent_adv -> loc_cellar`
+* `[seeks] ent_adv -> ent_case`
+* `[bars_passage] ent_troll -> ent_adv`
+* `[blocks] ent_cyclops -> ent_adv`
+* `[steals_from] ent_thief -> ent_adv`
+* `[competes_with] ent_thief -> ent_adv`
+* `[devours] ent_grue -> ent_adv`
+* `[abducts] ent_bat -> ent_adv`
+* `[repelled_by] ent_bat -> ent_garlic`
+* `[guards] ent_spirits -> t_skull`
+* `[contains] ent_case -> all treasures`
+* `[contains] t_egg -> t_canary`
+* `[contains] t_coffin -> t_sceptre2`
+* `[opens_safely] ent_thief -> t_egg`
+* `[transmutes] loc_machine -> t_diamond`
+* `[solidifies] ent_sceptre -> loc_aragain`
+* `[fears] ent_cyclops -> Ulysses/Odysseus`
+* `[illuminates] ent_lamp -> any location`
+* `[illuminates] ent_torch -> any location permanently`
+* `[ignites] ent_match -> ent_candles`
+* `[drains] loc_damroom -> loc_resv`
+* `[returns_to] loc_studio -> loc_kitchen`
+
+[[Atom Index]]
+
+:: State Axes [atom] {"position":"2240,420","size":"320,240"}
+# State Axes
+
+Use axes instead of enumerating every possible permutation. These are exactly the inputs the BEFLIX programs read.
+
+<pre class="legos-data">room_access:
+  [unknown, seen, lit, dark, blocked, opened, transformed, one_way, exhausted]
+object_location:
+  [world, carried, container, hidden, revealed, stolen, destroyed, deposited]
+treasure_lifecycle:
+  [unfound, revealed, obtainable, carried, stolen, recovered, deposited, transformed]
+antagonist:
+  [latent, encountered, active, displaced, defeated, useful]
+obstacle:
+  [latent, blocking, prepared, solved, failed]
+light:
+  [none, lantern_on, lantern_low, torch_on, darkness_death]
+inventory_constraint:
+  [free, overloaded, must_drop, sharp_object_puncture, open_flame_forbidden]
+timeline_phase:
+  [surface, descent, hub_open, temple, dam, river, mine, thief_resolution, endgame]</pre>
+
+[[Atom Index]]
+
+:: Timeline Phases [index] {"position":"0,700","size":"320,260"}
+# Timeline Phases
+
+* `ph0`: Surface Prologue — leaflet, house, lamp, sword, rug, trapdoor.
+* `ph1`: First Descent — cellar, shut trapdoor, troll.
+* `ph2`: Temple / Hades — bell, book, candles, skull.
+* `ph3`: Dam / River — control panel, reservoir, boat, scarab, emerald, rainbow, pot.
+* `ph4`: Coal Mine / Diamond — garlic, bat, gas, basket, machine.
+* `ph5`: Thief / Egg — thief opens egg, thief defeated, canary yields bauble.
+* `ph6`: Endgame — all treasures deposited, Stone Barrow appears.
+
+[[Start]]
+
+:: Validator Checklist [validator] {"position":"360,700","size":"340,280"}
+# Validator Checklist
+
+Before this drives an engine:
+
+1. Every id is unique.
+2. Every referenced id exists.
+3. Every treasure has a lifecycle path ending in `deposited`.
+4. Every obstacle has at least one resolving shift.
+5. Every shift has preconditions and postconditions.
+6. Every state unit has `past`, `present`, and `future`.
+7. Every state unit names concrete visible material for ABC CINEOSIS.
+8. Map edges are explicit; generic maze / river summaries are not enough for runtime navigation.
+9. Duplicate aliases are resolved.
+10. Missing atoms are added: `loc_loud`, `loc_stone_barrow`, exact maze cells, exact river cells.
+11. Every state unit has a BEFLIX program in `PROGS` that renders its PRESENT and at least one SEAM state.
+
+[[Start]]
+
+:: LEGOS Engine JSON [data] {"position":"740,700","size":"480,320"}
+# LEGOS Engine JSON
+
+This passage is for parsers. The full human graph is in the linked passages; this block is the minimal state-unit manifest, now carrying the BEFLIX program id and seam axes per unit.
+
+<pre class="legos-data" data-kind="legos-stategraph">{
+  "schema": "legos-cineosis-stategraph",
+  "version": "0.2",
+  "id": "zork_i_legos",
+  "title": "ZORK I LEGOS STATEGRAPH · BEFLIX",
+  "beflix": { "grid": [128,96], "intensity": 8, "engine": "StoryJavaScript window.ZBEFLIX" },
+  "state_units": [
+    {"id":"su_surface_house","passage":"SU 01 Surface House","prog":"su_surface_house","seams":["opened","descended"],"next":"su_light_darkness"},
+    {"id":"su_light_darkness","passage":"SU 02 Light Darkness","prog":"su_light_darkness","seams":["lit","grue"],"next":"su_troll_gate"},
+    {"id":"su_troll_gate","passage":"SU 03 Troll Gate","prog":"su_troll_gate","seams":["troll"],"next":"su_maze_grating"},
+    {"id":"su_maze_grating","passage":"SU 04 Maze Grating","prog":"su_maze_grating","seams":["gratingOpen"],"next":"su_cyclops_gate"},
+    {"id":"su_cyclops_gate","passage":"SU 05 Cyclops Gate","prog":"su_cyclops_gate","seams":["cyclops"],"next":"su_thief_economy"},
+    {"id":"su_thief_economy","passage":"SU 06 Thief Economy","prog":"su_thief_economy","seams":["thiefDead"],"next":"su_egg_canary_bauble"},
+    {"id":"su_egg_canary_bauble","passage":"SU 07 Egg Canary Bauble","prog":"su_egg_canary_bauble","seams":["eggOpen","bauble"],"next":"su_temple_hades"},
+    {"id":"su_temple_hades","passage":"SU 08 Temple Hades","prog":"su_temple_hades","seams":["ritual","exorcised"],"next":"su_dam_reservoir"},
+    {"id":"su_dam_reservoir","passage":"SU 09 Dam Reservoir","prog":"su_dam_reservoir","seams":["drained"],"next":"su_river_rainbow"},
+    {"id":"su_river_rainbow","passage":"SU 10 River Rainbow","prog":"su_river_rainbow","seams":["rainbow"],"next":"su_mine_gas_basket"},
+    {"id":"su_mine_gas_basket","passage":"SU 11 Mine Gas Basket","prog":"su_mine_gas_basket","seams":["batRepelled"],"next":"su_machine_diamond"},
+    {"id":"su_machine_diamond","passage":"SU 12 Machine Diamond","prog":"su_machine_diamond","seams":["pressed"],"next":"su_loud_room"},
+    {"id":"su_loud_room","passage":"SU 13 Loud Room","prog":"su_loud_room","seams":["quiet"],"next":"su_trophy_endgame"},
+    {"id":"su_trophy_endgame","passage":"SU 14 Trophy Endgame","prog":"su_trophy_endgame","seams":["full"],"next":null}
+  ],
+  "state_axes": {
+    "room_access": ["unknown","seen","lit","dark","blocked","opened","transformed","one_way","exhausted"],
+    "object_location": ["world","carried","container","hidden","revealed","stolen","destroyed","deposited"],
+    "treasure_lifecycle": ["unfound","revealed","obtainable","carried","stolen","recovered","deposited","transformed"],
+    "antagonist": ["latent","encountered","active","displaced","defeated","useful"],
+    "obstacle": ["latent","blocking","prepared","solved","failed"],
+    "light": ["none","lantern_on","lantern_low","torch_on","darkness_death"],
+    "inventory_constraint": ["free","overloaded","must_drop","sharp_object_puncture","open_flame_forbidden"],
+    "timeline_phase": ["surface","descent","hub_open","temple","dam","river","mine","thief_resolution","endgame"]
+  }
+}</pre>
+
+[[Start]]

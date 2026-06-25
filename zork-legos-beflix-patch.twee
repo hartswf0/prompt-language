@@ -1,0 +1,292 @@
+:: StoryTitle
+ZORK I LEGOS STATEGRAPH
+
+:: StoryData
+{
+  "ifid": "B7D2CB10-24E7-4B6E-9A36-LEGOSZORK0001",
+  "format": "Harlowe",
+  "format-version": "3.3.9",
+  "start": "Start",
+  "tag-colors": {
+    "index": "gray",
+    "state-unit": "blue",
+    "atom": "green",
+    "validator": "orange",
+    "data": "purple",
+    "beflix": "red"
+  }
+}
+
+:: BeflixStylesheet [stylesheet]
+.recipe {
+  border: 2px solid #000;
+  border-left: 8px solid #c00;
+  padding: 0.6rem 0.8rem;
+  margin: 0.6rem 0;
+  background: #fff;
+  font-size: 0.85rem;
+  white-space: pre-wrap;
+}
+.render-a { border-left: 8px solid #000; padding-left: 0.6rem; margin: 0.5rem 0; }
+.render-b { border-left: 8px solid #c00; padding-left: 0.6rem; margin: 0.5rem 0; }
+
+:: Start [index] {"position":"0,0","size":"180,120"}
+# ZORK I LEGOS STATEGRAPH
+
+This Twee file turns the Zork LEGOS decomposition into a loadable Twine graph.
+
+The rule: do not make twenty-one CINEOSIS images for every atom. Load the atoms, then select a state unit. ABC CINEOSIS expands one selected state unit into PAST / PRESENT / FUTURE image matrices when needed.
+
+A selected unit expands into one of two render targets: a CINEOSIS 21-image matrix (for an image model) or a BEFLIX-128 program (for the dot-matrix runtime). Neither is stored. Both are generated on demand from the same PAST / PRESENT / FUTURE.
+
+<div class="legos-card">
+Core path:
+
+* [[State Units]]
+* [[Atom Index]]
+* [[Timeline Phases]]
+* [[Engine Contract]]
+* [[BEFLIX Render Targets]]
+* [[BEFLIX Library]]
+* [[BEFLIX Recipes]]
+* [[Validator Checklist]]
+* [[LEGOS Engine JSON]]
+</div>
+
+Start the playable/filmable chain here: [[SU 01 Surface House]]
+
+:: Engine Contract [index] {"position":"220,0","size":"180,120"}
+# Engine Contract
+
+The engine consumes a selected `state_unit`, not the whole document.
+
+Each state unit carries:
+
+* LEGOS atom references.
+* A PAST state.
+* A PRESENT action.
+* A FUTURE consequence.
+* An ABC CINEOSIS seed.
+* A BEFLIX recipe (one plate + a verb score).
+
+The engine then expands that selected unit into one of two render targets:
+
+TARGET A — CINEOSIS (generative):
+* premise, temporal engine, ABC model
+* 21-image matrix
+* shot sequence, sound map, edit map
+
+TARGET B — BEFLIX-128 (procedural):
+* one plate + motion verbs
+* a flat command list (CLR/PNT/LIN/REC/SHF)
+* dot-frames generated at runtime
+
+Both read the same unit. See [[BEFLIX Render Targets]].
+
+[[Start]]
+
+:: BEFLIX Render Targets [index beflix] {"position":"440,0","size":"180,120"}
+# BEFLIX Render Targets
+
+A state unit is render-target-agnostic. Its PAST / PRESENT / FUTURE is the source; the engine expands a *selected* unit — never the whole document, never stored frames.
+
+<div class="render-a">TARGET A — CINEOSIS matrix: up to 21 image prompts (7 image-types × PAST / PRESENT / FUTURE) for a diffusion or image model. Generative.</div>
+
+<div class="render-b">TARGET B — BEFLIX-128 program: a flat command list emitted by procedures, then executed to dot-frames. Procedural. One unit becomes one plate plus a few motion verbs, which generate many frames at zero per-frame cost.</div>
+
+The PRESENT / FUTURE mapping is identical for either target:
+
+<pre class="legos-data">PAST     -> establish        (held plate state, residue)
+PRESENT  -> action verbs     (the shift, made motion)
+FUTURE   -> consequence verbs + final hold</pre>
+
+BEFLIX does not store images. It stores ~12 primitives, one plate per scene, and ~12 verbs. See [[BEFLIX Library]] for the registry and [[BEFLIX Recipes]] for the per-unit scores.
+
+[[Start]] · [[Engine Contract]]
+
+:: BEFLIX Library [data beflix] {"position":"1260,700","size":"480,340"}
+# BEFLIX Library
+
+The procedural alphabet. The Twee stores *names, signatures, and status*; the runnable implementation is the companion single file `cineosis-zork-beflix.html`. A runtime loads that engine and reads the recipes below.
+
+<pre class="legos-data" data-kind="beflix-registry">render_targets: [cineosis_matrix, beflix_program]
+companion_runtime: cineosis-zork-beflix.html
+grid: 128x96   intensity: 0..7   frame_cap: 600
+
+PLATES (9)                          status
+  surface                           planned
+  passage    (light / clock)        implemented
+  descent    (combat)               implemented
+  maze                              planned
+  lair       (cyclops / thief)      planned
+  temple                            planned
+  dam                               planned
+  river                             planned
+  mine                              planned
+
+PRIMITIVES (the marks)              status
+  bgCave(b,dark)                    implemented
+  mPool(b,cx,cy,r)                  implemented
+  figure(b,x,y,pose,v)             implemented
+  bar(b,gap,y)                      implemented
+  swordGlow(b,x,y,v)               implemented
+  floorBand(b,y)                    implemented
+  grueEyes(b,cx,cy)                implemented
+  water_line(b,y)                   planned
+  bell_rings(b,cx,cy,n)            planned
+  eye_disc(b,x,y,open)             planned
+  flame(b,x,y)                      planned
+  glint(b,x,y)                      planned
+  dot_haze(b,x,y,w,h,d)           planned
+  rainbow_bands(b,solid)           planned
+
+VERBS (transforms = REC loops)      status
+  establish slam ignite strike      implemented
+  travel drainbattery               implemented
+  drain rise exorcise double        planned
+  dig thicken compress dissolve     planned
+  openEye speakName deposit win     planned
+
+PHASES
+  emit      primitives push commands; they draw, never REC
+  interpret a VM runs the flat list; REC snapshots the grid
+  render    each cell -> a dot sized by intensity</pre>
+
+[[BEFLIX Recipes]] · [[Start]]
+
+:: BEFLIX Recipes [beflix] {"position":"1760,700","size":"480,340"}
+# BEFLIX Recipes
+
+One plate plus a verb score per state unit. PRESENT and FUTURE map to verbs; PAST is the established hold. Note the reuse: several units share a plate.
+
+<pre class="legos-data" data-kind="beflix-recipes">SU01 surface_house    plate=surface   establish, openMailbox, enterWindow, revealEgg
+SU02 light_darkness    plate=passage   establish, travel, drainbattery        [impl]
+SU03 troll_gate        plate=descent   establish, slam, ignite, strike        [impl]
+SU04 maze_grating      plate=maze      establish, reshuffle, mark, revealGrate
+SU05 cyclops_gate      plate=lair      establish, openEye, speakName, burstWall
+SU06 thief_economy     plate=lair      establish, steal, strike, spillHoard
+SU07 egg_canary        plate=lair      establish, delegate, windCanary, dropBauble
+SU08 temple_hades      plate=temple    establish, ringBell, exorcise, claimSkull
+SU09 dam_reservoir     plate=dam       establish, turnBolt, drain, riseTrunk
+SU10 river_rainbow     plate=river     establish, travel, dig, thicken
+SU11 mine_gas_basket   plate=mine      establish, repelBat, crossGas
+SU12 machine_diamond   plate=mine      establish, feedCoal, throwSwitch, compress
+SU13 loud_room         plate=passage   establish, double, echoCancel, takeBar
+SU14 trophy_endgame    plate=surface   establish, deposit, win
+
+PLATE REUSE
+  surface = SU01, SU14
+  passage = SU02, SU13
+  lair    = SU05, SU06, SU07
+  mine    = SU11, SU12
+9 plates cover 14 state units. 2 plates implemented (passage, descent).</pre>
+
+[[BEFLIX Library]] · [[State Units]] · [[Start]]
+
+:: Validator Checklist [validator] {"position":"360,700","size":"340,320"}
+# Validator Checklist
+
+Before this drives an engine:
+
+1. Every id is unique.
+2. Every referenced id exists.
+3. Every treasure has a lifecycle path ending in `deposited`.
+4. Every obstacle has at least one resolving shift.
+5. Every shift has preconditions and postconditions.
+6. Every state unit has `past`, `present`, and `future`.
+7. Every state unit names concrete visible material for ABC CINEOSIS.
+8. Map edges are explicit; generic maze / river summaries are not enough for runtime navigation.
+9. Duplicate aliases are resolved.
+10. Missing atoms are added: `loc_loud`, `loc_stone_barrow`, exact maze cells, exact river cells.
+
+BEFLIX render-target checks:
+
+11. Every state unit has a BEFLIX recipe: one plate, plus verbs for PRESENT and FUTURE.
+12. Every recipe references only plates, primitives, and verbs declared in [[BEFLIX Library]].
+13. No recipe hardcodes coordinates; motion comes from shared primitives plus verbs.
+14. Implemented plates render within `frame_cap`; planned plates are marked, not assumed.
+15. The same unit must expand to either render target — CINEOSIS matrix or BEFLIX program — from one source.
+
+[[Start]]
+
+:: LEGOS Engine JSON [data] {"position":"740,700","size":"480,320"}
+# LEGOS Engine JSON
+
+This passage is for parsers. The full human graph is in the linked passages; this block is the minimal state-unit manifest, now carrying both render targets.
+
+<pre class="legos-data" data-kind="legos-stategraph">{
+  "schema": "legos-cineosis-stategraph",
+  "version": "0.2",
+  "id": "zork_i_legos",
+  "title": "ZORK I LEGOS STATEGRAPH",
+  "render_targets": ["cineosis_matrix", "beflix_program"],
+  "state_units": [
+    {"id":"su_surface_house","passage":"SU 01 Surface House","next":"su_light_darkness"},
+    {"id":"su_light_darkness","passage":"SU 02 Light Darkness","next":"su_troll_gate"},
+    {"id":"su_troll_gate","passage":"SU 03 Troll Gate","next":"su_maze_grating"},
+    {"id":"su_maze_grating","passage":"SU 04 Maze Grating","next":"su_cyclops_gate"},
+    {"id":"su_cyclops_gate","passage":"SU 05 Cyclops Gate","next":"su_thief_economy"},
+    {"id":"su_thief_economy","passage":"SU 06 Thief Economy","next":"su_egg_canary_bauble"},
+    {"id":"su_egg_canary_bauble","passage":"SU 07 Egg Canary Bauble","next":"su_temple_hades"},
+    {"id":"su_temple_hades","passage":"SU 08 Temple Hades","next":"su_dam_reservoir"},
+    {"id":"su_dam_reservoir","passage":"SU 09 Dam Reservoir","next":"su_river_rainbow"},
+    {"id":"su_river_rainbow","passage":"SU 10 River Rainbow","next":"su_mine_gas_basket"},
+    {"id":"su_mine_gas_basket","passage":"SU 11 Mine Gas Basket","next":"su_machine_diamond"},
+    {"id":"su_machine_diamond","passage":"SU 12 Machine Diamond","next":"su_loud_room"},
+    {"id":"su_loud_room","passage":"SU 13 Loud Room","next":"su_trophy_endgame"},
+    {"id":"su_trophy_endgame","passage":"SU 14 Trophy Endgame","next":null}
+  ],
+  "beflix_library": {
+    "companion_runtime": "cineosis-zork-beflix.html",
+    "grid": [128, 96],
+    "intensity_max": 7,
+    "frame_cap": 600,
+    "plates": {
+      "surface":"planned","passage":"implemented","descent":"implemented",
+      "maze":"planned","lair":"planned","temple":"planned",
+      "dam":"planned","river":"planned","mine":"planned"
+    },
+    "primitives": [
+      "bgCave","mPool","figure","bar","swordGlow","floorBand","grueEyes",
+      "water_line","bell_rings","eye_disc","flame","glint","dot_haze","rainbow_bands"
+    ],
+    "verbs": [
+      "establish","slam","ignite","strike","travel","drainbattery",
+      "drain","rise","exorcise","double","dig","thicken","compress",
+      "dissolve","openEye","speakName","deposit","win"
+    ],
+    "recipes": {
+      "su_surface_house":   {"plate":"surface","verbs":["establish","openMailbox","enterWindow","revealEgg"]},
+      "su_light_darkness":  {"plate":"passage","verbs":["establish","travel","drainbattery"],"status":"implemented"},
+      "su_troll_gate":      {"plate":"descent","verbs":["establish","slam","ignite","strike"],"status":"implemented"},
+      "su_maze_grating":    {"plate":"maze","verbs":["establish","reshuffle","mark","revealGrate"]},
+      "su_cyclops_gate":    {"plate":"lair","verbs":["establish","openEye","speakName","burstWall"]},
+      "su_thief_economy":   {"plate":"lair","verbs":["establish","steal","strike","spillHoard"]},
+      "su_egg_canary_bauble":{"plate":"lair","verbs":["establish","delegate","windCanary","dropBauble"]},
+      "su_temple_hades":    {"plate":"temple","verbs":["establish","ringBell","exorcise","claimSkull"]},
+      "su_dam_reservoir":   {"plate":"dam","verbs":["establish","turnBolt","drain","riseTrunk"]},
+      "su_river_rainbow":   {"plate":"river","verbs":["establish","travel","dig","thicken"]},
+      "su_mine_gas_basket": {"plate":"mine","verbs":["establish","repelBat","crossGas"]},
+      "su_machine_diamond": {"plate":"mine","verbs":["establish","feedCoal","throwSwitch","compress"]},
+      "su_loud_room":       {"plate":"passage","verbs":["establish","double","echoCancel","takeBar"]},
+      "su_trophy_endgame":  {"plate":"surface","verbs":["establish","deposit","win"]}
+    },
+    "ppf_to_verbs": {
+      "past": "establish (held plate state, residue)",
+      "present": "action verbs (the shift, made motion)",
+      "future": "consequence verbs + final hold"
+    }
+  },
+  "state_axes": {
+    "room_access": ["unknown","seen","lit","dark","blocked","opened","transformed","one_way","exhausted"],
+    "object_location": ["world","carried","container","hidden","revealed","stolen","destroyed","deposited"],
+    "treasure_lifecycle": ["unfound","revealed","obtainable","carried","stolen","recovered","deposited","transformed"],
+    "antagonist": ["latent","encountered","active","displaced","defeated","useful"],
+    "obstacle": ["latent","blocking","prepared","solved","failed"],
+    "light": ["none","lantern_on","lantern_low","torch_on","darkness_death"],
+    "inventory_constraint": ["free","overloaded","must_drop","sharp_object_puncture","open_flame_forbidden"],
+    "timeline_phase": ["surface","descent","hub_open","temple","dam","river","mine","thief_resolution","endgame"]
+  }
+}</pre>
+
+[[Start]]

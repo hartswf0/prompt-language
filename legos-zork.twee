@@ -1,0 +1,669 @@
+:: StoryTitle
+ZORK I LEGOS STATEGRAPH
+
+:: StoryData
+{
+  "ifid": "B7D2CB10-24E7-4B6E-9A36-LEGOSZORK0001",
+  "format": "Harlowe",
+  "format-version": "3.3.9",
+  "start": "Start",
+  "tag-colors": {
+    "index": "gray",
+    "state-unit": "blue",
+    "atom": "green",
+    "validator": "orange",
+    "data": "purple"
+  }
+}
+
+:: StoryStylesheet [stylesheet]
+body {
+  background: #fff;
+  color: #000;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+}
+.legos-card, .legos-data {
+  border: 2px solid #000;
+  padding: 0.8rem;
+  margin: 0.8rem 0;
+  background: #fff;
+}
+.legos-data {
+  white-space: pre-wrap;
+  font-size: 0.9rem;
+}
+.past { border-left: 8px solid #777; padding-left: 0.6rem; }
+.present { border-left: 8px solid #000; padding-left: 0.6rem; }
+.future { border-left: 8px solid #c8a800; padding-left: 0.6rem; }
+.nav a { font-weight: 700; }
+
+:: Start [index] {"position":"0,0","size":"180,120"}
+# ZORK I LEGOS STATEGRAPH
+
+This Twee file turns the Zork LEGOS decomposition into a loadable Twine graph.
+
+The rule: do not make twenty-one CINEOSIS images for every atom. Load the atoms, then select a state unit. ABC CINEOSIS expands one selected state unit into PAST / PRESENT / FUTURE image matrices when needed.
+
+<div class="legos-card">
+Core path:
+
+* [[State Units]]
+* [[Atom Index]]
+* [[Timeline Phases]]
+* [[Operator Load]]
+* [[Engine Contract]]
+* [[Validator Checklist]]
+* [[LEGOS Engine JSON]]
+</div>
+
+Start the playable/filmable chain here: [[SU 01 Surface House]]
+
+:: Engine Contract [index] {"position":"220,0","size":"180,120"}
+# Engine Contract
+
+The engine consumes a selected `state_unit`, not the whole document.
+
+Each state unit carries:
+
+* LEGOS atom references.
+* A PAST state.
+* A PRESENT action.
+* A FUTURE consequence.
+* An ABC CINEOSIS seed.
+
+The engine then expands that selected unit into:
+
+* premise
+* temporal engine
+* ABC model
+* 21-image matrix
+* shot sequence
+* sound map
+* edit map
+* BEFLIX if requested
+
+[[Start]]
+
+:: Operator Load [index] {"position":"440,0","size":"220,150"}
+# Operator Load
+
+Use the companion file:
+
+`legos-zork-scenes.json`
+
+In OP-08 Operator:
+
+Save → Load file → choose `legos-zork-scenes.json`
+
+Operator will load each Zork state unit as a separate BEFLIX branch from the root.
+
+Twee can also carry BEFLIX directly using this pattern, which Operator now understands:
+
+```html
+<!-- BEFLIX
+C SCENE Name
+CLR 0
+PNT 20 20 20 20 7
+REC 4
+/BEFLIX -->
+```
+
+Twine ignores the comment. Operator extracts it.
+
+[[Start]]
+
+:: State Units [index] {"position":"0,170","size":"220,180"}
+# State Units
+
+These are the LEGO clusters the engine should compose from.
+
+1. [[SU 01 Surface House]]
+2. [[SU 02 Light Darkness]]
+3. [[SU 03 Troll Gate]]
+4. [[SU 04 Maze Grating]]
+5. [[SU 05 Cyclops Gate]]
+6. [[SU 06 Thief Economy]]
+7. [[SU 07 Egg Canary Bauble]]
+8. [[SU 08 Temple Hades]]
+9. [[SU 09 Dam Reservoir]]
+10. [[SU 10 River Rainbow]]
+11. [[SU 11 Mine Gas Basket]]
+12. [[SU 12 Machine Diamond]]
+13. [[SU 13 Loud Room]]
+14. [[SU 14 Trophy Endgame]]
+
+[[Start]]
+
+:: SU 01 Surface House [state-unit] {"position":"260,170","size":"240,180"}
+# SU 01 — Surface House
+
+<div class="legos-card">
+LEGOS atoms:
+
+locations: `loc_whouse_w`, `loc_kitchen`, `loc_living`, `loc_attic`, `loc_cellar`  
+entities: `ent_adv`, `ent_lamp_leaf`, `ent_lamp`, `ent_sword`, `ent_rug`, `ent_trapdr`  
+obstacles: concealed entry, unarmed descent, unknown underground  
+shifts: `sh_descend`
+</div>
+
+<div class="past">PAST: the house is already a sealed interface to an older empire; the mailbox and leaflet are residue from prior adventurers.</div>
+
+<div class="present">PRESENT: the adventurer reads, enters, takes lamp and sword, lifts the rug, and opens the trapdoor.</div>
+
+<div class="future">FUTURE: descent commits the player to darkness, one-way movement, and treasure recovery.</div>
+
+ABC seed: a nameless body crosses from domestic surface into subterranean machine-space; rug, lamp, sword, window, and trapdoor become a temporal hinge.
+
+<div class="nav">[[State Units]] · [[next->SU 02 Light Darkness]]</div>
+
+:: SU 02 Light Darkness [state-unit] {"position":"540,170","size":"240,180"}
+# SU 02 — Light / Darkness
+
+<div class="legos-card">
+LEGOS atoms:
+
+locations: all dark rooms  
+entities: `ent_lamp`, `ent_torch`, `ent_grue`, `ent_adv`  
+goals: `g_light`, `g_survive`  
+obstacles: `o_dark`, `o_battery`
+</div>
+
+<div class="past">PAST: the underground already contains darkness as a predator; earlier bodies failed where light failed.</div>
+
+<div class="present">PRESENT: the lamp burns down while the adventurer chooses routes, carrying finite safety through rooms that erase the map.</div>
+
+<div class="future">FUTURE: permanent torchlight or death by grue; every delay becomes visible as battery loss.</div>
+
+ABC seed: light is not decoration; it is a consumable body. The film watches the lamp become time.
+
+<div class="nav">[[prev->SU 01 Surface House]] · [[next->SU 03 Troll Gate]]</div>
+
+:: SU 03 Troll Gate [state-unit] {"position":"820,170","size":"240,180"}
+# SU 03 — Troll Gate
+
+<div class="legos-card">
+LEGOS atoms:
+
+locations: `loc_troll`, `loc_cellar`, `loc_roundroom`  
+entities: `ent_adv`, `ent_troll`, `ent_sword`  
+obstacles: `o_troll`  
+shifts: `sh_troll`
+</div>
+
+<div class="past">PAST: the passage has been held by force before the player arrives; the troll is a living lock.</div>
+
+<div class="present">PRESENT: sword and body confront axe and appetite; movement through the map requires violence.</div>
+
+<div class="future">FUTURE: the gate opens, but the empire teaches that tools solve space by changing bodies.</div>
+
+ABC seed: a narrow room compresses map logic into combat; the sword glints before a tunnel becomes passable.
+
+<div class="nav">[[prev->SU 02 Light Darkness]] · [[next->SU 04 Maze Grating]]</div>
+
+:: SU 04 Maze Grating [state-unit] {"position":"1100,170","size":"240,180"}
+# SU 04 — Maze / Grating
+
+<div class="legos-card">
+LEGOS atoms:
+
+locations: `loc_maze`, `loc_grating`, `loc_clearing`  
+entities: `ent_adv`, `ent_skeleton`, `ent_keys`  
+obstacles: `o_maze`  
+relations: mapping through dropped objects; key opens grate
+</div>
+
+<div class="past">PAST: the skeleton proves the maze has already consumed another route-maker.</div>
+
+<div class="present">PRESENT: the adventurer turns spatial confusion into a readable graph by marking, testing, and recovering the key.</div>
+
+<div class="future">FUTURE: the grating creates a surface shortcut and changes the underground from trap into network.</div>
+
+ABC seed: repetition becomes legible only when objects are sacrificed as markers.
+
+<div class="nav">[[prev->SU 03 Troll Gate]] · [[next->SU 05 Cyclops Gate]]</div>
+
+:: SU 05 Cyclops Gate [state-unit] {"position":"1380,170","size":"240,180"}
+# SU 05 — Cyclops Gate
+
+<div class="legos-card">
+LEGOS atoms:
+
+locations: `loc_cyclops`, `loc_treasure`, `loc_living`  
+entities: `ent_adv`, `ent_cyclops`  
+obstacles: `o_cyclops`  
+shifts: `sh_ulysses`
+</div>
+
+<div class="past">PAST: myth is stored as a password; the cyclops carries an old story as a vulnerability.</div>
+
+<div class="present">PRESENT: the player speaks the right name and language acts physically on the map.</div>
+
+<div class="future">FUTURE: the cyclops flees and breaks open a shortcut; speech becomes architecture.</div>
+
+ABC seed: a monster's memory is stronger than its body; a word opens a wall.
+
+<div class="nav">[[prev->SU 04 Maze Grating]] · [[next->SU 06 Thief Economy]]</div>
+
+:: SU 06 Thief Economy [state-unit] {"position":"1660,170","size":"240,180"}
+# SU 06 — Thief Economy
+
+<div class="legos-card">
+LEGOS atoms:
+
+locations: `loc_maze`, `loc_treasure`  
+entities: `ent_adv`, `ent_thief`, `ent_case`  
+goals: `g_case`, `g_thief`  
+obstacles: `o_thief`  
+shifts: `sh_killthief`
+</div>
+
+<div class="past">PAST: the thief has already built a parallel economy of stolen treasure.</div>
+
+<div class="present">PRESENT: the player and thief compete for the same objects; inventory becomes unstable.</div>
+
+<div class="future">FUTURE: defeating the thief returns dispersed treasure and stabilizes the trophy case path.</div>
+
+ABC seed: the antagonist is not merely blocking; he edits the location of value.
+
+<div class="nav">[[prev->SU 05 Cyclops Gate]] · [[next->SU 07 Egg Canary Bauble]]</div>
+
+:: SU 07 Egg Canary Bauble [state-unit] {"position":"1940,170","size":"240,180"}
+# SU 07 — Egg / Canary / Bauble
+
+<div class="legos-card">
+LEGOS atoms:
+
+locations: `loc_uptree`, `loc_forest`, `loc_treasure`  
+entities: `t_egg`, `t_canary`, `t_bauble`, `ent_thief`  
+obstacles: `o_fragile`  
+shifts: `sh_canary`
+</div>
+
+<div class="past">PAST: the jeweled egg encloses another mechanism; value is nested inside value.</div>
+
+<div class="present">PRESENT: the player cannot safely open the egg, so the thief must act on it first.</div>
+
+<div class="future">FUTURE: the canary is wound, a bird answers, and the bauble falls into the world.</div>
+
+ABC seed: the correct action is delayed authorship; let the enemy transform the fragile object.
+
+<div class="nav">[[prev->SU 06 Thief Economy]] · [[next->SU 08 Temple Hades]]</div>
+
+:: SU 08 Temple Hades [state-unit] {"position":"2220,170","size":"240,180"}
+# SU 08 — Temple / Hades
+
+<div class="legos-card">
+LEGOS atoms:
+
+locations: `loc_temple`, `loc_altar`, `loc_entrhades`, `loc_hades`  
+entities: `ent_bell`, `ent_book`, `ent_candles`, `ent_spirits`, `t_skull`  
+obstacles: `o_spirits`  
+shifts: `sh_exorcism`
+</div>
+
+<div class="past">PAST: ritual objects preserve a prior covenant with the dead.</div>
+
+<div class="present">PRESENT: bell, book, and candle are sequenced into a visible rite that changes an invisible barrier.</div>
+
+<div class="future">FUTURE: the spirits clear, the skull is claimable, and death becomes an inventory problem.</div>
+
+ABC seed: sound, flame, text, and bone convert a blocked threshold into a room.
+
+<div class="nav">[[prev->SU 07 Egg Canary Bauble]] · [[next->SU 09 Dam Reservoir]]</div>
+
+:: SU 09 Dam Reservoir [state-unit] {"position":"2500,170","size":"240,180"}
+# SU 09 — Dam / Reservoir
+
+<div class="legos-card">
+LEGOS atoms:
+
+locations: `loc_damroom`, `loc_damlobby`, `loc_maint`, `loc_resv_s`, `loc_resv`, `loc_resv_n`  
+entities: `ent_adv`, `ent_wrench`, `t_trunk`  
+obstacles: `o_water`  
+shifts: `sh_drain`
+</div>
+
+<div class="past">PAST: the reservoir holds a drowned route and a hidden treasure under managed water.</div>
+
+<div class="present">PRESENT: button, bolt, wrench, and control panel make infrastructure visible as puzzle grammar.</div>
+
+<div class="future">FUTURE: the waterline drops; the trunk appears; traversal and treasure state both change.</div>
+
+ABC seed: an old dam edits geography. Water is the obstacle, archive, and reveal.
+
+<div class="nav">[[prev->SU 08 Temple Hades]] · [[next->SU 10 River Rainbow]]</div>
+
+:: SU 10 River Rainbow [state-unit] {"position":"2780,170","size":"240,180"}
+# SU 10 — River / Rainbow
+
+<div class="legos-card">
+LEGOS atoms:
+
+locations: `loc_riverside`, `loc_river1`, `loc_sandy`, `loc_aragain`, `loc_endrainbow`  
+entities: `ent_boat`, `ent_pump`, `ent_shovel`, `ent_sceptre`, `t_emerald`, `t_scarab`, `t_pot`  
+shifts: `sh_rainbow`
+</div>
+
+<div class="past">PAST: river motion already imposes one-way time; the rainbow is visible but not yet solid.</div>
+
+<div class="present">PRESENT: inflate boat, travel downstream, dig sand, recover hidden objects, wave sceptre.</div>
+
+<div class="future">FUTURE: color becomes bridge; the pot of gold appears where optics become architecture.</div>
+
+ABC seed: a fragile vehicle carries the player through irreversible water toward a bridge made from light.
+
+<div class="nav">[[prev->SU 09 Dam Reservoir]] · [[next->SU 11 Mine Gas Basket]]</div>
+
+:: SU 11 Mine Gas Basket [state-unit] {"position":"3060,170","size":"240,180"}
+# SU 11 — Mine / Gas / Basket
+
+<div class="legos-card">
+LEGOS atoms:
+
+locations: `loc_squeaky`, `loc_shaft`, `loc_gasroom`, `loc_drafty`, `loc_coalmine`  
+entities: `ent_garlic`, `ent_bat`, `ent_lamp`, `ent_torch`, `ent_coal`, `t_bracelet`  
+obstacles: `o_bat`, `o_gas`, `o_carry`  
+shifts: `sh_garlic`
+</div>
+
+<div class="past">PAST: the mine is built around constraints: narrow passages, gas, baskets, and prior industrial danger.</div>
+
+<div class="present">PRESENT: garlic changes the bat, lamp replaces flame, and the basket moves objects where the body cannot.</div>
+
+<div class="future">FUTURE: the player can reach the machine path with coal and safe light, but only by obeying material limits.</div>
+
+ABC seed: the body is too large, flame is forbidden, and the basket becomes a second body.
+
+<div class="nav">[[prev->SU 10 River Rainbow]] · [[next->SU 12 Machine Diamond]]</div>
+
+:: SU 12 Machine Diamond [state-unit] {"position":"3340,170","size":"240,180"}
+# SU 12 — Machine / Diamond
+
+<div class="legos-card">
+LEGOS atoms:
+
+locations: `loc_machine`, `loc_drafty`  
+entities: `ent_coal`, `ent_screw`, `t_diamond`  
+goals: `g_diamond`  
+shifts: `sh_diamond`
+</div>
+
+<div class="past">PAST: the machine preserves empire technology as an idle transformation engine.</div>
+
+<div class="present">PRESENT: coal is inserted; the screwdriver activates the switch; pressure converts material state.</div>
+
+<div class="future">FUTURE: coal becomes diamond; industrial action becomes treasure.</div>
+
+ABC seed: black mineral enters a machine and returns as compressed light.
+
+<div class="nav">[[prev->SU 11 Mine Gas Basket]] · [[next->SU 13 Loud Room]]</div>
+
+:: SU 13 Loud Room [state-unit] {"position":"3620,170","size":"240,180"}
+# SU 13 — Loud Room
+
+<div class="legos-card">
+LEGOS atoms:
+
+locations: `loc_loud`  
+entities: `t_bar`  
+obstacles: `o_loud`  
+shifts: `sh_echo`
+</div>
+
+<div class="past">PAST: the room has turned language into uncontrolled repetition.</div>
+
+<div class="present">PRESENT: the command `echo` names the room's behavior and cancels it.</div>
+
+<div class="future">FUTURE: sound quiets; the platinum bar becomes obtainable.</div>
+
+ABC seed: a room that repeats commands is silenced when it hears its own mechanism named.
+
+<div class="nav">[[prev->SU 12 Machine Diamond]] · [[next->SU 14 Trophy Endgame]]</div>
+
+:: SU 14 Trophy Endgame [state-unit] {"position":"3900,170","size":"240,180"}
+# SU 14 — Trophy / Endgame
+
+<div class="legos-card">
+LEGOS atoms:
+
+locations: `loc_living`, `loc_stone_barrow`  
+entities: `ent_case`, all treasures  
+goals: `g_case`, `g_master`  
+shifts: `sh_win`
+</div>
+
+<div class="past">PAST: the trophy case has waited as an empty grammar for recovered empire objects.</div>
+
+<div class="present">PRESENT: each treasure is deposited; the house becomes a ledger of solved transformations.</div>
+
+<div class="future">FUTURE: the final treasure produces a map to the Stone Barrow; completion opens the next game.</div>
+
+ABC seed: the opening room returns transformed; the ordinary case becomes a portal because every object now carries a solved past.
+
+<div class="nav">[[prev->SU 13 Loud Room]] · [[State Units]] · [[Start]]</div>
+
+:: Atom Index [index atom] {"position":"0,420","size":"220,180"}
+# Atom Index
+
+* [[Locations]]
+* [[Entities]]
+* [[Goals]]
+* [[Obstacles]]
+* [[Shifts]]
+* [[Relations]]
+* [[State Axes]]
+
+[[Start]]
+
+:: Locations [atom] {"position":"260,420","size":"260,220"}
+# Locations
+
+surface: `loc_whouse_w`, `loc_whouse_n`, `loc_whouse_s`, `loc_forest`, `loc_clearing`, `loc_canyon_v`, `loc_canyon_b`, `loc_uptree`, `loc_behind`
+
+house: `loc_kitchen`, `loc_living`, `loc_attic`
+
+underground hub: `loc_cellar`, `loc_troll`, `loc_maze`, `loc_cyclops`, `loc_treasure`, `loc_grating`, `loc_eastwest`, `loc_chasm`, `loc_roundroom`, `loc_narrow`, `loc_mirror_n`, `loc_mirror_s`, `loc_winding`
+
+temple: `loc_templenorth`, `loc_temple`, `loc_altar`, `loc_egypt`, `loc_torch`, `loc_dome`, `loc_entrhades`, `loc_hades`
+
+dam / river: `loc_damroom`, `loc_damlobby`, `loc_maint`, `loc_resv_s`, `loc_resv`, `loc_resv_n`, `loc_stream_v`, `loc_atlantis`, `loc_riverside`, `loc_river1`, `loc_sandy`, `loc_aragain`, `loc_endrainbow`
+
+mine: `loc_studio`, `loc_gallery`, `loc_cellar_mine`, `loc_squeaky`, `loc_shaft`, `loc_coalmine`, `loc_ladder_t`, `loc_ladder_b`, `loc_gasroom`, `loc_drafty`, `loc_machine`, `loc_timber`
+
+runtime additions needed: `loc_loud`, `loc_stone_barrow`, exact maze cells, exact river cells.
+
+[[Atom Index]]
+
+:: Entities [atom] {"position":"560,420","size":"300,240"}
+# Entities
+
+player: `ent_adv`
+
+antagonists / creatures: `ent_thief`, `ent_troll`, `ent_cyclops`, `ent_bat`, `ent_grue`, `ent_spirits`, `ent_skeleton`
+
+master container: `ent_case`
+
+tools: `ent_lamp`, `ent_sword`, `ent_rug`, `ent_trapdr`, `ent_lamp_leaf`, `ent_torch`, `ent_garlic`, `ent_rope`, `ent_knife`, `ent_keys`, `ent_wrench`, `ent_screw`, `ent_match`, `ent_pump`, `ent_boat`, `ent_shovel`, `ent_sceptre`, `ent_coal`, `ent_bell`, `ent_book`, `ent_candles`
+
+treasures: `t_egg`, `t_canary`, `t_bauble`, `t_painting`, `t_coffin`, `t_sceptre2`, `t_torch2`, `t_pot`, `t_chalice`, `t_trident`, `t_trunk`, `t_bracelet`, `t_emerald`, `t_scarab`, `t_bar`, `t_coins`, `t_skull`, `t_diamond`, `t_jade`
+
+alias cleanup needed before strict runtime: merge `ent_sceptre` / `t_sceptre2`, merge `ent_torch` / `t_torch2` as tool-plus-treasure entities or keep explicit aliases.
+
+[[Atom Index]]
+
+:: Goals [atom] {"position":"900,420","size":"260,180"}
+# Goals
+
+* `g_master`: become Master Adventurer.
+* `g_case`: fill the trophy case with all treasures.
+* `g_light`: maintain light source.
+* `g_survive`: survive thief, troll, cyclops, bat, grue.
+* `g_drain`: drain the reservoir.
+* `g_exorcise`: clear Hades.
+* `g_rainbow`: make the rainbow solid.
+* `g_diamond`: transmute coal into diamond.
+* `g_thief`: antagonist goal; hoard treasures.
+
+[[Atom Index]]
+
+:: Obstacles [atom] {"position":"1200,420","size":"280,220"}
+# Obstacles
+
+* `o_dark`: darkness / grue death.
+* `o_battery`: finite lamp battery.
+* `o_thief`: thief steals and relocates treasure.
+* `o_troll`: troll blocks passage.
+* `o_cyclops`: cyclops blocks stair.
+* `o_maze`: maze disorients.
+* `o_water`: reservoir blocks access.
+* `o_spirits`: spirits guard Hades.
+* `o_gas`: open flame explodes in gas room.
+* `o_bat`: bat abducts.
+* `o_carry`: inventory and body-size constraints.
+* `o_loud`: commands echo.
+* `o_fragile`: egg / painting fragility.
+
+[[Atom Index]]
+
+:: Shifts [atom] {"position":"1520,420","size":"300,260"}
+# Shifts
+
+* `sh_descend`: enter underground; trapdoor slams.
+* `sh_troll`: slay troll; passage opens.
+* `sh_ulysses`: speak myth-name; cyclops flees and breaks shortcut.
+* `sh_drain`: operate dam; reservoir drains.
+* `sh_exorcism`: bell / book / candle ritual; Hades opens.
+* `sh_canary`: thief opens egg; canary summons bauble.
+* `sh_killthief`: defeat thief; recover stolen treasure.
+* `sh_rainbow`: wave sceptre; rainbow becomes bridge.
+* `sh_diamond`: coal through machine; diamond appears.
+* `sh_echo`: say echo; loud room quiets.
+* `sh_garlic`: carry garlic; bat does not abduct.
+* `sh_win`: deposit final treasure; Stone Barrow map appears.
+
+[[Atom Index]]
+
+:: Relations [atom] {"position":"1860,420","size":"340,300"}
+# Relations
+
+Key morphisms:
+
+* `[descends_into] ent_adv -> loc_cellar`
+* `[seeks] ent_adv -> ent_case`
+* `[bars_passage] ent_troll -> ent_adv`
+* `[blocks] ent_cyclops -> ent_adv`
+* `[steals_from] ent_thief -> ent_adv`
+* `[competes_with] ent_thief -> ent_adv`
+* `[devours] ent_grue -> ent_adv`
+* `[abducts] ent_bat -> ent_adv`
+* `[repelled_by] ent_bat -> ent_garlic`
+* `[guards] ent_spirits -> t_skull`
+* `[contains] ent_case -> all treasures`
+* `[contains] t_egg -> t_canary`
+* `[contains] t_coffin -> t_sceptre2`
+* `[opens_safely] ent_thief -> t_egg`
+* `[transmutes] loc_machine -> t_diamond`
+* `[solidifies] ent_sceptre -> loc_aragain`
+* `[fears] ent_cyclops -> Ulysses/Odysseus`
+* `[illuminates] ent_lamp -> any location`
+* `[illuminates] ent_torch -> any location permanently`
+* `[ignites] ent_match -> ent_candles`
+* `[drains] loc_damroom -> loc_resv`
+* `[returns_to] loc_studio -> loc_kitchen`
+
+[[Atom Index]]
+
+:: State Axes [atom] {"position":"2240,420","size":"320,240"}
+# State Axes
+
+Use axes instead of enumerating every possible permutation.
+
+<pre class="legos-data">room_access:
+  [unknown, seen, lit, dark, blocked, opened, transformed, one_way, exhausted]
+object_location:
+  [world, carried, container, hidden, revealed, stolen, destroyed, deposited]
+treasure_lifecycle:
+  [unfound, revealed, obtainable, carried, stolen, recovered, deposited, transformed]
+antagonist:
+  [latent, encountered, active, displaced, defeated, useful]
+obstacle:
+  [latent, blocking, prepared, solved, failed]
+light:
+  [none, lantern_on, lantern_low, torch_on, darkness_death]
+inventory_constraint:
+  [free, overloaded, must_drop, sharp_object_puncture, open_flame_forbidden]
+timeline_phase:
+  [surface, descent, hub_open, temple, dam, river, mine, thief_resolution, endgame]</pre>
+
+[[Atom Index]]
+
+:: Timeline Phases [index] {"position":"0,700","size":"320,260"}
+# Timeline Phases
+
+* `ph0`: Surface Prologue — leaflet, house, lamp, sword, rug, trapdoor.
+* `ph1`: First Descent — cellar, shut trapdoor, troll.
+* `ph2`: Temple / Hades — bell, book, candles, skull.
+* `ph3`: Dam / River — control panel, reservoir, boat, scarab, emerald, rainbow, pot.
+* `ph4`: Coal Mine / Diamond — garlic, bat, gas, basket, machine.
+* `ph5`: Thief / Egg — thief opens egg, thief defeated, canary yields bauble.
+* `ph6`: Endgame — all treasures deposited, Stone Barrow appears.
+
+[[Start]]
+
+:: Validator Checklist [validator] {"position":"360,700","size":"340,280"}
+# Validator Checklist
+
+Before this drives an engine:
+
+1. Every id is unique.
+2. Every referenced id exists.
+3. Every treasure has a lifecycle path ending in `deposited`.
+4. Every obstacle has at least one resolving shift.
+5. Every shift has preconditions and postconditions.
+6. Every state unit has `past`, `present`, and `future`.
+7. Every state unit names concrete visible material for ABC CINEOSIS.
+8. Map edges are explicit; generic maze / river summaries are not enough for runtime navigation.
+9. Duplicate aliases are resolved.
+10. Missing atoms are added: `loc_loud`, `loc_stone_barrow`, exact maze cells, exact river cells.
+
+[[Start]]
+
+:: LEGOS Engine JSON [data] {"position":"740,700","size":"480,320"}
+# LEGOS Engine JSON
+
+This passage is for parsers. The full human graph is in the linked passages; this block is the minimal state-unit manifest.
+
+<pre class="legos-data" data-kind="legos-stategraph">{
+  "schema": "legos-cineosis-stategraph",
+  "version": "0.1",
+  "id": "zork_i_legos",
+  "title": "ZORK I LEGOS STATEGRAPH",
+  "state_units": [
+    {"id":"su_surface_house","passage":"SU 01 Surface House","next":"su_light_darkness"},
+    {"id":"su_light_darkness","passage":"SU 02 Light Darkness","next":"su_troll_gate"},
+    {"id":"su_troll_gate","passage":"SU 03 Troll Gate","next":"su_maze_grating"},
+    {"id":"su_maze_grating","passage":"SU 04 Maze Grating","next":"su_cyclops_gate"},
+    {"id":"su_cyclops_gate","passage":"SU 05 Cyclops Gate","next":"su_thief_economy"},
+    {"id":"su_thief_economy","passage":"SU 06 Thief Economy","next":"su_egg_canary_bauble"},
+    {"id":"su_egg_canary_bauble","passage":"SU 07 Egg Canary Bauble","next":"su_temple_hades"},
+    {"id":"su_temple_hades","passage":"SU 08 Temple Hades","next":"su_dam_reservoir"},
+    {"id":"su_dam_reservoir","passage":"SU 09 Dam Reservoir","next":"su_river_rainbow"},
+    {"id":"su_river_rainbow","passage":"SU 10 River Rainbow","next":"su_mine_gas_basket"},
+    {"id":"su_mine_gas_basket","passage":"SU 11 Mine Gas Basket","next":"su_machine_diamond"},
+    {"id":"su_machine_diamond","passage":"SU 12 Machine Diamond","next":"su_loud_room"},
+    {"id":"su_loud_room","passage":"SU 13 Loud Room","next":"su_trophy_endgame"},
+    {"id":"su_trophy_endgame","passage":"SU 14 Trophy Endgame","next":null}
+  ],
+  "state_axes": {
+    "room_access": ["unknown","seen","lit","dark","blocked","opened","transformed","one_way","exhausted"],
+    "object_location": ["world","carried","container","hidden","revealed","stolen","destroyed","deposited"],
+    "treasure_lifecycle": ["unfound","revealed","obtainable","carried","stolen","recovered","deposited","transformed"],
+    "antagonist": ["latent","encountered","active","displaced","defeated","useful"],
+    "obstacle": ["latent","blocking","prepared","solved","failed"],
+    "light": ["none","lantern_on","lantern_low","torch_on","darkness_death"],
+    "inventory_constraint": ["free","overloaded","must_drop","sharp_object_puncture","open_flame_forbidden"],
+    "timeline_phase": ["surface","descent","hub_open","temple","dam","river","mine","thief_resolution","endgame"]
+  }
+}</pre>
+
+[[Start]]
