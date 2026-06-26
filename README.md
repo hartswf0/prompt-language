@@ -31,6 +31,9 @@ No build step or package installation is required. The pages are self-contained 
 | `OP-04/icaro-flip.html` | Icaro Flip reference colocated with Operator 04 |
 | `OP-05/operator-studio.html` | **Production candidate** — mobile shared-film studio, recovery, BEFLIX animation composition, and portable export |
 | `OP-06/operator-studio.html` | Branch studio — forked timeline preproduction, collaborator presence, voice, real Worker rooms, reconnect, and server-side BEFLIX composition |
+| `OP-07/operator-studio.html` | Riverbed studio — one-tap rooms, branch-tree editing, voice, AI composition, and portable export |
+| `OP-08/operator-studio.html` | Cloudflare relay studio — TURN diagnostics, reconnect logic, shared film-tree editing, broad file loading, and whole-graph exports |
+| `OP-09/operator-studio.html` | Multiway studio — OP-08 fork with `/op9` state rooms, stable participant IDs/colors, room chat, presence, op-log replay, snapshots, conflict forks, richer Twee/BEFLIX loading, and future SFU-backed group calls |
 | `OPERATOR/beflix-call.html` | BEFLIX Call Operator — room signaling, reconnect, and chat |
 | `PRETEXT/icaro-quine/index.html` | Icaro Quine — canonical PRETEXT architecture reference |
 
