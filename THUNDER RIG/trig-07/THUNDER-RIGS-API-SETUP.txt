@@ -1,0 +1,46 @@
+THUNDER RIGS — OPENAI API SETUP
+
+WHY THE OLD TEST FAILED
+The original HTML called https://api.openai.com/v1/responses directly from browser JavaScript and stored the bearer key in localStorage. Browser-side secret keys are unsafe, and direct cross-origin API calls may be blocked before OpenAI returns a response. The old test also hid most route/status detail behind the generic message “API TEST FAILED.”
+
+FILES
+1. trig-06-fixed.html
+   - Uses a Worker proxy by default.
+   - Adds exact API route/status diagnostics.
+   - Adds room QR sharing, COPY, native SHARE, and an embedded favicon.
+
+2. thunder-rigs-openai-worker.js
+   - Cloudflare Worker route for POST /openai/responses.
+   - Keeps OPENAI_API_KEY in a Worker secret.
+   - Includes CORS origin checks and passes OpenAI error details back to the app.
+
+DEPLOYMENT
+A. Merge into the existing multiplayer Worker
+   Route requests for /openai/responses to handleOpenAIResponses(request, env), while leaving the existing /trig/... routes unchanged.
+
+B. Or deploy as a separate Worker
+   Deploy thunder-rigs-openai-worker.js, then set the fixed HTML’s <meta name="openai-proxy-url"> or the in-app API ROUTE field to:
+   https://YOUR-WORKER.workers.dev/openai/responses
+
+SET THE SECRET
+npx wrangler secret put OPENAI_API_KEY
+
+SET THE ALLOWED ORIGIN
+Configure ALLOWED_ORIGINS to the exact site origin, for example:
+https://hartswf0.github.io
+
+For multiple origins, use a comma-separated value. For local file:// testing only, set ALLOW_NULL_ORIGIN=true; remove it for production.
+
+TEST
+Open AGENT → API.
+Provider: OpenAI Responses API (Worker proxy)
+Model: gpt-5.4-mini
+Route: your Worker URL ending in /openai/responses
+API key: leave blank when the Worker secret is configured
+Press TEST. The status box should show TEST OK and READY.
+
+ERRORS ARE NOW ACTIONABLE
+404 = Worker route has not been deployed/merged.
+401 = Worker secret is missing or the supplied key is invalid.
+429 = API billing/quota/rate-limit issue.
+OPENAI_PROXY_NETWORK = Worker URL, DNS, TLS, or CORS problem.
