@@ -34,6 +34,11 @@ No build step or package installation is required. The pages are self-contained 
 | `OP-07/operator-studio.html` | Riverbed studio — one-tap rooms, branch-tree editing, voice, AI composition, and portable export |
 | `OP-08/operator-studio.html` | Cloudflare relay studio — TURN diagnostics, reconnect logic, shared film-tree editing, broad file loading, and whole-graph exports |
 | `OP-09/operator-studio.html` | Multiway studio — OP-08 fork with `/op9` state rooms, stable participant IDs/colors, room chat, presence, op-log replay, snapshots, conflict forks, richer Twee/BEFLIX loading, and future SFU-backed group calls |
+| `OP-10/operator-studio.html` | Mesh studio — Operator mesh-collaboration fork with stable room notes and shared Worker support |
+| `OP-11/operator-studio.html` | QR room studio — explicit host/guest QR invite flow, mesh notes, and vendored QR build tooling |
+| `OP-12/operator-studio-12.html` | Current Operator studio — OP-11 support files carried forward, offline QR sharing, Worker support, mesh notes, and whole-graph export tools |
+| `OP-19/operator-studio.html` | Help Visual UI Operator — OP-12-compatible room support, offline QR sharing, Worker support, mesh notes, and visual-help UI |
+| `THUNDER RIG/trig-06.html` | Thunder Rig 06 — multiplayer AI workbench with room links, chat, API help, and offline QR room sharing |
 | `OPERATOR/beflix-call.html` | BEFLIX Call Operator — room signaling, reconnect, and chat |
 | `PRETEXT/icaro-quine/index.html` | Icaro Quine — canonical PRETEXT architecture reference |
 

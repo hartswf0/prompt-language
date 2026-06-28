@@ -20,7 +20,7 @@ const fs = require('fs');
 const https = require('https');
 const path = require('path');
 
-const TARGET = process.argv[2] || path.join(__dirname, 'operator-studio.html');
+const TARGET = process.argv[2] || path.join(__dirname, 'operator-studio-12.html');
 
 // Candidate sources, tried in order. Each must expose a constructor we can drive.
 const SOURCES = [
