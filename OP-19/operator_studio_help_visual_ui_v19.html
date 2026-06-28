@@ -4436,10 +4436,11 @@ var STATES={
 var uiState='OFFLINE';
 var statusEl=document.getElementById('bar'),whereEl=document.getElementById('st-where'),roleChip=document.getElementById('role-chip');
 var localRole='none', intendedRole='';
-function roleLabel(role){ return role==='host'?'HOST':(role==='guest'?'GUEST':(role==='wait'?'WAIT':'LOCAL')); }
-function roleClass(role){ return role==='host'?'host':(role==='guest'?'guest':''); }
-function roleColor(role){ return role==='host'?'#e60000':(role==='guest'?'#0033cc':'#c8a800'); }
-function effectiveLocalRole(){ var r=(typeof room!=='undefined'&&room&&room.role)||localRole; if(r==='wait')r=intendedRole; return (r==='host'||r==='guest')?r:''; }
+function displayRole(role){ return role==='member'?'guest':role; }
+function roleLabel(role){ role=displayRole(role); return role==='host'?'HOST':(role==='guest'?'GUEST':(role==='wait'?'WAIT':'LOCAL')); }
+function roleClass(role){ role=displayRole(role); return role==='host'?'host':(role==='guest'?'guest':''); }
+function roleColor(role){ role=displayRole(role); return role==='host'?'#e60000':(role==='guest'?'#0033cc':'#c8a800'); }
+function effectiveLocalRole(){ var r=displayRole((typeof room!=='undefined'&&room&&room.role)||localRole); if(r==='wait')r=displayRole(intendedRole); return (r==='host'||r==='guest')?r:''; }
 function effectiveRemoteRole(){ return connList().length ? 'remote' : ''; }
 function remoteTagLabel(){ var n=openConns().length; return n>1 ? (n+' PEERS') : 'REMOTE'; }
 function refreshPresence(){
@@ -4448,7 +4449,7 @@ function refreshPresence(){
   var lt=document.getElementById('label-them'); if(lt)lt.textContent = n>1 ? (n+' PEERS') : 'REMOTE';
   var tg=document.getElementById('tag-them'); if(tg && n===0)tg.textContent='\u2014';
 }
-function setTileRole(tile,role){ if(!tile)return; tile.classList.remove('host-tile','guest-tile'); if(role==='host')tile.classList.add('host-tile'); if(role==='guest')tile.classList.add('guest-tile'); }
+function setTileRole(tile,role){ if(!tile)return; role=displayRole(role); tile.classList.remove('host-tile','guest-tile'); if(role==='host')tile.classList.add('host-tile'); if(role==='guest')tile.classList.add('guest-tile'); }
 function updateParticipantLabels(){
   var mine=effectiveLocalRole(), remote=effectiveRemoteRole();
   var ly=document.getElementById('label-you'), lt=document.getElementById('label-them');
@@ -4467,7 +4468,8 @@ function roleGlyph(role){
   return '<svg viewBox="0 0 18 18"><circle cx="9" cy="6" r="2.6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M4 14c0-2.8 2.2-4.5 5-4.5s5 1.7 5 4.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M3.5 3.5l11 11" stroke="currentColor" stroke-width="1.5"/></svg>';
 }
 function setLocalRole(role, detail){
-  localRole=role||'none';
+  role=displayRole(role||'none');
+  localRole=role;
   if(roleChip){
     roleChip.className='rolemark'+(role==='host'?' host':(role==='guest'?' guest':(role==='wait'?' wait':'')));
     var rlabel=detail||(role==='host'?'Host':(role==='guest'?'Guest':(role==='wait'?'Waiting':'No role')));
@@ -4555,16 +4557,17 @@ function setWaitLine(el,text){ if(!el)return; while(el.firstChild)el.removeChild
 function updateHostInviteState(){
   var ready=hostReadyForInvite(), wait=document.getElementById('room-wait'), sub=document.getElementById('host-sub'), sh=document.getElementById('invite-share'), cp=document.getElementById('invite-copy');
   if(wait){ wait.classList.remove('hidden'); setWaitLine(wait,ready?'HOST READY \u2014 send this GUEST link':'HOST STARTING \u2014 wait before sharing'); }
-  if(sub)sub.textContent=ready?'You are locked as HOST. Keep this tab open; send the GUEST link.':'Starting host room. Share only after HOST READY.';
+  if(sub)sub.textContent=ready?'You are joined as HOST. Keep this tab open; now send the GUEST link.':'Starting host room. QR appears only after HOST READY.';
   if(sh)sh.disabled=!ready;
   if(cp)cp.disabled=!ready;
+  if(!ready){ var wrap=document.getElementById('invite-qr-wrap'); if(wrap)wrap.hidden=true; }
 }
 function refreshInvite(){ var el=document.getElementById('invite-link'); if(!el)return; var url=inviteURL(); el.value=url; updateHostInviteState(); drawInviteQR(url); }
 // ---- QR: render the guest invite URL as a scannable code (encoder vendored inline as QRMini) ----
 function drawInviteQR(url){
   var wrap=document.getElementById('invite-qr-wrap'), cv=document.getElementById('invite-qr');
   if(!wrap||!cv)return;
-  if(!url||typeof QRMini==='undefined'||!QRMini.encode){ wrap.hidden=true; return; }
+  if(!hostReadyForInvite()||!url||typeof QRMini==='undefined'||!QRMini.encode){ wrap.hidden=true; return; }
   var matrix;
   try{ matrix=QRMini.encode(url,'M'); }catch(e){ log('QR','encode err '+(e&&e.message||e)); wrap.hidden=true; return; }
   var n=matrix.length, quiet=4, total=n+quiet*2;
@@ -4602,8 +4605,6 @@ function openConnect(){ showPane('pane-role'); document.getElementById('sh-title
   if(!serverKnown()){ serverCtx='first'; applyServerCtx(); showCard('card-server'); if(!sheet.open)sheet.showModal(); return; }
   if(!(document.getElementById('room-code').value||'').trim()) document.getElementById('room-code').value=myCode();
   refreshInvite();
-  var firstGo=(uiState!=='CONNECTED'&&uiState!=='CONNECTING');
-  if(firstGo){ var url=inviteURL(); if(url&&navigator.share){ try{ navigator.share({title:'OPERATOR',text:'Join my OPERATOR call',url:url}).catch(function(){}); }catch(e){} } }
   showCard('card-invite'); if(!sheet.open)sheet.showModal();
   goLiveAsHost();
 }
@@ -4747,7 +4748,7 @@ function joinRoom(recovery,intent){
   if(!recovery&&intent==='host')joinBody.reset=true;
   return fetchWithTimeout(u+'/room/'+encodeURIComponent(code)+'/join',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(joinBody)},15000)
     .then(function(r){return r.json().then(function(body){if(!r.ok){var error=new Error(body.error||('join-'+r.status));error.status=r.status;throw error;}return body;});})
-    .then(function(j){hostWaitAttempts=0;var peers=peerCountOf(j.peers);room.peerId=j.peerId;room.after=j.seq||0;room.role=j.role||((peers>=1)?'member':'host');room.epoch=j.epoch||1;setLocalRole(room.role,room.role==='host'?'HOST READY':'GUEST JOINED');if(room.role==='host')updateHostInviteState();else{var jw=document.getElementById('join-wait');if(jw)setWaitLine(jw,'GUEST JOINED \u2014 waiting for HOST offer');}log('ROOM','joined '+room.role+' ('+peers+')');return fetchIceServers();})
+    .then(function(j){hostWaitAttempts=0;var peers=peerCountOf(j.peers);room.peerId=j.peerId;room.after=j.seq||0;room.role=j.role||((peers>=1)?'member':'host');room.epoch=j.epoch||1;setLocalRole(room.role,room.role==='host'?'HOST READY':'GUEST JOINED');if(room.role==='host')refreshInvite();else{var jw=document.getElementById('join-wait');if(jw)setWaitLine(jw,'GUEST JOINED \u2014 waiting for HOST offer');}log('ROOM','joined '+room.role+' ('+peers+')');return fetchIceServers();})
     .then(function(ice){room.ice=ice;room.rejoining=false;initializeRoomPeer();startRoomPoll();})
     .catch(function(e){
       log('ROOM','join err '+e.message);room.rejoining=false;
