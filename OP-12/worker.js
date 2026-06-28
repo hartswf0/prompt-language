@@ -2,7 +2,7 @@
  * BEFLIX Call signaling and TURN credential Worker.
  *
  * Live video, audio, and chat never pass through this Worker. It coordinates a
- * two-peer WebRTC handshake, returns short-lived relay credentials, and stores
+ * room-based WebRTC handshakes, returns short-lived relay credentials, and stores
  * OP-04's bounded, compact shared-film document for room restoration.
  */
 
@@ -305,8 +305,9 @@ function normalizeMeta(value, now) {
 function findPeer(meta, peerId) {
   return meta.peers.find((peer) => peer.id === peerId);
 }
+
 function peerRoster(meta) {
-  return meta.peers.map((p) => ({ id: p.id, role: p.role }));
+  return meta.peers.map((peer) => ({ id: peer.id, role: peer.role }));
 }
 
 function safeShortString(value, fallback = '', max = 40) {
@@ -497,16 +498,20 @@ export class Room {
 
     if (path.endsWith('/join') && request.method === 'POST') {
       const body = await readJson(request, 2048);
-      const rawIntent = body && (body.intent === 'host' || body.intent === 'guest') ? body.intent : '';
-      // Clients still say 'guest'; in the mesh model any non-host peer is a 'member'.
-      const intent = rawIntent === 'guest' ? 'member' : rawIntent;
+      const intent = body && (body.intent === 'host' || body.intent === 'guest') ? body.intent : '';
       const clientId = safeClientId(body && body.clientId);
+
       if (body && body.reset === true && intent === 'host') {
-        meta.peers = [];
-        meta.seq = 0;
-        meta.epoch += 1;
-        await this.state.storage.delete('msgs');
+        const existingHost = clientId ? meta.peers.find((peer) => peer.clientId === clientId && peer.role === 'host') : null;
+        const shouldKeepSoloHost = existingHost && meta.peers.length === 1;
+        if (!shouldKeepSoloHost) {
+          meta.peers = [];
+          meta.seq = 0;
+          meta.epoch += 1;
+          await this.state.storage.delete('msgs');
+        }
       }
+
       const existing = clientId ? meta.peers.find((peer) => peer.clientId === clientId) : null;
       if (existing) {
         if (intent && existing.role !== intent) {
@@ -523,14 +528,13 @@ export class Room {
           epoch: meta.epoch,
         });
       }
-      if (intent === 'member' && meta.peers.length === 0) {
+      if (intent === 'guest' && meta.peers.length === 0) {
         return json(request, this.env, { error: 'host-not-ready' }, 409);
       }
       if (meta.peers.length >= MAX_OPERATOR_PEERS) return json(request, this.env, { error: 'room-full' }, 409);
       const peer = {
         id: newPeerId(),
-        // First peer is host (canonical-film authority); everyone else is a member.
-        role: meta.peers.length === 0 ? 'host' : 'member',
+        role: meta.peers.length === 0 ? 'host' : 'guest',
         clientId: clientId || undefined,
         last: now,
       };
@@ -562,9 +566,12 @@ export class Room {
       meta.seq += 1;
       const messages = (await this.state.storage.get('msgs')) || [];
       messages.push({
-        seq: meta.seq, from: peer.id,
-        to: (typeof body.to === 'string' && body.to) ? body.to : null,  // null = broadcast
-        msg: body.msg, time: now, epoch: meta.epoch,
+        seq: meta.seq,
+        from: peer.id,
+        to: (typeof body.to === 'string' && body.to) ? body.to : null,
+        msg: body.msg,
+        time: now,
+        epoch: meta.epoch,
       });
       if (messages.length > MAX_MSGS) messages.splice(0, messages.length - MAX_MSGS);
       await this.state.storage.put('msgs', messages);

@@ -2,15 +2,16 @@
  * BEFLIX Call signaling and TURN credential Worker.
  *
  * Live video, audio, and chat never pass through this Worker. It coordinates a
- * two-peer WebRTC handshake, returns short-lived relay credentials, and stores
+ * room-based WebRTC handshakes, returns short-lived relay credentials, and stores
  * OP-04's bounded, compact shared-film document for room restoration.
  */
 
-const MAX_MSGS = 64;
+const MAX_MSGS = 256;
 const MAX_MSG_BYTES = 16 * 1024;
 const MAX_FILM_BYTES = 512 * 1024;
 const MAX_FILM_FRAMES = 48;
 const MAX_THUNDER_PEERS = 8;
+const MAX_OPERATOR_PEERS = 6;   // mesh stays healthy to ~5-6; raise only with care
 const MAX_THUNDER_MSGS = 256;
 const MAX_THUNDER_MSG_BYTES = 96 * 1024;
 const MAX_THUNDER_SNAPSHOT_BYTES = 768 * 1024;
@@ -305,6 +306,10 @@ function findPeer(meta, peerId) {
   return meta.peers.find((peer) => peer.id === peerId);
 }
 
+function peerRoster(meta) {
+  return meta.peers.map((peer) => ({ id: peer.id, role: peer.role }));
+}
+
 function safeShortString(value, fallback = '', max = 40) {
   return typeof value === 'string' ? value.slice(0, max) : fallback;
 }
@@ -495,8 +500,23 @@ export class Room {
       const body = await readJson(request, 2048);
       const intent = body && (body.intent === 'host' || body.intent === 'guest') ? body.intent : '';
       const clientId = safeClientId(body && body.clientId);
+
+      if (body && body.reset === true && intent === 'host') {
+        const existingHost = clientId ? meta.peers.find((peer) => peer.clientId === clientId && peer.role === 'host') : null;
+        const shouldKeepSoloHost = existingHost && meta.peers.length === 1;
+        if (!shouldKeepSoloHost) {
+          meta.peers = [];
+          meta.seq = 0;
+          meta.epoch += 1;
+          await this.state.storage.delete('msgs');
+        }
+      }
+
       const existing = clientId ? meta.peers.find((peer) => peer.clientId === clientId) : null;
       if (existing) {
+        if (intent && existing.role !== intent) {
+          return json(request, this.env, { error: 'role-conflict', role: existing.role, requested: intent }, 409);
+        }
         existing.last = now;
         await this.saveMeta(meta, now);
         return json(request, this.env, {
@@ -504,19 +524,14 @@ export class Room {
           role: existing.role,
           seq: meta.seq,
           peers: meta.peers.length,
+          roster: peerRoster(meta),
           epoch: meta.epoch,
         });
-      }
-      if (body && body.reset === true && intent === 'host') {
-        meta.peers = [];
-        meta.seq = 0;
-        meta.epoch += 1;
-        await this.state.storage.delete('msgs');
       }
       if (intent === 'guest' && meta.peers.length === 0) {
         return json(request, this.env, { error: 'host-not-ready' }, 409);
       }
-      if (meta.peers.length >= 2) return json(request, this.env, { error: 'room-full' }, 409);
+      if (meta.peers.length >= MAX_OPERATOR_PEERS) return json(request, this.env, { error: 'room-full' }, 409);
       const peer = {
         id: newPeerId(),
         role: meta.peers.length === 0 ? 'host' : 'guest',
@@ -530,6 +545,7 @@ export class Room {
         role: peer.role,
         seq: meta.seq,
         peers: meta.peers.length,
+        roster: peerRoster(meta),
         epoch: meta.epoch,
       });
     }
@@ -549,7 +565,14 @@ export class Room {
       peer.last = now;
       meta.seq += 1;
       const messages = (await this.state.storage.get('msgs')) || [];
-      messages.push({ seq: meta.seq, from: peer.id, msg: body.msg, time: now, epoch: meta.epoch });
+      messages.push({
+        seq: meta.seq,
+        from: peer.id,
+        to: (typeof body.to === 'string' && body.to) ? body.to : null,
+        msg: body.msg,
+        time: now,
+        epoch: meta.epoch,
+      });
       if (messages.length > MAX_MSGS) messages.splice(0, messages.length - MAX_MSGS);
       await this.state.storage.put('msgs', messages);
       await this.saveMeta(meta, now);
@@ -565,9 +588,15 @@ export class Room {
       peer.last = now;
       await this.saveMeta(meta, now);
       return json(request, this.env, {
-        messages: messages.filter((entry) => entry.epoch === meta.epoch && entry.seq > after && entry.from !== peer.id),
+        messages: messages.filter((entry) =>
+          entry.epoch === meta.epoch &&
+          entry.seq > after &&
+          entry.from !== peer.id &&
+          (entry.to === null || entry.to === undefined || entry.to === peer.id)
+        ),
         seq: meta.seq,
         peers: meta.peers.length,
+        roster: peerRoster(meta),
         role: peer.role,
         epoch: meta.epoch,
       });

@@ -41,6 +41,7 @@ test('second peer receives an offer created after it joins', async () => {
   const guest = await body(await room.fetch(request('join', { method: 'POST', body: {} })));
   assert.equal(guest.role, 'guest');
   assert.equal(guest.peers, 2);
+  assert.deepEqual(guest.roster.map((peer) => peer.role), ['host', 'guest']);
 
   const offer = { type: 'offer', sdp: { type: 'offer', sdp: 'test-sdp' } };
   const sent = await room.fetch(request('send', {
@@ -78,11 +79,16 @@ test('guest intent cannot become host before the host joins', async () => {
   assert.equal(guest.role, 'guest');
 });
 
-test('host reset clears stale peers before joining permanent room', async () => {
+test('operator rooms allow mesh peers and host reset clears stale peers', async () => {
   const storage = new MemoryStorage();
   const room = new Room({ storage }, {});
-  await room.fetch(request('join', { method: 'POST', body: {} }));
-  await room.fetch(request('join', { method: 'POST', body: {} }));
+  const peers = [];
+  for (let index = 0; index < 6; index += 1) {
+    peers.push(await body(await room.fetch(request('join', { method: 'POST', body: {} }))));
+  }
+  assert.equal(peers[0].role, 'host');
+  assert.equal(peers[5].role, 'guest');
+  assert.equal(peers[5].peers, 6);
 
   const full = await room.fetch(request('join', { method: 'POST', body: {} }));
   assert.equal(full.status, 409);
@@ -95,6 +101,7 @@ test('host reset clears stale peers before joining permanent room', async () => 
   assert.equal(resetHost.role, 'host');
   assert.equal(resetHost.peers, 1);
   assert.ok(resetHost.epoch > 1);
+  assert.deepEqual(resetHost.roster.map((peer) => peer.role), ['host']);
 });
 
 test('repeat joins from the same browser tab do not consume extra room slots', async () => {
@@ -159,6 +166,33 @@ test('guest can request a host-led WebRTC restart', async () => {
   assert.equal(sent.status, 200);
   const poll = await body(await room.fetch(request('poll', { query: { peerId: host.peerId, after: host.seq } })));
   assert.deepEqual(poll.messages[0].msg, { type: 'restart' });
+});
+
+test('directed mesh signaling only reaches the target peer', async () => {
+  const room = new Room({ storage: new MemoryStorage() }, {});
+  const host = await body(await room.fetch(request('join', { method: 'POST', body: { intent: 'host', reset: true } })));
+  const guestA = await body(await room.fetch(request('join', { method: 'POST', body: { intent: 'guest' } })));
+  const guestB = await body(await room.fetch(request('join', { method: 'POST', body: { intent: 'guest' } })));
+
+  assert.equal(guestB.peers, 3);
+  assert.equal(guestB.roster.length, 3);
+
+  const offer = { type: 'offer', sdp: { type: 'offer', sdp: 'targeted-sdp' } };
+  const sent = await room.fetch(request('send', {
+    method: 'POST',
+    body: { peerId: host.peerId, to: guestA.peerId, msg: offer },
+  }));
+  assert.equal(sent.status, 200);
+
+  const pollA = await body(await room.fetch(request('poll', {
+    query: { peerId: guestA.peerId, after: guestA.seq },
+  })));
+  const pollB = await body(await room.fetch(request('poll', {
+    query: { peerId: guestB.peerId, after: guestB.seq },
+  })));
+  assert.equal(pollA.messages.length, 1);
+  assert.deepEqual(pollA.messages[0].msg, offer);
+  assert.equal(pollB.messages.length, 0);
 });
 
 test('remaining guest is promoted when the host leaves', async () => {
