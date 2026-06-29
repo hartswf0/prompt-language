@@ -1,0 +1,155 @@
+Compare how the same users describe one imagined scene for another person and for several image models.
+Run preregistered comparisons using identical tasks across default prompts, prompts written by ordinary users, prompts written by professional creators and prompts optimized by specialists.
+Investigate the project as a longitudinal production system rather than as a launch story.
+Investigate adaptation structure rather than adaptation fidelity.
+Investigate AI deployments at the workflow level across hospitals, warehouses, publishing, education, customer service, and software development.
+Release a redacted version of the research and reproduce the evaluation across closed, open-weight, domestic, and foreign models.
+Evaluate neural CAD on full revision lifecycles rather than isolated generation tasks.
+Separate actual AI workloads from promotional forecasts.
+Evaluate tool-calling systems through adversarial and longitudinal workflows rather than clean demonstrations.
+Run paired evaluations of GLM-5.1 and GLM-5.2 across a broad preserved task suite, including SVG composition, animation integrity, long-context retrieval, repository-scale coding, multilingual reasoning, instruction fidelity, and repeated-generation variance.
+Evaluate successive model generations under controlled compute, data, tool-access, and inference-time budgets.
+Audit the original proposal as though it had been funded.
+Conduct a stratified audit across states, vendors, cities, counties, OCR formats, taxonomy classes, and extreme normative scores.
+Compare experts and novices using temporally occluded scenarios that systematically remove or alter individual cues.
+Construct experiments that separate genuine model-based anticipation from conditioned association.
+Compare identical models across independently constructed harnesses using realistic, long-running tasks.
+Reconstruct the policy sequence using private briefings, capability evaluations, agency correspondence, model-access negotiations, and the chronology of disputes between Anthropic and the government.
+Trace specific deployments from initial subsidy through price normalization.
+Track the eliminated and newly created programs at institution level.
+Reconstruct the N.S.A. evaluation with clear separation among vulnerability discovery, exploit generation, privilege escalation, persistence, and autonomous execution.
+Compare teams using individual agents, shared agent sessions, conventional pair programming, and mixed workflows over time.
+Compare human-made, AI-assisted, and highly automated channels across recommendation exposure, monetization, upload frequency, viewer satisfaction, complaint rates, factual error, creator concentration, and long-term retention.
+Test the proposed framework against concrete scenarios involving self-harm, abuse by a parent, LGBTQ identity, coercive relationships, fictional role-play, sarcasm, and adult users misclassified as minors.
+Map AI-related capital expenditure, debt issuance, depreciation schedules, energy commitments, customer concentration, internal cloud purchases, and realized revenue across the dominant firms and their semiconductor suppliers.
+Separate voluntary use from default exposure and compelled use.
+Run a longitudinal procurement trial comparing HappyHorse, Veo, open models, and conventional production across identical campaigns.
+Construct and publish full exit tests for enterprise AI systems.
+Follow fellows and host nonprofits for several years.
+Compare models that assign similar next-word probabilities but differ in architecture, training data, embodiment, memory constraints, and internal representation.
+Track users from job loss through registration, first revenue, recurring platform costs, taxes, compliance events, benefit expenses, business closure, and return to employment.
+Establish independent, classified-and-public benchmark tiers separating vulnerability discovery, exploit generation, autonomous execution, persistence, evasion, and recovery.
+Compare AI-assisted, conventional, and self-represented small claims across cost, completion time, settlement rate, document accuracy, procedural fairness, appeal rate, client understanding, and outcomes for defendants as well as claimants.
+Compare AI-assisted and conventional teams across prototype count, originality ratings, rework, overtime, staffing, decision authority, psychological safety, asset reuse, and final player outcomes.
+Construct adversarial multi-agent trials involving conflicting goals, stale capability descriptions, compromised peers, ambiguous instructions, unavailable services, cascading delegation, budget overruns, and requests requiring reversal.
+Compare organizations using “human-centric” AI programs with those pursuing explicit cost reduction.
+Freeze the resulting harness and evaluate it on a genuinely untouched cross-domain test set, adversarial security tasks, safety-policy challenges, and real organizational workflows.
+Run full migration and reconstruction tests across OpenClaw, Hermes, Scout, and governed runtimes.
+Build a comparative protocol benchmark that measures not only interoperability but authority leakage, privacy exposure, schema drift, discovery manipulation, recovery from compromised peers, human auditability, and cross-layer failure propagation.
+Evaluate Meta-Skills on genuinely unseen organizations and long-horizon tasks where objectives conflict, feedback is delayed, and no ground-truth label is available.
+Compare vanilla agents with agents equipped with formal scratch structures, classical learner tools, persistent symbolic memory, and learned experiment-selection policies.
+Run three decisive validations: an ablation removing curated traps and audit rules, an inter-rater study comparing every Harness LLM tier with blinded domain experts, and a prospective deployment test using previously unseen production incidents.
+Map agent deployments by input trust, credential scope, action reversibility, human approval, memory persistence, and downstream blast radius.
+Compare three versions of the same workflow: human-operated, agent-inserted, and implicitly reengineered.
+Examine the directive itself, Anthropic’s compliance analysis, the technical meaning of “access,” and whether narrower controls—organization-based vetting, use restrictions, logging, compute thresholds, or jurisdictional limits—could address the stated risk.
+Run a prospective comparison between the AI-assisted workflow and the former manual process.
+Run controlled launches comparing ordinary multiplayer onboarding with cross-game voice, friend passes, portable cosmetics, and combinations of these features.
+Link assignment-level AI exposure to supervised mastery, delayed retention, subsequent-course performance, and workplace outcomes.
+Benchmark complete agent workloads across recomputation, DRAM caching, local NVMe, networked flash, and hybrid context tiers.
+Track participants against comparable nonparticipants for wages, employment duration, benefits, occupational mobility, debt, and later displacement.
+Compare one-shot agents, fixed iterative loops, and adaptive loops across tasks with delayed feedback and conflicting objectives.
+Compare leading harnesses while holding the foundation model constant.
+Evaluate the architecture against adversarial and ambiguous cases: conflicting jurisdictions, stale classifications, forged delegation, prompt-injected metadata, emergency exceptions…
+Create deliberative trials that separate three questions often collapsed together: what evidence supports consciousness, what moral precautions uncertainty warrants, and which legal arrangements remain reversible.
+Evaluate models on unseen robots and changing environments with no benchmark-specific setup.
+Track each project from research proposal through production use.
+Compare schools receiving devices alone with schools receiving the full instructional and governance stack.
+Map the financial, cloud, advertising, investment, and AI-development relationships connecting OpenAI, Amazon, Google, Netflix, A24, Warner Bros., and other prospective distributors.
+Compare product-led AI literacy with teacher-led AI civics across diverse schools.
+Prototype a small federated world in which independently operated servers share identities, social relationships, executable objects, and portable cosmetics without relying on one central authority.
+Follow participants and artifacts across time rather than evaluating isolated events.
+Develop a child-scale pinball logic kit in which relays or safe electronic equivalents visibly represent memory, conditions, timers, counters, and rule changes.
+Build a prototype in which an AI may modify a world only through typed scene operations such as create, relate, constrain, simulate, compare, and revise.
+Add explicit diagnostic uncertainty and competing repair hypotheses.
+Define the irreducible operational kernel for a neurosymbolic world engine.
+Design a layered verification system for the hidden-game engine.
+Replace the invariant “[Call_Out] never mutates <The_Machine>” with a probabilistic causal network.
+Rebuild the experience around three competing material routes for each keystroke: <Heat>, <Residue>, and <Coordination>.
+For every empathy initiative, map the complete conversion chain: who speaks, who listens, what information is collected, who interprets it, which decision can change, who possesses veto power…
+Compare four conditions: optional AI tutoring, teacher-assigned AI tutoring, human tutoring, and a hybrid model in which a human establishes goals and accountability while AI supplies practice and explanation.
+Run the optimizer as a participatory system with structural engineers, fabricators, contractors, code officials, material suppliers, maintenance workers, and demolition or reuse specialists.
+Model the proposed ecosystem as a governance stack rather than a feature list.
+Reconstruct the model under multiple ethical regimes: expected utility, rights-based constraints, precautionary thresholds, maximin reasoning, democratic consent, and duties to future generations.
+Map the actual institutional position of philosophers across major AI laboratories: who they report to, which product stages they influence, whether their objections are recorded, what information they can access…
+Build a translation system that represents the poem as an explicit semantic and metaphorical graph.
+Reorganize the books not by academic category but by operational verb: <audit>, <predict>, <remember>, <secure>, <extract>, <repair>, <translate>, <prepare>, <legitimate>, and <design>.
+Establish a production ledger for synthetic films that records source materials, factual claims, generated inventions, model providers, human revisions, consent status, and unresolved uncertainty.
+Treat every generated interface as a traceable lineage.
+Audit the full transfer chain from game action to physical behavior.
+For every Raise Us pilot, track not only placements but previous and new wages, benefits, job stability, geographic displacement, training completion, employer retention, worker debt, public subsidy, and the automation savings retained by participating firms.
+Compare companies led by young AI chiefs, veteran technology executives, and cross-generational leadership teams.
+Measure the entire change lifecycle rather than developer output alone: generation volume, review time, policy failures, production incidents, severity, rollback speed, cloud-cost variance, security exposure, maintenance burden, and downstream labor.
+Evaluate the system as a controlled capability-production facility rather than a coding assistant.
+Compare AI sentiment not only with unemployment benefits and health-care systems but with union density, severance protections, employee consultation rights, wealth concentration, job mobility, household savings, and public ownership.
+Reconstruct the decision chain: which agency identified the risk, what tests were performed, what authority supported the restriction, what alternative mitigations were considered, and who can review the result.
+Evaluate three objects separately: the agent, the simulated world, and the translation between simulation and deployment.
+Treat regeneration as a verified state transition.
+Model the loop as a state machine with explicit transitions among discovery, assignment, generation, evaluation, persistence, scheduling, escalation, and termination.
+Publish the agreement’s operational terms: funding structure, intellectual-property ownership, training sources, consent rules, data retention, model access, labor safeguards, disclosure standards, commercial rights, and termination conditions.
+Require an integration-impact assessment before adoption.
+Trace each major term through three layers: historical origin, founding-era use, and institutional execution.
+Track the complete lifecycle of AI-accelerated work: idea source, customer evidence, specification quality, generated-code volume, human review time, defects, incidents, adoption, retention, support burden, maintenance cost, and eventual deletion.
+Compare disclosed and undisclosed AI-assisted games while controlling for genre, price, studio size, marketing, review quality, and depth of AI use.
+Run controlled storefront experiments in which identical games are presented with different levels of production disclosure, then measure wish lists, purchases, review rates, trust, perceived quality, and willingness to recommend.
+Replace “write me a better prompt” with a staged operation: reconstruct the objective, expose assumptions, identify missing decisions, propose competing task formulations, define success tests, and only then generate the instruction.
+Test the system through a complete short-film workflow rather than a demo reel.
+Evaluate Olympus through intervention, not spectatorship.
+Study matched organizations over time and separate four variables: model capability, management quality, integration labor, and workflow redesign.
+Follow workers rather than occupations.
+Separate the capital narrative from the operating company.
+Compare organizations that use AI-generated time savings in different ways.
+Track candidates from training through internships, interviews, hiring, wages, retention, and promotion.
+Test shopping agents on more than purchase conversion.
+Require a fabricated prototype running the same model as a modern accelerator under a shared quality threshold.
+Construct a threat-specific framework separating model capability, access conditions, deployment environment, and actual harm pathways.
+Require colleges to publish the full labor cost of every course, including paid and unpaid hours, benefit eligibility, contract duration, travel expectations, student-contact load, and effective hourly compensation.
+Reconstruct the complete governance trail: who approved or knew about the project, which corporate resources and marks were used, what warnings were issued, how the official CLI roadmap developed…
+Compare prompt-generated and traditionally developed plugins through complete production lifecycles.
+Treat compilation as a reversible build process.
+Model the loop as a controlled state machine rather than a repeated chat call.
+Benchmark the council against strong baselines across factual research, architecture decisions, forecasting, debugging, ethical analysis, and adversarial strategy.
+Treat Three.js as a rendering target rather than the complete application architecture.
+Extend the atomic-decoding principle from rectangles to persistent world entities.
+Run matched experiments holding model size, training data, compute, and decoding budget constant across semantic CoT, corrupted CoT, random scratchpads, latent recurrence, executable programs, and no intermediate representation.
+Test the framework longitudinally across product teams.
+Turn “taste” into testable design hypotheses.
+Map every model-release intervention to its asserted threat, legal authority, evidence, decision-maker, affected users, mitigation options, duration, and appeal path.
+Define a small set of reasoning capabilities, teach them explicitly, then test them across unfamiliar disciplines with and without AI access.
+Compare unreliable narration across novels, documentary film, games, memoir, institutional records, and AI interfaces.
+Pilot several models: traditional Socratic dialogue, structured small-group questioning, oral defense of AI-assisted work, screen-permitted verification exercises, and mixed written–oral assessment.
+Construct a verified-authorship dataset and compare human, AI-assisted, and predominantly generated books while controlling for genre, price, author reputation, advertising, publication age, and recommendation exposure.
+Evaluate scientific policy across three horizons: immediate outputs, ten-year capability formation, and preservation of unexplored option space.
+Compare structured friction training with ordinary workplace experience across repeated, observed interactions.
+Track the merger beyond retention and savings.
+Test data-governance architectures under contested, stale, adversarial, and genuinely uncertain records—not only clean benchmark cases.
+Locate the line within its scene, identify who says it, to whom, under what pressure, and with what degree of irony or self-implication.
+Compare laughter, play calls, alarm calls, panting, turn-taking gestures, and learned vocalizations across the same species.
+Study recurring complaints alongside objective working conditions, response times, managerial action, psychological safety, and eventual outcomes.
+Benchmark masked diffusion, autoregressive decoding, and hybrid decoding on the same model scale and hardware.
+Test renderers, simulators, and planners separately and as a coupled stack.
+Randomly expose participants to carefully separated accounts of determinism, fatalism, compatibilism, scepticism-with-agency, and ordinary control beliefs.
+Ablate environment prediction, trajectory exposure, reasoning training, perturbation design, and reinforcement learning separately.
+Construct matched experiments that hold data, post-training, tools, and inference compute constant while varying scale.
+Train multiple competing world models from different data distributions, let controllers search adversarially for disagreements among them, and send those disagreement states back to the real environment for resolution.
+Apply Mitchell’s method to contemporary world models: <What_Is_The_Model’s_Hypericon?> <Which_Sensory_Data_Count_As_The_World?> <What_Is_Declared_Natural?> <Which_Uncertainty_Is_Hidden?> <Who_Is_Allowed_To_Interpret?> <W…
+Replace “collapse” with a detailed study of <modality transformations>.
+Build a preregistered, independent evaluation in which stable model snapshots face procedurally generated tasks with hidden rules, long horizons, delayed consequences, controlled novelty, and no researcher-selected success cases.
+Apply thick description to an AI classification system itself.
+Place generated environments under interactive pressure.
+Evaluate world foundation models through controlled interventions rather than generated examples alone.
+Place Genie 3 under operational rather than cinematic evaluation.
+Build matched evaluations in which explicit video models, latent models, symbolic models, and reactive policies receive identical data, compute, and action interfaces.
+Evaluate the same trained model under three progressively stricter settings: <Bidirectional_Masked_Reconstruction> <Forward_Only_Action_Prediction> <Closed_Loop_Interactive_Control>.
+Train matched semantic-first, dynamics-first, hybrid, and robotics-first policies with identical robot data and deployment budgets.
+Reconstruct the language around first-class cinematic objects: <Film> → {<Shot>} <Shot> → {<Surface>, <Duration>, <Camera>, <Operations>, <Sound>…
+Construct a contemporary cybernetic-cinema instrument that does not hide its generative process behind a prompt box.
+Construct a temporal composition engine in which every moving element is assigned: <Rate> <Phase> <Direction> <Cycle> <Metric_Relation> <Tension_Weight> <Resonance_Target>.
+Treat every AI classification system as a cultural program and ask: <Which_Human_Capacity_Is_Being_Narrowed?> <Into_Which_Recognized_Performance?> <According_To_Whose_Symbolic_System?> <Through_Which_Institution?> <With_…
+Treat every world model as a measuring instrument rather than an image generator.
+For any scientific, religious, poetic, or computational symbol, ask: <What_Does_It_Claim_To_Represent?> <What_Action_Does_It_Recommend?> <Which_Practice_Gives_It_Authority?> <What_Disposition_Does_It_Cultivate?> <What_Co…
+Train world models on deliberately heterogeneous policies-including experts, novices, adversaries, random explorers, and agents recovering from mistakes.
+Apply the pragmatic maxim to the term <world model>: <What_Experimental_Operations_Does_Calling_A_System_A_World_Model_Enable?> <What_Different_Predictions_Should_It_Produce?> <What_Conduct_Should_Change_Because_Of_Those…
+Turn Deleuze’s taxonomy into an executable cinematic grammar: <Film_State> → { <Perception_Field>, <Affection_Field>, <Action_Affordances>, <Relational_Signs>…
+Before defining <Worldtext>, stabilize the distinction among: <Thick_Prompt> meaning-rich input that establishes a world.
+Before defining <World_Text>, specify its minimum contract: <World_Text> must be <Human_Readable> <Machine_Interpretable> <State_Bearing> <Action_Sensitive> <Temporally_Extensible> <Constraint_Explicit> <Revisable> <Unce…
+Define <Worldtext> through the operation it uniquely performs: not describing a finished world, not generating a disposable scene…

@@ -1,0 +1,153 @@
+Does repeated prompting make people better at noticing and describing the world, or merely better at predicting what a particular model will generate?
+How much prompting labor, domain knowledge, iteration and output selection are required before the model stops producing bland material—and who possesses the time and expertise to provide that labor?
+Can a solo AI-assisted transmedia universe remain artistically coherent, economically sustainable, and personally manageable after the novelty of rapid creation gives way to years of maintenance?
+What cinematic form—not merely what screenplay choices—could reproduce the poem’s unstable movement among narration, memory, fabrication, divine causation, and direct experience?
+What enforceable institutional test distinguishes a genuine centaur arrangement from a reverse-centaur system marketed as “human in the loop”?
+What measurable capability did Fable 5 provide beyond existing open models, conventional security tools, public vulnerability databases, and competent human researchers—and did that marginal capability benefit attackers more than defenders?
+When a neural CAD model infers unstated geometry, constraints, materials, or performance requirements and the resulting design fails, who is professionally, contractually, and legally responsible for the inference?
+What socially valuable work will justify data centers consuming a projected fifth of U.S.
+At what point must the system return control to the user before a model-selected action is executed, and how should that consent be presented without training users to approve everything reflexively?
+Does GLM-5.2’s benchmark advantage survive when models are compared at equal task budgets for tokens, latency, hardware, energy, and permitted retries?
+What observation would cause Altman to conclude that additional scaling is no longer the dominant path to more capable systems?
+Who specifically would have captured the proposed eight billion dollars in economic activity, and what enforceable mechanisms would have ensured that Baltimore residents—rather than external firms, property owners…
+What minimum combination of provenance, date, hierarchy, geographic applicability, and surrounding context is required before a LOCUS chunk can support a legally meaningful claim about what governs a particular person, property, or institution?
+How can a learner distinguish a genuinely causal anticipatory cue from a superficial correlation that happens to predict outcomes in familiar training conditions?
+What makes an internal process a representation of a particular external process, rather than merely another process that happens to correlate with it?
+Who is accountable when harmful behavior emerges from the interaction among model, system prompt, retrieved data, tool responses, routing policies, and human approval rather than from any single component?
+What evidence did the government actually use to conclude that foreign access to Mythos and Fable created a national-security risk, and how much of that evidence came from Anthropic’s public rhetoric rather than independent testing or classified assessment?
+What institutional mechanism would ensure that the useful residue of an AI collapse—hardware, models, data infrastructure, and expertise—passes into broadly accessible hands rather than being consolidated by the same firms and investors at distressed prices?
+Are unemployed graduates unable to find work because they studied the wrong subjects, or because the economy is not generating enough secure, well-paid entry-level positions for the number of graduates produced?
+What specific marginal capability did Mythos provide over other models and conventional security tools, and did independent testing show that this advantage benefited offensive operations more than authorized defense?
+Does increased agent use actually cause employee isolation and weaker team learning, or are already-isolated, anxious, and performance-pressured employees simply more likely to retreat into agent-mediated work?
+What operational definition will YouTube use to distinguish low-value AI slop from legitimate synthetic, assisted, experimental, educational, or entertainment media?
+What rights does a minor have when a chatbot incorrectly estimates their age, misclassifies their conversation as dangerous, or notifies a parent or authority against their interests?
+How much of current AI infrastructure expenditure is supported by external, recurring customer demand…
+How much chatbot and AI-summary use is actively chosen, and how much occurs because AI has been inserted into services people already need?
+What training data, performer permissions, licensing arrangements, moderation policies, and indemnification provisions support HappyHorse’s commercially generated imagery, voices, characters, and products?
+Which layers of an AI system must actually be open for meaningful independence, and which can remain proprietary without making migration prohibitively expensive or operationally impossible?
+What happens to participating nonprofits after the fellowship ends if their redesigned workflows depend on Claude subscriptions, Anthropic-specific interfaces, or knowledge held primarily by a departing fellow?
+Do language models predict neural activity because they reproduce human-like internal representations, or simply because both humans and models are sensitive to the same statistical regularities in the linguistic environment?
+What percentage of businesses formed through Tailor Brands remain active, profitable, and capable of supporting their owners after one, three, and five years?
+What specific capability threshold separates current AI-assisted cyber tools from the “devastating” models predicted to arrive within months?
+How much human legal review occurred behind Garfield’s preparation of the claim, witness statements, counterclaim response, and trial bundle, and who would have been professionally liable had the system made a material error?
+Which specific development tasks were accelerated, which employees experienced greater autonomy, and what evidence distinguishes reduced tedium from increased workload expectations?
+How can a requesting agent verify the quality, authorization, evidence, and policy compliance of work performed inside another agent’s protected black box?
+What enforceable commitments does the company make regarding layoffs, workload, monitoring, compensation, employee consent, and the use of productivity gains created through AI?
+Can a self-harnessing agent improve task performance while preserving constraints that are difficult to express as deterministic pass/fail tests-privacy, security, honesty, human control, fairness, and resistance to evaluator manipulation?
+Who legally and operationally owns the memories, inferred preferences, self-authored skills, and behavioral profile produced through sustained interaction with an employee or organization?
+Who is authorized to approve, inspect, revoke, or contest a communication schema that agents negotiate dynamically during operation?
+Can an evolved Meta-Skill improve performance while preserving constraints that are not captured by benchmark scores, including privacy, fairness, security, human authority, and resistance to collusive or deceptive agent behavior?
+Would LLM agents perform substantially better if they could externalize an explicit observation table, state-partition graph, competing hypotheses, and uncertainty ledger rather than reconstructing structure through free-form language at every step?
+How accurately does human-curated HOB evaluation predict failures encountered by real users outside the predefined trap library, especially when harmful behavior does not correspond to an easily auditable tool event?
+Which business processes can be redesigned to tolerate probabilistic agents, and which depend on forms of contextual judgment or accountability that should remain outside autonomous execution?
+Who has authority to decide which unwritten norms represent valuable institutional wisdom and which represent bias, inertia, hierarchy, or informal exclusion that should not be encoded into the agentic system?
+What legal authority, evidentiary standard, and review process did the Commerce Department use to conclude that access by every foreign national required restriction?
+How many recommendations were incorrect, how much staff time was actually saved per transaction, and what proportion of the remaining backlog can be resolved without direct payer confirmation?
+What evidence shows that groups already using cross-game voice services are more likely to migrate when communication and digital possessions are integrated at the engine level?
+Do students receiving higher AI-assisted grades later perform better, equally, or worse on supervised exams, advanced courses, workplace tasks, and long-term retention measures?
+Which classes of context actually produce enough reuse to justify a dedicated tier once cache invalidation, model upgrades, security isolation, and retrieval overhead are included?
+What kinds of jobs qualify, how long must a graduate remain employed, and what prevents firms from receiving credits for hiring they would have made without the subsidy?
+Who verifies that the evaluator and stopping rule remain valid as the loop changes the environment it is measuring?
+What authority will DeepSeek’s desktop agent receive over files, credentials, applications, and external actions, and what independent mechanisms will constrain that authority when the model behaves incorrectly?
+Who governs the governance layer—who may author policies, modify ontologies, resolve conflicting rules, approve exceptions, and contest an automated denial?
+Who controls the production of evidence and public sentiment about AI consciousness, and how can deliberation remain legitimate when powerful firms can redesign the alleged moral patient, restrict scientific access…
+How does the system behave when sensors are noisy, documentation is wrong, the environment changes unexpectedly, a command is unsafe, or the robot’s physical response differs from the model’s prediction?
+Which creators and workers will have decision-making authority, and who will own the models, workflow knowledge, production data, and intellectual property generated through the collaboration?
+Which students receive which models, under what restrictions, with what instructional support, and who profits from the data and dependence created by school adoption?
+Who made each acquisition or withdrawal decision, what commercial and legal analyses were considered, and whether executives responsible for AI partnerships or investments participated in those deliberations?
+Who has authority to determine which forms of intellectual struggle must be protected, especially when technology companies, administrators, teachers, parents, and students have conflicting interests and unequal power?
+Who governs a persistent, interoperable world when its code, identities, economies, assets, and social rules are supplied by millions of creators but executed through infrastructure controlled by a small number of companies?
+What structures allow the agency created during a pop-up to persist after Genesis leaves—through local facilitators, open curricula, maintained tools, returning youth leadership, family participation, and community control of the makerspace?
+How could the electromechanical principles of latching, sequencing, carrying, scanning, and conditional routing be translated into modular components children can physically recombine without requiring dangerous voltages or expert wiring knowledge?
+What representation sits between a low-level scene graph and a neural model’s diffuse world knowledge—one capable of encoding narrative roles, intentions, affordances, causality, style, social meaning…
+How does the operator determine whether a contradiction was produced by hallucination, stale symbolic state, an incorrect parser, or a genuinely novel world event that the current ontology cannot represent?
+Which concepts are genuinely primitive for persistent interactive worlds, and which merely appear fundamental because current engines and programming traditions were built around them?
+Who writes the specification that the compiler proves, how is it revised when the world changes, and how are conflicts handled when different participants hold incompatible definitions of correctness?
+What concrete action becomes mandatory after an institution claims to understand another person’s experience?
+Which students used Khanmigo repeatedly, which students ignored it, under what classroom conditions, and what differences in teacher involvement, prior achievement, motivation, and social support explain the divergence?
+Who defines “buildable,” and whose labor, risk, knowledge, and inconvenience are represented in that definition?
+Who owns and governs the portable identity, social graph, asset history, transaction record, and behavioral data when players and goods move across many independently operated games?
+Who has the legitimate authority to accept a nontrivial probability of human extinction, especially when neither present populations nor future generations can meaningfully consent to the wager?
+Are philosophers being hired to determine what AI companies ought to do, or to make decisions already selected by executives appear more coherent and defensible?
+What would a translation interface look like if the model were prohibited from presenting a polished answer until it had exposed grammatical ambiguities, metaphor chains, cultural assumptions, unsupported embellishments, and competing translation strategies?
+What picture of MIT would emerge from books written by the workers, neighboring communities, research subjects, critics, and institutions affected by MIT’s technologies rather than by MIT faculty and staff themselves?
+What obligations does a filmmaker assume when generating the body, voice, pain, and death of a person who cannot consent—especially when the film derives moral authority from claiming to memorialize real victims?
+Who benefits when millions of users are guided toward the same visual language, technical stack, and interaction conventions?
+What rights do Medal users possess over gameplay recordings and action labels when those traces are repurposed from social sharing into training a multibillion-dollar general-agent company?
+What power do workers have to reject, reshape, or delay an AI deployment before their jobs are eliminated?
+What decisions can the chief AI officer make independently, and what technical, legal, security, labor, or ethical review can overrule him?
+Who remains accountable when an agent generates a change, an automated pipeline approves it, and the resulting incident emerges from an interaction that no individual human fully inspected?
+What prevents the same harness from generating and validating tooling for an unauthorized target once its models, credentials, or supporting services are copied, compromised, or repurposed?
+Why should workers merely receive insurance against displacement rather than ownership of the productivity gains, models, data, or companies that make their labor less necessary?
+What specific harm is the government trying to prevent, and what measurable reduction in that harm would count as sufficient for redeployment?
+Who validates that Patronus’s digital world accurately represents the real institution, including its informal practices, affected populations, conflicts of interest, and harms that cannot be reduced to machine-readable state?
+When the specification, generated implementation, tests, production behavior, and user expectations disagree, which artifact has final authority?
+Who judges the evaluator, and what happens when generation, evaluation, production behavior, and human expectations disagree?
+What authority does A24 actually possess inside the partnership, and what decisions could it prevent rather than merely advise?
+Who possesses the authority to refuse an experiment when the people bearing its risks are not the people receiving its profits or directing its design?
+Who possesses legitimate authority to translate the Declaration’s abstract rights into enforceable obligations when citizens fundamentally disagree about what those words mean?
+Who remains responsible for the long-term consequences of features generated by temporary agent swarms after the originating engineer, product manager, model version, or customer request has disappeared?
+If AI use is genuinely an ordinary productivity tool comparable to any other, why would accurate disclosure make a worthy game substantially less likely to succeed?
+Does the penalty arise from the disclosure label, visible deficiencies in the games, opposition to particular production practices, or a combination of all three?
+Should the model produce a prompt immediately, or first challenge the objective and ask whether the proposed task is the right task?
+Who owns or authorized the visual, sonic, and stylistic material contained in the fifty reference inputs—and what does the model retain or infer from them?
+What evidence would distinguish Olympus from an interactive video generator that maintains short-term visual coherence but lacks durable causal state?
+Which companies should not adopt current AI systems, and what evidence would justify deliberate non-adoption?
+What happens to the supply of senior expertise once the current generation of experienced workers retires and the reduced junior cohorts fail to replace them?
+How many of these no-revenue startups could raise at the same valuation if the founder’s previous employer, academic prestige, and investor fear of missing out were removed from the pitch?
+When AI saves one hour of labor, who decides whether that hour becomes additional output, shorter working time, training, customer attention, or recovery?
+Who is financially responsible for producing the first year of real experience: the worker, the government, the training provider, or the employer that will ultimately benefit from it?
+When an AI chooses an object that expresses the user’s identity, whose taste is being enacted—the user’s, the model’s training distribution, the retailer’s merchandising strategy, or the platform’s commercial incentives?
+Which classes of models and operations map efficiently onto oscillator dynamics, and what computation must still be performed by conventional digital hardware?
+Who reviews the government’s judgment when officials delay or restrict a model without articulating a reproducible technical basis?
+How much would community-college instruction actually cost if every hour necessary to deliver it were recorded and paid?
+What specific policy was allegedly violated, when was the employee warned, what remediation was offered, and was termination proportionate to the actual risk?
+Who is responsible when a generated plugin damages hearing, crashes a live performance, corrupts a project, reproduces licensed code, or stops working after the generating platform disappears?
+When the human, the raw sources, and the compiled wiki disagree, which layer has operational authority during a query?
+Who has the authority to redefine the goal after execution begins when the loop discovers that the original success criteria were wrong?
+Does the council produce better decisions than one strong model instructed to enumerate competing hypotheses, when both receive the same context, token budget, tools, and evaluation criteria?
+When a Three.js scene becomes a long-lived editable world, is the scene graph the source of truth, a compiled projection of application state, or both?
+How much of the reported improvement comes from the PBD architecture, how much from the 138-million-query corpus, and how much from the particular mixture and normalization of training tasks?
+When does semantic intermediate structure causally improve generalization, and when does merely extending computation produce the same benefit?
+What observable evidence would demonstrate that judgment capability has improved rather than that the organization has merely produced more elaborate documentation?
+Better for whom, performing which task, under what conditions, and according to what evidence?
+What precise evidence would cause the government to approve, condition, delay, or prohibit a model—and who can challenge that evidence?
+What counts as critical thinking strongly enough that faculty across philosophy, engineering, history, design, mathematics, and language instruction would recognize the same capability without erasing disciplinary differences?
+What makes a narrator productively unreliable rather than merely inconsistent, misleading, or badly constructed?
+Which elements of legal reasoning must remain internal human capabilities, and which can be safely delegated once students understand how to verify the result?
+Do AI-generated books fail because readers reject their content, because platforms fail to surface them, or because detected AI books are disproportionately low-effort attempts optimized for volume rather than readership?
+Who decides which forms of curiosity receive public support, and how are excluded communities, institutions, regions, and research traditions represented in that decision?
+Who receives permission to create friction at work, and who is labeled difficult, unprofessional, emotional, or insubordinate for doing so?
+Is the combined company creating a genuinely new advertising architecture, or merely defending an old coordination model through greater scale and lower head count?
+Who has authority to declare a record canonical, who can contest that declaration, and who bears the cost when an incorrect “truth” propagates through automated decisions?
+Does the confession restore another person’s agency, or merely relieve the confessor’s guilt?
+Does the shared rhythm causally support flexible communication, or is it simply a stable physical pattern upon which different species have built unrelated social functions?
+Is the person repeatedly noticing problems because attention has become biased, or because the same unresolved problems remain present?
+Does parallel refinement produce better joint solutions, or does it merely move sequential dependence into repeated denoising rounds and confidence scheduling?
+How accurate must a world model be for a specific action, and who decides when its uncertainty is too high to proceed?
+Which component of free-will belief actually drives each outcome: perceived control, self-efficacy, moral desert, social conformity, agency, or expectation of punishment?
+Do agents improve because the world model predicts reality accurately, because it creates better training curricula, or because it supplies additional generic reasoning pretraining?
+What empirical result would cause scaling advocates to conclude that a missing architecture—not insufficient scale—is the dominant constraint?
+How should the system distinguish a genuinely useful abstraction from a missing detail that has not yet caused failure?
+When does exposing the ideological construction of a media distinction help us redesign representation, and when does it merely dissolve every distinction into discourse?
+Does the model transcend media difference, or does it impose one numerical regime upon heterogeneous forms and call that reduction equivalence?
+What observation would falsify the “sparks of AGI” interpretation rather than merely demonstrate that the system remains incomplete?
+When does an interpretation clarify another person’s world, and when does it overwrite that world with the analyst’s preferred conceptual vocabulary?
+Does the model predict what the world would do, or what a plausible video depicting that world would look like?
+What evidence distinguishes a model that understands physical consequences from one that generates visually convincing continuations?
+Does Genie 3 maintain a world that is rendered, or continuously render a world-like sequence that only appears to persist?
+When a predictive objective improves robot performance, has the model learned environmental dynamics, useful statistical shortcuts, or merely a better representation of the demonstrations?
+Does masked visual prediction produce knowledge of environmental dynamics, or merely a powerful prior for restoring statistically compatible visual content?
+Does a video backbone contain transferable causal knowledge about intervention, or merely a strong prior for how successful action tends to appear on camera?
+How can a language preserve the precision of explicit visual operations without forcing the filmmaker to reason continuously in coordinates, storage topology, and implementation detail?
+When does a computer become an expressive instrument, and when does the artist merely choose among possibilities structured by an inaccessible technical system?
+Which aspects of temporal structure are invariant across sound and image, and which depend upon the specific sensory and cultural properties of each medium?
+When does a cultural program enable a person to act meaningfully, and when does it narrow possible life into compulsory performance?
+Is the form shared by model and world intrinsic to them, or produced by a measurement practice that selects, correlates, and standardizes their elements?
+What differentiates a symbol that helps people interpret reality from one that makes its own interpretation immune to correction?
+Does the model learn the environment’s transition function, or the typical textual interaction patterns produced jointly by the environment and GPT-4o?
+When does a conception successfully transform reality because it understands the situation, and when does it succeed because it possesses enough power to make reality conform?
+Can the image-types be formalized operationally without reducing them to surface features such as “close-up equals affection” or “movement equals action”?
+What must be preserved for an operative description to describe the same world rather than merely generate another similar-looking artifact?
+Is a world-text a description of a world, a program for generating one, a state representation inside a simulator, or the interface connecting all three?
+Is worldtext the language used to specify the world, the evolving record of the world, the interface to the world model, or the complete coupled system?

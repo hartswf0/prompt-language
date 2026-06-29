@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#ffffff">
+<title>SPLICE — breed a paper</title>
+<style>
+/* ============================================================
+   SPLICE — Operational Pragmatist build.
+   A game whose output is a paper. Channels of fragments;
+   catch the strong ones into a manuscript fighting a space
+   budget and redundancy. Breed by rhyme-drift. Track every
+   codon's provenance. Single file, zero deps, IBM Plex Mono,
+   absolute B/W, drawn marks, no emoji glyphs.
+   ============================================================ */
+:root{
+  --w:#fff;--k:#000;--paper:#fafaf8;--panel:#f3f3ef;
+  --g1:#f2f2f0;--g2:#e4e4e0;--g3:#cdcdc6;--g4:#8c8c86;--mut:#5a5a55;--rule:#dedad0;
+  --ins:#0f6e56;--ins-bg:#e1f5ee;
+  --ten:#a32d2d;--ten-bg:#fcebeb;
+  --sow:#185fa5;--sow-bg:#e6f1fb;
+  --mis:#854f0b;--mis-bg:#faeeda;
+  --accent:#185fa5;--hot:#a32d2d;--good:#0f6e56;--warn:#854f0b;
+  --tap:44px;--hdr:48px;
+  --mono:'IBM Plex Mono','SFMono-Regular',ui-monospace,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;border-radius:0!important;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--mono);background:var(--w);color:var(--k);font-size:13px;line-height:1.45;display:flex;flex-direction:column;-webkit-text-size-adjust:100%;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+button{background:none;border:none;cursor:pointer}
+::selection{background:var(--mis-bg)}
+em{font-style:italic;font-weight:600}
+.sq{display:inline-block;width:8px;height:8px;flex:none}
+.sq.INS{background:var(--ins)}.sq.TEN{background:var(--ten)}.sq.SOW{background:var(--sow)}.sq.MIS{background:var(--mis)}
+/* angle-bracket concept tags */
+.tagx{display:inline-block;font-size:.86em;font-weight:600;letter-spacing:.02em;border:1px solid var(--accent);color:var(--accent);padding:0 4px;margin:0 1px;white-space:nowrap;background:var(--w);line-height:1.5}
+
+/* header */
+header{flex:none;height:var(--hdr);border-bottom:2px solid var(--k);display:flex;align-items:stretch;background:var(--w);z-index:40}
+.brand{display:flex;align-items:center;gap:8px;padding:0 11px;font-weight:700;font-size:14px;letter-spacing:.16em;flex:none}
+.dna{width:15px;height:19px;flex:none}.dna line{stroke:var(--k);stroke-width:1.6}.dna .r{stroke:var(--accent);stroke-width:1.4}
+.modes{display:flex;border-left:2px solid var(--k);flex:1;min-width:0}
+.modes button{flex:1;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);border-right:1.5px solid var(--k);padding:0 3px;position:relative}
+.modes button:last-child{border-right:none}
+.modes button[aria-pressed="true"]{background:var(--k);color:var(--w);font-weight:700}
+.modes .mb{position:absolute;top:5px;right:6px;background:var(--hot);color:var(--w);font-size:8px;font-weight:700;min-width:13px;height:13px;display:flex;align-items:center;justify-content:center;padding:0 3px}
+
+#stage{flex:1;min-height:0;position:relative;overflow:hidden}
+.view{position:absolute;inset:0;display:none;flex-direction:column;overflow:hidden}
+.view.on{display:flex}
+
+/* ===== SURF (the game) ===== */
+#surf{background:var(--paper)}
+.channelbar{flex:none;display:flex;border-bottom:1.5px solid var(--k);background:var(--w);overflow-x:auto;scrollbar-width:none}
+.channelbar::-webkit-scrollbar{display:none}
+.channelbar button{flex:none;padding:7px 10px;font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--mut);border-right:1px solid var(--rule);white-space:nowrap}
+.channelbar button .sq{margin-right:4px;vertical-align:1px}
+.channelbar button.on{background:var(--k);color:var(--w)}
+.channelbar button.on .sq{outline:1px solid var(--w)}
+
+/* HUD: manuscript strength, always visible pressure */
+.hud{flex:none;display:flex;align-items:center;gap:8px;padding:6px 10px;border-bottom:1px solid var(--rule);background:var(--w);font-size:9.5px;letter-spacing:.03em;color:var(--mut)}
+.hud .str{display:flex;align-items:center;gap:5px}
+.hud .str .lbl{text-transform:uppercase}
+.hud .strbar{width:60px;height:9px;border:1px solid var(--k);background:var(--w);position:relative;overflow:hidden}
+.hud .strbar i{position:absolute;left:0;top:0;bottom:0;background:var(--good)}
+.hud .strval{font-weight:700;color:var(--k);min-width:22px}
+.hud .budget{margin-left:auto;display:flex;align-items:center;gap:5px}
+.hud .budget .bbar{width:54px;height:9px;border:1px solid var(--k);position:relative;overflow:hidden}
+.hud .budget .bbar i{position:absolute;left:0;top:0;bottom:0;background:var(--accent)}
+.hud .budget.over .bbar i{background:var(--hot)}
+.hud .redun{color:var(--hot);font-weight:700}
+
+/* the channel screen */
+.screen{flex:1;min-height:0;position:relative;display:flex;flex-direction:column;padding:10px}
+.tv{flex:1;min-height:0;border:2px solid var(--k);background:var(--w);display:flex;flex-direction:column;position:relative;box-shadow:4px 4px 0 rgba(0,0,0,.08);overflow:hidden}
+.tv .tvtop{flex:none;display:flex;align-items:center;gap:6px;padding:7px 10px;border-bottom:1.5px solid var(--k);background:var(--k);color:var(--w)}
+.tv .tvtop .ch{font-size:9px;letter-spacing:.08em;text-transform:uppercase}
+.tv .tvtop .pos{margin-left:auto;font-size:9px;opacity:.8;letter-spacing:.04em}
+.tv .tvtop .typ{font-size:9px;font-weight:700;letter-spacing:.06em;padding:2px 6px;color:var(--k)}
+.tv .tvtop .typ.INS{background:var(--ins-bg)}.tv .tvtop .typ.TEN{background:var(--ten-bg)}.tv .tvtop .typ.SOW{background:var(--sow-bg)}.tv .tvtop .typ.MIS{background:var(--mis-bg)}
+.tv .tvbody{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 16px}
+.tv .frag-lede{font-size:18px;line-height:1.4;font-weight:700;letter-spacing:-.01em}
+.tv .frag-body{font-size:13.5px;line-height:1.6;color:#23231f;margin-top:10px}
+.tv .frag-meta{display:flex;flex-wrap:wrap;gap:5px;margin-top:14px;align-items:center}
+.tv .pill{font-size:9px;letter-spacing:.03em;text-transform:uppercase;padding:2px 6px;border:1px solid var(--g3);color:var(--mut);white-space:nowrap}
+.tv .pill.tm{border-color:var(--accent);color:var(--accent)}
+.tv .pill.dt{border:none;color:var(--g4);padding-left:0}
+.tv .pill.src{border-color:var(--warn);color:var(--warn)}
+.tv .pill.rh{border-color:var(--hot);color:var(--hot);cursor:pointer}
+.tv .pill.caught{border-color:var(--good);color:var(--good)}
+.tv .bredline{font-size:9px;color:var(--g4);letter-spacing:.02em;margin-top:8px}
+.tv .bredline b{color:var(--ins)}
+/* mutate-applied flash */
+@keyframes drift{0%{background:var(--ins-bg)}100%{background:var(--w)}}
+.tv.drift{animation:drift .4s ease}
+.tv.caught-flash{animation:catchf .4s ease}
+@keyframes catchf{0%{box-shadow:0 0 0 3px var(--good),4px 4px 0 rgba(0,0,0,.08)}100%{box-shadow:4px 4px 0 rgba(0,0,0,.08)}}
+
+/* scrubber — the whole channel as a strand */
+.scrub{flex:none;height:18px;margin-top:8px;border:1.5px solid var(--k);background:var(--w);position:relative;display:flex;overflow:hidden;cursor:pointer}
+.scrub .seg{height:100%;flex:1 1 0;min-width:0;border-right:1px solid rgba(0,0,0,.05)}
+.scrub .ptr{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--k);pointer-events:none}
+.scrub .caughtmark{position:absolute;top:0;width:2px;height:5px;background:var(--good)}
+
+/* action deck — the verbs */
+.deck{flex:none;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-top:9px}
+.deck button{border:2px solid var(--k);background:var(--w);padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;min-height:52px}
+.deck button .glyph{width:18px;height:18px;display:flex;align-items:center;justify-content:center}
+.deck button .glyph svg{width:18px;height:18px}
+.deck button .glyph svg *{stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:square}
+.deck button:active{background:var(--k);color:var(--w)}
+.deck button.catch{background:var(--good);color:var(--w);border-color:var(--good)}
+.deck button.catch:active{background:var(--k);border-color:var(--k)}
+.deck button.catch.isdup{background:var(--hot);border-color:var(--hot)}
+.deck button:disabled{color:var(--g3);border-color:var(--g3)}
+.deck .sub{font-size:7px;font-weight:400;letter-spacing:.02em;opacity:.7;text-transform:none}
+
+/* ===== DRAFT (manuscript) ===== */
+#draft{display:none;flex-direction:column}
+#draft.on{display:flex}
+.dtop{flex:none;padding:8px 11px;border-bottom:1.5px solid var(--k);display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--paper)}
+.dtitle{font-size:13px;font-weight:700;letter-spacing:.02em;border:none;outline:none;background:transparent;flex:1;min-width:120px}
+.dtop .budgetset{display:flex;align-items:center;gap:5px;font-size:9px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em}
+.dtop .budgetset input{width:56px;border:1px solid var(--g3);padding:3px 5px;font-size:11px;text-align:right;background:var(--w)}
+.scorebar{flex:none;display:flex;gap:0;border-bottom:1.5px solid var(--k)}
+.scorebar .sc{flex:1;padding:7px 6px;border-right:1px solid var(--rule);display:flex;flex-direction:column;gap:2px}
+.scorebar .sc:last-child{border-right:none}
+.scorebar .sc .v{font-size:16px;font-weight:700;line-height:1}
+.scorebar .sc .l{font-size:8px;letter-spacing:.05em;text-transform:uppercase;color:var(--g4)}
+.scorebar .sc.strength .v{color:var(--good)}
+.scorebar .sc.redun .v{color:var(--hot)}
+.scorebar .sc.over .v{color:var(--hot)}
+.dlist{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.para{border-bottom:1px solid var(--rule);padding:9px 11px;display:flex;gap:8px;align-items:flex-start;position:relative}
+.para.dup{background:#fff7f5}
+.para.pinned{background:var(--ins-bg)}
+.para .ord{display:flex;flex-direction:column;gap:2px;flex:none}
+.para .ord button{width:22px;height:17px;border:1px solid var(--g3);font-size:9px;display:flex;align-items:center;justify-content:center;color:var(--mut)}
+.para .ord button:active{background:var(--k);color:var(--w)}
+.para .pmain{flex:1;min-width:0}
+.para .ptext{font-size:13px;line-height:1.5;outline:none}
+.para .ptext:focus{background:var(--g1)}
+.para .pmeta{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px;align-items:center}
+.para .pill{font-size:8.5px;letter-spacing:.03em;text-transform:uppercase;padding:1px 5px;border:1px solid var(--g3);color:var(--mut);white-space:nowrap}
+.para .pill.ty.INS{border-color:var(--ins);color:var(--ins)}.para .pill.ty.TEN{border-color:var(--ten);color:var(--ten)}.para .pill.ty.SOW{border-color:var(--sow);color:var(--sow)}.para .pill.ty.MIS{border-color:var(--mis);color:var(--mis)}
+.para .pill.dup{border-color:var(--hot);color:var(--hot);cursor:pointer}
+.para .pill.lin{border:none;color:var(--g4);padding-left:0;cursor:pointer;text-decoration:underline}
+.para .pact{display:flex;flex-direction:column;gap:3px;flex:none}
+.para .pact button{width:26px;height:22px;border:1px solid var(--g3);font-size:11px;display:flex;align-items:center;justify-content:center;color:var(--mut)}
+.para .pact button:active{background:var(--k);color:var(--w)}
+.para .pact .pin.on{border-color:var(--ins);color:var(--ins)}
+.para.selomerge{box-shadow:inset 4px 0 0 var(--accent)}
+.dempty{padding:34px 18px;text-align:center;color:var(--g4);font-size:12px;line-height:1.7}
+.dempty b{color:var(--mut)}
+.dfoot{flex:none;border-top:1.5px solid var(--k);padding:9px 11px calc(9px + env(safe-area-inset-bottom));display:flex;gap:6px;flex-wrap:wrap;background:var(--paper)}
+.dfoot button{border:1.5px solid var(--k);padding:9px 11px;font-size:10px;letter-spacing:.05em;text-transform:uppercase;font-weight:700}
+.dfoot button:active{background:var(--k);color:var(--w)}
+.dfoot button.primary{background:var(--k);color:var(--w)}
+.dfoot button.primary:active{background:var(--accent)}
+.dfoot .spacer{flex:1}
+.mergebar{flex:none;background:var(--accent);color:var(--w);padding:7px 11px;font-size:10px;letter-spacing:.04em;display:none;align-items:center;gap:8px}
+.mergebar.on{display:flex}
+.mergebar button{margin-left:auto;border:1px solid var(--w);padding:4px 8px;font-size:9px;letter-spacing:.05em;text-transform:uppercase;color:var(--w)}
+.mergebar button:active{background:var(--w);color:var(--accent)}
+
+/* ===== TIME (evolution) ===== */
+#time{display:none;flex-direction:column}
+#time.on{display:flex}
+.tnote{flex:none;padding:9px 12px;border-bottom:1px solid var(--rule);font-size:10px;color:var(--mut);line-height:1.5;background:var(--paper)}
+.tnote b{color:var(--k)}
+.tscroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 12px}
+.tlane{margin-bottom:18px}
+.tlane h4{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin-bottom:8px;border-bottom:1px solid var(--rule);padding-bottom:4px}
+.days{display:flex;flex-direction:column;gap:7px}
+.day{display:flex;align-items:center;gap:9px;cursor:pointer}
+.day:active{opacity:.6}
+.day .dlabel{font-size:10px;flex:none;width:50px;color:var(--k);font-weight:600}
+.day .dtrack{flex:1;height:22px;display:flex;border:1px solid var(--k);overflow:hidden}
+.day .dtrack span{height:100%}
+.day .dn{font-size:9px;color:var(--g4);flex:none;width:34px;text-align:right}
+.day.surfing .dlabel{color:var(--accent)}
+.day.surfing .dtrack{box-shadow:0 0 0 2px var(--accent)}
+.tlegend{display:flex;gap:12px;margin-top:6px;font-size:9px;color:var(--mut);flex-wrap:wrap}
+.tlegend span{display:flex;align-items:center;gap:4px}
+.shift{font-size:10px;line-height:1.6;color:#23231f;margin-top:4px}
+.shift b{color:var(--k)}
+
+/* family tree overlay */
+#tree{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;padding:16px}
+#tree.on{display:flex}
+.treebox{background:var(--w);border:2px solid var(--k);width:100%;max-width:560px;max-height:80%;display:flex;flex-direction:column;box-shadow:6px 6px 0 rgba(0,0,0,.2)}
+.treehead{flex:none;padding:10px 13px;border-bottom:1.5px solid var(--k);display:flex;align-items:center;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.treehead .tx{margin-left:auto;font-size:16px;color:var(--mut)}
+.treebody{flex:1;overflow:auto;padding:14px}
+.treebody svg{display:block;margin:0 auto}
+.tnode rect{fill:var(--w);stroke:var(--k);stroke-width:1.5}
+.tnode.root rect{fill:var(--ins-bg);stroke:var(--ins)}
+.tnode text{font-family:var(--mono);font-size:10px;fill:var(--k)}
+.tnode .op{font-size:8px;fill:var(--g4)}
+.tedge{stroke:var(--k);stroke-width:1.4;fill:none}
+
+/* peek (read a fragment full, from anywhere) */
+#peek{position:fixed;inset:0;z-index:80;background:var(--w);display:none;flex-direction:column;transform:translateY(100%);transition:transform .2s}
+#peek.on{display:flex;transform:none}
+
+/* welcome */
+#welcome{position:fixed;inset:0;z-index:90;background:var(--w);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}
+#welcome.hidden{display:none}
+.welhero{flex:1;overflow-y:auto;padding:28px 22px;display:flex;flex-direction:column;justify-content:center}
+.welmark{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.welmark .dna{width:28px;height:36px}.welmark h1{font-size:27px;font-weight:700;letter-spacing:.14em}
+.welhero .lede{font-size:15px;line-height:1.55;margin-bottom:8px;max-width:40ch}
+.welhero .lede strong{font-weight:700}
+.welhero .sub{font-size:13px;color:var(--g4);line-height:1.5;max-width:42ch}
+.welops{margin:20px 0 6px;border-top:2px solid var(--k)}
+.welop{display:flex;gap:12px;padding:12px 2px;border-bottom:1px solid var(--rule);align-items:flex-start}
+.welop .n{font-weight:700;color:var(--accent);flex:none;width:60px;font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+.welop div{font-size:12.5px;line-height:1.45}
+.welop b{font-weight:700}
+.welfoot{flex:none;border-top:2px solid var(--k);padding:15px 22px calc(15px + env(safe-area-inset-bottom))}
+.welfoot button{width:100%;padding:16px;background:var(--k);color:var(--w);font-weight:700;font-size:14px;letter-spacing:.1em;border:2px solid var(--k)}
+.welfoot button:active{background:var(--accent);border-color:var(--accent)}
+
+#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%) translateY(16px);background:var(--k);color:var(--w);padding:10px 17px;font-size:11px;font-weight:600;z-index:120;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;letter-spacing:.03em;max-width:90vw;text-align:center}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.loaderr{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:30px;text-align:center;color:var(--g4);font-size:12px;line-height:1.6}
+
+@media(min-width:760px){
+  .tv .frag-lede{font-size:21px}
+  .screen{padding:14px;max-width:720px;margin:0 auto;width:100%}
+  .day .dlabel{width:64px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <svg class="dna" viewBox="0 0 15 19" aria-hidden="true"><line x1="3" y1="1" x2="12" y2="5.5"/><line x1="12" y1="1" x2="3" y2="5.5"/><line x1="3" y1="7" x2="12" y2="11.5"/><line x1="12" y1="7" x2="3" y2="11.5"/><line x1="3" y1="13" x2="12" y2="17.5"/><line x1="12" y1="13" x2="3" y2="17.5"/><line class="r" x1="5" y1="3" x2="10" y2="3"/><line class="r" x1="5" y1="9" x2="10" y2="9"/><line class="r" x1="5" y1="15" x2="10" y2="15"/></svg>
+    <span>SPLICE</span>
+  </div>
+  <div class="modes" id="modes">
+    <button data-view="surf" aria-pressed="true">Surf</button>
+    <button data-view="draft" aria-pressed="false">Draft<span class="mb" id="draftbadge" style="display:none">0</span></button>
+    <button data-view="time" aria-pressed="false">Time</button>
+  </div>
+</header>
+
+<div id="stage">
+  <!-- SURF -->
+  <section class="view on" id="surf">
+    <div class="channelbar" id="channelbar"></div>
+    <div class="hud">
+      <span class="str"><span class="lbl">Paper</span><span class="strbar"><i id="strfill" style="width:0%"></i></span><span class="strval" id="strval">0</span></span>
+      <span class="redun" id="redun"></span>
+      <span class="budget" id="budgetwrap"><span class="bbar"><i id="budgetfill" style="width:0%"></i></span><span id="budgettxt">0/400</span></span>
+    </div>
+    <div class="screen">
+      <div class="tv" id="tv">
+        <div class="tvtop"><span class="ch" id="tvch">CH</span><span class="typ" id="tvtyp">INS</span><span class="pos" id="tvpos"></span></div>
+        <div class="tvbody" id="tvbody"></div>
+      </div>
+      <div class="scrub" id="scrub"><div class="ptr" id="scrubptr"></div></div>
+      <div class="deck">
+        <button id="vPrev"><span class="glyph"><svg viewBox="0 0 18 18"><path d="M11 3 L5 9 L11 15"/></svg></span>Prev</button>
+        <button class="catch" id="vCatch"><span class="glyph"><svg viewBox="0 0 18 18"><path d="M3 9 L7 13 L15 4"/></svg></span>Catch<span class="sub" id="catchsub">+to paper</span></button>
+        <button id="vBreed"><span class="glyph"><svg viewBox="0 0 18 18"><path d="M9 2 v14 M4 6 L9 2 L14 6"/><circle cx="9" cy="14" r="2"/></svg></span>Breed<span class="sub" id="breedsub">drift</span></button>
+        <button id="vNext"><span class="glyph"><svg viewBox="0 0 18 18"><path d="M7 3 L13 9 L7 15"/></svg></span>Next</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- DRAFT -->
+  <section class="view" id="draft">
+    <div class="dtop">
+      <input class="dtitle" id="dtitle" value="Untitled paper" spellcheck="false">
+      <span class="budgetset">Budget<input type="number" id="budgetset" min="50" max="3000" step="50" value="400">w</span>
+    </div>
+    <div class="scorebar" id="scorebar"></div>
+    <div class="mergebar" id="mergebar"><span id="mergetxt">Splice: pick a second line to merge.</span><button id="mergecancel">Cancel</button></div>
+    <div class="dlist" id="dlist"></div>
+    <div class="dfoot">
+      <button id="copydraft">Copy</button>
+      <button id="exportdraft" class="primary">Export .md</button>
+      <span class="spacer"></span>
+      <button id="cleardraft">Clear</button>
+    </div>
+  </section>
+
+  <!-- TIME -->
+  <section class="view" id="time">
+    <div class="tnote">Each fragment is stamped with when its analysis was made. This is the <b>evolution of the thinking</b> across the week — tap a day to surf only that day's fragments.</div>
+    <div class="tscroll" id="tscroll"></div>
+  </section>
+</div>
+
+<!-- FAMILY TREE -->
+<div id="tree"><div class="treebox"><div class="treehead">Lineage<span class="tx" id="treex">×</span></div><div class="treebody" id="treebody"></div></div></div>
+
+<!-- PEEK -->
+<div id="peek">
+  <div class="dtop" style="border-bottom:2px solid var(--k)"><button id="pkx" style="font-size:18px;width:26px;margin-right:6px">↓</button><span id="pkt" style="font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--mut);flex:1">Fragment</span></div>
+  <div class="dlist" id="pkbody" style="padding:0"></div>
+</div>
+
+<!-- WELCOME -->
+<div id="welcome">
+  <div class="welhero">
+    <div class="welmark"><svg class="dna" viewBox="0 0 15 19" aria-hidden="true"><line x1="3" y1="1" x2="12" y2="5.5"/><line x1="12" y1="1" x2="3" y2="5.5"/><line x1="3" y1="7" x2="12" y2="11.5"/><line x1="12" y1="7" x2="3" y2="11.5"/><line x1="3" y1="13" x2="12" y2="17.5"/><line x1="12" y1="13" x2="3" y2="17.5"/><line class="r" x1="5" y1="3" x2="10" y2="3"/><line class="r" x1="5" y1="9" x2="10" y2="9"/><line class="r" x1="5" y1="15" x2="10" y2="15"/></svg><h1>SPLICE</h1></div>
+    <p class="lede">A paper is not written. It is <strong>caught.</strong></p>
+    <p class="sub">3,174 fragments stream past on channels. Grab the strong ones into your manuscript — but space is scarce and near-duplicates fight for the same slot. Breed a fragment to drift it; splice two to compress. Every line keeps its source and date.</p>
+    <div class="welops">
+      <div class="welop"><span class="n">Surf</span><div>Flip channels (<b>Prev/Next</b>, or swipe). Switch bands — all insights, a theme, one day. <b>Catch</b> a fragment into the paper; <b>Breed</b> it first to swap in a sharper cousin.</div></div>
+      <div class="welop"><span class="n">Resist</span><div>The <b>budget</b> bar drains as you catch. Catch two overlapping lines and <b>redundancy</b> flags red — your paper score drops. <b>Splice</b> them into one to recover.</div></div>
+      <div class="welop"><span class="n">Ship</span><div>The score rewards <b>coverage</b> (themes touched) and <b>balance</b> (insight ↔ implication). Reorder, edit, then <b>Export .md</b> — every line cited to its entry and date.</div></div>
+    </div>
+  </div>
+  <div class="welfoot"><button id="startbtn">Turn it on</button></div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const el=(t,c)=>{const e=document.createElement(t);if(c)e.className=c;return e;};
+function escHTML(s){return String(s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
+let toastT; function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),1500);}
+
+const TYPEMAP={insight:'INS',tension:'TEN',sowhat:'SOW',missing:'MIS'};
+const TYPEINFO={INS:{name:'Insight',sec:'Insights'},TEN:{name:'Tension',sec:'Tensions'},SOW:{name:'So-what',sec:'So-what'},MIS:{name:'Missing',sec:'What\'s missing'}};
+const SECORDER=['INS','TEN','SOW','MIS'];
+
+let LINES=[], BYK={}, THEMES={}, DAYS=[];
+let channel='ALL', chanList=[], idx=0;
+let manuscript=[];     // [{uid, k, type, lede, body, text, origin, date, ds, pinned, lineage}]
+let nextUid=1;
+let budget=400;
+let mergeSel=null;     // uid awaiting merge partner
+let view='surf';
+// per-fragment bred state (drift applied while surfing)
+let bredState={};      // chanList-index -> {lede,body,origin,k,near,lineage}
+
+const LS='splice_v1';
+
+/* ---------- angle-bracket / em rendering ---------- */
+function richText(s){
+  // escape, then re-enable <em>, then style <Concept_Tag> tokens
+  let h=escHTML(s);
+  h=h.replace(/&lt;em&gt;/g,'<em>').replace(/&lt;\/em&gt;/g,'</em>');
+  // tokens like &lt;World_Model&gt; -> styled chip (skip if it became real <em>)
+  h=h.replace(/&lt;([A-Za-z][\w .\/-]{0,40})&gt;/g,(m,inner)=>`<span class="tagx">&lt;${inner}&gt;</span>`);
+  return h;
+}
+
+/* ---------- build ---------- */
+function buildChannels(){
+  // sort all lines by entry then k for stable strands
+  LINES.sort((a,b)=> a.e-b.e || a.k-b.k);
+  LINES.forEach(l=>BYK[l.k]=l);
+  DAYS=[...new Set(LINES.map(l=>l.ds))].sort();
+}
+function channelLines(ch){
+  if(ch==='ALL') return LINES.slice();
+  if(ch==='INS') return LINES.filter(l=>l.t==='insight');
+  if(ch==='TEN') return LINES.filter(l=>l.t==='tension');
+  if(ch==='SOW') return LINES.filter(l=>l.t==='sowhat');
+  if(ch==='MIS') return LINES.filter(l=>l.t==='missing');
+  if(ch.startsWith('SP:')) return LINES.filter(l=>l.prim===ch.slice(3));
+  if(ch.startsWith('DAY:')) return LINES.filter(l=>l.ds===ch.slice(4));
+  return LINES.slice();
+}
+function channelLabel(ch){
+  if(ch==='ALL')return 'All fragments';
+  if(['INS','TEN','SOW','MIS'].includes(ch))return TYPEINFO[ch].sec+' (all)';
+  if(ch.startsWith('SP:'))return THEMES[ch.slice(3)]||ch.slice(3);
+  if(ch.startsWith('DAY:'))return fmtDay(ch.slice(4));
+  return ch;
+}
+function fmtDay(ds){const m={"01":"Jan","02":"Feb","03":"Mar","04":"Apr","05":"May","06":"Jun","07":"Jul","08":"Aug","09":"Sep","10":"Oct","11":"Nov","12":"Dec"};const p=ds.split('-');return m[p[1]]+' '+(+p[2]);}
+
+function renderChannelBar(){
+  const bands=[['ALL','All'],['INS','Insights'],['TEN','Tensions'],['SOW','So-what'],['MIS','Missing']];
+  // top species channels by size
+  const spCount={}; LINES.forEach(l=>spCount[l.prim]=(spCount[l.prim]||0)+1);
+  const topSp=Object.keys(spCount).sort((a,b)=>spCount[b]-spCount[a]).slice(0,8);
+  let html=bands.map(([id,lab])=>{
+    const sq=({INS:'INS',TEN:'TEN',SOW:'SOW',MIS:'MIS'})[id];
+    return `<button data-ch="${id}" class="${channel===id?'on':''}">${sq?`<span class="sq ${sq}"></span>`:''}${lab}</button>`;
+  }).join("");
+  html+=topSp.map(s=>`<button data-ch="SP:${s}" class="${channel==='SP:'+s?'on':''}">${escHTML((THEMES[s]||s).split(' ')[0])}</button>`).join("");
+  $('channelbar').innerHTML=html;
+}
+
+/* ---------- surf ---------- */
+function loadChannel(ch, keepIdx){
+  channel=ch; chanList=channelLines(ch); bredState={};
+  if(!keepIdx) idx=0;
+  if(idx>=chanList.length) idx=0;
+  renderChannelBar(); renderSurf();
+}
+function currentFrag(){
+  const base=chanList[idx]; if(!base) return null;
+  const bred=bredState[idx];
+  if(bred) return Object.assign({},base,bred);
+  return base;
+}
+function fragInManuscript(k){ return manuscript.some(p=>p.k===k); }
+function renderSurf(){
+  const f=currentFrag();
+  if(!f){ $('tvbody').innerHTML=`<div style="padding:20px;color:var(--g4)">Empty channel.</div>`; return; }
+  $('tvch').textContent='CH · '+channelLabel(channel);
+  $('tvtyp').textContent=TYPEMAP[f.t]; $('tvtyp').className='typ '+TYPEMAP[f.t];
+  $('tvpos').textContent=(idx+1)+' / '+chanList.length;
+  const caught=fragInManuscript(f.k);
+  const near=f.near&&f.near.length;
+  const dupWith = near ? f.near.find(n=>fragInManuscript(n.k)) : null;
+  const bred=bredState[idx];
+  $('tvbody').innerHTML=`
+    <div class="frag-lede">${richText(f.lede)}</div>
+    ${f.body&&f.body!==f.lede?`<div class="frag-body">${richText(f.body)}</div>`:''}
+    ${bred?`<div class="bredline">drift: ${bred.lineage}</div>`:''}
+    <div class="frag-meta">
+      <span class="pill tm">${escHTML(THEMES[f.prim]||f.prim)}</span>
+      <span class="pill dt">${f.d}</span>
+      ${f.src?`<span class="pill src">${escHTML(f.src)}</span>`:''}
+      <span class="pill">#${f.e}</span>
+      ${near?`<span class="pill rh" data-rhys>${f.near.length} rhyme${f.near.length>1?'s':''}</span>`:''}
+      ${caught?`<span class="pill caught">in paper</span>`:''}
+      ${dupWith&&!caught?`<span class="pill rh">overlaps a caught line</span>`:''}
+    </div>`;
+  // catch button reflects duplicate risk
+  const cb=$('vCatch');
+  cb.classList.toggle('isdup', !!dupWith && !caught);
+  $('catchsub').textContent = caught ? 'caught ✓' : (dupWith? 'overlaps!' : '+to paper');
+  cb.disabled = caught;
+  $('vBreed').disabled = !near;
+  $('breedsub').textContent = near ? 'drift' : '—';
+  renderScrub();
+  updateHUD();
+}
+function renderScrub(){
+  const scrub=$('scrub');
+  // build segments lazily (only once per channel length change)
+  if(scrub._n!==chanList.length){
+    scrub._n=chanList.length;
+    scrub.querySelectorAll('.seg,.caughtmark').forEach(x=>x.remove());
+    const frag=document.createDocumentFragment();
+    // cap visual segments for huge channels
+    const N=chanList.length;
+    for(let i=0;i<N;i++){ const s=el('span','seg'); const t=TYPEMAP[chanList[i].t]; s.style.background=`var(--${t.toLowerCase()})`; s.style.opacity=.32; frag.appendChild(s); }
+    scrub.insertBefore(frag,$('scrubptr'));
+  }
+  // caught marks
+  scrub.querySelectorAll('.caughtmark').forEach(x=>x.remove());
+  const W=scrub.clientWidth||300;
+  chanList.forEach((l,i)=>{ if(fragInManuscript(l.k)){ const m=el('span','caughtmark'); m.style.left=((i+0.5)/chanList.length*100)+'%'; scrub.appendChild(m); } });
+  $('scrubptr').style.left=((idx+0.5)/chanList.length*100)+'%';
+}
+function go(d){ if(!chanList.length)return; idx=(idx+d+chanList.length)%chanList.length; renderSurf(); }
+
+/* breed: drift current fragment to a rhyme-cousin */
+function breedCurrent(){
+  const base=chanList[idx]; if(!base||!base.near||!base.near.length)return;
+  const prev=bredState[idx];
+  const ring=base.near;
+  const step=prev? (prev._step+1)%ring.length : 0;
+  const nb=ring[step]; const full=BYK[nb.k];
+  if(!full)return;
+  bredState[idx]={lede:full.lede, body:full.body, origin:'E'+full.e, k:full.k, near:full.near||base.near, _step:step,
+    lineage:`E${base.e} → ${Math.round(nb.sim*100)}% cousin E${nb.entry}`};
+  const tv=$('tv'); tv.classList.remove('drift'); void tv.offsetWidth; tv.classList.add('drift');
+  renderSurf();
+  toast(`drifted to ${Math.round(nb.sim*100)}% cousin from E${nb.entry}`);
+}
+
+/* catch: add current fragment to manuscript */
+function catchFrag(){
+  const f=currentFrag(); if(!f)return;
+  if(fragInManuscript(f.k)){toast('already in paper');return;}
+  const bred=bredState[idx];
+  manuscript.push({uid:nextUid++, k:f.k, type:TYPEMAP[f.t], lede:f.lede, body:f.body, text:f.lede,
+    origin:'E'+f.e, entry:f.e, date:f.d, ds:f.ds, src:f.src||null, prim:f.prim,
+    pinned:false, near:f.near||[], lineage: bred? bred.lineage : null});
+  save();
+  const tv=$('tv'); tv.classList.remove('caught-flash'); void tv.offsetWidth; tv.classList.add('caught-flash');
+  renderSurf(); updateBadge();
+  const s=score();
+  toast(`caught · paper ${s.strength}${s.redun?' · redundancy!':''}`);
+}
+
+/* ---------- scoring (the game) ---------- */
+function wordsOf(p){ return (p.text.trim().match(/\S+/g)||[]).length; }
+function manuscriptWords(){ return manuscript.reduce((a,p)=>a+wordsOf(p),0); }
+function redundantPairs(){
+  // count pairs where one is a rhyme-neighbour of the other
+  const kset=new Set(manuscript.map(p=>p.k));
+  let pairs=0; const flagged=new Set();
+  manuscript.forEach(p=>{ (p.near||[]).forEach(n=>{ if(kset.has(n.k)){ const key=[p.k,n.k].sort().join('|'); if(!flagged.has(key)){flagged.add(key);pairs++;} } }); });
+  return {pairs, flaggedKeys:flagged};
+}
+function score(){
+  const n=manuscript.length;
+  if(!n) return {strength:0, coverage:0, themes:0, redun:0, words:0, over:0, balance:0};
+  const themes=new Set(manuscript.map(p=>p.prim)).size;
+  const types=new Set(manuscript.map(p=>p.type)).size;       // 1..4
+  const words=manuscriptWords();
+  const over=Math.max(0, words-budget);
+  const {pairs}=redundantPairs();
+  // components 0..1
+  const coverageC=Math.min(1, themes/6);          // touching ~6 themes = broad
+  const balanceC=types/4;                          // all four kinds present = full
+  const fitC=words<=budget? (words/budget) : Math.max(0, 1-(over/budget));  // reward filling, punish overflow
+  const redunPenalty=Math.min(0.6, pairs*0.15);
+  let strength=Math.round(100*(0.34*coverageC + 0.26*balanceC + 0.20*fitC + 0.20*(n>=3?1:n/3) - redunPenalty));
+  strength=Math.max(0,Math.min(100,strength));
+  return {strength, coverage:Math.round(coverageC*100), themes, types, balance:Math.round(balanceC*100), redun:pairs, words, over};
+}
+function updateHUD(){
+  const s=score();
+  $('strfill').style.width=s.strength+'%';
+  $('strfill').style.background = s.strength>=66?'var(--good)':s.strength>=33?'var(--warn)':'var(--hot)';
+  $('strval').textContent=s.strength;
+  $('redun').textContent = s.redun? '⚠ '+s.redun+' overlap' : '';
+  const bw=$('budgetwrap'); bw.classList.toggle('over', s.words>budget);
+  $('budgetfill').style.width=Math.min(100, s.words/budget*100)+'%';
+  $('budgettxt').textContent=s.words+'/'+budget;
+}
+function updateBadge(){ const b=$('draftbadge'); b.textContent=manuscript.length; b.style.display=manuscript.length?'flex':'none'; }
+
+/* ---------- draft ---------- */
+function renderScorebar(){
+  const s=score();
+  $('scorebar').innerHTML=`
+    <div class="sc strength"><span class="v">${s.strength}</span><span class="l">Paper</span></div>
+    <div class="sc"><span class="v">${s.themes}</span><span class="l">Themes</span></div>
+    <div class="sc"><span class="v">${s.types}/4</span><span class="l">Kinds</span></div>
+    <div class="sc ${s.over?'over':''}"><span class="v">${s.words}</span><span class="l">${s.over?('+'+s.over+' over'):'Words'}</span></div>
+    <div class="sc redun"><span class="v">${s.redun}</span><span class="l">Overlap</span></div>`;
+}
+function renderDraft(){
+  renderScorebar(); updateBadge();
+  const list=$('dlist');
+  if(!manuscript.length){
+    list.innerHTML=`<div class="dempty">Empty manuscript.<br><br>Go to <b>Surf</b>, flip through the channels, and <b>Catch</b> the strong fragments. They land here as paragraphs you can reorder, edit, and splice.<br><br>Then <b>Export .md</b> — each line cited to its source entry and date.</div>`;
+    return;
+  }
+  const {flaggedKeys}=redundantPairs();
+  const dupK=new Set(); flaggedKeys.forEach(key=>key.split('|').forEach(k=>dupK.add(+k)));
+  list.innerHTML=manuscript.map((p,i)=>{
+    const isDup=dupK.has(p.k);
+    return `<div class="para ${isDup?'dup':''} ${p.pinned?'pinned':''} ${mergeSel===p.uid?'selomerge':''}" data-uid="${p.uid}">
+      <div class="ord"><button data-up="${p.uid}">▲</button><button data-down="${p.uid}">▼</button></div>
+      <div class="pmain">
+        <div class="ptext" contenteditable="true" data-edit="${p.uid}">${richText(p.text)}</div>
+        <div class="pmeta">
+          <span class="pill ty ${p.type}">${TYPEINFO[p.type].name}</span>
+          <span class="pill">#${p.entry}</span>
+          <span class="pill">${p.date}</span>
+          ${p.src?`<span class="pill">${escHTML(p.src)}</span>`:''}
+          ${p.lineage?`<span class="pill lin" data-tree="${p.uid}">lineage</span>`:''}
+          ${isDup?`<span class="pill dup" data-splicehint="${p.uid}">overlaps</span>`:''}
+        </div>
+      </div>
+      <div class="pact">
+        <button class="pin ${p.pinned?'on':''}" data-pin="${p.uid}" title="pin">${p.pinned?'◆':'◇'}</button>
+        <button data-merge="${p.uid}" title="splice with another">⋈</button>
+        <button data-cut="${p.uid}" title="cut">×</button>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function mUp(uid){ const i=manuscript.findIndex(p=>p.uid===uid); if(i>0){[manuscript[i-1],manuscript[i]]=[manuscript[i],manuscript[i-1]];save();renderDraft();} }
+function mDown(uid){ const i=manuscript.findIndex(p=>p.uid===uid); if(i<manuscript.length-1){[manuscript[i+1],manuscript[i]]=[manuscript[i],manuscript[i+1]];save();renderDraft();} }
+function mCut(uid){ const p=manuscript.find(x=>x.uid===uid); if(p&&p.pinned){toast('unpin first');return;} manuscript=manuscript.filter(x=>x.uid!==uid); save(); renderDraft(); if(view==='surf')renderSurf(); toast('cut'); }
+function mPin(uid){ const p=manuscript.find(x=>x.uid===uid); if(p){p.pinned=!p.pinned;save();renderDraft();} }
+function mEdit(uid,val){ const p=manuscript.find(x=>x.uid===uid); if(p && p.text!==val){ p.text=val; save(); renderScorebar(); } }
+
+/* splice two paragraphs into one (compress) */
+function startMerge(uid){ mergeSel=uid; $('mergebar').classList.add('on'); $('mergetxt').textContent='Splice: pick the line to merge into this one.'; renderDraft(); }
+function cancelMerge(){ mergeSel=null; $('mergebar').classList.remove('on'); renderDraft(); }
+function doMerge(targetUid){
+  if(mergeSel==null||mergeSel===targetUid){cancelMerge();return;}
+  const a=manuscript.find(p=>p.uid===mergeSel), b=manuscript.find(p=>p.uid===targetUid);
+  if(!a||!b){cancelMerge();return;}
+  // merged text: a then b, joined; merged provenance keeps both
+  const mergedText = a.text.replace(/[.]$/,'')+'; '+b.text.charAt(0).toLowerCase()+b.text.slice(1);
+  const ai=manuscript.findIndex(p=>p.uid===a.uid);
+  const merged={uid:nextUid++, k:a.k, type:a.type, lede:a.lede, body:a.body, text:mergedText,
+    origin:a.origin, entry:a.entry, date:a.date, ds:a.ds, src:a.src, prim:a.prim, pinned:false,
+    near:(a.near||[]).concat(b.near||[]),
+    mergedFrom:[{e:a.entry,k:a.k},{e:b.entry,k:b.k}],
+    lineage:`spliced E${a.entry} ⋈ E${b.entry}`};
+  manuscript=manuscript.filter(p=>p.uid!==a.uid&&p.uid!==b.uid);
+  manuscript.splice(ai,0,merged);
+  cancelMerge(); save(); renderDraft();
+  toast('spliced two lines into one');
+}
+
+/* ---------- family tree ---------- */
+function openTree(uid){
+  const p=manuscript.find(x=>x.uid===uid); if(!p)return;
+  // build a small tree: parents -> this. mergedFrom OR lineage chain (rhyme drift)
+  const nodes=[]; const edges=[];
+  const W=480; let y=14;
+  function box(x,yy,label,op,root){ nodes.push({x,y:yy,label,op,root}); return {x,y:yy}; }
+  if(p.mergedFrom){
+    const lx=W*0.22, rx=W*0.62;
+    const a=box(lx-60,14,'E'+p.mergedFrom[0].e,'parent'); const b=box(rx-0,14,'E'+p.mergedFrom[1].e,'parent');
+    const c=box(W*0.5-60,90,p.text.slice(0,22)+'…','spliced',true);
+    edges.push([a,c],[b,c]);
+  } else if(p.lineage && p.lineage.indexOf('cousin')>=0){
+    // drift chain: original E? -> cousin -> caught
+    const m=p.lineage.match(/E(\d+).*?E(\d+)/);
+    const a=box(W*0.5-110,14,'E'+(m?m[1]:'?')+' (seed)','origin');
+    const c=box(W*0.5-110,90,p.text.slice(0,22)+'…','drifted '+(p.lineage.match(/(\d+%)/)||[''])[0],true);
+    edges.push([a,c]);
+  } else {
+    box(W*0.5-90,50,'E'+p.entry+' · '+p.text.slice(0,18)+'…','original',true);
+  }
+  const H=nodes.reduce((m,n)=>Math.max(m,n.y),0)+60;
+  let svg=`<svg viewBox="0 0 ${W} ${H}" width="${Math.min(W,520)}">`;
+  edges.forEach(([a,b])=>{ svg+=`<path class="tedge" d="M${a.x+60},${a.y+34} C${a.x+60},${(a.y+b.y)/2+30} ${b.x+60},${(a.y+b.y)/2} ${b.x+60},${b.y}"/>`; });
+  nodes.forEach(n=>{ svg+=`<g class="tnode ${n.root?'root':''}"><rect x="${n.x}" y="${n.y}" width="120" height="34"/><text x="${n.x+8}" y="${n.y+15}">${escHTML(n.label)}</text><text class="op" x="${n.x+8}" y="${n.y+27}">${escHTML(n.op)}</text></g>`; });
+  svg+=`</svg><div style="font-size:10px;color:var(--g4);margin-top:10px;text-align:center">${escHTML(p.lineage||('original fragment from E'+p.entry))}</div>`;
+  $('treebody').innerHTML=svg;
+  $('tree').classList.add('on');
+}
+
+/* ---------- peek (read a fragment full) ---------- */
+function openPeekFrag(k){
+  const l=BYK[k]; if(!l)return;
+  $('pkt').textContent=TYPEINFO[TYPEMAP[l.t]].name+' · #'+l.e+' · '+l.d;
+  $('pkbody').innerHTML=`<div style="padding:16px"><div class="frag-lede" style="font-size:17px;font-weight:700;line-height:1.4">${richText(l.lede)}</div><div class="frag-body" style="font-size:13.5px;line-height:1.6;margin-top:10px">${richText(l.body)}</div>
+    <div style="margin-top:14px;font-size:10px;color:var(--g4)">${escHTML(THEMES[l.prim]||l.prim)} · ${l.d}${l.src?' · '+escHTML(l.src):''}</div></div>`;
+  $('peek').classList.add('on');
+}
+
+/* ---------- TIME (evolution) ---------- */
+function renderTime(){
+  const byDay={}; DAYS.forEach(d=>byDay[d]={INS:0,TEN:0,SOW:0,MIS:0,total:0});
+  LINES.forEach(l=>{ const t=TYPEMAP[l.t]; byDay[l.ds][t]++; byDay[l.ds].total++; });
+  const maxTotal=Math.max(...DAYS.map(d=>byDay[d].total));
+  let corpus=`<div class="tlane"><h4>Corpus — fragments made per day</h4><div class="days">`;
+  corpus+=DAYS.map(d=>{
+    const c=byDay[d]; const w=c.total/maxTotal*100;
+    const bar=SECORDER.map(t=>{const ww=c.total?c[t]/c.total*100:0;return ww?`<span class="sq ${t}" style="width:${ww}%;height:100%"></span>`:'';}).join("");
+    return `<div class="day ${channel==='DAY:'+d?'surfing':''}" data-day="${d}"><span class="dlabel">${fmtDay(d)}</span><div class="dtrack" style="width:${Math.max(8,w)}%">${bar}</div><span class="dn">${c.total}</span></div>`;
+  }).join("");
+  corpus+=`</div><div class="tlegend"><span><span class="sq INS"></span>insight</span><span><span class="sq TEN"></span>tension</span><span><span class="sq SOW"></span>so-what</span><span><span class="sq MIS"></span>missing</span></div>`;
+  // narrative of the shift
+  const first=byDay[DAYS[0]], last=byDay[DAYS[DAYS.length-1]];
+  const impFirst=first.total?Math.round((first.SOW+first.MIS)/first.total*100):0;
+  const impLast=last.total?Math.round((last.SOW+last.MIS)/last.total*100):0;
+  corpus+=`<div class="shift">Implication weight (<b>so-what + missing</b>) moved from <b>${impFirst}%</b> on ${fmtDay(DAYS[0])} to <b>${impLast}%</b> on ${fmtDay(DAYS[DAYS.length-1])} — the thinking drifts from observation toward consequence over the week. Tap any day to surf it.</div></div>`;
+
+  // your manuscript by source day
+  let mine='';
+  if(manuscript.length){
+    const md={}; manuscript.forEach(p=>{md[p.ds]=(md[p.ds]||0)+1;});
+    const days=Object.keys(md).sort(); const mx=Math.max(...Object.values(md));
+    mine=`<div class="tlane"><h4>Your paper — fragments by source day (${manuscript.length})</h4><div class="days">`+
+      days.map(d=>`<div class="day" data-day="${d}"><span class="dlabel">${fmtDay(d)}</span><div class="dtrack" style="width:${Math.max(8,md[d]/mx*100)}%"><span class="sq INS" style="width:100%;background:var(--k)"></span></div><span class="dn">${md[d]}</span></div>`).join("")+
+      `</div><div class="shift">Where your argument draws from in time. A paper leaning on one day is narrow; spread across the week pulls in the full arc.</div></div>`;
+  }
+  $('tscroll').innerHTML=corpus+mine;
+}
+
+/* ---------- export ---------- */
+function manuscriptMarkdown(){
+  const title=$('dtitle').value||'Untitled paper';
+  let md=`# ${title}\n\n`;
+  manuscript.forEach(p=>{ md+=p.text.replace(/<\/?em>/g,'*')+`  [^${p.entry}]\n\n`; });
+  md+=`\n---\n\n## Sources\n\n`;
+  const seen=new Set();
+  manuscript.forEach(p=>{ if(seen.has(p.entry))return; seen.add(p.entry);
+    md+=`[^${p.entry}]: Entry ${p.entry}${p.src?' ('+p.src+')':''}, ${p.date} 2026 — ${TYPEINFO[p.type].name.toLowerCase()}.\n`;
+  });
+  const s=score();
+  md+=`\n<!-- SPLICE: ${manuscript.length} fragments · ${s.themes} themes · ${s.words} words · paper score ${s.strength} -->\n`;
+  return md;
+}
+function exportDraft(){
+  if(!manuscript.length){toast('manuscript is empty');return;}
+  const blob=new Blob([manuscriptMarkdown()],{type:'text/markdown'});
+  const a=el('a'); a.href=URL.createObjectURL(blob); a.download=($('dtitle').value||'paper').replace(/[^\w-]+/g,'-').toLowerCase()+'.md'; a.click(); URL.revokeObjectURL(a.href);
+  toast('exported .md with citations');
+}
+
+/* ---------- persistence ---------- */
+function save(){ try{ localStorage.setItem(LS, JSON.stringify({manuscript,nextUid,budget,title:$('dtitle').value})); }catch(e){} if(view==='surf')updateHUD(); }
+function load(){ try{ const r=localStorage.getItem(LS); if(r){ const d=JSON.parse(r); manuscript=d.manuscript||[]; nextUid=d.nextUid||(manuscript.length+1); budget=d.budget||400; if(d.title)$('dtitle').value=d.title; $('budgetset').value=budget; } }catch(e){} }
+
+/* ---------- copy ---------- */
+function copy(text,label){ const done=()=>toast(label||'copied'); if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(done).catch(()=>fb(text,done)); else fb(text,done); }
+function fb(t,cb){const a=el('textarea');a.value=t;a.style.cssText='position:fixed;opacity:0';document.body.appendChild(a);a.select();try{document.execCommand('copy')}catch(e){}document.body.removeChild(a);cb&&cb();}
+
+/* ---------- views ---------- */
+function switchView(v){
+  view=v;
+  document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on',s.id===v));
+  document.querySelectorAll('#modes button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.view===v));
+  if(v==='surf'){renderSurf();} if(v==='draft'){renderDraft();} if(v==='time'){renderTime();}
+}
+
+/* ---------- wire ---------- */
+function wire(){
+  $('modes').addEventListener('click',e=>{const b=e.target.closest('[data-view]');if(b)switchView(b.dataset.view);});
+  $('channelbar').addEventListener('click',e=>{const b=e.target.closest('[data-ch]');if(b)loadChannel(b.dataset.ch);});
+  // deck verbs
+  $('vPrev').addEventListener('click',()=>go(-1));
+  $('vNext').addEventListener('click',()=>go(1));
+  $('vCatch').addEventListener('click',catchFrag);
+  $('vBreed').addEventListener('click',breedCurrent);
+  // rhyme peek from surf
+  $('tvbody').addEventListener('click',e=>{ if(e.target.closest('[data-rhys]')){ const f=currentFrag(); if(f&&f.near&&f.near[0]) openPeekFrag(f.near[0].k); } });
+  // swipe on tv
+  const tv=$('tv'); let sx=0,sy=0,st=0;
+  tv.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;st=Date.now();},{passive:true});
+  tv.addEventListener('touchend',e=>{ const dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy;
+    if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)){ go(dx<0?1:-1); }
+    else if(dy<-60&&Math.abs(dy)>Math.abs(dx)){ catchFrag(); }
+    else if(dy>60&&Math.abs(dy)>Math.abs(dx)){ breedCurrent(); }
+  },{passive:true});
+  // scrubber jump
+  $('scrub').addEventListener('click',e=>{ const r=$('scrub').getBoundingClientRect(); const p=(e.clientX-r.left)/r.width; idx=Math.max(0,Math.min(chanList.length-1,Math.floor(p*chanList.length))); renderSurf(); });
+  // draft
+  $('dlist').addEventListener('click',e=>{
+    let b=e.target.closest('[data-up]'); if(b){mUp(+b.dataset.up);return;}
+    b=e.target.closest('[data-down]'); if(b){mDown(+b.dataset.down);return;}
+    b=e.target.closest('[data-cut]'); if(b){mCut(+b.dataset.cut);return;}
+    b=e.target.closest('[data-pin]'); if(b){mPin(+b.dataset.pin);return;}
+    b=e.target.closest('[data-tree]'); if(b){openTree(+b.dataset.tree);return;}
+    b=e.target.closest('[data-merge]'); if(b){ if(mergeSel!=null) doMerge(+b.dataset.merge); else startMerge(+b.dataset.merge); return; }
+    b=e.target.closest('[data-splicehint]'); if(b){ startMerge(+b.dataset.splicehint); return; }
+  });
+  $('dlist').addEventListener('blur',e=>{ const t=e.target.closest('[data-edit]'); if(t) mEdit(+t.dataset.edit, t.innerText); },true);
+  $('dtitle').addEventListener('input',save);
+  $('budgetset').addEventListener('input',e=>{ budget=Math.max(50,+e.target.value||400); save(); renderScorebar(); });
+  $('mergecancel').addEventListener('click',cancelMerge);
+  $('copydraft').addEventListener('click',()=>{ if(!manuscript.length){toast('empty');return;} copy(manuscriptMarkdown(),'paper copied (md)'); });
+  $('exportdraft').addEventListener('click',exportDraft);
+  $('cleardraft').addEventListener('click',()=>{ if(!manuscript.length)return; if(confirm('Clear the whole manuscript? (fragments stay in the channels)')){ manuscript=[]; save(); renderDraft(); if(view==='surf')renderSurf(); } });
+  // time
+  $('tscroll').addEventListener('click',e=>{ const d=e.target.closest('[data-day]'); if(d){ loadChannel('DAY:'+d.dataset.day); switchView('surf'); toast('surfing '+fmtDay(d.dataset.day)); } });
+  // tree / peek close
+  $('treex').addEventListener('click',()=>$('tree').classList.remove('on'));
+  $('tree').addEventListener('click',e=>{ if(e.target.id==='tree')$('tree').classList.remove('on'); });
+  $('pkx').addEventListener('click',()=>$('peek').classList.remove('on'));
+  // welcome
+  $('startbtn').addEventListener('click',()=>$('welcome').classList.add('hidden'));
+  // keys
+  window.addEventListener('keydown',e=>{
+    if($('peek').classList.contains('on')&&e.key==='Escape'){$('peek').classList.remove('on');return;}
+    if($('tree').classList.contains('on')&&e.key==='Escape'){$('tree').classList.remove('on');return;}
+    if(view==='surf'){
+      if(e.key==='ArrowRight')go(1); else if(e.key==='ArrowLeft')go(-1);
+      else if(e.key==='ArrowUp'){e.preventDefault();catchFrag();} else if(e.key==='ArrowDown'){e.preventDefault();breedCurrent();}
+    }
+  });
+  window.addEventListener('resize',()=>{ if(view==='surf'){ $('scrub')._n=-1; renderScrub(); } });
+}
+
+/* ---------- load ---------- */
+fetch('lines.json').then(r=>{ if(!r.ok)throw new Error('lines.json '+r.status); return r.json(); })
+.then(d=>{
+  LINES=d.lines; THEMES=d.meta.themes;
+  buildChannels(); load();
+  wire(); loadChannel('ALL'); updateBadge();
+}).catch(err=>{
+  $('welcome').classList.add('hidden');
+  $('stage').innerHTML=`<div class="loaderr">Couldn't load <b>lines.json</b> (${escHTML(err.message)}).<br>Serve this file alongside <code>lines.json</code> over http — same folder, not a bare file open.</div>`;
+});
+})();
+</script>
+</body>
+</html>

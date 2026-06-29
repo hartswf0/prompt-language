@@ -1,0 +1,155 @@
+Treat prompt literacy as critical model literacy, not merely as a new form of creative writing.
+Evaluate generative AI at multiple prompting intensities rather than debating whether it is intrinsically bland.
+Prioritize construction of a model-independent canon operating system before expanding into additional media.
+Do not organize the adaptation around reproducing the Odyssey’s famous episodes.
+Regulate AI deployment at the level of work organization, not merely model safety.
+Do not regulate advanced cybersecurity models by prompt anecdote or by undifferentiated model access.
+Treat provenance and editable decision structure—not prompt convenience—as the decisive requirement for neural CAD adoption.
+Stop treating electricity and data-center capacity as passive inputs to AI growth.
+Design every tool call as an authorization request, not as an instruction to execute.
+Evaluate models as task-specific operating systems with explicit regression suites and total-cost measurements, not as entries in a single intelligence ranking.
+Stop treating “Does scaling work?” as the decisive research question.
+Convert the unsuccessful federal proposal into a staged regional investment program with independently verifiable milestones, rather than waiting for another all-or-nothing grant competition.
+Use LOCUS as a discovery and corpus-construction layer, not as an authoritative policy-measurement layer.
+Train the prediction–feedback loop rather than rehearsing completed performance.
+Judge an explanation by the counterfactual work its model can perform.
+Treat the harness as the primary product and audit object.
+Create protected disclosure channels for frontier-model risk reporting so that public or confidential safety evidence cannot automatically be converted into punitive evidence against the disclosing firm without an independent capability assessment.
+Govern AI through enforceable worker control over deployment conditions rather than through abstract judgments about whether AI is beneficial.
+Do not evaluate the reform by the number of AI programs created.
+Establish a compartmentalized access regime for frontier cyber models before imposing broad export controls: accredited domestic agencies and defensive organizations should retain isolated, logged…
+Measure AI-enabled work at the team and knowledge-system level, not only through individual throughput.
+Regulate synthetic abundance through distribution consequences, not merely labels.
+Separate child-safety functions into distinct, auditable stages: age determination, risk detection, user-facing support, parental escalation, emergency escalation, data retention, and human review.
+Evaluate the AI boom through cash-flow durability and financing structure rather than headline capital expenditure.
+Stop using adoption as a proxy for public approval.
+Enterprise buyers should treat generative-video procurement as a continuity and dependency problem, not a benchmark contest.
+Define openness operationally across the entire AI stack: model weights, data formats, prompts, agent state, tool interfaces, evaluation records, identity systems, observability data, deployment artifacts, and exit procedures.
+Treat AI implementation as a distinct profession requiring domain inquiry, workflow design, evaluation, privacy analysis, change management, and accountability—not merely proficiency with a particular chatbot.
+Use language models as explicit, testable models of linguistic expectation while keeping representational and mechanistic claims separate.
+Evaluate entrepreneurship platforms by the durability and quality of the livelihoods they enable, not by the number of entities they register or administrative tasks they automate.
+Shift cyber defense toward continuous, AI-speed validation: automated vulnerability discovery, rapid patching, credential minimization, segmented networks, reproducible incident response…
+Regulate AI legal services by function and accountability chain rather than by whether a product is called a lawyer.
+Measure AI’s creative value at the team and product level rather than through output speed alone.
+Treat every A2A handoff as a governed delegation contract containing authority limits, evidence requirements, provenance, cost ceilings, data-use rules, completion criteria, rollback procedures, and a named accountable principal.
+A genuinely human-centered AI strategy must specify who gains time, who gains income, who carries new risks, who can refuse automation, and who retains authority over redesigned work—not merely provide training and reassuring language.
+The consequential object in agent governance is no longer only the model checkpoint.
+Architect agent systems so memory, identity, runtime, tools, skills, and policy remain independently exportable, inspectable, versioned, and replaceable.
+Protocol selection should be treated as a governance decision across five separate questions: who may communicate, what may be transmitted, how long interaction state persists, who controls discovery…
+Treat prompts, orchestration rules, role definitions, verification procedures, and workflow topology as learnable system assets with the same versioning, evaluation, provenance, and rollback discipline applied to model checkpoints.
+Agent systems should not rely on conversational context as their sole world-model substrate.
+Agent evaluation should be built as a versioned control system: expert-authored threat models generate adversarial trials; complete traces preserve behavioral evidence; deterministic rules verify procedural facts…
+Before deploying an agent, redesign the workflow around bounded authority: separate observation from instruction, isolate untrusted content, require explicit authorization for consequential actions…
+Before automating a role, organizations must map four distinct assets it contains: formal tasks, tacit observations, motivational commitments, and apprenticeship functions.
+Organizations building on frontier models must treat regulatory withdrawal as a first-class failure mode.
+The strongest enterprise AI opportunities are often unresolved queues with abundant historical decisions, expensive manual search, and a safe verification step.
+The valuable design target is not universal asset portability but low-risk group migration: one-click party trials, friend passes, preserved communication, temporary shared progression, flexible party sizes, and easy return to the previous game.
+Assessment should separate unaided mastery, AI-assisted production, and reflective judgment.
+Design agent memory as a hierarchy rather than a single context window: keep immediate execution state near the accelerator, reusable computational state in a fast context cache…
+Tie employer tax credits to independently verified labor outcomes: wage floors, paid training, credential portability, job retention, advancement, worker representation in curriculum design…
+Treat every agent loop as a bounded control system with an explicit state model, objective, evaluator, action permissions, resource budget, stagnation detector, human escalation path, and independently enforced kill condition.
+The next major AI competition will be over behavioral infrastructure: which company can build the most reliable, extensible, secure, and user-owned system for turning model outputs into sustained action.
+Place a deterministic, independently administered policy-enforcement point between agent intention and consequential execution.
+Governance should seek reversible, low-regret arrangements that protect against both major error classes without prematurely resolving consciousness: prohibit deliberately welfare-negative model designs…
+Treat coding agents as emerging robot-integration agents, but place deterministic controls beneath them: simulated execution, command validation, geofencing, speed and force limits, credential scoping, emergency stops…
+Creative-AI partnerships should be governed as joint institutional design, not ordinary software trials.
+Equity policy must fund a complete capability stack: dependable connectivity and devices, strong foundational instruction, sustained teacher development, culturally responsive curriculum, privacy protections…
+Entertainment companies with material relationships to technology firms need enforceable editorial-independence rules: disclosure of investments and partnerships, separation between commercial and distribution decisions…
+AI education should begin with governed non-use as well as use.
+The next creative-computing platform should treat AI as a reversible operator over an explicit world model rather than as a pixel generator.
+Genesis should be understood as mobile participatory infrastructure rather than a traveling technology class.
+The electromechanical pinball machine provides a powerful model for transparent computational learning: represent state physically, expose causal transitions, let learners intervene directly, and use sound, motion…
+The foundational object for generative 3D production should be a versioned semantic scene graph.
+The strongest version of this game should formalize a three-part authority structure: an immutable kernel of world invariants, a revisable symbolic state graph, and a probabilistic narrative surface.
+A language for large-scale generative worlds should have a very small semantic kernel whose primitives cover state, failure, choice, time, concurrency, effects, and proof.
+A neurosymbolic world engine should require generated operations to carry progressively stronger evidence.
+The stronger program is not a simulation proving that criticism is futile.
+The stronger form of this system is not a metaphorical webpage about hardware decay, but a material-state instrument in which every interaction leaves persistent, spatially located, mechanically consequential residue.
+Empathy should never count as an institutional response unless it changes a decision, transfers authority, redistributes resources, or creates an enforceable obligation.
+Educational AI should be evaluated as one component inside a motivational and relational system, not as an autonomous tutor.
+Optimization systems for physical infrastructure should not produce ideal forms and then ask humans to make them practical.
+UE6 should be understood as Epic’s proposed operating system for a federated game economy: Verse governs executable behavior, MCP connects external intelligence, Unreal structures worlds…
+Existential-risk decisions should not be governed by expected utility alone.
+The important question is not whether AI laboratories employ philosophers, but where philosophical judgment enters the production pipeline and what authority it carries.
+Literary translation should be treated as constrained world reconstruction.
+Read as a whole, the collection proposes an MIT theory of knowledge: understand the hidden structure, formalize the process, identify the leverage point, and build an intervention.
+Fully generated cinema should be treated as synthetic reenactment governed by explicit standards of provenance, consent, evidentiary distance, and representational accountability.
+Generative-design systems should expose their defaults as editable design grammars rather than presenting them as neutral intelligence.
+The next major AI training resource may be not text or passive video but longitudinal records joining perception, action, and consequence.
+AI workforce policy should not begin with the assumption that displaced people must adapt to decisions already made by technology companies.
+The emerging executive divide is not simply young versus old.
+AI-written infrastructure should be treated as hostile-by-default executable change.
+Defensive security must shift from recognizing stable malware families toward controlling behavior, authority, and consequence.
+AI policy cannot be separated from welfare-state design.
+Frontier-model release decisions need a public governance protocol rather than improvised bargaining between company founders and political officials.
+Agent evaluation must be treated as environment engineering.
+Regenerative software requires a complete theory-of-the-program stack, not merely a readable feature document.
+A loop should be understood as a small autonomous organization.
+A creative company cannot establish legitimacy for AI experimentation through proximity alone.
+The correct unit for evaluating AI is not the model or machine in isolation but the complete integration arrangement: the technology, the humans who make it function…
+Political language should be judged not only by its historical meaning or rhetorical beauty but by the institutions and actions it authorizes.
+Software organizations should stop measuring AI leverage through code volume or nominal headcount multiplication.
+AI disclosure should describe the production chain rather than attach a single moralizing badge.
+Studios should treat generative AI as a reputational and product-governance decision, not merely a productivity tool.
+The best use of a metaprompt is not “make this sound more sophisticated.” It is “interrogate this objective until the task becomes operational.” The model should identify missing information, surface assumptions…
+The decisive threshold for professional AI video is not whether a model can produce a striking 30-second clip.
+The critical distinction is between a <Video_Renderer> and a <World_Simulator>.
+AI adoption should be measured as organizational depth, not binary presence.
+Entry-level employment should be treated as productive infrastructure, not disposable overhead.
+AI has weakened the evidentiary role of the product.
+AI systems should be evaluated as instruments of work design, not merely task execution.
+AI workforce policy should be designed as a transition system from learning to trusted responsibility, not as a credential-production system.
+The strategic asset in agentic commerce is not merely the shopping interface.
+The significant claim is not that one image model can be reproduced through oscillators.
+Frontier-model governance must become procedural before it becomes restrictive.
+The lawsuits challenge the temporal accounting system of higher education.
+Innovation programs fail when institutions invite experimentation but provide no safe route for an internal prototype to become an authorized public project.
+The plugin industry may shift from selling fixed signal processors to providing validated generative substrates.
+The durable personal knowledge system is no longer a collection of notes.
+The central artifact of agentic software is no longer the prompt or even the agent.
+The Council of High Intelligence should be understood as a bounded multi-agent deliberation protocol-not as eighteen experts and not as a truth engine.
+Three.js succeeded because it gave browser graphics a durable intermediate language.
+LocateAnything is evidence that the next stage of multimodal systems may not come from making every modality look more like text.
+Intermediate tokens should be treated as generated artifacts—not privileged windows into cognition.
+Product discovery should be designed as a learning system that evaluates not only products but the decision processes that selected them.
+The strongest use of an AI design skill is not to prescribe a particular aesthetic.
+The central conflict is no longer regulation versus innovation.
+Higher education must stop defining critical thinking through the quality of final products.
+Unreliable narration is a laboratory for epistemology.
+AI is forcing law schools to separate three things they previously treated as one: <Submitted_Work> shows what was produced.
+Generative AI does not need to produce masterpieces to transform publishing.
+A scientific system cannot be governed solely as a portfolio of predicted products.
+The relevant capability is not tolerance for inconvenience.
+The Omnicom–Interpublic merger is a wager that scale can preserve intermediary power after AI commoditizes many of the outputs agencies historically sold.
+Agentic AI requires organizations to govern not only models but the machine-readable reality those models are permitted to act upon.
+The quote is not saying that bad conduct becomes acceptable when openly admitted.
+Human speech may not have emerged from silence.
+Organizations need to distinguish between complaint that merely circulates distress and complaint that carries information necessary for correction.
+Diffusion language modeling turns generation into repeated global revision.
+The next AI bottleneck is not producing convincing symbols.
+The psychologically dangerous belief is not necessarily “I lack ultimate free will.” It may be “my reasoning, effort, and choices have no causal effect.” Those propositions must not be treated as equivalent.
+General agents may require two separately trainable competencies: <World_Knowledge>: predicting how environments respond.
+The real debate is not whether scaling has worked.
+An agent never acts on the world directly.
+The differences between images and words are never merely technical.
+Multimodal AI changes ekphrasis from: <Text_Describes_Image> into: <Text_Conditions_Model> → <Shared_Latent_Representation> → <Image_Is_Synthesized>.
+The paper’s lasting contribution is not that it proved GPT-4 was AGI.
+Behavior does not carry its meaning on its surface.
+Sora suggests that sufficiently scaled video prediction can acquire partial regularities of space, time, identity, and interaction without being explicitly programmed with objects or physical laws.
+NVIDIA’s “world model” is best understood as a synthetic-experience operating system for physical AI rather than a singular internal representation of reality.
+Genie 3 turns generated media into a responsive environment.
+A robotic world model should be understood as a counterfactual action instrument: <Current_State> + <Possible_Action> → <Predicted_Consequence> → <Action_Selection> → <Physical_Execution> → <Observed_Discrepancy> → <Model_Revision>.
+WorldDreamer proposes that a world model need not begin by predicting the next frame.
+The main research question is not whether robots need language or world models.
+Knowlton’s system establishes animation as a programmable relation among: <Visual_State> <Spatial_Operation> <Temporal_Exposure> <Camera_Configuration> <Storage> <Transformation> <Output_Medium>.
+Cybernetic cinema is not defined by synthetic imagery.
+The fundamental unit of motion design is not the moving object but the changing relation among elements.
+The human being is not: <Biological_Organism> + <Cultural_Overlay>.
+A picture should be understood as an operational relation: <Model_Elements> + <Correlation_Rules> + <Transformation_Procedures> + <Preserved_Invariants> → <Possible_Consequences> → <Comparison_With_Reality>.
+There are symbols in science as surely as in poetry.
+The paper provides evidence that language models can become effective learned emulators of bounded symbolic environments when trained directly on action-conditioned transition histories.
+An idea is not fully understood by defining what it represents.
+Cinema is not primarily a machine for recording objects.
+The file is assembling a textual control theory for generative media: <Thick_Prompt> establishes the meaningful conditions of a world.
+The project requires a layered ontology rather than one analogy: <Surface> what is visibly or verbally rendered.
+The project should not define <Worldtext> as text that describes a world or even text that generates one.

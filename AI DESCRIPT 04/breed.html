@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#ffffff">
+<title>BREEDER — cultivate readings</title>
+<style>
+/* ============================================================
+   BREEDER — Operational Pragmatist build.
+   Entry = genome. Item = codon. Theme = species.
+   Mutation drifts through rhyme-neighbours (semantic, not random).
+   Selection by interestingness (novelty), never toward a target.
+   Single file, zero deps, IBM Plex Mono, absolute B/W, drawn marks.
+   ============================================================ */
+:root{
+  --w:#fff;--k:#000;--paper:#fafaf8;--panel:#f3f3ef;
+  --g1:#f2f2f0;--g2:#e4e4e0;--g3:#cdcdc6;--g4:#8c8c86;--mut:#5a5a55;--rule:#dedad0;
+  --ins:#0f6e56;--ins-bg:#e1f5ee;   /* insight  */
+  --ten:#a32d2d;--ten-bg:#fcebeb;   /* tension  */
+  --sow:#185fa5;--sow-bg:#e6f1fb;   /* so-what  */
+  --mis:#854f0b;--mis-bg:#faeeda;   /* missing  */
+  --accent:#185fa5;--hot:#a32d2d;--nov:#0f6e56;
+  --tap:44px;--hdr:50px;
+  --mono:'IBM Plex Mono','SFMono-Regular',ui-monospace,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;border-radius:0!important;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--mono);background:var(--w);color:var(--k);font-size:13px;line-height:1.45;display:flex;flex-direction:column;-webkit-text-size-adjust:100%;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+button{background:none;border:none;cursor:pointer}
+::selection{background:var(--mis-bg)}
+.sq{display:inline-block;width:8px;height:8px;flex:none}
+.sq.INS{background:var(--ins)}.sq.TEN{background:var(--ten)}.sq.SOW{background:var(--sow)}.sq.MIS{background:var(--mis)}
+
+/* header */
+header{flex:none;height:var(--hdr);border-bottom:2px solid var(--k);display:flex;align-items:stretch;background:var(--w);z-index:30}
+.brand{display:flex;align-items:center;gap:9px;padding:0 12px;font-weight:700;font-size:14px;letter-spacing:.14em;flex:none}
+.dna{width:16px;height:20px;flex:none}
+.dna line{stroke:var(--k);stroke-width:1.6}.dna .r{stroke:var(--accent);stroke-width:1.4}
+.modes{display:flex;border-left:2px solid var(--k);flex:1;min-width:0}
+.modes button{flex:1;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);border-right:1.5px solid var(--k);padding:0 4px}
+.modes button:last-child{border-right:none}
+.modes button[aria-pressed="true"]{background:var(--k);color:var(--w);font-weight:700}
+.hdr-btn{width:var(--tap);min-width:42px;border-left:2px solid var(--k);display:flex;align-items:center;justify-content:center;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);background:var(--w)}
+.hdr-btn:active{background:var(--k);color:var(--w)}
+.hdr-btn:disabled{color:var(--g3)}
+
+#stage{flex:1;min-height:0;position:relative;overflow:hidden}
+.view{position:absolute;inset:0;display:none;flex-direction:column;overflow:hidden}
+.view.on{display:flex}
+.vscroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.vscroll::-webkit-scrollbar{width:0}
+
+/* ===== LIBRARY ===== */
+#lib .search{display:flex;border-bottom:1.5px solid var(--k);flex:none}
+#lib .search .mk{width:30px;display:flex;align-items:center;justify-content:center;border-right:1.5px solid var(--k);flex:none}
+#lib .search .mk i{width:10px;height:10px;border:1.5px solid var(--k);border-radius:50%!important;position:relative;display:block}
+#lib .search .mk i::after{content:"";position:absolute;width:6px;height:1.5px;background:var(--k);transform:rotate(45deg);right:-5px;bottom:-1px}
+#lib .search input{flex:1;border:none;outline:none;padding:9px;font-size:13px;min-width:0;background:var(--w)}
+#lib .species{display:flex;gap:0;border-bottom:1px solid var(--rule);flex:none;overflow-x:auto;scrollbar-width:none}
+#lib .species::-webkit-scrollbar{display:none}
+#lib .species button{flex:none;padding:7px 9px;font-size:9.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);border-right:1px solid var(--rule);white-space:nowrap}
+#lib .species button.on{background:var(--k);color:var(--w)}
+.glib{border-bottom:1px solid var(--rule);padding:9px 11px;display:flex;gap:9px;align-items:center;cursor:pointer}
+.glib:active{background:var(--paper)}
+.glib .gid{font-size:10px;color:var(--g4);flex:none;min-width:30px;font-weight:700}
+.glib .gmain{flex:1;min-width:0}
+.glib .gsp{font-size:12px;font-weight:600;line-height:1.3}
+.glib .gmeta{font-size:9px;color:var(--g4);letter-spacing:.03em;margin-top:3px}
+.minimap{display:flex;height:7px;width:64px;flex:none;border:1px solid var(--k)}
+.minimap span{height:100%}
+.glib .go{flex:none;width:24px;height:24px;border:1px solid var(--g3);display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--mut)}
+.glib .go:active{background:var(--k);color:var(--w)}
+
+/* ===== BREEDER ===== */
+#brd{display:none;flex-direction:column}
+#brd.on{display:flex}
+.parent{flex:none;border-bottom:2px solid var(--k);display:flex;flex-direction:column;max-height:54%}
+.phead{flex:none;display:flex;align-items:center;gap:7px;padding:7px 10px;border-bottom:1px solid var(--k);background:var(--k);color:var(--w)}
+.phead .pid{font-size:11px;font-weight:700;letter-spacing:.08em}
+.phead .psp{font-size:9px;letter-spacing:.04em;opacity:.85;text-transform:uppercase}
+.phead .pmode{margin-left:auto;display:flex;gap:0;border:1px solid var(--w)}
+.phead .pmode button{font-size:8.5px;letter-spacing:.06em;text-transform:uppercase;padding:3px 7px;color:var(--w);border-right:1px solid var(--w)}
+.phead .pmode button:last-child{border-right:none}
+.phead .pmode button.on{background:var(--w);color:var(--k);font-weight:700}
+.lineage{flex:none;font-size:9px;color:var(--mut);letter-spacing:.02em;padding:4px 10px;border-bottom:1px solid var(--rule);background:var(--paper);white-space:nowrap;overflow-x:auto;scrollbar-width:none}
+.lineage::-webkit-scrollbar{display:none}
+.lineage b{color:var(--ins)}
+.pscroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:7px}
+
+/* strand codon */
+.codon{display:flex;align-items:stretch;border:1.5px solid var(--k);background:var(--w);margin-bottom:5px;min-height:38px}
+.codon.intron{border-color:var(--g3);background:var(--g1)}
+.ctype{flex:none;width:50px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--w);border-right:1.5px solid var(--k);cursor:pointer;user-select:none}
+.ctype .tt{font-size:10px;font-weight:700;letter-spacing:.05em}
+.ctype .st{font-size:7px;letter-spacing:.06em;opacity:.9;margin-top:1px}
+.ctype.INS{background:var(--ins)}.ctype.TEN{background:var(--ten)}.ctype.SOW{background:var(--sow)}.ctype.MIS{background:var(--mis)}
+.codon.intron .ctype{filter:grayscale(1) opacity(.5)}
+.cpay{flex:1;min-width:0;padding:8px 9px;font-size:12px;line-height:1.4;cursor:pointer;display:flex;flex-direction:column;gap:3px}
+.codon.intron .cpay{color:var(--g4);text-decoration:line-through}
+.cpay .cl{font-weight:600}
+.cpay .cb{font-size:10.5px;line-height:1.4;color:#2a2a28;display:none}
+.codon.exp .cpay .cb{display:block}
+.cpay .corigin{font-size:8px;color:var(--g4);letter-spacing:.03em}
+.cact{flex:none;width:30px;border-left:1.5px solid var(--k);display:flex;flex-direction:column}
+.codon.intron .cact{border-color:var(--g3)}
+.cact button{flex:1;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--mut);border-bottom:1px solid var(--rule)}
+.cact button:last-child{border-bottom:none}
+.cact button:active{background:var(--k);color:var(--w)}
+.cact .swp.has{color:var(--ins)}
+.codon.swapped{box-shadow:inset 3px 0 0 var(--ins)}
+
+/* read-as-card phenotype */
+.pheno{padding:10px 12px}
+.pheno .psec{margin-bottom:11px}
+.pheno .psh{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);font-weight:700;margin-bottom:5px;display:flex;align-items:center;gap:6px}
+.pheno .pitem{font-size:12.5px;line-height:1.5;margin-bottom:7px;padding-left:9px;border-left:2px solid var(--rule)}
+.pheno .pitem b{font-weight:700}
+.pheno .pcopy{margin-top:6px;display:flex;gap:6px}
+.pheno .pcopy button{border:1.5px solid var(--k);padding:6px 10px;font-size:9.5px;letter-spacing:.05em;text-transform:uppercase}
+.pheno .pcopy button:active{background:var(--k);color:var(--w)}
+
+/* controls */
+.controls{flex:none;border-bottom:1.5px solid var(--k);padding:8px 10px;display:flex;gap:7px;align-items:center;flex-wrap:wrap;background:var(--paper)}
+.controls .rate{display:flex;align-items:center;gap:6px;font-size:9px;letter-spacing:.04em;color:var(--mut);text-transform:uppercase}
+.controls .rate input{width:78px;accent-color:var(--hot);height:24px}
+.controls .rate .rv{font-size:10px;font-weight:700;color:var(--k);width:26px}
+.controls .cbtn{border:1.5px solid var(--k);padding:7px 11px;font-size:10px;letter-spacing:.06em;text-transform:uppercase;font-weight:700}
+.controls .cbtn:active{background:var(--k);color:var(--w)}
+.controls .cbtn.spawn{background:var(--k);color:var(--w)}
+.controls .cbtn.spawn:active{background:var(--ins)}
+
+/* offspring generation */
+.gen{flex:1;min-height:0;display:flex;flex-direction:column}
+.genhead{flex:none;display:flex;align-items:center;padding:6px 10px;border-bottom:1px solid var(--rule);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut)}
+.genhead .gn{margin-left:auto}
+.genscroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px;display:grid;grid-template-columns:1fr 1fr;gap:7px;align-content:start}
+.off{border:1.5px solid var(--k);background:var(--w);padding:8px;display:flex;flex-direction:column;gap:5px;cursor:pointer;position:relative}
+.off:active{background:var(--paper)}
+.off .onov{display:flex;align-items:baseline;gap:4px}
+.off .onov .nv{font-size:19px;font-weight:700;line-height:1;color:var(--nov)}
+.off .onov .nl{font-size:8px;letter-spacing:.06em;text-transform:uppercase;color:var(--g4)}
+.off .obar{display:flex;height:5px;border:1px solid var(--k)}
+.off .obar span{height:100%}
+.off .ochg{font-size:8.5px;letter-spacing:.02em;color:var(--mut);line-height:1.35}
+.off .oprev{font-size:10.5px;line-height:1.35;font-weight:500;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.off .ofoot{display:flex;gap:5px;margin-top:2px}
+.off .ofoot button{flex:1;border:1px solid var(--g3);padding:4px;font-size:8.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--mut)}
+.off .ofoot button:active{background:var(--k);color:var(--w)}
+.off .ofoot button.promote{border-color:var(--k);color:var(--k);font-weight:700}
+.genempty{grid-column:1/-1;padding:26px 16px;text-align:center;color:var(--g4);font-size:11.5px;line-height:1.6}
+.genempty b{color:var(--mut)}
+
+/* ===== POOL ===== */
+#pool{display:none;flex-direction:column}
+#pool.on{display:flex}
+.poolhead{flex:none;padding:8px 11px;border-bottom:1.5px solid var(--k);font-size:9.5px;letter-spacing:.04em;color:var(--mut);display:flex;align-items:center;gap:8px}
+.poolhead .pcount{font-weight:700;color:var(--k)}
+.poolhead button{margin-left:auto;border:1px solid var(--g3);padding:4px 8px;font-size:9px;letter-spacing:.05em;text-transform:uppercase;color:var(--mut)}
+.poolhead button:active{background:var(--k);color:var(--w)}
+.bred{border-bottom:1px solid var(--rule);padding:9px 11px}
+.bred .bh{display:flex;align-items:center;gap:7px}
+.bred .bid{font-size:11px;font-weight:700;letter-spacing:.04em}
+.bred .bnov{font-size:9px;color:var(--nov);font-weight:700;margin-left:auto}
+.bred .blin{font-size:8.5px;color:var(--g4);letter-spacing:.02em;margin:4px 0;white-space:nowrap;overflow-x:auto;scrollbar-width:none}
+.bred .blin::-webkit-scrollbar{display:none}
+.bred .bprev{font-size:11px;line-height:1.4;color:#2a2a28;margin:3px 0}
+.bred .bf{display:flex;gap:6px;margin-top:5px}
+.bred .bf button{border:1px solid var(--g3);padding:5px 9px;font-size:9px;letter-spacing:.04em;text-transform:uppercase;color:var(--mut)}
+.bred .bf button:active{background:var(--k);color:var(--w)}
+.bred .bf button.load{border-color:var(--k);color:var(--k)}
+.bred .bf button.del{border-color:var(--hot);color:var(--hot)}
+.poolempty{padding:30px 18px;text-align:center;color:var(--g4);font-size:11.5px;line-height:1.65}
+.poolempty b{color:var(--mut)}
+
+/* recombination overlay */
+#recomb{position:fixed;inset:0;z-index:70;background:var(--w);display:none;flex-direction:column;padding-top:env(safe-area-inset-top)}
+#recomb.on{display:flex}
+.rchead{flex:none;height:var(--hdr);border-bottom:2px solid var(--k);display:flex;align-items:center;padding:0 12px;gap:10px}
+.rchead h2{font-size:13px;font-weight:700;letter-spacing:.1em}
+.rchead .rx{margin-left:auto;border:1.5px solid var(--k);padding:6px 11px;font-size:11px;letter-spacing:.05em;text-transform:uppercase}
+.rchead .rx:active{background:var(--k);color:var(--w)}
+.rcmode{flex:none;display:flex;border-bottom:1.5px solid var(--k)}
+.rcmode button{flex:1;padding:8px;font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--mut);border-right:1px solid var(--rule)}
+.rcmode button:last-child{border-right:none}
+.rcmode button.on{background:var(--k);color:var(--w);font-weight:700}
+.rcbody{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.rcstrands{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.rcstrand{flex:1;min-height:0;display:flex;flex-direction:column;border-bottom:2px solid var(--k)}
+.rcstrand:last-child{border-bottom:none}
+.rsh{flex:none;height:34px;display:flex;align-items:center;gap:8px;padding:0 10px;background:var(--k);color:var(--w);font-size:10px;font-weight:700;letter-spacing:.06em}
+.rsh select{margin-left:auto;background:var(--w);color:var(--k);border:none;font-family:inherit;font-size:11px;font-weight:600;padding:3px 6px;max-width:58%}
+.rsscroll{flex:1;overflow-y:auto;padding:7px;-webkit-overflow-scrolling:touch}
+.rsscroll .codon{cursor:pointer;margin-bottom:4px}
+.rsscroll .codon .cpay{pointer-events:none;padding:6px 8px}
+.codon.cut{box-shadow:0 0 0 2px var(--w),0 0 0 4px var(--hot);z-index:2}
+.codon.pickA{box-shadow:inset 4px 0 0 var(--ins)}
+.codon.pickB{box-shadow:inset 4px 0 0 var(--sow)}
+.rcfoot{flex:none;padding:10px 12px calc(10px + env(safe-area-inset-bottom));border-top:2px solid var(--k)}
+.rcfoot p{font-size:10px;color:var(--g4);margin-bottom:8px;line-height:1.5}
+.rcfoot .rcgo{width:100%;padding:14px;border:2px solid var(--k);background:var(--k);color:var(--w);font-weight:700;font-size:13px;letter-spacing:.1em}
+.rcfoot .rcgo:disabled{background:var(--w);color:var(--g3);border-color:var(--g3)}
+.rcfoot .rcgo:not(:disabled):active{background:var(--accent)}
+@media(min-width:760px){.rcstrands{flex-direction:row}.rcstrand{border-bottom:none;border-right:2px solid var(--k)}.rcstrand:last-child{border-right:none}}
+
+/* peek overlay (read offspring) */
+#peek{position:fixed;inset:0;z-index:80;background:var(--w);display:none;flex-direction:column;transform:translateY(100%);transition:transform .2s}
+#peek.on{display:flex;transform:none}
+.pkhead{flex:none;height:var(--hdr);border-bottom:2px solid var(--k);display:flex;align-items:center;padding:0 12px;gap:10px}
+.pkhead .pkx{font-size:18px;width:26px}
+.pkhead .pkt{font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--mut);flex:1;min-width:0}
+.pkhead .pknov{font-size:12px;font-weight:700;color:var(--nov)}
+.pkbody{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 0 40px}
+.pkfoot{flex:none;border-top:2px solid var(--k);padding:10px 12px calc(10px + env(safe-area-inset-bottom));display:flex;gap:7px}
+.pkfoot button{flex:1;border:1.5px solid var(--k);padding:11px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:700}
+.pkfoot button:active{background:var(--k);color:var(--w)}
+.pkfoot button.promote{background:var(--k);color:var(--w)}
+.pkfoot button.promote:active{background:var(--ins)}
+
+/* welcome */
+#welcome{position:fixed;inset:0;z-index:90;background:var(--w);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}
+#welcome.hidden{display:none}
+.welhero{flex:1;overflow-y:auto;padding:30px 22px;display:flex;flex-direction:column;justify-content:center}
+.welmark{display:flex;align-items:center;gap:13px;margin-bottom:20px}
+.welmark .dna{width:30px;height:38px}
+.welmark h1{font-size:27px;font-weight:700;letter-spacing:.12em}
+.welhero .lede{font-size:15px;line-height:1.55;margin-bottom:8px;max-width:40ch}
+.welhero .lede strong{font-weight:700}
+.welhero .sub{font-size:13px;color:var(--g4);line-height:1.5;max-width:42ch}
+.welops{margin:20px 0 6px;border-top:2px solid var(--k)}
+.welop{display:flex;gap:12px;padding:13px 2px;border-bottom:1px solid var(--rule);align-items:flex-start}
+.welop .n{font-weight:700;color:var(--accent);flex:none;width:18px}
+.welop div{font-size:12.5px;line-height:1.45}
+.welop b{font-weight:700}
+.welfoot{flex:none;border-top:2px solid var(--k);padding:16px 22px calc(16px + env(safe-area-inset-bottom))}
+.welfoot button{width:100%;padding:16px;background:var(--k);color:var(--w);font-weight:700;font-size:14px;letter-spacing:.1em;border:2px solid var(--k)}
+.welfoot button:active{background:var(--accent);border-color:var(--accent)}
+
+#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(16px);background:var(--k);color:var(--w);padding:11px 18px;font-size:11px;font-weight:600;z-index:120;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;letter-spacing:.04em;max-width:90vw;text-align:center}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.loaderr{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:30px;text-align:center;color:var(--g4);font-size:12px;line-height:1.6}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <svg class="dna" viewBox="0 0 16 20" aria-hidden="true">
+      <line x1="3" y1="1" x2="13" y2="6"/><line x1="13" y1="1" x2="3" y2="6"/>
+      <line x1="3" y1="7" x2="13" y2="12"/><line x1="13" y1="7" x2="3" y2="12"/>
+      <line x1="3" y1="13" x2="13" y2="18"/><line x1="13" y1="13" x2="3" y2="18"/>
+      <line class="r" x1="5" y1="3" x2="11" y2="3"/><line class="r" x1="5" y1="9.5" x2="11" y2="9.5"/><line class="r" x1="5" y1="16" x2="11" y2="16"/>
+    </svg>
+    <span>BREEDER</span>
+  </div>
+  <div class="modes" id="modes">
+    <button data-view="lib" aria-pressed="true">Library</button>
+    <button data-view="brd" aria-pressed="false">Breeder</button>
+    <button data-view="pool" aria-pressed="false">Pool</button>
+  </div>
+  <button class="hdr-btn" id="undo" disabled>Undo</button>
+</header>
+
+<div id="stage">
+  <!-- LIBRARY -->
+  <section class="view on" id="lib">
+    <div class="search"><span class="mk" aria-hidden="true"><i></i></span><input id="lq" type="search" inputmode="search" placeholder="search 156 genomes…" autocomplete="off" autocapitalize="off" spellcheck="false"></div>
+    <div class="species" id="species"></div>
+    <div class="vscroll" id="liblist"></div>
+  </section>
+
+  <!-- BREEDER -->
+  <section class="view" id="brd">
+    <div class="parent" id="parent">
+      <div class="phead">
+        <span class="pid" id="pid">—</span><span class="psp" id="psp"></span>
+        <span class="pmode"><button data-pm="strand" class="on">Strand</button><button data-pm="read">Read</button></span>
+      </div>
+      <div class="lineage" id="lineage" style="display:none"></div>
+      <div class="pscroll" id="pscroll"></div>
+    </div>
+    <div class="controls">
+      <span class="rate">Mut<input type="range" id="rate" min="0.05" max="0.8" step="0.05" value="0.25"><span class="rv" id="rv">.25</span></span>
+      <button class="cbtn spawn" id="spawn">Spawn ▸</button>
+      <button class="cbtn" id="cross">Cross…</button>
+    </div>
+    <div class="gen">
+      <div class="genhead">Generation<span class="gn" id="gn"></span></div>
+      <div class="genscroll" id="genscroll"></div>
+    </div>
+  </section>
+
+  <!-- POOL -->
+  <section class="view" id="pool">
+    <div class="poolhead">Cultivated genomes · <span class="pcount" id="poolcount">0</span><button id="exportpool">Export</button></div>
+    <div class="vscroll" id="poollist"></div>
+  </section>
+</div>
+
+<!-- RECOMBINATION -->
+<div id="recomb">
+  <div class="rchead"><h2>RECOMBINE</h2><button class="rx" id="rcx">Close</button></div>
+  <div class="rcmode" id="rcmode">
+    <button data-rc="cut" class="on">Linear cut</button>
+    <button data-rc="section">By section</button>
+  </div>
+  <div class="rcbody">
+    <div class="rcstrands">
+      <div class="rcstrand">
+        <div class="rsh">STRAND A <span id="rcaid" style="opacity:.7;font-weight:400"></span></div>
+        <div class="rsscroll" id="rca"></div>
+      </div>
+      <div class="rcstrand">
+        <div class="rsh">STRAND B <select id="rcbsel"></select></div>
+        <div class="rsscroll" id="rcb"></div>
+      </div>
+    </div>
+    <div class="rcfoot">
+      <p id="rcnote">Tap a cut codon on each strand. Offspring = A up to its cut, then B after its cut.</p>
+      <button class="rcgo" id="rcgo" disabled>Splice → offspring</button>
+    </div>
+  </div>
+</div>
+
+<!-- PEEK -->
+<div id="peek">
+  <div class="pkhead"><button class="pkx" id="pkx">↓</button><span class="pkt" id="pkt"></span><span class="pknov" id="pknov"></span></div>
+  <div class="pkbody" id="pkbody"></div>
+  <div class="pkfoot"><button id="pkcopy">Copy</button><button class="promote" id="pkpromote">Promote to parent</button></div>
+</div>
+
+<!-- WELCOME -->
+<div id="welcome">
+  <div class="welhero">
+    <div class="welmark"><svg class="dna" viewBox="0 0 16 20" aria-hidden="true"><line x1="3" y1="1" x2="13" y2="6"/><line x1="13" y1="1" x2="3" y2="6"/><line x1="3" y1="7" x2="13" y2="12"/><line x1="13" y1="7" x2="3" y2="12"/><line x1="3" y1="13" x2="13" y2="18"/><line x1="13" y1="13" x2="3" y2="18"/><line class="r" x1="5" y1="3" x2="11" y2="3"/><line class="r" x1="5" y1="9.5" x2="11" y2="9.5"/><line class="r" x1="5" y1="16" x2="11" y2="16"/></svg><h1>BREEDER</h1></div>
+    <p class="lede">Readings are not written. They are <strong>bred.</strong></p>
+    <p class="sub">Each analysis entry is a genome; each item (insight, tension, so-what, missing) is a codon. Themes are species. You don't write toward a goal — you mutate, recombine, and keep whatever turns out most <em>interesting</em>. The path to a strong reading rarely looks like the reading.</p>
+    <div class="welops">
+      <div class="welop"><span class="n">1</span><div><b>Pick a genome</b> in the Library (browse by species). It becomes the parent.</div></div>
+      <div class="welop"><span class="n">2</span><div><b>Spawn a generation.</b> Mutation swaps codons for their rhyme-neighbours from other entries — semantic drift, not noise. Each offspring is scored by <b>novelty</b>: how unlike everything seen.</div></div>
+      <div class="welop"><span class="n">3</span><div><b>Promote the interesting one.</b> It becomes the new parent and enters your Pool with its full lineage. Or <b>Cross…</b> two genomes to splice their codons.</div></div>
+    </div>
+  </div>
+  <div class="welfoot"><button id="startbtn">Enter the library</button></div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const el=(t,c)=>{const e=document.createElement(t);if(c)e.className=c;return e;};
+const esc=s=>String(s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+let toastT; function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),1600);}
+
+const TYPEMAP={insight:'INS',tension:'TEN',sowhat:'SOW',missing:'MIS'};
+const TYPEINFO={INS:{name:'Insight',sec:'Non-obvious insights'},TEN:{name:'Tension',sec:'Tensions & contradictions'},SOW:{name:'So-what',sec:'So what'},MIS:{name:'Missing',sec:'What\'s missing'}};
+const SECORDER=['INS','TEN','SOW','MIS'];
+const orderT={insight:0,tension:1,sowhat:2,missing:3};
+
+let LINES=[], BYK={}, THEMES={}, GENOMES=[], GBYID={}, REALSETS=[];
+let parent=null;            // active genome (working copy)
+let pool=[];                // bred genomes
+let generation=[];          // current offspring
+let undoStack=[];
+let libSpecies='all', libQuery='';
+let parentMode='strand';
+let nextBred=1;
+
+const LS_POOL='breeder_pool_v1';
+const STOP=new Set("the a an and or but if then of to in on at for with by from as is are was were be been being this that these those it its their our your we you they i he she them not no so such than too very can will would should could may might must do does did have has had how what who which where when why all any both each more most other some only own same into over under again here there about against between during before after above below up down out off rather merely whether becomes become without while yet therefore article book appears treats presents frames converts turns model models system systems one another being does".split(/\s+/));
+
+/* ---------- genome construction ---------- */
+function termset(txt){ const s=new Set(); (txt.toLowerCase().match(/[a-z][a-z\-']{2,}/g)||[]).forEach(w=>{if(!STOP.has(w))s.add(w);}); return s; }
+function cos(a,b){ if(!a.size||!b.size)return 0; let inter=0; const small=a.size<b.size?a:b, big=a.size<b.size?b:a; small.forEach(w=>{if(big.has(w))inter++;}); return inter/Math.sqrt(a.size*b.size); }
+function genomeText(g){ return g.sequence.filter(c=>!c.intron).map(c=>c.lede+' '+c.body).join(' '); }
+
+function buildGenomes(){
+  const byE={};
+  LINES.forEach(l=>{ (byE[l.e]=byE[l.e]||[]).push(l); });
+  GENOMES=Object.keys(byE).map(e=>+e).sort((a,b)=>a-b).map(e=>{
+    const items=byE[e].slice().sort((a,b)=>(orderT[a.t]-orderT[b.t])||(a.k-b.k));
+    return {
+      id:'E'+e, entry:e, bred:false,
+      species:items[0].prim, tags:items[0].tags||[],
+      src:(items.find(i=>i.src)||{}).src||null, date:items[0].d,
+      sequence:items.map(l=>({type:TYPEMAP[l.t], k:l.k, lede:l.lede, body:l.body, origin:'E'+e, intron:false, near:l.near||[], swapIdx:-1})),
+      lineage:null
+    };
+  });
+  GENOMES.forEach(g=>{ GBYID[g.id]=g; });
+  REALSETS=GENOMES.map(g=>({id:g.id, set:termset(genomeText(g))}));
+}
+
+/* novelty = 100*(1 - mean cosine to k nearest in real∪pool), higher=more novel */
+function novelty(g, k){
+  k=k||3;
+  const s=termset(genomeText(g));
+  const sims=[];
+  REALSETS.forEach(r=>{ if(r.id!==g.id) sims.push(cos(s,r.set)); });
+  pool.forEach(p=>{ if(p.id!==g.id) sims.push(cos(s,termset(genomeText(p)))); });
+  sims.sort((a,b)=>b-a);
+  const top=sims.slice(0,k); if(!top.length) return 100;
+  const mean=top.reduce((x,y)=>x+y,0)/top.length;
+  return Math.round(100*(1-mean));
+}
+
+/* ---------- LIBRARY ---------- */
+function renderSpecies(){
+  const wrap=$('species');
+  const counts={}; GENOMES.forEach(g=>counts[g.species]=(counts[g.species]||0)+1);
+  const ids=Object.keys(counts).sort((a,b)=>counts[b]-counts[a]);
+  let html=`<button data-sp="all" class="${libSpecies==='all'?'on':''}">All ${GENOMES.length}</button>`;
+  html+=ids.map(s=>`<button data-sp="${s}" class="${libSpecies===s?'on':''}">${esc(THEMES[s]||s)} ${counts[s]}</button>`).join("");
+  wrap.innerHTML=html;
+}
+function libFiltered(){
+  const q=libQuery.trim().toLowerCase();
+  let a=GENOMES;
+  if(libSpecies!=='all') a=a.filter(g=>g.species===libSpecies);
+  if(q) a=a.filter(g=> g.sequence.some(c=>c.lede.toLowerCase().includes(q)||c.body.toLowerCase().includes(q)) || (THEMES[g.species]||"").toLowerCase().includes(q));
+  return a;
+}
+function minimap(g){
+  const c={INS:0,TEN:0,SOW:0,MIS:0}; g.sequence.forEach(x=>{if(!x.intron)c[x.type]++;});
+  const tot=Object.values(c).reduce((a,b)=>a+b,0)||1;
+  return `<div class="minimap">`+SECORDER.map(t=>{const w=c[t]/tot*100;return w?`<span class="sq ${t}" style="width:${w}%;height:100%"></span>`:'';}).join("")+`</div>`;
+}
+function renderLib(){
+  renderSpecies();
+  const a=libFiltered();
+  const list=$('liblist');
+  if(!a.length){ list.innerHTML=`<div style="padding:30px;text-align:center;color:var(--g4);font-size:12px">No genomes match.</div>`; return; }
+  list.innerHTML=a.slice(0,200).map(g=>{
+    const n=g.sequence.filter(c=>!c.intron).length;
+    const first=g.sequence.find(c=>!c.intron)||g.sequence[0];
+    return `<div class="glib" data-load="${g.id}">
+      <span class="gid">${g.id}</span>
+      <div class="gmain">
+        <div class="gsp">${esc(first.lede)}</div>
+        <div class="gmeta">${esc(THEMES[g.species]||g.species)} · ${n} codons · ${g.date}${g.src?' · '+esc(g.src):''}</div>
+      </div>
+      ${minimap(g)}
+      <span class="go" data-load="${g.id}">▸</span>
+    </div>`;
+  }).join("") + (a.length>200?`<div style="padding:12px;text-align:center;color:var(--g4);font-size:10px">showing 200 of ${a.length} — refine search</div>`:"");
+}
+
+/* ---------- BREEDER: parent ---------- */
+function loadParent(g, fromPool){
+  parent = clone(g);
+  parentMode='strand';
+  document.querySelectorAll('.pmode button').forEach(b=>b.classList.toggle('on',b.dataset.pm==='strand'));
+  generation=[];
+  renderParent(); renderGen();
+  switchView('brd');
+}
+function renderParent(){
+  if(!parent){ $('pscroll').innerHTML=`<div style="padding:24px;text-align:center;color:var(--g4)">Pick a genome in the Library.</div>`; return; }
+  $('pid').textContent=parent.id;
+  $('psp').textContent=THEMES[parent.species]||parent.species;
+  // lineage
+  const lin=$('lineage');
+  if(parent.lineage){ lin.style.display='block'; lin.innerHTML=lineageTrail(parent); }
+  else lin.style.display='none';
+  const sc=$('pscroll');
+  if(parentMode==='read'){ sc.innerHTML=phenotypeHTML(parent); return; }
+  sc.innerHTML='';
+  parent.sequence.forEach((c,i)=> sc.appendChild(buildCodon(c,i)));
+}
+function buildCodon(c,i){
+  const row=el('div','codon '+(c.intron?'intron':'exon')+(c.swapIdx>=0?' swapped':''));
+  row.dataset.i=i;
+  const ti=TYPEINFO[c.type];
+  const type=el('div','ctype '+c.type);
+  type.innerHTML=`<span class="tt">${c.type}</span><span class="st">${c.intron?'OFF':'ON'}</span>`;
+  type.addEventListener('click',e=>{e.stopPropagation();toggleIntron(i);});
+  const pay=el('div','cpay');
+  pay.innerHTML=`<span class="cl">${esc(c.lede)}</span><span class="cb">${esc(c.body)}</span>`+(c.origin!==parent.id?`<span class="corigin">⊂ from ${esc(c.origin)}</span>`:'');
+  pay.addEventListener('click',e=>{e.stopPropagation();row.classList.toggle('exp');});
+  const act=el('div','cact');
+  const hasNear=c.near&&c.near.length;
+  act.innerHTML=`<button class="swp${hasNear?' has':''}" title="mutate: swap for a rhyme-neighbour"${hasNear?'':' disabled'}>↻</button><button class="del" title="delete codon">×</button>`;
+  act.querySelector('.swp').addEventListener('click',e=>{e.stopPropagation(); if(hasNear) swapCodon(i);});
+  act.querySelector('.del').addEventListener('click',e=>{e.stopPropagation();deleteCodon(i);});
+  row.appendChild(type);row.appendChild(pay);row.appendChild(act);
+  return row;
+}
+function phenotypeHTML(g){
+  let html='<div class="pheno">';
+  SECORDER.forEach(t=>{
+    const items=g.sequence.filter(c=>!c.intron&&c.type===t);
+    if(!items.length) return;
+    html+=`<div class="psec"><div class="psh"><span class="sq ${t}"></span>${esc(TYPEINFO[t].sec)}</div>`;
+    html+=items.map(c=>`<div class="pitem"><b>${esc(c.lede)}</b>${c.body&&c.body!==c.lede?' '+esc(c.body):''}</div>`).join("");
+    html+=`</div>`;
+  });
+  html+=`<div class="pcopy"><button id="copycard">Copy whole genome</button><button id="poolthis">Save to pool</button></div></div>`;
+  return html;
+}
+function lineageTrail(g){
+  if(!g.lineage) return '';
+  const L=g.lineage;
+  if(L.op==='cross') return `lineage: <b>${esc(L.a)}</b> ✕ <b>${esc(L.b)}</b> → ${esc(g.id)}`;
+  // mutation chain
+  return `lineage: ${(L.chain||[]).map(x=>esc(x)).join(' → ')}${L.chain?' → ':''}<b>${esc(g.id)}</b> · ${L.ops||''}`;
+}
+
+/* ---------- operations (all reversible) ---------- */
+function pushUndo(){ undoStack.push({parent:clone(parent),pool:clone(pool),generation:clone(generation),nextBred}); if(undoStack.length>30)undoStack.shift(); $('undo').disabled=false; }
+function doUndo(){ if(!undoStack.length){toast('nothing to undo');return;} const s=undoStack.pop(); parent=s.parent;pool=s.pool;generation=s.generation;nextBred=s.nextBred; savePool(); renderParent();renderGen();renderPool(); $('undo').disabled=!undoStack.length; toast('undone'); }
+
+function toggleIntron(i){ pushUndo(); parent.sequence[i].intron=!parent.sequence[i].intron; renderParent(); }
+function deleteCodon(i){ if(parent.sequence.length<=1){toast('genome needs ≥1 codon');return;} pushUndo(); parent.sequence.splice(i,1); renderParent(); toast('codon deleted'); }
+function swapCodon(i){
+  const c=parent.sequence[i]; if(!c.near||!c.near.length)return;
+  pushUndo();
+  c.swapIdx=(c.swapIdx+1)%c.near.length;
+  const nb=c.near[c.swapIdx];
+  const full=BYK[nb.k];
+  if(full){ c.lede=full.lede; c.body=full.body; c.origin='E'+full.e; c.k=full.k; c.near=full.near||[]; c.swapIdx=-1; }
+  renderParent();
+  toast(`swapped for ${Math.round(nb.sim*100)}% cousin from E${nb.entry}`);
+}
+
+/* ---------- mutation → offspring ---------- */
+function clone(o){return JSON.parse(JSON.stringify(o));}
+function mutateGenome(base, rate){
+  const g=clone(base);
+  const ops=[]; let swaps=0,sil=0,del=0,ins=0,reord=0;
+  // rhyme-swaps
+  g.sequence.forEach(c=>{
+    if(c.near&&c.near.length&&Math.random()<rate){
+      const nb=c.near[Math.floor(Math.random()*Math.min(3,c.near.length))];
+      const full=BYK[nb.k];
+      if(full){ c.lede=full.lede;c.body=full.body;c.origin='E'+full.e;c.k=full.k;c.near=full.near||[]; swaps++; }
+    }
+  });
+  // silence/express toggles
+  g.sequence.forEach(c=>{ if(Math.random()<rate*0.6){ c.intron=!c.intron; if(c.intron)sil++; } });
+  // deletion
+  if(g.sequence.length>3 && Math.random()<rate*0.5){ const i=Math.floor(Math.random()*g.sequence.length); g.sequence.splice(i,1); del++; }
+  // insertion: pull a codon from a rhyme-neighbour of a random codon
+  if(Math.random()<rate*0.6){
+    const donors=g.sequence.filter(c=>c.near&&c.near.length);
+    if(donors.length){ const d=donors[Math.floor(Math.random()*donors.length)]; const nb=d.near[Math.floor(Math.random()*d.near.length)]; const full=BYK[nb.k];
+      if(full){ const at=Math.floor(Math.random()*(g.sequence.length+1)); g.sequence.splice(at,0,{type:TYPEMAP[full.t],k:full.k,lede:full.lede,body:full.body,origin:'E'+full.e,intron:false,near:full.near||[],swapIdx:-1}); ins++; } }
+  }
+  // reorder (light): swap two adjacent occasionally
+  if(g.sequence.length>2 && Math.random()<rate*0.4){ const i=Math.floor(Math.random()*(g.sequence.length-1)); [g.sequence[i],g.sequence[i+1]]=[g.sequence[i+1],g.sequence[i]]; reord++; }
+  if(swaps)ops.push(swaps+' swap'+(swaps>1?'s':'')); if(sil)ops.push(sil+' silenced'); if(ins)ops.push(ins+' inserted'); if(del)ops.push(del+' deleted'); if(reord)ops.push('reordered');
+  g.opsLabel=ops.length?ops.join(' · '):'no change';
+  // ensure at least one change
+  if(!ops.length){ const cands=g.sequence.filter(c=>c.near&&c.near.length); if(cands.length){ const c=cands[Math.floor(Math.random()*cands.length)]; const full=BYK[c.near[0].k]; if(full){c.lede=full.lede;c.body=full.body;c.origin='E'+full.e;c.k=full.k;c.near=full.near||[];g.opsLabel='1 swap';} } }
+  return g;
+}
+function spawnGeneration(){
+  if(!parent)return;
+  const rate=parseFloat($('rate').value);
+  const N=6;
+  generation=[];
+  for(let i=0;i<N;i++){
+    const child=mutateGenome(parent, rate);
+    child.id='·draft·';
+    child.lineage={op:'mut', chain:(parent.lineage&&parent.lineage.chain?parent.lineage.chain.concat([parent.id]):[parent.id]), ops:child.opsLabel};
+    child.nov=novelty(child);
+    generation.push(child);
+  }
+  generation.sort((a,b)=>b.nov-a.nov);
+  renderGen();
+  toast('spawned '+N+' offspring');
+}
+function renderGen(){
+  const wrap=$('genscroll');
+  $('gn').textContent=generation.length?generation.length+' variants · sorted by novelty':'';
+  if(!generation.length){
+    wrap.innerHTML=`<div class="genempty">No generation yet.<br><br>Set a mutation rate and tap <b>Spawn ▸</b>. Offspring drift through rhyme-neighbours; the <b>novelty %</b> shows how unlike every existing reading each one is.<br><br>Tap one to read it; <b>promote</b> the interesting one to make it the parent.</div>`;
+    return;
+  }
+  wrap.innerHTML=generation.map((g,i)=>{
+    const c={INS:0,TEN:0,SOW:0,MIS:0}; g.sequence.forEach(x=>{if(!x.intron)c[x.type]++;});
+    const tot=Object.values(c).reduce((a,b)=>a+b,0)||1;
+    const bar=SECORDER.map(t=>{const w=c[t]/tot*100;return w?`<span class="sq ${t}" style="width:${w}%;height:100%"></span>`:'';}).join("");
+    const first=g.sequence.find(x=>!x.intron)||g.sequence[0];
+    return `<div class="off" data-off="${i}">
+      <div class="onov"><span class="nv">${g.nov}</span><span class="nl">novel</span></div>
+      <div class="obar">${bar}</div>
+      <div class="ochg">${esc(g.opsLabel)}</div>
+      <div class="oprev">${esc(first.lede)}</div>
+      <div class="ofoot"><button data-peek="${i}">Read</button><button class="promote" data-promote="${i}">Promote</button></div>
+    </div>`;
+  }).join("");
+}
+
+/* promote offspring → parent + save to pool */
+function promote(i){
+  const child=generation[i]; if(!child)return;
+  pushUndo();
+  const id='B'+(nextBred++);
+  child.id=id; child.bred=true;
+  pool.unshift(clone(child));
+  savePool();
+  parent=clone(child); parentMode='strand';
+  document.querySelectorAll('.pmode button').forEach(b=>b.classList.toggle('on',b.dataset.pm==='strand'));
+  generation=[];
+  renderParent();renderGen();renderPool();
+  toast('promoted → '+id+' (saved to pool)');
+}
+
+/* ---------- PEEK (read offspring) ---------- */
+let peekIdx=-1, peekFrom='gen';
+function openPeek(i, from){
+  peekFrom=from||'gen';
+  const g = peekFrom==='pool'? pool[i] : generation[i];
+  peekIdx=i;
+  $('pkt').textContent=(g.id&&g.id!=='·draft·'?g.id+' · ':'draft · ')+(THEMES[g.species]||g.species);
+  $('pknov').textContent=(g.nov!=null?g.nov+'% novel':'');
+  $('pkbody').innerHTML=phenotypeHTML(g).replace('<div class="pcopy">','<div class="pcopy" style="display:none">');
+  if(g.lineage){ const t=el('div'); t.style.cssText='font-size:9px;color:var(--g4);padding:8px 12px;letter-spacing:.02em;border-top:1px solid var(--rule)'; t.innerHTML=lineageTrail(g); $('pkbody').appendChild(t); }
+  $('peek').classList.add('on');
+}
+function closePeek(){ $('peek').classList.remove('on'); peekIdx=-1; }
+
+/* ---------- POOL ---------- */
+function renderPool(){
+  $('poolcount').textContent=pool.length;
+  const list=$('poollist');
+  if(!pool.length){ list.innerHTML=`<div class="poolempty">Your cultivated genomes appear here — the <b>stepping-stone archive</b>.<br><br>Promote offspring in the Breeder to grow it. Each keeps its full lineage, and the pool feeds the novelty score (offspring are measured against what you've already kept).</div>`; return; }
+  list.innerHTML=pool.map((g,i)=>{
+    const first=g.sequence.find(c=>!c.intron)||g.sequence[0];
+    const n=g.sequence.filter(c=>!c.intron).length;
+    return `<div class="bred">
+      <div class="bh"><span class="bid">${g.id}</span><span style="font-size:9px;color:var(--g4)">${esc(THEMES[g.species]||g.species)} · ${n} codons</span><span class="bnov">${g.nov!=null?g.nov+'% novel':''}</span></div>
+      <div class="blin">${lineageTrail(g)}</div>
+      <div class="bprev">${esc(first.lede)}</div>
+      <div class="bf"><button data-poolpeek="${i}">Read</button><button class="load" data-poolload="${i}">Breed from</button><button data-poolcopy="${i}">Copy</button><button class="del" data-pooldel="${i}">Delete</button></div>
+    </div>`;
+  }).join("");
+}
+function savePool(){ try{ localStorage.setItem(LS_POOL, JSON.stringify({pool,nextBred})); }catch(e){} }
+function loadPool(){ try{ const r=localStorage.getItem(LS_POOL); if(r){ const d=JSON.parse(r); pool=d.pool||[]; nextBred=d.nextBred||(pool.length+1); } }catch(e){ pool=[]; } }
+
+/* ---------- copy ---------- */
+function genomeToText(g){
+  let s=`# ${g.id} — ${THEMES[g.species]||g.species}\n`;
+  if(g.lineage) s+=`(${stripTags(lineageTrail(g))})\n`;
+  SECORDER.forEach(t=>{
+    const items=g.sequence.filter(c=>!c.intron&&c.type===t);
+    if(!items.length)return;
+    s+=`\n## ${TYPEINFO[t].sec}\n`;
+    items.forEach(c=>{ s+=`- ${c.lede}${c.body&&c.body!==c.lede?'  '+c.body:''}\n`; });
+  });
+  return s;
+}
+function stripTags(h){ return h.replace(/<[^>]+>/g,''); }
+function copy(text,label){ const done=()=>toast(label||'copied'); if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(done).catch(()=>fb(text,done)); else fb(text,done); }
+function fb(t,cb){const a=el('textarea');a.value=t;a.style.cssText='position:fixed;opacity:0';document.body.appendChild(a);a.select();try{document.execCommand('copy')}catch(e){}document.body.removeChild(a);cb&&cb();}
+
+/* ---------- RECOMBINATION ---------- */
+let rcMode='cut', rcPick={a:-1,b:-1};
+function enterRecomb(){
+  if(!parent){toast('load a parent first');return;}
+  rcPick={a:-1,b:-1};
+  $('rcaid').textContent=parent.id;
+  renderRcStrand($('rca'), parent, 'a');
+  // populate B selector with all genomes (real + pool), excluding parent
+  const sel=$('rcbsel'); sel.innerHTML='';
+  GENOMES.forEach(g=>{ if(g.id!==parent.id) sel.add(new Option(g.id+' · '+(THEMES[g.species]||g.species).slice(0,18), g.id)); });
+  pool.forEach(g=>{ if(g.id!==parent.id) sel.add(new Option(g.id+' · pool', g.id)); });
+  loadRcB(sel.value);
+  setRcMode('cut');
+  $('recomb').classList.add('on');
+}
+function genomeById(id){ return GBYID[id] || pool.find(g=>g.id===id); }
+function loadRcB(id){ const g=genomeById(id); if(!g)return; renderRcStrand($('rcb'), g, 'b'); rcPick.b=-1; updateRcGo(); }
+function renderRcStrand(wrap, g, strand){
+  wrap.innerHTML='';
+  g.sequence.forEach((c,i)=>{
+    if(c.intron) return;
+    const row=el('div','codon');
+    row.dataset.i=i; row.dataset.strand=strand;
+    const type=el('div','ctype '+c.type); type.innerHTML=`<span class="tt">${c.type}</span>`;
+    const pay=el('div','cpay'); pay.innerHTML=`<span class="cl">${esc(c.lede)}</span>`;
+    row.appendChild(type);row.appendChild(pay);
+    row.addEventListener('click',()=>pickCut(wrap,row,strand,i));
+    wrap.appendChild(row);
+  });
+}
+function setRcMode(m){
+  rcMode=m;
+  document.querySelectorAll('#rcmode button').forEach(b=>b.classList.toggle('on',b.dataset.rc===m));
+  $('rcnote').textContent = m==='cut'
+    ? 'Tap a cut codon on each strand. Offspring = A up to its cut, then B after its cut.'
+    : 'By section: offspring takes Insights+Tensions from A, So-whats+Missings from B. No cut needed — just pick strand B.';
+  rcPick={a:-1,b:-1};
+  document.querySelectorAll('#rca .cut,#rcb .cut').forEach(x=>x.classList.remove('cut'));
+  updateRcGo();
+}
+function pickCut(wrap,row,strand,i){
+  if(rcMode==='section') return;
+  wrap.querySelectorAll('.cut').forEach(x=>x.classList.remove('cut'));
+  row.classList.add('cut'); rcPick[strand]=i; updateRcGo();
+}
+function updateRcGo(){
+  if(rcMode==='section'){ $('rcgo').disabled=false; }
+  else $('rcgo').disabled=!(rcPick.a>=0 && rcPick.b>=0);
+}
+function performRecomb(){
+  const A=parent, B=genomeById($('rcbsel').value);
+  if(!B)return;
+  let seq;
+  if(rcMode==='section'){
+    const fromA=A.sequence.filter(c=>!c.intron && (c.type==='INS'||c.type==='TEN'));
+    const fromB=B.sequence.filter(c=>!c.intron && (c.type==='SOW'||c.type==='MIS'));
+    seq=clone(fromA.concat(fromB));
+  }else{
+    const aPart=A.sequence.filter(c=>!c.intron).slice(0, indexInExons(A,rcPick.a)+1);
+    const bPart=B.sequence.filter(c=>!c.intron).slice(indexInExons(B,rcPick.b)+1);
+    seq=clone(aPart.concat(bPart));
+  }
+  if(!seq.length){toast('empty splice — pick different cuts');return;}
+  seq.forEach(c=>c.swapIdx=-1);
+  pushUndo();
+  const id='B'+(nextBred++);
+  const child={id, bred:true, species:A.species, tags:A.tags, src:null, date:A.date,
+    sequence:seq, lineage:{op:'cross', a:A.id, b:B.id}};
+  child.nov=novelty(child);
+  pool.unshift(clone(child)); savePool();
+  $('recomb').classList.remove('on');
+  parent=clone(child); parentMode='strand';
+  document.querySelectorAll('.pmode button').forEach(b=>b.classList.toggle('on',b.dataset.pm==='strand'));
+  generation=[]; renderParent();renderGen();renderPool();
+  toast('spliced → '+id+' ('+child.nov+'% novel)');
+}
+function indexInExons(g, rawIdx){ // map raw sequence index to position among exons
+  let e=-1; for(let j=0;j<=rawIdx&&j<g.sequence.length;j++){ if(!g.sequence[j].intron) e++; } return e;
+}
+
+/* ---------- views ---------- */
+function switchView(v){
+  document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on',s.id===v));
+  document.querySelectorAll('#modes button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.view===v));
+  if(v==='lib')renderLib(); if(v==='brd'){renderParent();renderGen();} if(v==='pool')renderPool();
+}
+
+/* ---------- wire ---------- */
+function wire(){
+  $('modes').addEventListener('click',e=>{const b=e.target.closest('[data-view]');if(b)switchView(b.dataset.view);});
+  $('undo').addEventListener('click',doUndo);
+  // library
+  const lq=$('lq'); let lqt; lq.addEventListener('input',()=>{libQuery=lq.value;clearTimeout(lqt);lqt=setTimeout(renderLib,140);});
+  $('species').addEventListener('click',e=>{const b=e.target.closest('[data-sp]');if(b){libSpecies=b.dataset.sp;renderLib();}});
+  $('liblist').addEventListener('click',e=>{const b=e.target.closest('[data-load]');if(b){const g=GBYID[b.dataset.load];if(g)loadParent(g);}});
+  // parent mode toggle
+  document.querySelector('.pmode').addEventListener('click',e=>{const b=e.target.closest('[data-pm]');if(b){parentMode=b.dataset.pm;document.querySelectorAll('.pmode button').forEach(x=>x.classList.toggle('on',x===b));renderParent();}});
+  // parent read-card copy/save (delegated)
+  $('pscroll').addEventListener('click',e=>{
+    if(e.target.id==='copycard'){ copy(genomeToText(parent), parent.id+' copied'); }
+    else if(e.target.id==='poolthis'){ saveParentToPool(); }
+  });
+  // controls
+  $('rate').addEventListener('input',e=>$('rv').textContent=parseFloat(e.target.value).toFixed(2).replace(/^0/,''));
+  $('spawn').addEventListener('click',spawnGeneration);
+  $('cross').addEventListener('click',enterRecomb);
+  // generation
+  $('genscroll').addEventListener('click',e=>{
+    let b=e.target.closest('[data-promote]'); if(b){promote(+b.dataset.promote);return;}
+    b=e.target.closest('[data-peek]'); if(b){openPeek(+b.dataset.peek,'gen');return;}
+    b=e.target.closest('[data-off]'); if(b){openPeek(+b.dataset.off,'gen');}
+  });
+  // peek
+  $('pkx').addEventListener('click',closePeek);
+  $('pkcopy').addEventListener('click',()=>{ const g=peekFrom==='pool'?pool[peekIdx]:generation[peekIdx]; copy(genomeToText(g),'copied'); });
+  $('pkpromote').addEventListener('click',()=>{ if(peekFrom==='pool'){ loadParent(pool[peekIdx]); closePeek(); switchView('brd'); } else { closePeek(); promote(peekIdx); } });
+  // pool
+  $('poollist').addEventListener('click',e=>{
+    let b=e.target.closest('[data-poolpeek]'); if(b){openPeek(+b.dataset.poolpeek,'pool');return;}
+    b=e.target.closest('[data-poolload]'); if(b){loadParent(pool[+b.dataset.poolload]);switchView('brd');return;}
+    b=e.target.closest('[data-poolcopy]'); if(b){copy(genomeToText(pool[+b.dataset.poolcopy]),'copied');return;}
+    b=e.target.closest('[data-pooldel]'); if(b){ if(confirm('Delete this bred genome?')){ pushUndo(); pool.splice(+b.dataset.pooldel,1); savePool(); renderPool(); } }
+  });
+  $('exportpool').addEventListener('click',exportPool);
+  // recomb
+  $('rcx').addEventListener('click',()=>$('recomb').classList.remove('on'));
+  $('rcmode').addEventListener('click',e=>{const b=e.target.closest('[data-rc]');if(b)setRcMode(b.dataset.rc);});
+  $('rcbsel').addEventListener('change',e=>loadRcB(e.target.value));
+  $('rcgo').addEventListener('click',performRecomb);
+  // welcome
+  $('startbtn').addEventListener('click',()=>{$('welcome').classList.add('hidden');});
+  // keys
+  window.addEventListener('keydown',e=>{
+    if($('peek').classList.contains('on')&&e.key==='Escape')closePeek();
+    if($('recomb').classList.contains('on')&&e.key==='Escape')$('recomb').classList.remove('on');
+    if((e.ctrlKey||e.metaKey)&&e.key==='z'){e.preventDefault();doUndo();}
+  });
+}
+function saveParentToPool(){
+  if(!parent)return;
+  const exists=pool.some(g=>g.id===parent.id);
+  pushUndo();
+  let g=clone(parent);
+  if(!g.bred || exists){ g.id='B'+(nextBred++); g.bred=true; if(!g.lineage)g.lineage={op:'mut',chain:[parent.id],ops:'hand-edited'}; }
+  g.nov=novelty(g);
+  pool.unshift(g); savePool(); renderPool();
+  toast('saved → '+g.id);
+}
+function exportPool(){
+  if(!pool.length){toast('pool is empty');return;}
+  const blob=new Blob([JSON.stringify({pool,nextBred,exported:new Date().toISOString()},null,2)],{type:'application/json'});
+  const a=el('a'); a.href=URL.createObjectURL(blob); a.download='breeder-pool.json'; a.click(); URL.revokeObjectURL(a.href);
+  toast('pool exported');
+}
+
+/* ---------- load ---------- */
+fetch('lines.json').then(r=>{ if(!r.ok)throw new Error('lines.json '+r.status); return r.json(); })
+.then(d=>{
+  LINES=d.lines; LINES.forEach(l=>BYK[l.k]=l); THEMES=d.meta.themes;
+  buildGenomes(); loadPool();
+  wire(); renderLib();
+}).catch(err=>{
+  $('welcome').classList.add('hidden');
+  $('stage').innerHTML=`<div class="loaderr">Couldn't load <b>lines.json</b> (${esc(err.message)}).<br>Serve this file alongside <code>lines.json</code> over http — same folder, not a bare file open.</div>`;
+});
+})();
+</script>
+</body>
+</html>

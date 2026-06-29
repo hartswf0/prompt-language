@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LINES — 3,174 one-line items</title>
+<style>
+  :root{
+    --bg:#fff;--ink:#000;--paper:#fafaf8;--line:#000;
+    --mut:#5a5a55;--faint:#8c8c86;--rule:#deded6;
+    --teal:#0f6e56;--teal-bg:#e1f5ee;--blue:#185fa5;--blue-bg:#e6f1fb;
+    --amber:#854f0b;--amber-bg:#faeeda;--red:#a32d2d;--red-bg:#fcebeb;
+    --mono:'IBM Plex Mono','SFMono-Regular',ui-monospace,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;border-radius:0!important}
+  html{-webkit-text-size-adjust:100%}
+  body{background:var(--bg);color:var(--ink);font-family:var(--mono);font-size:13.5px;line-height:1.5;-webkit-font-smoothing:antialiased;padding-bottom:env(safe-area-inset-bottom)}
+  button,input,textarea{font-family:inherit;font-size:inherit;color:inherit}
+  button{background:none;border:none;cursor:pointer}
+  ::selection{background:var(--amber-bg)}
+
+  header{border-bottom:2px solid var(--line);padding:12px 12px 8px;position:sticky;top:0;background:var(--bg);z-index:50}
+  .brand{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+  .brand h1{font-size:14px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+  .brand .meta{font-size:10px;color:var(--faint);letter-spacing:.06em;white-space:nowrap}
+  .searchwrap{display:flex;margin-top:8px;border:1.5px solid var(--line)}
+  .searchwrap .mk{width:30px;border-right:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;flex:none}
+  .searchwrap .mk i{width:10px;height:10px;border:1.5px solid var(--ink);border-radius:50%!important;position:relative;display:block}
+  .searchwrap .mk i::after{content:"";position:absolute;width:6px;height:1.5px;background:var(--ink);transform:rotate(45deg);right:-5px;bottom:-1px}
+  .searchwrap input{flex:1;border:none;outline:none;padding:8px 9px;font-size:12.5px;min-width:0;background:var(--bg)}
+  .searchwrap .clr{width:30px;border-left:1.5px solid var(--line);flex:none;font-size:15px;color:var(--mut)}
+
+  nav.types{display:flex;border-bottom:1.5px solid var(--line)}
+  nav.types button{flex:1;padding:9px 4px;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);border-right:1px solid var(--rule);position:relative;text-align:center}
+  nav.types button:last-child{border-right:none}
+  nav.types button .n{display:block;font-size:9px;color:var(--faint);margin-top:2px;font-weight:400;letter-spacing:.02em}
+  nav.types button[aria-selected="true"]{background:var(--ink);color:var(--bg)}
+  nav.types button[aria-selected="true"] .n{color:#bdbdb6}
+  nav.types button .sq{display:inline-block;width:7px;height:7px;margin-right:4px;vertical-align:1px}
+  .sq.insight{background:var(--teal)}.sq.tension{background:var(--red)}.sq.sowhat{background:var(--blue)}.sq.missing{background:var(--amber)}
+
+  .ctrl{display:flex;align-items:center;gap:8px;padding:7px 12px;border-bottom:1px solid var(--rule);font-size:10px;color:var(--faint);letter-spacing:.04em;flex-wrap:wrap}
+  .ctrl .sel{display:flex;gap:0;border:1px solid var(--rule)}
+  .ctrl .sel button{font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;padding:3px 7px;color:var(--mut);border-right:1px solid var(--rule)}
+  .ctrl .sel button:last-child{border-right:none}
+  .ctrl .sel button.on{background:var(--ink);color:var(--bg)}
+  .ctrl .desc{flex:1;min-width:120px;text-align:right;font-style:italic}
+  .ctrl .tokread{color:var(--mut)}
+  .ctrl .tokread b{color:var(--ink);font-weight:700}
+
+  main{max-width:780px;margin:0 auto}
+
+  .ln{border-top:1px solid var(--rule);padding:9px 12px;position:relative}
+  .ln:first-child{border-top:none}
+  .ln.flagged{background:#fffdf5}
+  .ln .l1{display:flex;align-items:flex-start;gap:8px}
+  .ln .id{font-size:9.5px;color:var(--faint);flex:none;min-width:46px;letter-spacing:.02em;padding-top:2px;line-height:1.4}
+  .ln .id b{color:var(--mut);font-weight:700}
+  .ln .lede{flex:1;font-size:13px;line-height:1.45;font-weight:500;cursor:text}
+  .ln .actions{display:flex;gap:3px;flex:none;align-items:center}
+  .ln .actions button{width:24px;height:24px;border:1px solid var(--rule);display:flex;align-items:center;justify-content:center;color:var(--mut);font-size:11px;line-height:1}
+  .ln .actions button:active{background:var(--ink);color:var(--bg)}
+  .ln .actions button.has{border-color:var(--amber);color:var(--amber)}
+  .ln .actions button.rhy.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+  .ic-copy{position:relative;width:9px;height:9px;border:1.5px solid currentColor}
+  .ic-copy::before{content:"";position:absolute;width:9px;height:9px;border:1.5px solid currentColor;left:-3px;top:-3px;background:var(--bg)}
+  .ln .meta2{display:flex;flex-wrap:wrap;gap:5px;margin:5px 0 0 54px;align-items:center}
+  .pill{font-size:9px;letter-spacing:.04em;text-transform:uppercase;padding:1px 5px;border:1px solid var(--rule);color:var(--mut);white-space:nowrap}
+  .pill.fl{border-color:var(--blue);color:var(--blue)}
+  .pill.src{border-color:var(--amber);color:var(--amber)}
+  .pill.lk{border:none;color:var(--faint);padding-left:0;cursor:pointer;text-decoration:underline}
+  .pill.dt{border:none;color:var(--faint);padding-left:0}
+
+  .gist{margin:6px 0 0 54px;display:none}
+  .gist.show{display:block}
+  .gist textarea{width:100%;border:1.5px solid var(--rule);padding:6px 8px;font-size:12px;line-height:1.45;resize:vertical;min-height:34px;background:var(--bg)}
+  .gist textarea:focus{border-color:var(--amber);outline:none}
+  .gist .wc{font-size:9px;color:var(--faint);margin-top:2px;letter-spacing:.04em}
+  .gist .wc.over{color:var(--red)}
+
+  .rhymes{margin:6px 0 2px 54px;display:none;border-left:2px solid var(--ink);padding:4px 0 4px 9px}
+  .rhymes.show{display:block}
+  .rhymes .rh{font-size:11.5px;line-height:1.4;color:var(--mut);margin-bottom:5px;cursor:pointer}
+  .rhymes .rh:last-child{margin-bottom:0}
+  .rhymes .rh:active{color:var(--ink)}
+  .rhymes .rh .sim{display:inline-block;font-size:9px;color:var(--ink);background:var(--teal-bg);padding:0 4px;margin-right:5px;letter-spacing:.02em}
+  .rhymes .rh .re{color:var(--faint);font-size:9px}
+  .rhymes .merge{margin-top:4px}
+  .rhymes .merge button{font-size:9px;text-transform:uppercase;letter-spacing:.06em;border:1px solid var(--ink);padding:2px 7px;color:var(--ink)}
+  .rhymes .merge button:active{background:var(--ink);color:var(--bg)}
+
+  .empty{padding:36px 18px;text-align:center;color:var(--faint);font-size:12px;letter-spacing:.04em}
+  .hl{background:var(--amber-bg);font-weight:700}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--bg);font-size:11px;letter-spacing:.06em;padding:8px 14px;z-index:90;opacity:0;transition:opacity .2s;pointer-events:none;text-transform:uppercase}
+  .toast.show{opacity:1}
+
+  .loadmore{display:block;width:100%;border:none;border-top:1.5px solid var(--line);padding:12px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);background:var(--paper)}
+  .loadmore:active{background:var(--ink);color:var(--bg)}
+
+  @media(min-width:620px){ .ln .lede{font-size:13.5px} }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><h1>Lines</h1><span class="meta" id="hmeta">one item · one line</span></div>
+  <div class="searchwrap">
+    <span class="mk" aria-hidden="true"><i></i></span>
+    <input id="q" type="search" inputmode="search" placeholder="filter lines…" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <button class="clr" id="clr" aria-label="clear">×</button>
+  </div>
+</header>
+
+<nav class="types" id="types" role="tablist"></nav>
+
+<div class="ctrl">
+  <span class="sel" id="sortsel">
+    <button data-sort="entry" class="on">Entry</button>
+    <button data-sort="rhyme">Rhymes</button>
+    <button data-sort="len">Longest</button>
+    <button data-sort="flag">Flagged</button>
+  </span>
+  <span class="tokread" id="tokread"></span>
+  <span class="desc" id="typedesc"></span>
+</div>
+
+<main id="main"></main>
+<div class="toast" id="toast">copied</div>
+
+<script>
+let DATA=null, LINES=[], META=null, type="insight", query="", sortMode="entry", showCount=120;
+const TYPES=["insight","tension","sowhat","missing"];
+
+const esc=s=>(s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+function tag(id){ return META.themes[id]||id.replace(/-/g," "); }
+function gKey(k){ return "afgist:"+k; }
+function flagKey(k){ return "afflag:"+k; }
+function getGist(k){ try{return localStorage.getItem(gKey(k))||"";}catch(e){return"";} }
+function setGist(k,v){ try{ v?localStorage.setItem(gKey(k),v):localStorage.removeItem(gKey(k)); }catch(e){} }
+function isFlag(k){ try{return localStorage.getItem(flagKey(k))==="1";}catch(e){return false;} }
+function setFlag(k,v){ try{ v?localStorage.setItem(flagKey(k),"1"):localStorage.removeItem(flagKey(k)); }catch(e){} }
+function words(s){ return (s.trim().match(/\S+/g)||[]).length; }
+
+function highlight(t){
+  const q=query.trim(); if(!q) return esc(t);
+  try{ const re=new RegExp("("+q.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+")","ig"); return esc(t).replace(re,'<span class="hl">$1</span>'); }
+  catch(e){ return esc(t); }
+}
+function toast(msg){ const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove("show"),900); }
+function copy(text,label){
+  const done=()=>toast((label||"copied"));
+  if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(done).catch(()=>fallback(text,done)); }
+  else fallback(text,done);
+}
+function fallback(text,cb){ const ta=document.createElement("textarea"); ta.value=text; ta.style.position="fixed"; ta.style.opacity="0"; document.body.appendChild(ta); ta.select(); try{document.execCommand("copy");}catch(e){} document.body.removeChild(ta); cb&&cb(); }
+
+function current(){
+  const q=query.trim().toLowerCase();
+  let arr=LINES.filter(l=>l.t===type);
+  if(q) arr=arr.filter(l=> l.lede.toLowerCase().includes(q) || l.body.toLowerCase().includes(q) || (l.fl||"").toLowerCase().includes(q) || l.tags.some(t=>tag(t).toLowerCase().includes(q)) );
+  if(sortMode==="entry") arr=[...arr].sort((a,b)=>a.e-b.e||a.k-b.k);
+  else if(sortMode==="rhyme") arr=[...arr].sort((a,b)=>((b.near?b.near[0].sim:0)-(a.near?a.near[0].sim:0)));
+  else if(sortMode==="len") arr=[...arr].sort((a,b)=>words(b.lede)-words(a.lede));
+  else if(sortMode==="flag") arr=[...arr].sort((a,b)=>(isFlag(b.k)?1:0)-(isFlag(a.k)?1:0)||a.e-b.e);
+  return arr;
+}
+
+function lineHTML(l){
+  const gist=getGist(l.k);
+  const flagged=isFlag(l.k);
+  const fl = l.fl && (type==="sowhat"||type==="missing") ? `<span class="pill fl">${esc(l.fl)}</span>`:"";
+  const src = l.src? `<span class="pill src">${esc(l.src)}</span>`:"";
+  const dt = `<span class="pill dt">${l.d}</span>`;
+  const prim = `<span class="pill">${esc(tag(l.prim))}</span>`;
+  const nlk = l.near&&l.near.length? `<span class="pill lk" data-rhy="${l.k}">${l.near.length} rhyme${l.near.length>1?"s":""}</span>`:"";
+  const wc = gist? `<span class="wc ${words(gist)>18?'over':''}">${words(gist)} words</span>`:`<span class="wc">aim 12–18 words</span>`;
+  return `<div class="ln ${flagged?'flagged':''}" data-k="${l.k}" id="ln-${l.k}">
+    <div class="l1">
+      <span class="id"><b>#${l.e}</b> ·${String(l.k).padStart(4,"0")}</span>
+      <span class="lede" data-lede="${l.k}">${highlight(l.lede)}</span>
+      <span class="actions">
+        <button class="gistbtn ${gist?'has':''}" data-gist="${l.k}" aria-label="write gist" title="write/edit gist">≡</button>
+        <button class="flagbtn" data-flag="${l.k}" aria-label="flag" title="flag to keep" style="${flagged?'border-color:var(--amber);color:var(--amber)':''}">${flagged?'◆':'◇'}</button>
+        <button class="rhy" data-rhy="${l.k}" aria-label="rhymes" title="show similar lines" ${l.near&&l.near.length?'':'disabled style="opacity:.3"'}>≈</button>
+        <button class="copybtn" data-copy="${l.k}" aria-label="copy line" title="copy"><span class="ic-copy"></span></button>
+      </span>
+    </div>
+    <div class="meta2">${dt}${fl}${prim}${src}${nlk}</div>
+    <div class="gist ${gist?'':''}" data-gistbox="${l.k}">
+      <textarea data-gistta="${l.k}" placeholder="your compression — one tight line (12–18 words)">${esc(gist)}</textarea>
+      ${wc}
+    </div>
+    <div class="rhymes" data-rhybox="${l.k}"></div>
+  </div>`;
+}
+
+function render(reset){
+  if(reset) showCount=120;
+  const arr=current();
+  const slice=arr.slice(0,showCount);
+  const main=document.getElementById("main");
+  if(arr.length===0){ main.innerHTML=`<div class="empty">No ${META.types[type].label.toLowerCase()} match “${esc(query)}”.</div>`; updateReadout(arr); return; }
+  let html=slice.map(lineHTML).join("");
+  if(arr.length>showCount) html+=`<button class="loadmore" id="loadmore">Show ${Math.min(120,arr.length-showCount)} more · ${arr.length-showCount} hidden</button>`;
+  main.innerHTML=html;
+  updateReadout(arr);
+}
+
+function updateReadout(arr){
+  // tokens ≈ words*1.3 (rough). Show ledes total vs gists total to watch compression.
+  const ledeWords=arr.reduce((s,l)=>s+words(l.lede),0);
+  let gistWords=0, gistCount=0;
+  arr.forEach(l=>{ const g=getGist(l.k); if(g){gistWords+=words(g);gistCount++;} });
+  const flagged=arr.filter(l=>isFlag(l.k)).length;
+  document.getElementById("tokread").innerHTML =
+    `<b>${arr.length}</b> lines · ~<b>${Math.round(ledeWords*1.3)}</b> tok in ledes`
+    + (gistCount? ` · <b>${gistCount}</b> gisted (~${Math.round(gistWords*1.3)} tok)`:``)
+    + (flagged? ` · <b>${flagged}</b> flagged`:``);
+  document.getElementById("typedesc").textContent=META.types[type].desc;
+}
+
+function rhymesHTML(l){
+  return l.near.map(n=>`<div class="rh" data-jump="${n.k}"><span class="sim">${(n.sim*100).toFixed(0)}%</span>${esc(n.lede)} <span class="re">#${n.entry}</span></div>`).join("")
+    + `<div class="merge"><button data-mergewith="${l.k}">Copy this + rhymes for merging</button></div>`;
+}
+
+/* ---- events ---- */
+const main=document.getElementById("main");
+main.addEventListener("click",e=>{
+  const k=el=>+el.getAttribute(el.dataset.gist!==undefined?"data-gist":"data-x");
+  // gist toggle
+  let b=e.target.closest("[data-gist]");
+  if(b){ const box=main.querySelector(`[data-gistbox="${b.dataset.gist}"]`); box.classList.toggle("show");
+    if(box.classList.contains("show")) box.querySelector("textarea").focus(); return; }
+  // flag
+  b=e.target.closest("[data-flag]");
+  if(b){ const kk=+b.dataset.flag; const nv=!isFlag(kk); setFlag(kk,nv);
+    const ln=main.querySelector(`#ln-${kk}`); ln.classList.toggle("flagged",nv);
+    b.textContent=nv?"◆":"◇"; b.style.cssText=nv?'border-color:var(--amber);color:var(--amber)':'';
+    updateReadout(current()); return; }
+  // rhymes
+  b=e.target.closest("[data-rhy]");
+  if(b){ const kk=+b.dataset.rhy; const l=LINES.find(x=>x.k===kk); if(!l||!l.near) return;
+    const box=main.querySelector(`[data-rhybox="${kk}"]`);
+    if(box.classList.contains("show")){ box.classList.remove("show"); box.innerHTML=""; }
+    else{ box.innerHTML=rhymesHTML(l); box.classList.add("show"); }
+    return; }
+  // copy
+  b=e.target.closest("[data-copy]");
+  if(b){ const l=LINES.find(x=>x.k===+b.dataset.copy); const g=getGist(l.k);
+    copy(g? g : l.lede, g?"copied gist":"copied lede"); return; }
+  // jump to a rhyme
+  b=e.target.closest("[data-jump]");
+  if(b){ const tk=+b.dataset.jump; const tl=LINES.find(x=>x.k===tk);
+    if(tl && tl.t!==type){ /* different type: switch */ type=tl.t; setTypeUI(); render(true); }
+    setTimeout(()=>{ const el=main.querySelector(`#ln-${tk}`); if(el){ el.scrollIntoView({behavior:"smooth",block:"center"}); el.style.background="var(--amber-bg)"; setTimeout(()=>el.style.background="",1200);} },80);
+    return; }
+  // merge copy
+  b=e.target.closest("[data-mergewith]");
+  if(b){ const l=LINES.find(x=>x.k===+b.dataset.mergewith);
+    const block=[ "• "+l.lede, ...l.near.map(n=>"• "+n.lede) ].join("\n");
+    copy(block,"copied "+(l.near.length+1)+" lines"); return; }
+  // tap lede to copy too (quick)
+  b=e.target.closest("[data-lede]");
+  if(b){ const l=LINES.find(x=>x.k===+b.dataset.lede); copy(l.lede,"copied lede"); }
+});
+main.addEventListener("input",e=>{
+  const ta=e.target.closest("[data-gistta]"); if(!ta) return;
+  const kk=+ta.dataset.gistta;
+  clearTimeout(ta._t); ta._t=setTimeout(()=>{ const v=ta.value.trim(); setGist(kk,v);
+    const wc=ta.parentElement.querySelector(".wc"); wc.textContent=v?words(v)+" words":"aim 12–18 words"; wc.classList.toggle("over",words(v)>18);
+    const gb=main.querySelector(`[data-gist="${kk}"]`); if(gb) gb.classList.toggle("has",!!v);
+    updateReadout(current());
+  },300);
+});
+main.addEventListener("click",e=>{ if(e.target.id==="loadmore"){ showCount+=120; render(false);} });
+
+function setTypeUI(){ document.querySelectorAll("#types button").forEach(b=>b.setAttribute("aria-selected",b.dataset.type===type)); }
+document.getElementById("types").addEventListener("click",e=>{ const b=e.target.closest("[data-type]"); if(!b)return; type=b.dataset.type; setTypeUI(); render(true); window.scrollTo(0,0); });
+document.getElementById("sortsel").addEventListener("click",e=>{ const b=e.target.closest("[data-sort]"); if(!b)return; sortMode=b.dataset.sort;
+  document.querySelectorAll("#sortsel button").forEach(x=>x.classList.toggle("on",x===b)); render(true); });
+const qel=document.getElementById("q"); let qt;
+qel.addEventListener("input",()=>{ query=qel.value; clearTimeout(qt); qt=setTimeout(()=>render(true),140); });
+document.getElementById("clr").addEventListener("click",()=>{ qel.value=""; query=""; render(true); qel.focus(); });
+
+/* ---- load ---- */
+fetch("lines.json").then(r=>{ if(!r.ok) throw new Error("lines.json "+r.status); return r.json(); })
+.then(d=>{
+  DATA=d; LINES=d.lines; META=d.meta;
+  document.getElementById("hmeta").textContent = d.meta.n_lines.toLocaleString()+" lines";
+  // build type tabs
+  document.getElementById("types").innerHTML = TYPES.map(t=>{
+    const m=d.meta.types[t]; const c=d.meta.counts[t]||0;
+    return `<button role="tab" data-type="${t}" aria-selected="${t===type}"><span class="sq ${m.sq}"></span>${m.label}<span class="n">${c}</span></button>`;
+  }).join("");
+  render(true);
+}).catch(err=>{
+  document.getElementById("main").innerHTML=`<div class="empty">Couldn't load <b>lines.json</b> (${esc(err.message)}).<br><br>Serve this file next to <code>lines.json</code> over http — not as a bare file open.</div>`;
+});
+</script>
+</body>
+</html>

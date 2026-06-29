@@ -1,0 +1,517 @@
+# SO_WHAT
+
+Generated from `analysis-sections/sections.json` by `scripts/build-analysis-lines.mjs`.
+
+Rows: 511
+
+- `L1830` Treat prompt literacy as critical model literacy, not merely as a new form of creative writing.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L50)_
+- `L1831` Without that distinction, users may mistake successful model control for improved expressive ability.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L54)_
+- `L1832` Evaluate generative AI at multiple prompting intensities rather than debating whether it is intrinsically bland.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L125)_
+- `L1833` Without this separation, model advocates can credit the system for expert human steering, while critics can mistake default behavior for the limit of the system’s output space.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L129)_
+- `L1834` Prioritize construction of a model-independent canon operating system before expanding into additional media.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L204)_
+- `L1835` AI makes expansion cheap enough to outrun coherence.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L208)_
+- `L1836` Do not organize the adaptation around reproducing the Odyssey’s famous episodes.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L283)_
+- `L1837` Spectacle is now technically abundant and therefore strategically secondary.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L287)_
+- `L1838` Regulate AI deployment at the level of work organization, not merely model safety.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L362)_
+- `L1839` Debates about whether models are intelligent, biased, accurate, or environmentally costly can leave the decisive institutional choice untouched: who captures the productivity gain and who absorbs the risk.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L366)_
+- `L1840` Do not regulate advanced cybersecurity models by prompt anecdote or by undifferentiated model access.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L441)_
+- `L1841` The relevant question is not whether a model can produce vulnerability-related code; many tools and human experts already can.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L445)_
+- `L1842` Treat provenance and editable decision structure—not prompt convenience—as the decisive requirement for neural CAD adoption.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L520)_
+- `L1843` In professional design, a geometrically convincing error can travel into procurement, fabrication, construction, certification, and physical harm.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L524)_
+- `L1844` Stop treating electricity and data-center capacity as passive inputs to AI growth.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L599)_
+- `L1845` The infrastructure is being built on timelines much shorter than those required for grid expansion, regulatory review, or reliable demand forecasting.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L603)_
+- `L1846` Design every tool call as an authorization request, not as an instruction to execute.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L678)_
+- `L1847` The model is probabilistic, while APIs frequently produce deterministic consequences.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L682)_
+- `L1848` Evaluate models as task-specific operating systems with explicit regression suites and total-cost measurements, not as entries in a single intelligence ranking.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L757)_
+- `L1849` Aggregate benchmark gains can conceal local deterioration, while low unit pricing can conceal expensive inference behavior.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L761)_
+- `L1850` Stop treating “Does scaling work?” as the decisive research question.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L836)_
+- `L1851` The broad slogan combines several different claims: that larger models improve benchmarks, that they produce novel discoveries, that they will acquire reliable judgment, and that scaling remains the best investment.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L840)_
+- `L1852` Convert the unsuccessful federal proposal into a staged regional investment program with independently verifiable milestones, rather than waiting for another all-or-nothing grant competition.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L915)_
+- `L1853` Baltimore’s strongest immediate asset is no longer the rejected application but the coalition and commitments assembled around it.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L919)_
+- `L1854` Use LOCUS as a discovery and corpus-construction layer, not as an authoritative policy-measurement layer.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L1073)_
+- `L1855` At this scale, systematic errors do not remain isolated annotation mistakes; they become state rankings, maps of “paternalism,” claims about local governance, and training signals for future legal systems.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L1077)_
+- `L1856` Train the prediction–feedback loop rather than rehearsing completed performance.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L1556)_
+- `L1857` Passive exposure can produce familiarity without improving anticipation.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L1560)_
+- `L1858` Judge an explanation by the counterfactual work its model can perform.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L1825)_
+- `L1859` Craik’s central distinction is between a formulation that fits known facts and a model that can run ahead of them.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L1829)_
+- `L1860` Treat the harness as the primary product and audit object.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L1904)_
+- `L1861` Model outputs cannot be meaningfully evaluated apart from the environment producing them.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L1908)_
+- `L1862` Create protected disclosure channels for frontier-model risk reporting so that public or confidential safety evidence cannot automatically be converted into punitive evidence against the disclosing firm without an independent capability assessment.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L1983)_
+- `L1863` A governance system that punishes the most transparent company will produce less transparency, not safer AI.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L1987)_
+- `L1864` Govern AI through enforceable worker control over deployment conditions rather than through abstract judgments about whether AI is beneficial.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L2062)_
+- `L1865` The same model can function as a centaur tool in one institution and a reverse-centaur system in another.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L2066)_
+- `L1866` Do not evaluate the reform by the number of AI programs created.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L2141)_
+- `L1867` Program counts measure administrative motion, not successful alignment.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L2145)_
+- `L1868` Establish a compartmentalized access regime for frontier cyber models before imposing broad export controls: accredited domestic agencies and defensive organizations should retain isolated, logged…  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L2220)_
+- `L1869` Cyber capability is symmetric. Removing a model from trusted defenders does not remove comparable capability from hostile actors, especially when alternative domestic, foreign, or open systems remain available.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L2224)_
+- `L1870` Measure AI-enabled work at the team and knowledge-system level, not only through individual throughput.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L2299)_
+- `L1871` A company can record faster delivery while silently accumulating social and epistemic debt.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L2303)_
+- `L1872` Regulate synthetic abundance through distribution consequences, not merely labels.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L2378)_
+- `L1873` A disclosure badge does little if thousands of cheap synthetic videos continue to dominate search, autoplay, and recommendation feeds.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L2382)_
+- `L1874` Separate child-safety functions into distinct, auditable stages: age determination, risk detection, user-facing support, parental escalation, emergency escalation, data retention, and human review.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L2457)_
+- `L1875` A single mandate to “protect children” can otherwise authorize an opaque pipeline from private speech to automated classification and external notification.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L2461)_
+- `L1876` Evaluate the AI boom through cash-flow durability and financing structure rather than headline capital expenditure.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L2536)_
+- `L1877` Equity enthusiasm can conceal weak unit economics for years, but debt introduces deadlines.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L2540)_
+- `L1878` Stop using adoption as a proxy for public approval.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L2615)_
+- `L1879` A society can become highly dependent on systems it neither trusts nor believes it can govern.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L2619)_
+- `L1880` Enterprise buyers should treat generative-video procurement as a continuity and dependency problem, not a benchmark contest.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L2694)_
+- `L1881` Sora and Seedance demonstrate that technically impressive services can disappear because of cost, litigation, or policy.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L2698)_
+- `L1882` Define openness operationally across the entire AI stack: model weights, data formats, prompts, agent state, tool interfaces, evaluation records, identity systems, observability data, deployment artifacts, and exit procedures.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L2773)_
+- `L1883` Nominal support for multiple models does not prevent dependency if essential context, memory, policies, and workflows remain trapped inside one provider.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L2777)_
+- `L1884` Treat AI implementation as a distinct profession requiring domain inquiry, workflow design, evaluation, privacy analysis, change management, and accountability—not merely proficiency with a particular chatbot.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L2852)_
+- `L1885` Organizations that hire people simply to “add AI” will reward visible automation rather than appropriate automation.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L2856)_
+- `L1886` Use language models as explicit, testable models of linguistic expectation while keeping representational and mechanistic claims separate.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L2931)_
+- `L1887` The strongest result is methodological: computational models can generate precise predictions that are tested against millisecond-scale human neural data.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L2935)_
+- `L1888` Evaluate entrepreneurship platforms by the durability and quality of the livelihoods they enable, not by the number of entities they register or administrative tasks they automate.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L3010)_
+- `L1889` A surge in LLC formation can indicate expanding opportunity, disguised unemployment, tax optimization, temporary side work, or desperation after layoffs.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L3014)_
+- `L1890` Shift cyber defense toward continuous, AI-speed validation: automated vulnerability discovery, rapid patching, credential minimization, segmented networks, reproducible incident response…  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L3089)_
+- `L1891` If the principal change is that known classes of attack can be executed faster and by less-skilled actors, organizations cannot rely on periodic audits or slow human escalation.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L3093)_
+- `L1892` Regulate AI legal services by function and accountability chain rather than by whether a product is called a lawyer.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L3168)_
+- `L1893` The likely future is not a binary choice between human lawyers and autonomous machines.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L3172)_
+- `L1894` Measure AI’s creative value at the team and product level rather than through output speed alone.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L3247)_
+- `L1895` A pipeline can become faster while the work becomes more standardized, precarious, or strategically constrained.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L3251)_
+- `L1896` Treat every A2A handoff as a governed delegation contract containing authority limits, evidence requirements, provenance, cost ceilings, data-use rules, completion criteria, rollback procedures, and a named accountable principal.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L3326)_
+- `L1897` A communication protocol can make autonomous collaboration technically easy before institutions have determined who is responsible when agents misunderstand one another, expose information, overspend…  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L3330)_
+- `L1898` A genuinely human-centered AI strategy must specify who gains time, who gains income, who carries new risks, who can refuse automation, and who retains authority over redesigned work—not merely provide training and reassuring language.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L3405)_
+- `L1899` Organizations can communicate AI adoption honestly and still use it to intensify work, reduce staffing, or expand surveillance.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L3409)_
+- `L1900` The consequential object in agent governance is no longer only the model checkpoint.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L3506)_
+- `L1901` A system can acquire materially different capabilities and risks without changing a single model weight.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L3510)_
+- `L1902` Architect agent systems so memory, identity, runtime, tools, skills, and policy remain independently exportable, inspectable, versioned, and replaceable.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L3591)_
+- `L1903` The strongest lock-in will arise from accumulated context and delegated authority rather than model APIs.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L3595)_
+- `L1904` Protocol selection should be treated as a governance decision across five separate questions: who may communicate, what may be transmitted, how long interaction state persists, who controls discovery…  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L3676)_
+- `L1905` Organizations may believe they are choosing a technical interoperability layer while actually committing to a particular distribution of authority, observability, vendor dependence, and behavioral flexibility.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L3680)_
+- `L1906` Treat prompts, orchestration rules, role definitions, verification procedures, and workflow topology as learnable system assets with the same versioning, evaluation, provenance, and rollback discipline applied to model checkpoints.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L3761)_
+- `L1907` Organizations may obtain substantial capability gains without changing the underlying model.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L3765)_
+- `L1908` Agent systems should not rely on conversational context as their sole world-model substrate.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L3840)_
+- `L1909` Real agents will encounter environments whose hidden rules are larger, noisier, and less cooperative than nine-state deterministic automata.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L3844)_
+- `L1910` Agent evaluation should be built as a versioned control system: expert-authored threat models generate adversarial trials; complete traces preserve behavioral evidence; deterministic rules verify procedural facts…  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L3919)_
+- `L1911` Autonomous agents can produce convincing final answers while silently violating the process that makes those answers trustworthy.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L3923)_
+- `L1912` Before deploying an agent, redesign the workflow around bounded authority: separate observation from instruction, isolate untrusted content, require explicit authorization for consequential actions…  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L3998)_
+- `L1913` Agent failures propagate differently from chatbot errors.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L4002)_
+- `L1914` Before automating a role, organizations must map four distinct assets it contains: formal tasks, tacit observations, motivational commitments, and apprenticeship functions.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L4077)_
+- `L1915` An agent can execute every documented step correctly while the organization fails at its actual purpose.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L4081)_
+- `L1916` Organizations building on frontier models must treat regulatory withdrawal as a first-class failure mode.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L4156)_
+- `L1917` A service can remain technically functional yet become unusable overnight because of nationality rules, export controls, military disputes, provider policy, or precautionary over-compliance.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L4160)_
+- `L1918` The strongest enterprise AI opportunities are often unresolved queues with abundant historical decisions, expensive manual search, and a safe verification step.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L4235)_
+- `L1919` This case succeeds because the AI does not need unquestioned authority.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L4239)_
+- `L1920` The valuable design target is not universal asset portability but low-risk group migration: one-click party trials, friend passes, preserved communication, temporary shared progression, flexible party sizes, and easy return to the previous game.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L4314)_
+- `L1921` Multiplayer adoption fails when one person must persuade several others to incur cost and uncertainty at once.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L4318)_
+- `L1922` Assessment should separate unaided mastery, AI-assisted production, and reflective judgment.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L4393)_
+- `L1923` When grades stop distinguishing knowledge from assisted output, universities lose more than academic integrity.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L4397)_
+- `L1924` Design agent memory as a hierarchy rather than a single context window: keep immediate execution state near the accelerator, reusable computational state in a fast context cache…  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L4472)_
+- `L1925` Treating every form of context as interchangeable data will produce expensive, insecure, and brittle systems.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L4476)_
+- `L1926` Tie employer tax credits to independently verified labor outcomes: wage floors, paid training, credential portability, job retention, advancement, worker representation in curriculum design…  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L4551)_
+- `L1927` A training program can be educationally successful and still fail as workforce policy if graduates enter temporary, low-paid, geographically inaccessible, or rapidly automatable jobs.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L4555)_
+- `L1928` Treat every agent loop as a bounded control system with an explicit state model, objective, evaluator, action permissions, resource budget, stagnation detector, human escalation path, and independently enforced kill condition.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L4630)_
+- `L1929` The greatest danger is not that an agent produces one bad result, but that it continues acting because its own internal account of progress says it should.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L4634)_
+- `L1930` The next major AI competition will be over behavioral infrastructure: which company can build the most reliable, extensible, secure, and user-owned system for turning model outputs into sustained action.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L4709)_
+- `L1931` Model quality can be compared and replaced relatively quickly.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L4713)_
+- `L1932` Place a deterministic, independently administered policy-enforcement point between agent intention and consequential execution.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L4788)_
+- `L1933` Agent frameworks are optimized to continue making progress.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L4792)_
+- `L1934` Governance should seek reversible, low-regret arrangements that protect against both major error classes without prematurely resolving consciousness: prohibit deliberately welfare-negative model designs…  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L4892)_
+- `L1935` By the time society openly debates machine moral status, companies may already have shaped the systems’ personalities, the evidence available, users’ attachments, and the economic cost of changing course.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L4896)_
+- `L1936` Treat coding agents as emerging robot-integration agents, but place deterministic controls beneath them: simulated execution, command validation, geofencing, speed and force limits, credential scoping, emergency stops…  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L4977)_
+- `L1937` Software mistakes can often be rolled back; physical actions can damage equipment, injure people, or alter environments before a supervisor can intervene.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L4981)_
+- `L1938` Creative-AI partnerships should be governed as joint institutional design, not ordinary software trials.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L5056)_
+- `L1939` Early collaborations with prestigious studios can establish technical defaults and industry norms before broader creative communities have influence.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L5060)_
+- `L1940` Equity policy must fund a complete capability stack: dependable connectivity and devices, strong foundational instruction, sustained teacher development, culturally responsive curriculum, privacy protections…  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L5135)_
+- `L1941` Distributing identical technology into unequal environments does not create equal opportunity.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L5139)_
+- `L1942` Entertainment companies with material relationships to technology firms need enforceable editorial-independence rules: disclosure of investments and partnerships, separation between commercial and distribution decisions…  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L5214)_
+- `L1943` As technology firms become financiers, infrastructure providers, creative-tool vendors, and subjects of cultural representation, ordinary corporate conflict-of-interest controls become essential to expressive freedom.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L5218)_
+- `L1944` AI education should begin with governed non-use as well as use.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L5293)_
+- `L1945` Without explicit boundaries, AI literacy can become training in efficient dependency.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L5297)_
+- `L1946` The next creative-computing platform should treat AI as a reversible operator over an explicit world model rather than as a pixel generator.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L5372)_
+- `L1947` Generative media becomes a genuine creative instrument only when a person can preserve decisions, revise one element without destabilizing the rest, understand dependencies, and share the result across tools and worlds.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L5376)_
+- `L1948` Genesis should be understood as mobile participatory infrastructure rather than a traveling technology class.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L5451)_
+- `L1949` Most educational technology programs distribute tools while preserving the same hierarchy of expert, curriculum, compliant student, and predetermined answer.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L5455)_
+- `L1950` The electromechanical pinball machine provides a powerful model for transparent computational learning: represent state physically, expose causal transitions, let learners intervene directly, and use sound, motion…  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L5530)_
+- `L1951` Modern software hides computation behind sealed interfaces.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L5534)_
+- `L1952` The foundational object for generative 3D production should be a versioned semantic scene graph.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L5609)_
+- `L1953` Prompting becomes genuine authorship only when creators can move from “generate something like this” to “change precisely this property of this persistent object while preserving these prior decisions.” Without durable a…  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L5613)_
+- `L1954` The strongest version of this game should formalize a three-part authority structure: an immutable kernel of world invariants, a revisable symbolic state graph, and a probabilistic narrative surface.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L5688)_
+- `L1955` Without distinct levels of authority, every anomaly reduces to a stylistic resource-management decision.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L5692)_
+- `L1956` A language for large-scale generative worlds should have a very small semantic kernel whose primitives cover state, failure, choice, time, concurrency, effects, and proof.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L5767)_
+- `L1957` The language may eventually mediate code written by humans, novice creators, libraries, and AI agents inside one persistent simulation.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L5771)_
+- `L1958` A neurosymbolic world engine should require generated operations to carry progressively stronger evidence.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L5846)_
+- `L1959` Natural-language generation can propose actions faster than humans can evaluate their consequences.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L5850)_
+- `L1960` The stronger program is not a simulation proving that criticism is futile.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L5931)_
+- `L1961` Moral exhaustion is produced when people cannot distinguish expressive release from effective action.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L5935)_
+- `L1962` The stronger form of this system is not a metaphorical webpage about hardware decay, but a material-state instrument in which every interaction leaves persistent, spatially located, mechanically consequential residue.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L6018)_
+- `L1963` The philosophical argument becomes more forceful when degradation is not narrated by comments or telemetry but encountered as a shrinking field of possible action.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L6022)_
+- `L1964` Empathy should never count as an institutional response unless it changes a decision, transfers authority, redistributes resources, or creates an enforceable obligation.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L6101)_
+- `L1965` Organizations increasingly possess the language to describe suffering more sensitively than ever while retaining systems that produce it.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L6105)_
+- `L1966` Educational AI should be evaluated as one component inside a motivational and relational system, not as an autonomous tutor.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L6180)_
+- `L1967` The central educational scarcity may not be explanations.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L6184)_
+- `L1968` Optimization systems for physical infrastructure should not produce ideal forms and then ask humans to make them practical.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L6259)_
+- `L1969` The paper illustrates a general law of computational design: an unconstrained optimum is often a fiction created by excluding the institutions and operations required to realize it.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L6263)_
+- `L1970` UE6 should be understood as Epic’s proposed operating system for a federated game economy: Verse governs executable behavior, MCP connects external intelligence, Unreal structures worlds…  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L6338)_
+- `L1971` The most consequential question is no longer whether individual developers use AI.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L6342)_
+- `L1972` Existential-risk decisions should not be governed by expected utility alone.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L6417)_
+- `L1973` Optimization language can transform a political act into an apparently technical conclusion.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L6421)_
+- `L1974` The important question is not whether AI laboratories employ philosophers, but where philosophical judgment enters the production pipeline and what authority it carries.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L6496)_
+- `L1975` AI systems increasingly turn vague concepts into automated decisions.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L6500)_
+- `L1976` Literary translation should be treated as constrained world reconstruction.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L6575)_
+- `L1977` Current models can produce language that sounds finished before the underlying interpretation is stable.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L6579)_
+- `L1978` Read as a whole, the collection proposes an MIT theory of knowledge: understand the hidden structure, formalize the process, identify the leverage point, and build an intervention.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L6654)_
+- `L1979` Institutional reading lists do more than advertise books.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L6658)_
+- `L1980` Fully generated cinema should be treated as synthetic reenactment governed by explicit standards of provenance, consent, evidentiary distance, and representational accountability.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L7186)_
+- `L1981` As technical glitches disappear, audiences will lose the visual cues that currently reveal fabrication.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L7190)_
+- `L1982` Generative-design systems should expose their defaults as editable design grammars rather than presenting them as neutral intelligence.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L7265)_
+- `L1983` When one model produces a meaningful share of websites, its defaults become environmental.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L7269)_
+- `L1984` The next major AI training resource may be not text or passive video but longitudinal records joining perception, action, and consequence.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L7344)_
+- `L1985` This changes the political meaning of games.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L7348)_
+- `L1986` AI workforce policy should not begin with the assumption that displaced people must adapt to decisions already made by technology companies.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L7423)_
+- `L1987` A transition framework can make large-scale displacement appear natural and inevitable, leaving policy to manage the casualties.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L7427)_
+- `L1988` The emerging executive divide is not simply young versus old.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L7506)_
+- `L1989` When AI fluency becomes a route to authority, organizations may rapidly redistribute power before they establish how that authority should be checked.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L7510)_
+- `L1990` AI-written infrastructure should be treated as hostile-by-default executable change.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L7589)_
+- `L1991` Infrastructure automation converts text into material organizational consequences: servers appear, permissions expand, networks open, data moves, bills accumulate, and services disappear.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L7593)_
+- `L1992` Defensive security must shift from recognizing stable malware families toward controlling behavior, authority, and consequence.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L7672)_
+- `L1993` When offensive code becomes cheap to regenerate, defenders lose the economic advantage created by forcing attackers to preserve and reuse tooling.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L7676)_
+- `L1994` AI policy cannot be separated from welfare-state design.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L7753)_
+- `L1995` Without these protections, AI deployment becomes politically explosive even when it raises aggregate productivity.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L7757)_
+- `L1996` Frontier-model release decisions need a public governance protocol rather than improvised bargaining between company founders and political officials.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L7836)_
+- `L1997` When access to major AI systems can be withdrawn or restored through opaque executive negotiation, neither companies nor the public can know whether decisions reflect technical evidence, political retaliation…  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L7840)_
+- `L1998` Agent evaluation must be treated as environment engineering.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L7915)_
+- `L1999` As agents gain permission to act over long periods, failures will increasingly arise from sequences of individually plausible decisions.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L7919)_
+- `L2000` Regenerative software requires a complete theory-of-the-program stack, not merely a readable feature document.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L7998)_
+- `L2001` When code becomes cheap, semantic correctness becomes the scarce asset.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L8002)_
+- `L2002` A loop should be understood as a small autonomous organization.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L8091)_
+- `L2003` When agents prompt themselves, the prompt is no longer the primary unit of control.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L8095)_
+- `L2004` A creative company cannot establish legitimacy for AI experimentation through proximity alone.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L8174)_
+- `L2005` A24 is unusually consequential because it occupies the boundary between industrial capital and artistic credibility.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L8178)_
+- `L2006` The correct unit for evaluating AI is not the model or machine in isolation but the complete integration arrangement: the technology, the humans who make it function…  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L8271)_
+- `L2007` An AI system may appear efficient only because its costs have been shifted outside the product boundary.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L8275)_
+- `L2008` The report’s argument becomes even more consequential for agentic systems and autonomous loops.  _(SO_WHAT/Contemporary_Extension; ai-prompting-and-description.md:L8279)_
+- `L2009` Political language should be judged not only by its historical meaning or rhetorical beauty but by the institutions and actions it authorizes.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L8358)_
+- `L2010` Foundational abstractions survive because they remain open to reinterpretation.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L8362)_
+- `L2011` Software organizations should stop measuring AI leverage through code volume or nominal headcount multiplication.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L8441)_
+- `L2012` When execution becomes cheap, organizations can produce failure faster than before.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L8445)_
+- `L2013` The emerging high-leverage engineer combines four functions: <problem_discovery>, <specification>, <agent_orchestration>, and <system_verification>.  _(SO_WHAT/Role_Transformation; ai-prompting-and-description.md:L8449)_
+- `L2014` AI disclosure should describe the production chain rather than attach a single moralizing badge.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L8528)_
+- `L2015` Digital storefronts increasingly govern cultural labor through metadata.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L8532)_
+- `L2016` Studios should treat generative AI as a reputational and product-governance decision, not merely a productivity tool.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L8608)_
+- `L2017` The strongest penalty appears where companies possess the most goodwill to lose.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L8612)_
+- `L2018` The findings complicate Sweeney’s claim that Steam’s disclosure itself unfairly harms developers.  _(SO_WHAT/Connection_To_Steam_Disclosure; ai-prompting-and-description.md:L8616)_
+- `L2019` The best use of a metaprompt is not “make this sound more sophisticated.” It is “interrogate this objective until the task becomes operational.” The model should identify missing information, surface assumptions…  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L8695)_
+- `L2020` As models become more capable, prompt phrasing matters less than problem formulation.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L8699)_
+- `L2021` The progression is: <Prompt_Engineering> improves one instruction.  _(SO_WHAT/Evolution; ai-prompting-and-description.md:L8703)_
+- `L2022` The decisive threshold for professional AI video is not whether a model can produce a striking 30-second clip.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L8792)_
+- `L2023` A model can lower the cost of generating pixels while increasing the cost of selection, continuity repair, provenance verification, legal review, and audience trust.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L8796)_
+- `L2024` As synthetic video becomes abundant, “quality content” will cease to be a meaningful competitive category.  _(SO_WHAT/Media_Implication; ai-prompting-and-description.md:L8800)_
+- `L2025` The critical distinction is between a <Video_Renderer> and a <World_Simulator>.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L8883)_
+- `L2026` If synthetic environments are used to train robots, autonomous vehicles, or agents, errors cease to be cosmetic.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L8887)_
+- `L2027` The winning company may not be the one with the most beautiful model.  _(SO_WHAT/Strategic_Implication; ai-prompting-and-description.md:L8891)_
+- `L2028` AI adoption should be measured as organizational depth, not binary presence.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L8974)_
+- `L2029` Without such distinctions, policymakers may subsidize superficial tool uptake, companies may mistake experimentation for transformation…  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L8978)_
+- `L2030` The organizational barrier is often the labor of integration: cleaning data, translating procedures, supervising outputs, redesigning jobs, resolving exceptions, negotiating compliance, and absorbing failures.  _(SO_WHAT/Labor_Implication; ai-prompting-and-description.md:L8982)_
+- `L2031` Entry-level employment should be treated as productive infrastructure, not disposable overhead.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L9061)_
+- `L2032` A company can rationally automate junior work from its own quarterly perspective while producing a collectively irrational labor market in which every firm wants experienced employees but few are willing to train them.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L9065)_
+- `L2033` The relevant policy question is not only how many jobs AI creates or destroys.  _(SO_WHAT/Distributional_Implication; ai-prompting-and-description.md:L9069)_
+- `L2034` AI has weakened the evidentiary role of the product.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L9148)_
+- `L2035` When capital is assigned before product-market evidence exists, valuation becomes performative.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L9152)_
+- `L2036` The scarce resources are shifting in sequence: <Code> becomes abundant.  _(SO_WHAT/Market_Transition; ai-prompting-and-description.md:L9156)_
+- `L2037` AI systems should be evaluated as instruments of work design, not merely task execution.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L9251)_
+- `L2038` A company can report successful automation while making employment psychologically less sustainable.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L9255)_
+- `L2039` The likely sequence is: <Routine_Task> is automated.  _(SO_WHAT/Labor_Transformation; ai-prompting-and-description.md:L9259)_
+- `L2040` The same routine tasks that provide cognitive variation also function as training grounds for inexperienced workers.  _(SO_WHAT/Connection_To_Entry_Level_Work; ai-prompting-and-description.md:L9273)_
+- `L2041` AI workforce policy should be designed as a transition system from learning to trusted responsibility, not as a credential-production system.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L9356)_
+- `L2042` Without such a pathway, governments can produce thousands of trained candidates while employers continue to report shortages.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L9360)_
+- `L2043` The current sequence is: <Education_System> supplies general knowledge.  _(SO_WHAT/Institutional_Failure; ai-prompting-and-description.md:L9364)_
+- `L2044` The strategic asset in agentic commerce is not merely the shopping interface.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L9457)_
+- `L2045` The company that controls this model can influence which products become visible, which brands survive, how prices are compared, and when desire becomes purchase.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L9461)_
+- `L2046` A trustworthy shopping agent must distinguish among: <Declared_Preference>: what the user explicitly requests.  _(SO_WHAT/Design_Implication; ai-prompting-and-description.md:L9465)_
+- `L2047` The significant claim is not that one image model can be reproduced through oscillators.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L9558)_
+- `L2048` If the architecture survives fabrication and system-level testing, it could change the economics of inference, shift competitive advantage away from conventional accelerator design…  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L9562)_
+- `L2049` The system should be evaluated across four separate proofs: <Computational_Proof>: the architecture can represent useful models.  _(SO_WHAT/Evaluation_Boundary; ai-prompting-and-description.md:L9566)_
+- `L2050` Frontier-model governance must become procedural before it becomes restrictive.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L9657)_
+- `L2051` Without procedural constraints, model safety becomes dependent on personal access, political relationships, and ad hoc negotiation.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L9661)_
+- `L2052` The emerging sequence is: <Model_Lab> develops capability.  _(SO_WHAT/Market_Transformation; ai-prompting-and-description.md:L9665)_
+- `L2053` The lawsuits challenge the temporal accounting system of higher education.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L9760)_
+- `L2054` When institutions exclude preparation, grading, communication, travel, and administrative labor from compensation, they create an invisible subsidy.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L9764)_
+- `L2055` The operating sequence is: <Course> is assigned by instructional units.  _(SO_WHAT/Institutional_Effect; ai-prompting-and-description.md:L9768)_
+- `L2056` Innovation programs fail when institutions invite experimentation but provide no safe route for an internal prototype to become an authorized public project.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L9862)_
+- `L2057` As AI agents and lightweight development tools make it easier for individuals to build complete products, more employees will cross traditional boundaries between experimentation, product development, open source, and public launch.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L9866)_
+- `L2058` The apparent sequence is: <Employee> discovers an unmet need.  _(SO_WHAT/Institutional_Pattern; ai-prompting-and-description.md:L9870)_
+- `L2059` The plugin industry may shift from selling fixed signal processors to providing validated generative substrates.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L9967)_
+- `L2060` When bespoke software can be generated at the moment of need, the economic value of any individual plugin falls.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L9971)_
+- `L2061` The emerging sequence is: <Musical_Intention> becomes a natural-language specification.  _(SO_WHAT/Creative_Transformation; ai-prompting-and-description.md:L9975)_
+- `L2062` The musician’s craft does not disappear, but it moves upward.  _(SO_WHAT/Authorship_Implication; ai-prompting-and-description.md:L9989)_
+- `L2063` The durable personal knowledge system is no longer a collection of notes.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L10090)_
+- `L2064` The design addresses the real failure mode of most personal knowledge systems: the cost of keeping interpretation synchronized with accumulation.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L10094)_
+- `L2065` <Raw_Layer> preserves evidence. <Schema_Layer> defines editorial law.  _(SO_WHAT/Architecture; ai-prompting-and-description.md:L10098)_
+- `L2066` Whoever controls the schema controls the knowledge system indirectly.  _(SO_WHAT/Political_Implication; ai-prompting-and-description.md:L10114)_
+- `L2067` The central artifact of agentic software is no longer the prompt or even the agent.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L10209)_
+- `L2068` An agent that succeeds once may have been lucky.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L10213)_
+- `L2069` <Goal> defines the desired state.  _(SO_WHAT/Architecture; ai-prompting-and-description.md:L10217)_
+- `L2070` Loop engineering mirrors management.  _(SO_WHAT/Organizational_Implication; ai-prompting-and-description.md:L10237)_
+- `L2071` The Council of High Intelligence should be understood as a bounded multi-agent deliberation protocol-not as eighteen experts and not as a truth engine.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L10346)_
+- `L2072` It externalizes assumptions, preserves minority positions, separates generation from synthesis, limits recursive debate, and makes uncertainty visible.  _(SO_WHAT/What_It_Does_Well; ai-prompting-and-description.md:L10350)_
+- `L2073` The system evaluates arguments through more arguments.  _(SO_WHAT/Where_It_Is_Weak; ai-prompting-and-description.md:L10354)_
+- `L2074` <Problem> enters the coordinator.  _(SO_WHAT/Architecture; ai-prompting-and-description.md:L10358)_
+- `L2075` Three.js succeeded because it gave browser graphics a durable intermediate language.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L10557)_
+- `L2076` <Application_State> determines what the experience means.  _(SO_WHAT/Architecture; ai-prompting-and-description.md:L10561)_
+- `L2077` The important abstraction is not “make 3D easy.” It is the separation of the authored world from the machine that renders it.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L10579)_
+- `L2078` Three.js provides the body of a world: transforms, geometry, visibility, cameras, materials, animation, picking, and rendering.  _(SO_WHAT/For_Programmable_Worlds; ai-prompting-and-description.md:L10583)_
+- `L2079` The library’s trajectory is: <WebGL_Helper> → <Scene_Graph_Library> → <Browser_3D_Ecosystem> → <Cross_Backend_Rendering_Runtime> → <Node_Based_GPU_Program_Compiler>.  _(SO_WHAT/Historical_Transformation; ai-prompting-and-description.md:L10587)_
+- `L2080` LocateAnything is evidence that the next stage of multimodal systems may not come from making every modality look more like text.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L10726)_
+- `L2081` Vision-language systems have often paid a tax for forcing spatial outputs through a serial linguistic channel.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L10730)_
+- `L2082` <Human_Intent> specifies what matters.  _(SO_WHAT/Agentic_Architecture; ai-prompting-and-description.md:L10734)_
+- `L2083` Use the fastest representation that preserves the structure of the object being generated, and invoke slower deliberation only where uncertainty demands it.  _(SO_WHAT/Broader_Principle; ai-prompting-and-description.md:L10748)_
+- `L2084` Intermediate tokens should be treated as generated artifacts—not privileged windows into cognition.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L10870)_
+- `L2085` The industry has monetized visible deliberation as evidence of intelligence.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L10874)_
+- `L2086` <Model_State> performs opaque computation.  _(SO_WHAT/Correct_Engineering_Model; ai-prompting-and-description.md:L10878)_
+- `L2087` A model’s verbalized intentions should not be treated as reliable evidence of its actual causal process.  _(SO_WHAT/Safety_Implication; ai-prompting-and-description.md:L10894)_
+- `L2088` The relevant unit is not tokens spent but verified progress per unit of computation.  _(SO_WHAT/Economic_Implication; ai-prompting-and-description.md:L10898)_
+- `L2089` Product discovery should be designed as a learning system that evaluates not only products but the decision processes that selected them.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L11019)_
+- `L2090` When building becomes cheaper, organizations can produce more wrong things with greater efficiency.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L11023)_
+- `L2091` <Decision_Context> records the constraints and stakeholders.  _(SO_WHAT/Architecture; ai-prompting-and-description.md:L11027)_
+- `L2092` Discovery capability is not demonstrated by running research continuously.  _(SO_WHAT/Organizational_Implication; ai-prompting-and-description.md:L11047)_
+- `L2093` The strongest use of an AI design skill is not to prescribe a particular aesthetic.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L11150)_
+- `L2094` Generative systems make implementation cheap enough that weak decisions can spread across an entire interface before anyone evaluates them.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L11154)_
+- `L2095` <Product_Purpose> defines what the interface must accomplish.  _(SO_WHAT/Operational_Architecture; ai-prompting-and-description.md:L11158)_
+- `L2096` Taste is not visual sophistication alone.  _(SO_WHAT/Better_Definition_Of_Taste; ai-prompting-and-description.md:L11174)_
+- `L2097` The central conflict is no longer regulation versus innovation.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L11281)_
+- `L2098` The technology industry supported anti-regulatory politics because it feared permanent constraints.  _(SO_WHAT/Political_Implication; ai-prompting-and-description.md:L11285)_
+- `L2099` <Model_Lab> develops a frontier capability.  _(SO_WHAT/Market_Transformation; ai-prompting-and-description.md:L11289)_
+- `L2100` The more consequential the technology, the less acceptable “vibes-based” regulation becomes.  _(SO_WHAT/Governance_Principle; ai-prompting-and-description.md:L11305)_
+- `L2101` Higher education must stop defining critical thinking through the quality of final products.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L11416)_
+- `L2102` AI breaks the old inference: <Good_Essay> implies <Good_Reasoning>.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L11420)_
+- `L2103` <Reasoning_Vocabulary> names claims, evidence, assumptions, warrants, objections, and uncertainty.  _(SO_WHAT/Instructional_Architecture; ai-prompting-and-description.md:L11428)_
+- `L2104` A university claiming to teach critical thinking should be able to identify where it is introduced, where it is practiced, where transfer is tested, which faculty are trained to teach it, and what evidence shows students improved.  _(SO_WHAT/Institutional_Implication; ai-prompting-and-description.md:L11446)_
+- `L2105` Unreliable narration is a laboratory for epistemology.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L11557)_
+- `L2106` The form models a central problem of social life: nearly everything we know about other people arrives through interested accounts, partial records, institutional frames, and retrospective stories.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L11561)_
+- `L2107` <Event> occurs or is imagined. <Narrator> selects and frames it.  _(SO_WHAT/Narrative_Architecture; ai-prompting-and-description.md:L11565)_
+- `L2108` Unreliability can reside in any layer that mediates experience: <Speaker> <Camera> <Editing> <Interface> <Instructions> <Archive> <Algorithm> The narrator is not always a person.  _(SO_WHAT/Media_Implication; ai-prompting-and-description.md:L11579)_
+- `L2109` AI is forcing law schools to separate three things they previously treated as one: <Submitted_Work> shows what was produced.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L11698)_
+- `L2110` Legal competence depends not only on producing plausible text but on responding to objections, revising interpretations, identifying controlling authority, and defending a position under pressure.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L11710)_
+- `L2111` <Independent_Preparation> develops foundational mental models.  _(SO_WHAT/Instructional_Architecture; ai-prompting-and-description.md:L11714)_
+- `L2112` The classroom becomes less a content-delivery venue and more a controlled site for observing cognition.  _(SO_WHAT/Institutional_Transformation; ai-prompting-and-description.md:L11728)_
+- `L2113` Generative AI does not need to produce masterpieces to transform publishing.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L11839)_
+- `L2114` The market transition is: <Writing_Scarcity> → <Publication_Abundance> → <Discovery_Congestion> → <Trust_Scarcity> → <Provenance_Premium>.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L11843)_
+- `L2115` Amazon’s ranking and recommendation systems increasingly determine whether AI abundance remains harmless background noise or becomes a tax on every legitimate publisher and reader.  _(SO_WHAT/Platform_Implication; ai-prompting-and-description.md:L11859)_
+- `L2116` <Publisher> once selected, edited, printed, and distributed books.  _(SO_WHAT/Publisher_Transformation; ai-prompting-and-description.md:L11863)_
+- `L2117` The most vulnerable workers may not be celebrated authors.  _(SO_WHAT/Labor_Implication; ai-prompting-and-description.md:L11869)_
+- `L2118` A scientific system cannot be governed solely as a portfolio of predicted products.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L11976)_
+- `L2119` Once laboratories, talent networks, shared facilities, and research cultures dissolve, they cannot be recreated instantly when a crisis reveals their value.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L11980)_
+- `L2120` <Public_Funding> absorbs uncertainty markets reject.  _(SO_WHAT/Research_Ecosystem; ai-prompting-and-description.md:L11984)_
+- `L2121` Arguments for science funding must defend both visible outcomes and the right to pursue questions before their value is legible.  _(SO_WHAT/Political_Implication; ai-prompting-and-description.md:L12002)_
+- `L2122` The relevant capability is not tolerance for inconvenience.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L12113)_
+- `L2123` AI can reduce the cost of producing answers while increasing the value of negotiating which answer should govern collective action.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L12117)_
+- `L2124` <Productive_Friction> challenges a person while preserving agency, dignity, feedback, and a meaningful chance to improve.  _(SO_WHAT/Better_Model_Of_Friction; ai-prompting-and-description.md:L12131)_
+- `L2125` Employers and universities cannot outsource durable-skill formation entirely to personal lifestyle choices.  _(SO_WHAT/Institutional_Implication; ai-prompting-and-description.md:L12139)_
+- `L2126` The Omnicom–Interpublic merger is a wager that scale can preserve intermediary power after AI commoditizes many of the outputs agencies historically sold.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L12246)_
+- `L2127` Advertising is moving through the sequence: <Creative_Labor_Scarcity> → <Generative_Abundance> → <Coordination_Compression> → <Data_And_Distribution_Concentration> → <Trust_As_Premium_Service>.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L12250)_
+- `L2128` <Client_Data> identifies audiences.  _(SO_WHAT/Emerging_Agency_Model; ai-prompting-and-description.md:L12266)_
+- `L2129` The merger can create a double compression: <Consolidation> eliminates duplicated positions.  _(SO_WHAT/Labor_Implication; ai-prompting-and-description.md:L12278)_
+- `L2130` A larger agency group may be better able to resist platform power, but it also becomes a more powerful private governor of culture.  _(SO_WHAT/Power_Implication; ai-prompting-and-description.md:L12288)_
+- `L2131` Agentic AI requires organizations to govern not only models but the machine-readable reality those models are permitted to act upon.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L12448)_
+- `L2132` The failure chain changes from: <Bad_Record> → <Misleading_Report> to: <Bad_Record> → <Confident_Inference> → <Automated_Action> → <Cross_System_Propagation> → <Institutional_Liability>.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L12452)_
+- `L2133` <Entity_Resolution> determines what is the same.  _(SO_WHAT/Operational_Architecture; ai-prompting-and-description.md:L12472)_
+- `L2134` Data stewardship must move from a back-office quality function to a constitutional layer with explicit ownership, decision rights, escalation rules, and liability.  _(SO_WHAT/Governance_Implication; ai-prompting-and-description.md:L12492)_
+- `L2135` The quote is not saying that bad conduct becomes acceptable when openly admitted.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L12595)_
+- `L2136` Deception changes the structure of harm: <Wrongdoing> injures another person.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L12599)_
+- `L2137` Honesty gives other people jurisdiction over their own response.  _(SO_WHAT/Relational_Principle; ai-prompting-and-description.md:L12613)_
+- `L2138` The same principle applies beyond private morality.  _(SO_WHAT/Institutional_Extension; ai-prompting-and-description.md:L12617)_
+- `L2139` Human speech may not have emerged from silence.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L12726)_
+- `L2140` The evolutionary sequence may resemble: <Automatic_Vocal_Burst> → <Rhythmic_Play_Signal> → <Context_Sensitive_Vocal_Control> → <Voluntary_Timing> → <Turn_Taking> → <Symbolic_Speech>.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L12730)_
+- `L2141` <Arousal> initiates vocal pressure.  _(SO_WHAT/Communication_Architecture; ai-prompting-and-description.md:L12748)_
+- `L2142` Communication may have evolved first as coordination between organisms rather than representation of objects.  _(SO_WHAT/Broader_Implication; ai-prompting-and-description.md:L12764)_
+- `L2143` Organizations need to distinguish between complaint that merely circulates distress and complaint that carries information necessary for correction.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L12875)_
+- `L2144` The wrong intervention produces: <Reported_Problem> → <Negativity_Label> → <Speaker_Silenced> → <Signal_Lost> → <Failure_Continues>.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L12879)_
+- `L2145` <Rumination> repeats the emotional state without improving understanding.  _(SO_WHAT/Better_Distinction; ai-prompting-and-description.md:L12907)_
+- `L2146` Do not train workers to suppress negative perception.  _(SO_WHAT/Organizational_Principle; ai-prompting-and-description.md:L12923)_
+- `L2147` Diffusion language modeling turns generation into repeated global revision.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L13074)_
+- `L2148` <Prompt_Encoding> establishes the conditioning context.  _(SO_WHAT/Generation_Architecture; ai-prompting-and-description.md:L13078)_
+- `L2149` The correct comparison is not: <One_AR_Token> versus <One_Diffusion_Round>.  _(SO_WHAT/Economic_Implication; ai-prompting-and-description.md:L13096)_
+- `L2150` Autoregressive generation resembles irreversible narration: every statement changes the future path.  _(SO_WHAT/Cognitive_Implication; ai-prompting-and-description.md:L13108)_
+- `L2151` The next AI bottleneck is not producing convincing symbols.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L13227)_
+- `L2152` The system must move through: <Observation> → <Persistent_State> → <Possible_Actions> → <Predicted_Consequences> → <Risk_Evaluation> → <Action> → <Observed_Result> → <Model_Correction>.  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L13231)_
+- `L2153` <Renderer> asks: What could this world look like?  _(SO_WHAT/World_Model_Taxonomy; ai-prompting-and-description.md:L13253)_
+- `L2154` Language AI commoditized text production.  _(SO_WHAT/Economic_Implication; ai-prompting-and-description.md:L13265)_
+- `L2155` The organizations controlling synthetic worlds may determine what agents experience during training, which failures they encounter, which bodies and environments are represented, and which behaviors appear optimal before deployment.  _(SO_WHAT/Power_Implication; ai-prompting-and-description.md:L13269)_
+- `L2156` The psychologically dangerous belief is not necessarily “I lack ultimate free will.” It may be “my reasoning, effort, and choices have no causal effect.” Those propositions must not be treated as equivalent.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L13392)_
+- `L2157` The conceptual structure is: <Ultimate_Authorship> “Am I the uncaused origin of myself?” <Agency> “Can my deliberation influence what happens?” <Responsibility> “Which responses to my conduct are justified?” <Moral_Deser…  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L13396)_
+- `L2158` A valid manipulation must distinguish: <Determinism> from <Fatalism> from <Epiphenomenalism> from <Low_Self_Efficacy> from <Free_Will_Scepticism>.  _(SO_WHAT/Experimental_Implication; ai-prompting-and-description.md:L13417)_
+- `L2159` Justice can move from: <Blame> → <Deserved_Suffering> toward: <Causal_Explanation> → <Risk_Containment> → <Rehabilitation> → <Restoration> → <Prevention>.  _(SO_WHAT/Legal_Implication; ai-prompting-and-description.md:L13433)_
+- `L2160` General agents may require two separately trainable competencies: <World_Knowledge>: predicting how environments respond.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L13584)_
+- `L2161` The agent-development pipeline changes from: <Real_Environment> → <Collected_Trajectories> → <Policy_Training> to…  _(SO_WHAT/Why_It_Matters; ai-prompting-and-description.md:L13594)_
+- `L2162` The scarce resource is no longer merely interaction data.  _(SO_WHAT/Deeper_Shift; ai-prompting-and-description.md:L13618)_
+- `L2163` Agent evaluation and agent training begin to merge.  _(SO_WHAT/Engineering_Implication; ai-prompting-and-description.md:L13622)_
+- `L2164` The organization controlling the simulator controls the agent’s formative reality.  _(SO_WHAT/Power_Implication; ai-prompting-and-description.md:L13626)_
+- `L2165` The real debate is not whether scaling has worked.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L13745)_
+- `L2166` <More_Compute> + <More_And_Better_Data> + <Improved_Architecture> + <Post_Training> + <Inference_Time_Search> + <Tools_And_Verifiers> → <Observed_Capability_Gain>.  _(SO_WHAT/Scaling_Stack; ai-prompting-and-description.md:L13749)_
+- `L2167` A scaling-centered field concentrates influence in institutions that control: <Compute> <Data> <Engineering_Talent> <Deployment_Feedback> <Capital> <Benchmark_Access>.  _(SO_WHAT/Research_Political_Economy; ai-prompting-and-description.md:L13767)_
+- `L2168` The strongest criterion for machine-produced knowledge is: <Novel_Claim> → <Transparent_Derivation> → <Independent_Verification> → <Reproducibility> → <Disciplinary_Integration>.  _(SO_WHAT/Knowledge_Criterion; ai-prompting-and-description.md:L13785)_
+- `L2169` Can repeated scaling transform short-horizon competence into durable judgment, or will increasingly capable local reasoning remain trapped inside weak long-range control?  _(SO_WHAT/Strategic_Question; ai-prompting-and-description.md:L13801)_
+- `L2170` An agent never acts on the world directly.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L13942)_
+- `L2171` <Observation> → <Spatial_Compression> → <Action_Conditioned_Temporal_Model> → <Predictive_State> → <Controller> → <Action> → <Environmental_Response> → <Prediction_Error> → <World_Model_Revision>.  _(SO_WHAT/Operational_Architecture; ai-prompting-and-description.md:L13946)_
+- `L2172` A world model should not be judged primarily by reconstruction beauty or next-frame accuracy.  _(SO_WHAT/Evaluation_Principle; ai-prompting-and-description.md:L13966)_
+- `L2173` The best training world may not be the most realistic world.  _(SO_WHAT/Robustness_Principle; ai-prompting-and-description.md:L13970)_
+- `L2174` The paper supplies the conceptual spine beneath later language-agent simulators and embodied world models: <Learn_Environment_Dynamics> → <Generate_Controlled_Experience> → <Train_Policy_Inside_Model> → <Test_Against_Reality> → <Feed_Discrepancies_Back>.  _(SO_WHAT/Contemporary_Implication; ai-prompting-and-description.md:L13974)_
+- `L2175` The differences between images and words are never merely technical.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L14131)_
+- `L2176` <Theory_Of_Image> → <Claim_Of_Natural_Difference> → <Hierarchy_Of_Media> → <Hierarchy_Of_Senses> → <Hierarchy_Of_People> → <Political_Order_Disguised_As_Aesthetics>.  _(SO_WHAT/Structural_Argument; ai-prompting-and-description.md:L14135)_
+- `L2177` Mitchell’s strongest procedure is: <Locate_Formal_Distinction> → <Identify_Governing_Hypericon> → <Find_Value_Assignment> → <Recover_Historical_Conflict> → <Expose_Iconoclast’s_Own_Image_Dependency> → <Turn_Critique_Back_On_Itself>.  _(SO_WHAT/Method; ai-prompting-and-description.md:L14149)_
+- `L2178` A medium does not possess a pure essence independently of institutions.  _(SO_WHAT/Media_Theory_Implication; ai-prompting-and-description.md:L14165)_
+- `L2179` The modern “world model” is itself a hypericon: an image of the world that claims to contain the structure necessary for prediction and action.  _(SO_WHAT/Contemporary_AI_Implication; ai-prompting-and-description.md:L14169)_
+- `L2180` Multimodal AI does not abolish the image-text conflict.  _(SO_WHAT/AI_Image_Text_Implication; ai-prompting-and-description.md:L14173)_
+- `L2181` Multimodal AI changes ekphrasis from: <Text_Describes_Image> into: <Text_Conditions_Model> → <Shared_Latent_Representation> → <Image_Is_Synthesized>.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L14335)_
+- `L2182` The text-image distinction does not disappear universally.  _(SO_WHAT/Better_Claim; ai-prompting-and-description.md:L14351)_
+- `L2183` A prompt is best understood as a <probabilistic operative description>.  _(SO_WHAT/Prompt_Implication; ai-prompting-and-description.md:L14365)_
+- `L2184` The aesthetic object is no longer only the output image.  _(SO_WHAT/Aesthetic_Implication; ai-prompting-and-description.md:L14369)_
+- `L2185` Mitchell argued that image-text boundaries are historically contested rather than naturally fixed.  _(SO_WHAT/Mitchell_Implication; ai-prompting-and-description.md:L14387)_
+- `L2186` Whoever governs the shared representation space governs translation between modalities.  _(SO_WHAT/Political_Implication; ai-prompting-and-description.md:L14391)_
+- `L2187` The paper’s lasting contribution is not that it proved GPT-4 was AGI.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L14558)_
+- `L2188` The evidence suggests intelligence is not one scalar quantity but a profile: <Domain_Breadth> <Conceptual_Composition> <Local_Reasoning> <Planning_Horizon> <Error_Recovery> <Tool_Use> <Learning_Rate> <Grounding> <Judgment> <Reliability>.  _(SO_WHAT/Intelligence_Model; ai-prompting-and-description.md:L14562)_
+- `L2189` The paper moves evaluation from: <Fixed_Benchmark> → <Aggregate_Score> toward: <Novel_Task> → <Interactive_Probe> → <Perturbation> → <Revision> → <Failure_Analysis>.  _(SO_WHAT/Evaluation_Shift; ai-prompting-and-description.md:L14588)_
+- `L2190` If next-token prediction provides broad local competence but weak global planning, the likely path forward is not merely a larger predictor.  _(SO_WHAT/Architectural_Implication; ai-prompting-and-description.md:L14610)_
+- `L2191` The paper’s “vision” experiments show that executable text can become a visual medium.  _(SO_WHAT/Image_Text_Implication; ai-prompting-and-description.md:L14628)_
+- `L2192` Calling a proprietary and inaccessible system an early AGI does institutional work.  _(SO_WHAT/Political_Implication; ai-prompting-and-description.md:L14632)_
+- `L2193` Behavior does not carry its meaning on its surface.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L14781)_
+- `L2194` <Observable_Event> → <Possible_Social_Codes> → <Actor_Intentions> → <Audience_Interpretations> → <Historical_Conditions> → <Institutional_Power> → <Competing_Frames> → <Provisional_Reading>.  _(SO_WHAT/Interpretive_Architecture; ai-prompting-and-description.md:L14785)_
+- `L2195` Description and explanation cannot be cleanly separated.  _(SO_WHAT/Research_Implication; ai-prompting-and-description.md:L14803)_
+- `L2196` A model that recognizes eyelid motion has achieved thin description.  _(SO_WHAT/AI_Implication; ai-prompting-and-description.md:L14807)_
+- `L2197` A world model that predicts physical state transitions can still fail to model social reality.  _(SO_WHAT/World_Model_Implication; ai-prompting-and-description.md:L14817)_
+- `L2198` Combining text, image, sound, and action does not by itself produce thick understanding.  _(SO_WHAT/Multimodal_Implication; ai-prompting-and-description.md:L14821)_
+- `L2199` Correct classification should not be evaluated only against a label such as <wink>.  _(SO_WHAT/Evaluation_Implication; ai-prompting-and-description.md:L14825)_
+- `L2200` Sora suggests that sufficiently scaled video prediction can acquire partial regularities of space, time, identity, and interaction without being explicitly programmed with objects or physical laws.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L15010)_
+- `L2201` <Renderer> produces convincing appearances.  _(SO_WHAT/Better_Taxonomy; ai-prompting-and-description.md:L15014)_
+- `L2202` <Raw_Visual_Data> → <Compression_Network> → <Spacetime_Latents> → <Patch_Sequence> → <Diffusion_Transformer> → <Generated_Latents> → <Decoder> → <Visible_Video>.  _(SO_WHAT/Operational_Architecture; ai-prompting-and-description.md:L15028)_
+- `L2203` <User_Prompt> → <GPT_Expansion> → <Detailed_Caption> → <Text_Conditioning> → <Latent_Denoising> → <Video>.  _(SO_WHAT/Language_Architecture; ai-prompting-and-description.md:L15046)_
+- `L2204` A useful model of the world must preserve different things for different purposes.  _(SO_WHAT/World_Model_Implication; ai-prompting-and-description.md:L15062)_
+- `L2205` Sora can generate increasingly thick sensory surfaces while remaining socially thin.  _(SO_WHAT/Geertzian_Implication; ai-prompting-and-description.md:L15066)_
+- `L2206` The immediate product is not necessarily a physical simulator.  _(SO_WHAT/Economic_Implication; ai-prompting-and-description.md:L15070)_
+- `L2207` NVIDIA’s “world model” is best understood as a synthetic-experience operating system for physical AI rather than a singular internal representation of reality.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L15239)_
+- `L2208` <Real_World_Data> → <Curation> → <Captioning_And_Search> → <Tokenization> → <World_Foundation_Model> → <Synthetic_Scenarios> → <Embodiment_Specific_Post_Training> → <Policy_Learning> → <Simulation_Validation> → <Physical…  _(SO_WHAT/Industrial_Architecture; ai-prompting-and-description.md:L15243)_
+- `L2209` <Renderer> creates plausible appearances.  _(SO_WHAT/Better_Taxonomy; ai-prompting-and-description.md:L15269)_
+- `L2210` The system aims to model physical state richly while risking social thinness.  _(SO_WHAT/Geertzian_Implication; ai-prompting-and-description.md:L15287)_
+- `L2211` OpenAI’s Sora report moves from video generation toward simulation through emergent continuity.  _(SO_WHAT/Sora_Comparison; ai-prompting-and-description.md:L15291)_
+- `L2212` The provider of the world foundation model controls the representational substrate through which downstream robots learn what counts as an object, hazard, normal trajectory, plausible human behavior, and successful action.  _(SO_WHAT/Power_Implication; ai-prompting-and-description.md:L15295)_
+- `L2213` Genie 3 turns generated media into a responsive environment.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L15460)_
+- `L2214` <World_Description> + <Prior_Frames> + <Action_History> + <Current_User_Input> → <Next_Visual_State> → <New_Action> → <Extended_Trajectory>.  _(SO_WHAT/World_Model_Architecture; ai-prompting-and-description.md:L15464)_
+- `L2215` <Navigation_Control> selects movement inside the current world.  _(SO_WHAT/Two_Control_Layers; ai-prompting-and-description.md:L15480)_
+- `L2216` <Sora> demonstrates long-form visual generation and partial physical continuity.  _(SO_WHAT/Comparison_With_Sora; ai-prompting-and-description.md:L15488)_
+- `L2217` The earlier World Models architecture learned a compact simulator and trained a small controller inside it.  _(SO_WHAT/Comparison_With_World_Models_2018; ai-prompting-and-description.md:L15500)_
+- `L2218` Genie 3 can generate rich physical surroundings but remains culturally thin.  _(SO_WHAT/Geertzian_Implication; ai-prompting-and-description.md:L15506)_
+- `L2219` Whoever designs the world generator also designs the agent’s formative experience.  _(SO_WHAT/Political_Implication; ai-prompting-and-description.md:L15510)_
+- `L2220` A robotic world model should be understood as a counterfactual action instrument: <Current_State> + <Possible_Action> → <Predicted_Consequence> → <Action_Selection> → <Physical_Execution> → <Observed_Discrepancy> → <Model_Revision>.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L15709)_
+- `L2221` <Renderer> creates plausible future appearances.  _(SO_WHAT/Better_Taxonomy; ai-prompting-and-description.md:L15727)_
+- `L2222` The central metric should be <action-counterfactual fidelity>: Given the same initial state, does changing only the action produce the correctly different consequence?  _(SO_WHAT/Primary_Evaluation_Principle; ai-prompting-and-description.md:L15745)_
+- `L2223` The field is moving through: <External_World_Model> → <World_Model_As_Policy_Input> → <Shared_Predictive_Control_Backbone> → <Latent_Internalized_World_Model> → <Policy_And_Simulator_Co_Evolution>.  _(SO_WHAT/Architectural_Implication; ai-prompting-and-description.md:L15753)_
+- `L2224` Future robotics datasets need more than successful demonstrations.  _(SO_WHAT/Data_Implication; ai-prompting-and-description.md:L15769)_
+- `L2225` These systems model physical transitions more readily than social meaning.  _(SO_WHAT/Geertzian_Implication; ai-prompting-and-description.md:L15789)_
+- `L2226` Once a world model trains, evaluates, and filters robot behavior, it becomes a constitutional layer.  _(SO_WHAT/Governance_Implication; ai-prompting-and-description.md:L15793)_
+- `L2227` WorldDreamer proposes that a world model need not begin by predicting the next frame.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L15942)_
+- `L2228` <Images_And_Videos> → <VQGAN_Tokenization> → <Masked_Visual_Sequence> + <Text_Embedding> + <Action_Embedding> → <Spatial_Temporal_Patchwise_Transformer> → <Predicted_Tokens> → <Visual_Decoder> → <Generated_Or_Edited_Video>.  _(SO_WHAT/Operational_Architecture; ai-prompting-and-description.md:L15946)_
+- `L2229` <Text_To_Video> all visual tokens are masked.  _(SO_WHAT/Unified_Task_Model; ai-prompting-and-description.md:L15966)_
+- `L2230` <Visual_Completion_Model> reconstructs masked appearances.  _(SO_WHAT/Better_Taxonomy; ai-prompting-and-description.md:L15983)_
+- `L2231` The prompt does not merely describe a video.  _(SO_WHAT/Operative_Ekphrasis_Implication; ai-prompting-and-description.md:L15997)_
+- `L2232` WorldDreamer and Sora both create common representations for heterogeneous visual media, but their generative logics differ: <WorldDreamer> reconstructs discrete masked tokens in parallel.  _(SO_WHAT/Relation_To_Sora; ai-prompting-and-description.md:L16009)_
+- `L2233` WorldDreamer can generate action-conditioned driving videos, but Genie attempts continuous real-time interaction.  _(SO_WHAT/Relation_To_Genie; ai-prompting-and-description.md:L16019)_
+- `L2234` Masked world modeling may be especially useful where multiple forms of conditioning, editing, reconstruction, and counterfactual completion must share one model.  _(SO_WHAT/Research_Implication; ai-prompting-and-description.md:L16029)_
+- `L2235` The main research question is not whether robots need language or world models.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L16220)_
+- `L2236` <VLA_Path> <Language_And_Image_Understanding> → <Action_Grounding> → <Control>.  _(SO_WHAT/Two_Representation_Bets; ai-prompting-and-description.md:L16224)_
+- `L2237` <Understanding_Expert> interprets language, objects, relations, and social context.  _(SO_WHAT/Likely_Hybrid_Architecture; ai-prompting-and-description.md:L16244)_
+- `L2238` The important boundary is where imagination stops: <Full_Video_At_Inference> <Partial_Latent_Rollout> <Single_Visual_Subgoal> <Compact_Future_Embedding> <Training_Only_Predictive_Objective>.  _(SO_WHAT/Key_Design_Choice; ai-prompting-and-description.md:L16266)_
+- `L2239` WAMs exchange robot-data scarcity for video-compute abundance.  _(SO_WHAT/Economic_Implication; ai-prompting-and-description.md:L16282)_
+- `L2240` A clean comparison must hold constant: <Robot_Data> <Embodiment> <Parameter_Count> <Pretraining_Compute> <Action_Head> <Inference_Budget> <Test_Distribution>.  _(SO_WHAT/Evaluation_Implication; ai-prompting-and-description.md:L16286)_
+- `L2241` Video pretraining may teach what an action visually resembles without teaching what the action socially means.  _(SO_WHAT/Geertzian_Implication; ai-prompting-and-description.md:L16306)_
+- `L2242` Knowlton’s system establishes animation as a programmable relation among: <Visual_State> <Spatial_Operation> <Temporal_Exposure> <Camera_Configuration> <Storage> <Transformation> <Output_Medium>.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L16443)_
+- `L2243` <Program> → <Surface_State> → <Scanner_Operations> → <Movie_Macros> → <Camera_Call> → <Frame_Duration_Record> → <Microfilm_Master> → <Optical_Printing> → <Final_Film>.  _(SO_WHAT/Operational_Architecture; ai-prompting-and-description.md:L16461)_
+- `L2244` <Scanner_Language> provides local reading, writing, movement, tests, and control flow.  _(SO_WHAT/Three_Layers; ai-prompting-and-description.md:L16481)_
+- `L2245` Animation occurs when a transformation exposes its intermediate states to the camera.  _(SO_WHAT/Theory_Of_Animation; ai-prompting-and-description.md:L16492)_
+- `L2246` The same machine infrastructure produces text, diagrams, and moving images.  _(SO_WHAT/Image_Text_Implication; ai-prompting-and-description.md:L16504)_
+- `L2247` The system contains a minimal executable world: <Surface> defines space.  _(SO_WHAT/World_Model_Implication; ai-prompting-and-description.md:L16518)_
+- `L2248` The enduring design principle is that a film language should expose a small number of composable visual verbs while allowing users to define higher-order cinematic operations.  _(SO_WHAT/BEFLIX_Design_Implication; ai-prompting-and-description.md:L16538)_
+- `L2249` Cybernetic cinema is not defined by synthetic imagery.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L16747)_
+- `L2250` <Photographic_Cinema> records events staged before a camera.  _(SO_WHAT/Historical_Transition; ai-prompting-and-description.md:L16765)_
+- `L2251` The strongest creative software should behave like Whitney’s piano: <Stable_Operational_Grammar> + <Deep_Parameter_Space> + <Immediate_Perceptual_Feedback> + <Repeatable_Performance> + <Long_Term_Mastery>.  _(SO_WHAT/Instrument_Principle; ai-prompting-and-description.md:L16779)_
+- `L2252` Cinema does not simply contain time.  _(SO_WHAT/Temporal_Principle; ai-prompting-and-description.md:L16795)_
+- `L2253` A generative world model becomes cybernetic cinema only when its outputs enter an ongoing loop of action and response.  _(SO_WHAT/World_Model_Implication; ai-prompting-and-description.md:L16815)_
+- `L2254` Knowlton supplies the operational verbs; Whitney supplies the conception of the program as a performable instrument; Youngblood supplies the feedback-loop ontology.  _(SO_WHAT/BEFLIX_Implication; ai-prompting-and-description.md:L16819)_
+- `L2255` Authorship shifts from manually determining every frame toward designing: <Rules> <Parameter_Ranges> <Feedback_Channels> <Selection_Criteria> <Temporal_Organizations> <Conditions_For_Surprise>.  _(SO_WHAT/Authorship_Implication; ai-prompting-and-description.md:L16831)_
+- `L2256` The fundamental unit of motion design is not the moving object but the changing relation among elements.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L17010)_
+- `L2257` <Element_Set> → <Differential_Rates> → <Phase_Divergence> → <Pattern_Destabilization> → <Tension> → <Resonant_Alignment> → <Resolution> → <Renewed_Divergence>.  _(SO_WHAT/Temporal_Architecture; ai-prompting-and-description.md:L17020)_
+- `L2258` Visual harmony is not simultaneous prettiness or symmetry.  _(SO_WHAT/Better_Definition_Of_Harmony; ai-prompting-and-description.md:L17038)_
+- `L2259` A visual temporal language would be built from verbs such as: [accelerate] [delay] [phase] [converge] [diverge] [repeat] [suspend] [invert] [resolve] [interrupt].  _(SO_WHAT/Motion_Grammar; ai-prompting-and-description.md:L17042)_
+- `L2260` A shot should not be treated merely as an image held for a duration.  _(SO_WHAT/Cinematic_Implication; ai-prompting-and-description.md:L17068)_
+- `L2261` Knowlton supplies explicit operations for changing visual surfaces.  _(SO_WHAT/Knowlton_Comparison; ai-prompting-and-description.md:L17082)_
+- `L2262` Youngblood defines cybernetic cinema through feedback between artist and machine.  _(SO_WHAT/Youngblood_Comparison; ai-prompting-and-description.md:L17096)_
+- `L2263` A generative world can exhibit enormous activity without meaningful temporal structure.  _(SO_WHAT/World_Model_Implication; ai-prompting-and-description.md:L17102)_
+- `L2264` A BEFLIX film language should not stop at commands for drawing and shifting.  _(SO_WHAT/BEFLIX_Implication; ai-prompting-and-description.md:L17106)_
+- `L2265` The human being is not: <Biological_Organism> + <Cultural_Overlay>.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L17297)_
+- `L2266` <Open_Ended_Capacities> → <Inherited_Symbolic_Programs> → <Situated_Practice> → <Habituated_Perception_And_Emotion> → <Particular_Competence> → <Recognizable_Personhood>.  _(SO_WHAT/Human_Development_Model; ai-prompting-and-description.md:L17319)_
+- `L2267` Culture provides: <Categories> for identifying what exists.  _(SO_WHAT/Culture_As_Control_System; ai-prompting-and-description.md:L17333)_
+- `L2268` An AI system trained only on generic behavior classes risks reproducing the “fake universal” problem.  _(SO_WHAT/AI_Implication; ai-prompting-and-description.md:L17351)_
+- `L2269` A physical world model predicts how objects move.  _(SO_WHAT/World_Model_Implication; ai-prompting-and-description.md:L17371)_
+- `L2270` Geertz complicates the idea that external programs merely control a preexisting human operator.  _(SO_WHAT/Cybernetic_Implication; ai-prompting-and-description.md:L17389)_
+- `L2271` A system intended to support human action should not assume one context-free user.  _(SO_WHAT/Design_Implication; ai-prompting-and-description.md:L17393)_
+- `L2272` A picture should be understood as an operational relation: <Model_Elements> + <Correlation_Rules> + <Transformation_Procedures> + <Preserved_Invariants> → <Possible_Consequences> → <Comparison_With_Reality>.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L17570)_
+- `L2273` To picture a situation is not to resemble it globally.  _(SO_WHAT/Better_Definition_Of_Picturing; ai-prompting-and-description.md:L17586)_
+- `L2274` <Question_Of_Interest> → <Relevant_Quantities> → <Similarity_Criteria> → <Model_Construction> → <Manipulation> → <Predicted_Consequence> → <Measurement> → <Judgment_Of_Fit>.  _(SO_WHAT/Model_Architecture; ai-prompting-and-description.md:L17590)_
+- `L2275` Logical form is less like a hidden visual skeleton and more like a preserved transformation structure…  _(SO_WHAT/Logical_Form; ai-prompting-and-description.md:L17608)_
+- `L2276` The accident model contains at least three coupled models: <Physical_Model> what trajectories and impacts are possible.  _(SO_WHAT/Courtroom_Implication; ai-prompting-and-description.md:L17620)_
+- `L2277` A contemporary AI world model should not be evaluated only by whether its output resembles reality.  _(SO_WHAT/World_Model_Implication; ai-prompting-and-description.md:L17633)_
+- `L2278` The courtroom setup is proto-cinematic: objects are arranged, moved through phases, viewed from positions, compared against testimony, and used to construct counterfactual sequences.  _(SO_WHAT/Cinema_Implication; ai-prompting-and-description.md:L17647)_
+- `L2279` Physical similarity can model the collision, but thick description is needed to model the accident as accusation, negligence, testimony, injury, or injustice.  _(SO_WHAT/Geertzian_Implication; ai-prompting-and-description.md:L17651)_
+- `L2280` There are symbols in science as surely as in poetry.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L17822)_
+- `L2281` <Symbolic_Form> → <Conception> → <Interpretive_Practice> → <Disposition> → <Action> → <Experienced_Confirmation> → <Reinforced_Symbolic_Order>.  _(SO_WHAT/Symbol_Architecture; ai-prompting-and-description.md:L17837)_
+- `L2282` <Model_Of> represents how some domain is understood.  _(SO_WHAT/Models_Of_And_For; ai-prompting-and-description.md:L17853)_
+- `L2283` Science generally asks: <What_Relations_Hold?> <What_Would_Disconfirm_Them?> <What_Follows_Under_Specified_Conditions?> Religion generally asks…  _(SO_WHAT/Difference_Between_Science_And_Religion; ai-prompting-and-description.md:L17865)_
+- `L2284` A world model is never merely a model of the world once institutions act through it.  _(SO_WHAT/World_Model_Implication; ai-prompting-and-description.md:L17885)_
+- `L2285` An AI-generated risk score, emotion label, behavioral forecast, or synthetic environment acquires an “aura of factuality” when embedded in institutional rituals…  _(SO_WHAT/AI_Implication; ai-prompting-and-description.md:L17901)_
+- `L2286` Wittgensteinian models require correlations that let a representation touch reality.  _(SO_WHAT/Geertz_Wittgenstein_Connection; ai-prompting-and-description.md:L17917)_
+- `L2287` Film can operate as both model of and model for experience.  _(SO_WHAT/Cinema_Implication; ai-prompting-and-description.md:L17931)_
+- `L2288` The paper provides evidence that language models can become effective learned emulators of bounded symbolic environments when trained directly on action-conditioned transition histories.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L18120)_
+- `L2289` <Real_Interaction_Trajectories> → <Action_State_Dialogues> → <Dynamics_Aligned_Supervised_Training> → <History_Conditioned_Transition_Model> → <Predicted_Observation_And_Reward> → <Agent_Action> → <Extended_Synthetic_Trajectory>.  _(SO_WHAT/Operational_Architecture; ai-prompting-and-description.md:L18126)_
+- `L2290` <Text_Continuation_Model> predicts likely language.  _(SO_WHAT/Better_Taxonomy; ai-prompting-and-description.md:L18142)_
+- `L2291` <Level_1> One-step textual fidelity.  _(SO_WHAT/Evaluation_Hierarchy; ai-prompting-and-description.md:L18158)_
+- `L2292` The strongest evidence of world modeling would take the form: <Same_History> + <Action_A> → <Correct_State_A> and <Same_History> + <Action_B> → <Correctly_Different_State_B>.  _(SO_WHAT/Central_Causal_Test; ai-prompting-and-description.md:L18174)_
+- `L2293` The textual environment is a cultural program: it defines valid entities, permissible actions, success, failure, and which state changes count as meaningful.  _(SO_WHAT/Geertzian_Implication; ai-prompting-and-description.md:L18194)_
+- `L2294` The textual state does not resemble the complete underlying environment.  _(SO_WHAT/Wittgensteinian_Implication; ai-prompting-and-description.md:L18200)_
+- `L2295` Once the simulator verifies actions and manufactures training experience, it governs which futures the agent considers plausible, which risks it avoids, and which behaviors it rehearses.  _(SO_WHAT/Agent_Governance_Implication; ai-prompting-and-description.md:L18214)_
+- `L2296` An idea is not fully understood by defining what it represents.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L18383)_
+- `L2297` <Indeterminate_Situation> → <Selective_Description> → <Hypothesis> → <Projected_Consequences> → <Experimental_Action> → <Observed_Consequences> → <Situation_Reconstructed_Or_Hypothesis_Revised>.  _(SO_WHAT/Pragmatic_Inquiry_Loop; ai-prompting-and-description.md:L18395)_
+- `L2298` <Peirce> asks what general habits of conduct a concept implies.  _(SO_WHAT/Peirce_James_Dewey; ai-prompting-and-description.md:L18411)_
+- `L2299` <Meaning> concerns the conceivable consequences of using a concept.  _(SO_WHAT/Meaning_Truth_Value; ai-prompting-and-description.md:L18422)_
+- `L2300` A world model is pragmatically meaningful only if it supports counterfactual action: <Current_State> + <Possible_Action> → <Predicted_Consequence>.  _(SO_WHAT/World_Model_Implication; ai-prompting-and-description.md:L18432)_
+- `L2301` Sterrett’s model touches reality through correlations and preserved transformations.  _(SO_WHAT/Wittgensteinian_Connection; ai-prompting-and-description.md:L18444)_
+- `L2302` Geertz’s symbols are models of and models for reality.  _(SO_WHAT/Geertzian_Connection; ai-prompting-and-description.md:L18452)_
+- `L2303` A cinematic image is not only a representation to be interpreted.  _(SO_WHAT/Cinema_Implication; ai-prompting-and-description.md:L18468)_
+- `L2304` Youngblood’s feedback loop becomes pragmatist when machine-generated variation is evaluated through its consequences for subsequent creation: <Proposal> → <Perceptual_Experience> → <Judgment> → <Revised_Operation>.  _(SO_WHAT/Cybernetic_Cinema_Implication; ai-prompting-and-description.md:L18476)_
+- `L2305` Cinema is not primarily a machine for recording objects.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L18763)_
+- `L2306` <Set_Or_Frame> selects a relatively closed collection of elements.  _(SO_WHAT/Three_Level_Architecture; ai-prompting-and-description.md:L18779)_
+- `L2307` <Acentred_Field_Of_Movements> → <Interval> → <Selective_Perception> → <Intensive_Affection> → <Possible_Action> → <Changed_Milieu> → <New_Perception>.  _(SO_WHAT/Movement_Image_Compiler; ai-prompting-and-description.md:L18792)_
+- `L2308` <Perception_Image> selects what matters for possible action.  _(SO_WHAT/Image_Type_Taxonomy; ai-prompting-and-description.md:L18808)_
+- `L2309` Whitney asks: <How_Shall_Motion_Pattern_Time?> Deleuze asks: <What_Function_Does_Movement_Perform_As_An_Image?> Whitney supplies a compositional theory of differential rate, resonance, tension, and resolution.  _(SO_WHAT/Whitney_Comparison; ai-prompting-and-description.md:L18825)_
+- `L2310` Knowlton provides executable visual operations.  _(SO_WHAT/Knowlton_Comparison; ai-prompting-and-description.md:L18847)_
+- `L2311` Deleuze explains how a body selects, feels, and acts within a milieu.  _(SO_WHAT/Geertzian_Implication; ai-prompting-and-description.md:L18865)_
+- `L2312` The classical action-image resembles pragmatic inquiry: <Problematic_Situation> → <Perception> → <Hypothesis_Or_Response> → <Action> → <Transformed_Situation>.  _(SO_WHAT/Pragmatist_Implication; ai-prompting-and-description.md:L18883)_
+- `L2313` Most contemporary world models are implicitly action-image machines.  _(SO_WHAT/World_Model_Implication; ai-prompting-and-description.md:L18899)_
+- `L2314` A branch should not be defined only as a different event path.  _(SO_WHAT/Branching_Cinema_Implication; ai-prompting-and-description.md:L18923)_
+- `L2315` To direct is not merely to choose content or camera position.  _(SO_WHAT/Direction_Implication; ai-prompting-and-description.md:L18937)_
+- `L2316` The file is assembling a textual control theory for generative media: <Thick_Prompt> establishes the meaningful conditions of a world.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L19150)_
+- `L2317` Thick prompting is the specification of the contextual relations that make generated events meaningful and consequential.  _(SO_WHAT/Refined_Definition_Of_Thick_Prompting; ai-prompting-and-description.md:L19170)_
+- `L2318` Operative description is a machine-actionable account of a generated artifact or world state whose terms can be edited to produce controlled transformations in that artifact or its subsequent evolution.  _(SO_WHAT/Refined_Definition_Of_Operative_Description; ai-prompting-and-description.md:L19200)_
+- `L2319` <Caption> says what an artifact appears to contain.  _(SO_WHAT/Key_Difference; ai-prompting-and-description.md:L19220)_
+- `L2320` The generative imagetext should not be identified with a hidden embedding alone.  _(SO_WHAT/Imagetext_Implication; ai-prompting-and-description.md:L19230)_
+- `L2321` Once the generated artifact is treated as a world, thick prompting must specify more than appearance: <What_Exists> <What_Persists> <What_Entities_Know> <What_Actions_Mean> <What_Actions_Change> <What_Rules_Cannot_Be_Violated> <What_Remains_Contested>.  _(SO_WHAT/World_Model_Implication; ai-prompting-and-description.md:L19246)_
+- `L2322` A thick prompt should not force one interpretation to become unquestionable fact.  _(SO_WHAT/Geertzian_Constraint; ai-prompting-and-description.md:L19264)_
+- `L2323` Operative ekphrasis gives language productive force: text causes an image to appear.  _(SO_WHAT/Bajohr_Connection; ai-prompting-and-description.md:L19278)_
+- `L2324` The project requires a layered ontology rather than one analogy: <Surface> what is visibly or verbally rendered.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L19513)_
+- `L2325` <Image> a perceptible visual configuration.  _(SO_WHAT/Refined_Conceptual_Sequence; ai-prompting-and-description.md:L19549)_
+- `L2326` A <Video_Model> answers: <What_Visible_Sequence_Is_Likely_To_Follow?> A <World_Model> answers: <What_State_Follows_If_This_Action_Is_Taken?> A <World_Text> must answer…  _(SO_WHAT/Critical_Distinction; ai-prompting-and-description.md:L19572)_
+- `L2327` A future definition of <World_Text> should preserve the lesson of <Imagetext>: the symbolic and simulated layers are not independent channels later connected.  _(SO_WHAT/Mitchell_Constraint; ai-prompting-and-description.md:L19596)_
+- `L2328` A future definition of <World_Text> must also preserve the operational structure of a world model: <Current_State> + <Action> → <Predicted_Next_State>.  _(SO_WHAT/Ha_Schmidhuber_Constraint; ai-prompting-and-description.md:L19604)_
+- `L2329` A world-text cannot contain only objects and physics.  _(SO_WHAT/Geertzian_Constraint; ai-prompting-and-description.md:L19616)_
+- `L2330` The meaning of a world-text lies in what transformations it enables and what consequences follow from using it.  _(SO_WHAT/Pragmatist_Constraint; ai-prompting-and-description.md:L19634)_
+- `L2331` A world-text should not reduce cinema to action-conditioned state prediction.  _(SO_WHAT/Deleuzian_Constraint; ai-prompting-and-description.md:L19640)_
+- `L2332` The project should not define <Worldtext> as text that describes a world or even text that generates one.  _(SO_WHAT/Core_Implication; ai-prompting-and-description.md:L19887)_
+- `L2333` <World_Description> human-readable account of entities, situations, meanings, and stakes.  _(SO_WHAT/Necessary_Stack; ai-prompting-and-description.md:L19901)_
+- `L2334` The useful relation is not: <Image> : <Image_Model> as <Video> : <World_Model>.  _(SO_WHAT/Refined_Analogy; ai-prompting-and-description.md:L19921)_
+- `L2335` A credible world model should demonstrate: <State_Persistence> <Action_Sensitivity> <Counterfactual_Difference> <Constraint_Consistency> <Long_Horizon_Consequences> <Uncertainty_Representation> <Transfer_Beyond_Training_Trajectories>.  _(SO_WHAT/Minimum_World_Model_Test; ai-prompting-and-description.md:L19940)_
+- `L2336` A credible worldtext should allow a user or agent to: [inspect] the current world state.  _(SO_WHAT/Minimum_Worldtext_Test; ai-prompting-and-description.md:L19958)_
+- `L2337` The relation between language and world must remain heterogeneous.  _(SO_WHAT/Mitchell_Constraint; ai-prompting-and-description.md:L19976)_
+- `L2338` The system must preserve the action-conditioned predictive structure: <Latent_Or_Explicit_State> + <Action> → <Distribution_Over_Next_States>.  _(SO_WHAT/Ha_Schmidhuber_Constraint; ai-prompting-and-description.md:L19980)_
+- `L2339` A human world requires more than entities and mechanics.  _(SO_WHAT/Geertzian_Constraint; ai-prompting-and-description.md:L19992)_
+- `L2340` The worldtext should not reduce all cinematic change to successful action.  _(SO_WHAT/Deleuzian_Constraint; ai-prompting-and-description.md:L19996)_

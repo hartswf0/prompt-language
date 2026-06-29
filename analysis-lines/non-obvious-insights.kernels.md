@@ -1,0 +1,921 @@
+# NON_OBVIOUS_INSIGHTS
+
+Generated from `analysis-sections/sections.json` by `scripts/build-analysis-lines.mjs`.
+
+Rows: 915
+
+- `L0001` Prompting converts description into interface labor.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L6)_
+- `L0002` The machine does not simply encourage richer description; it disciplines description.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L10)_
+- `L0003` “Vibe” functions as a compression protocol.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L14)_
+- `L0004` The apparent democratization of writerly skill conceals a new hierarchy.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L18)_
+- `L0005` Prompting relocates authorship from composition to selection.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L22)_
+- `L0006` Prompt engineering is being used as an epistemic escape hatch.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L81)_
+- `L0007` The argument quietly changes the object being tested.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L85)_
+- `L0008` “Good prompting” transfers production costs from the model provider to the user.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L89)_
+- `L0009` Prompt expertise creates a defensible professional jurisdiction.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L93)_
+- `L0010` The “slop” debate is displaced from political economy to technique.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L97)_
+- `L0011` AI does not eliminate the studio; it internalizes the studio inside one person.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L156)_
+- `L0012` The true productive asset is not generated content but the canon-management system.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L160)_
+- `L0013` Transmedia becomes a discovery strategy before it becomes a storytelling form.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L164)_
+- `L0014` The creator’s scarcity shifts from production capacity to editorial attention.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L168)_
+- `L0015` Audience participation risks becoming unpaid canon production.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L172)_
+- `L0016` The Odyssey defeats filmmakers because cinema externalizes what the poem keeps morally and ontologically unstable.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L235)_
+- `L0017` The deepest adaptation problem is not scale but legibility.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L239)_
+- `L0018` The article treats audience maturity as a production constraint.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L243)_
+- `L0019` “Faithfulness” is exposed as an institutional fiction rather than an artistic possibility.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L247)_
+- `L0020` The body becomes cinema’s substitute for poetic authority.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L251)_
+- `L0021` The “reverse centaur” is less a description of automation than a theory of managerial control.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L314)_
+- `L0022` The AI bubble is collateralized by hypothetical unpaid wages.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L318)_
+- `L0023` Failure may still be commercially useful.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L322)_
+- `L0024` Public outrage and public adoption are not opposites within the investment narrative.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L326)_
+- `L0025` The consumer is being repositioned as an investor-facing performance indicator.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L330)_
+- `L0026` The dispute is not really about model capability; it is about who gets to define the meaning of an action.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L393)_
+- `L0027` Safety refusal can become evidence of regulatory danger rather than evidence of safety.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L397)_
+- `L0028` The restrictions convert domestic compliance into a competitive disadvantage.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L401)_
+- `L0029` The government’s action creates a “defender’s asymmetry” before establishing an attacker’s asymmetry.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L405)_
+- `L0030` The episode reveals that AI security governance is being built around demonstrations rather than validated threat models.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L409)_
+- `L0031` Neural CAD converts Autodesk’s interface monopoly into a model monopoly.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L472)_
+- `L0032` The promised democratization may shift expertise rather than remove it.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L476)_
+- `L0033` Editable geometry is also a mechanism for absorbing AI output into existing liability systems.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L480)_
+- `L0034` Autodesk is positioning customer history as both the source of future differentiation and the basis of deeper lock-in.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L484)_
+- `L0035` Neural CAD could standardize design before it visibly copies it.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L488)_
+- `L0036` “The backbone of AI” is being rhetorically expanded until it includes nearly every asset class surrounding computation.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L551)_
+- `L0037` The binding constraint is moving from semiconductor performance to institutional permission and physical delivery.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L555)_
+- `L0038` Energy scarcity is being reframed as an opportunity to expand supply rather than a reason to discipline demand.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L559)_
+- `L0039` The mathematical continuity of computing undermines the article’s revolution narrative.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L563)_
+- `L0040` The article’s evidence network is unusually self-referential.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L567)_
+- `L0041` Tool calling relocates agency from the model to the surrounding software architecture.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L630)_
+- `L0042` Tool descriptions function as executable governance.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L634)_
+- `L0043` Structured output creates an illusion of certainty at the most dangerous boundary.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L638)_
+- `L0044` Parallel tool calling converts ambiguity into simultaneous action.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L642)_
+- `L0045` The agentic loop turns tool outputs into future premises.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L646)_
+- `L0046` Open weights are becoming an infrastructure market rather than a local-computing movement.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L709)_
+- `L0047` GLM-5.2 competes partly by externalizing cost into longer reasoning traces.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L713)_
+- `L0048` The one-million-token context window shifts the bottleneck from capacity to governance.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L717)_
+- `L0049` Strong frontend performance without vision suggests that coding benchmarks may reward reconstruction more than perception.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L721)_
+- `L0050` The pelican and opossum reveal regression hidden by aggregate improvement.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L725)_
+- `L0051` “Scaling works” functions as both a scientific claim and a capital-allocation doctrine.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L788)_
+- `L0052` Altman reframes scientific disagreement as psychological incapacity.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L792)_
+- `L0053` The argument treats isolated breakthroughs as evidence about an entire capability trajectory.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L796)_
+- `L0054` Scaling may be strongest precisely where evaluation is easiest to externalize.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L800)_
+- `L0055` The dispute may prematurely narrow the field’s research portfolio.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L804)_
+- `L0056` The funding loss exposed Baltimore’s organizational weakness more clearly than its technological weakness.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L867)_
+- `L0057` Federal competitions can reproduce the concentration they are designed to correct.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L871)_
+- `L0058` The projected benefits function as political counterfactuals that cannot be audited.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L875)_
+- `L0059` “Storytelling” operates here as infrastructure.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L879)_
+- `L0060` The Tech Hubs designation created a regional coalition whose continued value now depends on preserving scarcity.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L883)_
+- `L0061` LOCUS does not merely expose local law; it creates a computational theory of what law is.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L1025)_
+- `L0062` The normative scores are synthetic interpretations that risk being mistaken for measured properties of law.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L1029)_
+- `L0063` County harmonization manufactures geographic comparability by sacrificing jurisdictional meaning.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L1033)_
+- `L0064` Machine-readable access may increase legal-power asymmetry before it improves public understanding.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L1037)_
+- `L0065` The public release favors classification over legal verification.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L1041)_
+- `L0066` Elite anticipation is a form of perceptual compression, but compression also creates blindness.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L1508)_
+- `L0067` Messi’s walking functions as active model calibration rather than passive observation.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L1512)_
+- `L0068` Deception works by weaponizing the opponent’s expertise.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L1516)_
+- `L0069` Prediction is distributed across bodies, spaces, and relationships—not located solely in the focal object.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L1520)_
+- `L0070` The account quietly replaces reaction with controlled hallucination.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L1524)_
+- `L0071` Craik turns explanation into an internalized experiment.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L1777)_
+- `L0072` The book relocates intelligence from stored knowledge to structural correspondence.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L1781)_
+- `L0073` Craik’s mechanistic project expands the category of “machine” until it can absorb properties previously used to distinguish minds from machines.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L1785)_
+- `L0074` Meaning becomes artificial causation.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L1789)_
+- `L0075` The book proposes a recursive economy of explanation.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L1793)_
+- `L0076` Harness engineering is where AI products acquire their actual behavior.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L1856)_
+- `L0077` The rise of harness engineering signals that frontier-model advantage is becoming less defensible.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L1860)_
+- `L0078` Harnesses convert probabilistic failure into organizational responsibility.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L1864)_
+- `L0079` Agentic AI turns harness engineering into institutional simulation.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L1868)_
+- `L0080` The harness is likely to become the primary site of user manipulation.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L1872)_
+- `L0081` Safety discourse is becoming evidence in the regulatory case against the speaker.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L1935)_
+- `L0082` The episode creates a market incentive for strategic silence.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L1939)_
+- `L0083` The communications analysis confuses vocabulary frequency with causal influence.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L1943)_
+- `L0084` Anthropic’s safety identity has become both brand capital and political liability.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L1947)_
+- `L0085` The export ban may be less about controlling model diffusion than disciplining corporate autonomy.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L1951)_
+- `L0086` The central product of the AI boom may be managerial permission, not automation.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L2014)_
+- `L0087` Doctorow’s “world without people” is a theory of elite epistemic avoidance.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L2018)_
+- `L0088` The bubble’s productive residue depends on who gains control after devaluation.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L2022)_
+- `L0089` The strongest useful-AI examples are intentionally subordinate systems.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L2026)_
+- `L0090` Copyright conflict may divert creative labor away from the institutional source of its vulnerability.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L2030)_
+- `L0091` The reform converts universities from knowledge institutions into industrial-policy instruments.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L2093)_
+- `L0092` “Obsolescence” is functioning as a political classification rather than a neutral labor-market fact.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L2097)_
+- `L0093` The restructuring may shift graduate unemployment rather than solve it.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L2101)_
+- `L0094` The policy centralizes technological risk inside the education system.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L2105)_
+- `L0095` The comparison with the United States understates a shared logic.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L2109)_
+- `L0096` The export control functioned as an internal denial-of-service attack on the U.S. government.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L2172)_
+- `L0097` The government is not acting as one coherent sovereign but as competing technical and political organizations.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L2176)_
+- `L0098` The model’s defensive value may be inseparable from the capability that makes it politically alarming.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L2180)_
+- `L0099` Political language converted a controlled evaluation into an imagined autonomous attack.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L2184)_
+- `L0100` Anthropic’s conflict with the Pentagon has made capability assessment inseparable from procurement politics.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L2188)_
+- `L0101` Agentic coding can increase individual output while reducing the organization’s collective intelligence.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L2251)_
+- `L0102` Loneliness is an architectural consequence, not merely an employee-wellness side effect.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L2255)_
+- `L0103` AI may replace apprenticeship before it replaces experts.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L2259)_
+- `L0104` The new object of peer learning is becoming the harness rather than the craft.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L2263)_
+- `L0105` AI adoption is becoming a loyalty signal under conditions of employment insecurity.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L2267)_
+- `L0106` YouTube’s AI problem is not primarily content quality; it is a collapse in the cost of claiming attention.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L2330)_
+- `L0107` YouTube benefits economically from the same abundance it must publicly restrain.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L2334)_
+- `L0108` “Keeping it human” can become a branding layer rather than a production standard.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L2338)_
+- `L0109` AI shifts creative power from production skill toward distribution literacy.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L2342)_
+- `L0110` Sora’s shutdown is not merely a competitor’s failure; it exposes the hidden cost of generative-video platforms.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L2346)_
+- `L0111` The bill would turn chatbot providers into quasi-clinical monitoring institutions.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L2409)_
+- `L0112` Age estimation makes identity inference a condition of ordinary conversation.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L2413)_
+- `L0113` Parental notification silently assumes that the household is the safest escalation point.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L2417)_
+- `L0114` Pre-release risk assessment could become a licensing regime without formally being called one.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L2421)_
+- `L0115` The legislative competition is shaping policy architecture before the harms are precisely defined.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L2425)_
+- `L0116` The sell-off reveals that AI valuations depend on cheap capital as much as technological capability.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L2488)_
+- `L0117` Debt financing marks a transition from speculative promise to balance-sheet exposure.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L2492)_
+- `L0118` Research talent is being treated as a financial asset embedded inside corporations.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L2496)_
+- `L0119` Market concentration converts company-specific disappointment into macroeconomic instability.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L2500)_
+- `L0120` The Asian decline shows that the AI trade is an international production system, not a collection of American software companies.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L2504)_
+- `L0121` High use combined with low trust suggests AI is becoming infrastructure before it becomes legitimate.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L2567)_
+- `L0122` The gap between personal optimism and social pessimism is a diffusion-of-harm pattern.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L2571)_
+- `L0123` AI Overviews transform search engines from traffic brokers into answer monopolists.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L2575)_
+- `L0124` Younger adults’ combination of high adoption and deep concern may reflect coercive proximity rather than enthusiasm.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L2579)_
+- `L0125` The non-user population is not merely waiting for better onboarding.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L2583)_
+- `L0126` The contraction of the market gives Alibaba pricing power disguised as a discount.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L2646)_
+- `L0127` The decisive competitive advantage may be organizational endurance rather than model quality.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L2650)_
+- `L0128` Unified audio-video generation transfers complexity rather than eliminating it.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L2654)_
+- `L0129` Identity consistency turns synthetic video from a novelty into an asset-management system.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L2658)_
+- `L0130` European “sovereignty” may be becoming a compliance geography rather than genuine technological autonomy.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L2662)_
+- `L0131` AI coding shifts software from owned capability toward metered cognitive infrastructure.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L2725)_
+- `L0132` The most durable point of control may be the harness rather than the model.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L2729)_
+- `L0133` Open protocols can redistribute dependency rather than eliminate it.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L2733)_
+- `L0134` AI infrastructure reverses the historical relationship between labor and tooling.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L2737)_
+- `L0135` Open infrastructure is also an institutional continuity strategy.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L2741)_
+- `L0136` Claude Corps is simultaneously a workforce program and a customer-acquisition system.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L2804)_
+- `L0137` The emerging occupation is less “AI expert” than institutional translator.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L2808)_
+- `L0138` The fellowship externalizes the difficult part of automation onto early-career workers.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L2812)_
+- `L0139` AI literacy may become a labor-market sorting mechanism before it becomes a stable profession.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L2816)_
+- `L0140` Anthropic is helping construct the labor category that validates its own displacement narrative.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L2820)_
+- `L0141` The study demonstrates predictive alignment, not shared cognition.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L2883)_
+- `L0142` The LLM is functioning as a measurement instrument for the brain.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L2887)_
+- `L0143` Reduced neural response to predictable words reflects efficient allocation, not necessarily lower total cognition.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L2891)_
+- `L0144` Prediction may explain fluent comprehension without explaining meaning.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L2895)_
+- `L0145` The naturalistic audiobook design changes what counts as evidence in language neuroscience.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L2899)_
+- `L0146` The “startup pipeline” reframes unemployment as a customer-acquisition funnel.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L2962)_
+- `L0147` The platform privatizes functions once supplied by employers.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L2966)_
+- `L0148` Automating business formation lowers the barrier to legal entrepreneurship without lowering the barrier to economic survival.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L2970)_
+- `L0149` The company’s expansion follows the full dependency curve of a small business.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L2974)_
+- `L0150` AI displacement may generate a class of involuntary entrepreneurs.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L2978)_
+- `L0151` The warning transforms cybersecurity from an engineering problem into an organizational mobilization problem.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L3041)_
+- `L0152` The export restriction may protect capability while weakening allied defense.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L3045)_
+- `L0153` “Months, not years” is simultaneously a forecast and a political instrument.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L3049)_
+- `L0154` Frontier AI may industrialize vulnerability exploitation rather than invent fundamentally new attacks.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L3053)_
+- `L0155` The state is constructing a privileged-access regime around dual-use intelligence.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L3057)_
+- `L0156` The legal breakthrough is not autonomous advocacy but the unbundling of litigation.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L3120)_
+- `L0157` AI changes which disputes are economically visible to the courts.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L3124)_
+- `L0158` The human barrister functions as both advocate and institutional legitimacy layer.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L3128)_
+- `L0159` Small-claims automation could alter bargaining power before trial.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L3132)_
+- `L0160` Regulatory authorization is a more important milestone than the single victory.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L3136)_
+- `L0161` “Removing friction” is a managerial category, not a neutral description.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L3199)_
+- `L0162` Faster prototyping may increase executive control over creative labor.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L3203)_
+- `L0163` AI may shift creativity from making artifacts to selecting among generated possibilities.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L3207)_
+- `L0164` “Coming to alignment” faster may mean organizational convergence rather than greater imagination.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L3211)_
+- `L0165` The acquisition context changes the meaning of productivity claims.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L3215)_
+- `L0166` A2A turns organizational boundaries into software interfaces.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L3278)_
+- `L0167` The “secure black box” solves data exposure by creating an accountability gap.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L3282)_
+- `L0168` Zero context pollution is a form of epistemic outsourcing.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L3286)_
+- `L0169` A2A converts APIs from deterministic capabilities into negotiable relationships.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L3290)_
+- `L0170` The protocol creates the possibility of an agent labor market.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L3294)_
+- `L0171` “Human-centric” functions here as a management doctrine for preserving cooperation during labor intensification.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L3357)_
+- `L0172` The dispute is less about whether AI eliminates jobs than about who owns the explanation.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L3361)_
+- `L0173` Calling AI a tool narrows the field of moral responsibility.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L3365)_
+- `L0174` Training programs can operate as behavioral alignment systems.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L3369)_
+- `L0175` The “blank slate” option reveals the limits of the human-centric promise.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L3373)_
+- `L0176` “Self-improvement” is actually evaluator-governed self-modification.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L3458)_
+- `L0177` The paper relocates intelligence from model weights into the model-environment relationship.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L3462)_
+- `L0178` Harnesses function like institutional memory.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L3466)_
+- `L0179` Model-specific harnesses imply that foundation models possess distinct behavioral ergonomics.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L3470)_
+- `L0180` The method converts interpretation into executable governance.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L3474)_
+- `L0181` The harness is becoming the real operating system because it governs continuity, not computation.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L3543)_
+- `L0182` Open-source agent projects are becoming distribution channels for proprietary control planes.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L3547)_
+- `L0183` Persistent memory is accumulated human labor converted into infrastructure.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L3551)_
+- `L0184` Gateway-first and memory-first designs encode competing theories of agency.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L3555)_
+- `L0185` Governance beneath multiple agents may become more durable than the agents themselves.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L3559)_
+- `L0186` A communication protocol is an institutional constitution for agent societies.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L3628)_
+- `L0187` Schema flexibility is really flexibility over the terms of cooperation.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L3632)_
+- `L0188` Discovery mechanisms encode the political economy of the agent network.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L3636)_
+- `L0189` The layered-stack proposal distributes cognition across protocols.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L3640)_
+- `L0190` The taxonomy shows that agent-to-agent communication is already becoming workflow infrastructure rather than dialogue.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L3644)_
+- `L0191` Skill-MAS relocates learning from model parameters into organizational doctrine.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L3713)_
+- `L0192` The method treats orchestration as a portable intellectual asset.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L3717)_
+- `L0193` Multi-trajectory rollout converts stochasticity into diagnostic evidence.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L3721)_
+- `L0194` Selective Reflection creates an adaptive curriculum for the orchestrator.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L3725)_
+- `L0195` The evolved skill increasingly resembles an epistemic constitution.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L3729)_
+- `L0196` The benchmark reveals that world-model failure is often a failure of epistemic control rather than raw representational capacity.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L3792)_
+- `L0197` Reasoning models gain their advantage primarily by learning what to ask.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L3796)_
+- `L0198` Accumulating context does not reliably become accumulating knowledge.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L3800)_
+- `L0199` The classical algorithms expose a difference between fluent reasoning and invariant-preserving reasoning.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L3804)_
+- `L0200` The experiment operationalizes a Craikian model as a manipulable causal surrogate.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L3808)_
+- `L0201` Human-on-the-Bridge converts expert judgment into executable institutional policy.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L3871)_
+- `L0202` The framework’s strongest claim is not that small models can judge frontier models, but that judgment can be decomposed into discovery and verification.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L3875)_
+- `L0203` HOB industrializes red-team knowledge by turning incidents into regression infrastructure.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L3879)_
+- `L0204` Juror Personas transform evaluation disagreement from noise into system structure.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L3883)_
+- `L0205` The real object being evaluated is the sociotechnical stack, not the foundation model.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L3887)_
+- `L0206` The OpenClaw incident suggests that agent security failures can arise from the system’s purpose rather than an implementation bug.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L3950)_
+- `L0207` The plague analogy points toward institutional selection, not merely technological disruption.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L3954)_
+- `L0208` AI adoption may be constrained by process incompatibility more than model weakness.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L3958)_
+- `L0209` Agentic systems erase the traditional boundary between cybersecurity and management design.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L3962)_
+- `L0210` The most expensive part of enterprise AI may be rebuilding work so that errors remain containable.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L3966)_
+- `L0211` The “implicit organization” is not merely hidden knowledge; it is a distributed error-correction system.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L4029)_
+- `L0212` Agent deployment converts tacit judgment from an abundant byproduct of work into a scarce capital asset.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L4033)_
+- `L0213` Escalation systems are also organizational learning systems.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L4037)_
+- `L0214` Multi-agent failure can arise without any component behaving incorrectly.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L4041)_
+- `L0215` The article implicitly defines an organization as a world model maintained by people.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L4045)_
+- `L0216` The government’s directive governs global AI access by controlling a single domestic chokepoint.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L4108)_
+- `L0217` Anthropic’s worldwide shutdown reveals the power of regulatory ambiguity.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L4112)_
+- `L0218` The lawsuit turns model access into a dependency and continuity claim.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L4116)_
+- `L0219` Nationality-based restrictions collide with the distributed structure of modern software firms.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L4120)_
+- `L0220` The dispute reveals a three-sided sovereignty conflict.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L4124)_
+- `L0221` The real breakthrough was not generative AI but converting institutional memory into a searchable decision system.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L4187)_
+- `L0222` The system separates cheap certainty from expensive ambiguity.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L4191)_
+- `L0223` The pipeline turns historical administrative work into training capital without formally training a model.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L4195)_
+- `L0224` Confidence sorting changes the economics of human review.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L4199)_
+- `L0225` The system’s hardest failure reveals that identity and destination are different inference problems.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L4203)_
+- `L0226` Epic is trying to turn the game engine from a production tool into a social and economic operating system.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L4266)_
+- `L0227` Sweeney correctly identifies multiplayer adoption as a coordination problem rather than an individual purchasing decision.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L4270)_
+- `L0228` Portable assets convert sunk costs into migration instruments.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L4274)_
+- `L0229` Cross-game communication solves social separation less than it creates an embedded acquisition channel.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L4278)_
+- `L0230` Epic’s diagnosis reframes unsuccessful games as infrastructure failures rather than product failures.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L4282)_
+- `L0231` AI is not merely inflating grades; it is breaking the measurement model that grades depend on.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L4345)_
+- `L0232` The reported jump from C-level to A-level work signals compression, not ordinary inflation.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L4349)_
+- `L0233` The divergence between AI-useful and AI-resistant courses functions as a natural experiment in assessment vulnerability.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L4353)_
+- `L0234` Universities may begin certifying tool-mediated production while employers assume subject mastery.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L4357)_
+- `L0235` AI exposes a long-standing conflict between learning assessment and customer satisfaction.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L4361)_
+- `L0236` The proposed context tier turns memory into a first-class infrastructure market.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L4424)_
+- `L0237` GPU utilization increasingly depends on whether prior cognition can be retrieved rather than recomputed.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L4428)_
+- `L0238` Persistent context collapses the boundary between memory architecture and governance architecture.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L4432)_
+- `L0239` The shift from tokens-per-dollar to useful-tokens-per-dollar changes what counts as infrastructure efficiency.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L4436)_
+- `L0240` A dedicated context tier could become the durable substrate beneath interchangeable models.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L4440)_
+- `L0241` The SKILL Act converts workforce planning into a subsidized employer procurement system.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L4503)_
+- `L0242` The bill rewards pipeline completion more clearly than durable employment.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L4507)_
+- `L0243` Employer-led training is also a mechanism for transferring technological uncertainty onto students and public institutions.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L4511)_
+- `L0244` The legislation reframes AI displacement as a skills mismatch rather than a distributional conflict.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L4515)_
+- `L0245` The additional hiring credit may give employers influence over both education supply and labor demand.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L4519)_
+- `L0246` Loop engineering shifts agency from the model’s answer into the surrounding control structure.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L4582)_
+- `L0247` The assessment mechanism quietly becomes the system’s governing authority.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L4586)_
+- `L0248` Stopping rules encode an organization’s tolerance for incompleteness.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L4590)_
+- `L0249` Repeated action changes the nature of model error.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L4594)_
+- `L0250` Loop engineering is closer to cybernetic control than advanced prompting.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L4598)_
+- `L0251` DeepSeek’s hiring push confirms that competitive advantage is migrating from model weights into the execution layer.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L4661)_
+- `L0252` “Model + Harness = Agent” is also an organizational formula.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L4665)_
+- `L0253` The talent shortage suggests harness engineering is becoming a distinct technical profession.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L4669)_
+- `L0254` A desktop agent would give DeepSeek a direct channel to observe and shape user workflows.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L4673)_
+- `L0255` The reported non-poaching provision treats employee networks as strategic infrastructure.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L4677)_
+- `L0256` The proposed governance layer is less like Kubernetes than a programmable constitutional court.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L4740)_
+- `L0257` Separating planning from permission creates a productive form of distrust.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L4744)_
+- `L0258` Ontologies become executable organizational theories.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L4748)_
+- `L0259` Decision provenance turns authorization into a reconstructable causal chain.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L4752)_
+- `L0260` A framework-independent governance layer could become the durable center of enterprise agent infrastructure.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L4756)_
+- `L0261` The paper relocates AI consciousness from metaphysics into constitutional design.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L4844)_
+- `L0262` Democratic hope makes revisability a hidden condition of legitimacy.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L4848)_
+- `L0263` Overlapping consensus may conceal disagreement about precedent.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L4852)_
+- `L0264` The unresolved franchise problem is also a problem of representation.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L4856)_
+- `L0265` AI developers can shape both the object of disagreement and the electorate’s intuitions about it.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L4860)_
+- `L0266` The experiment primarily demonstrates the automation of robotics integration, not robotics itself.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L4929)_
+- `L0267` Language models may make commodity hardware economically programmable.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L4933)_
+- `L0268` The model’s apparent autonomy rests on a carefully preserved human authority boundary.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L4937)_
+- `L0269` The code-volume result suggests that expertise increasingly appears as search-space compression.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L4941)_
+- `L0270` General model scaling can create unplanned physical capability externalities.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L4945)_
+- `L0271` The partnership turns filmmakers from customers into upstream model-development infrastructure.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L5008)_
+- `L0272` Google’s investment means the collaboration is simultaneously research, product development, and strategic alignment.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L5012)_
+- `L0273` A24 functions as a reputational bridge between frontier AI and artistic legitimacy.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L5016)_
+- `L0274` The absence of concrete deliverables is itself strategically useful.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L5020)_
+- `L0275` The likely competitive asset is not a single generative model but a proprietary creative workflow stack.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L5024)_
+- `L0276` The emerging divide is not primarily access to AI, but access to high-quality human–AI systems.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L5087)_
+- `L0277` AI can widen inequality even when it improves outcomes for every group.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L5091)_
+- `L0278` The design divide may be more consequential than the device divide.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L5095)_
+- `L0279` AI literacy depends on conventional literacy rather than replacing it.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L5099)_
+- `L0280` The article implicitly assigns educators responsibility for compensating for structural failures beyond schools’ control.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L5103)_
+- `L0281` The most consequential form of AI influence may be anticipatory silence rather than explicit censorship.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L5166)_
+- `L0282` Vertical integration is turning cultural gatekeepers into stakeholders in the subjects they portray.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L5170)_
+- `L0283` The distribution crisis may be more politically significant than the film’s content.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L5174)_
+- `L0284` A24’s reported refusal gains additional significance beside its new Google DeepMind partnership.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L5178)_
+- `L0285` The case exposes a new reputational asymmetry between filmmakers and technology executives.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L5182)_
+- `L0286` The real curriculum is not AI literacy but jurisdiction over cognition.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L5245)_
+- `L0287` The “driver versus passenger” distinction converts AI education into a theory of agency.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L5249)_
+- `L0288` The institutional vacuum allows product distribution to masquerade as public education policy.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L5253)_
+- `L0289` Students become intergenerational governance intermediaries.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L5257)_
+- `L0290` The most successful classroom intervention is structurally anti-scalable.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L5261)_
+- `L0291` Sweeney’s deepest product theory is that tools compound more powerfully than content.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L5324)_
+- `L0292` Computer graphics advances by engineering perceptual equivalence, not physical truth.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L5328)_
+- `L0293` The proposed fusion of AI and game engines is really a merger of two incompatible world models.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L5332)_
+- `L0294` Verse is not merely a new gameplay language; it is Epic’s institutional answer to distributed authorship.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L5336)_
+- `L0295` Epic’s openness philosophy contains a strategic convergence of principle and self-interest.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L5340)_
+- `L0296` Genesis is not merely transporting STEM equipment; it is transporting an alternative institutional logic into places where schools often organize children through deficit categories.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L5403)_
+- `L0297` The pinball machine functions as a material record of distributed intelligence.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L5407)_
+- `L0298` “Process over product” does not mean the product is unimportant; it means the product becomes evidence of a learning ecology.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L5411)_
+- `L0299` The combination of trash and computation quietly challenges the cultural mythology of technology.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L5415)_
+- `L0300` The most consequential outcome is identity formation rather than technical skill acquisition.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L5419)_
+- `L0301` The electromechanical pinball machine is a physical program whose control flow is visible in space.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L5482)_
+- `L0302` The score motor separates possibility from activation.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L5486)_
+- `L0303` Complex behavior emerges through composition rather than centralized intelligence.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L5490)_
+- `L0304` The machine makes failure diagnostically legible.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L5494)_
+- `L0305` Pinball converts computation into performance.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L5498)_
+- `L0306` The real distinction is not deterministic versus stochastic; it is addressable versus non-addressable representation.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L5561)_
+- `L0307` A scene graph preserves creative decisions as durable state.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L5565)_
+- `L0308` The proposed merger is a bidirectional compiler between latent possibility and explicit world structure.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L5569)_
+- `L0309` Art direction is fundamentally constraint accumulation.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L5573)_
+- `L0310` The scene graph could become a governance layer for generative media.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L5577)_
+- `L0311` The real game is not repairing a broken narrative engine; it is deciding which representation of reality has authority.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L5640)_
+- `L0312` Hallucination becomes a productive but dangerous world-building resource.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L5644)_
+- `L0313` The token budget is functioning as epistemic carrying capacity.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L5648)_
+- `L0314` The harness engineer is a dramaturg disguised as a systems operator.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L5652)_
+- `L0315` Permanent scars transform failure into world history.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L5656)_
+- `L0316` Wirth’s minimalism is not austerity; it is a theory of combinatorial power.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L5719)_
+- `L0317` Orthogonality is a cognitive compression mechanism.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L5723)_
+- `L0318` Sweeney’s historical argument treats language design as inherited constitutional law.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L5727)_
+- `L0319` Strong typing relocates responsibility from debugging to construction.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L5731)_
+- `L0320` Wirth’s philosophy becomes especially important in an era of AI-generated code.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L5735)_
+- `L0321` The decisive shift is from persuasion to construction.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L5798)_
+- `L0322` Types function as a language for making assumptions executable.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L5802)_
+- `L0323` Programming languages distribute cognition between humans and machines.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L5806)_
+- `L0324` Verse’s ambition is better understood as proof-guided world construction.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L5810)_
+- `L0325` Formal verification becomes especially powerful when code is generated by AI.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L5814)_
+- `L0326` The program’s most powerful move is converting moral discourse into thermodynamics.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L5883)_
+- `L0327` The actual antagonist is misaddressed feedback.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L5887)_
+- `L0328` “Words that produce no words” describes a breakdown in reciprocal communication.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L5891)_
+- `L0329` The critic is functioning as unpaid quality assurance for the production system.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L5895)_
+- `L0330` The code produces its philosophical conclusion by construction.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L5899)_
+- `L0331` The program performs a deliberate inversion of human–computer interaction.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L5970)_
+- `L0332` Meaning is not absent from the system; it is actively discarded at the input boundary.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L5974)_
+- `L0333` The interface turns computation into an irreversible residue machine.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L5978)_
+- `L0334` The supposed audit is itself complicit in the cycle it diagnoses.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L5982)_
+- `L0335` The strongest expressive device is the mismatch between visible and hidden state.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L5986)_
+- `L0336` “Empathy” functions here as a technology for depoliticizing institutional analysis.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L6053)_
+- `L0337` The article identifies a conversion of disciplines into portable corporate competencies.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L6057)_
+- `L0338` Institutional empathy is most valuable precisely when material repair is unavailable or unwanted.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L6061)_
+- `L0339` Empathy language creates an asymmetry of obligation.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L6065)_
+- `L0340` The trademark joke names the deeper mechanism: empathy has become an enterprise product category.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L6069)_
+- `L0341` The failed promise is not personalization but automatic demand.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L6132)_
+- `L0342` The gap between access and uptake exposes a category error in education technology.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L6136)_
+- `L0343` The tutor metaphor quietly assumes a student already wants tutoring.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L6140)_
+- `L0344` AI may personalize instruction while leaving the institution impersonal.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L6144)_
+- `L0345` “Non-event” is more damaging to the AI-tutor thesis than outright technical failure.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L6148)_
+- `L0346` The breakthrough is not better optimization; it is the admission of construction into the mathematical object.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L6211)_
+- `L0347` Constraints are productive design intelligence rather than damage imposed on a perfect solution.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L6215)_
+- `L0348` The model converts tacit trade knowledge into machine-readable law.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L6219)_
+- `L0349` Multi-material optimization reframes materials as situated capabilities rather than interchangeable quantities.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L6223)_
+- `L0350` The real carbon achievement may come from preventing optimized designs from being rejected.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L6227)_
+- `L0351` UE6 is being positioned not merely as an engine upgrade but as an attempt to relocate complexity from developers into infrastructure.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L6290)_
+- `L0352` Sweeney’s answer to rising development costs is not smaller games but greater infrastructural leverage.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L6294)_
+- `L0353` Interoperability is presented as a cure for winner-takes-all markets, but it may also deepen them.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L6298)_
+- `L0354` Epic’s AI strategy avoids model ownership while pursuing control of the execution boundary.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L6302)_
+- `L0355` The claim that AI preserves artistic control depends on converting generated outputs into durable engine objects.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L6306)_
+- `L0356` The real controversy is not the numerical result but the conversion of extinction into an ordinary optimization variable.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L6369)_
+- `L0357` The calculation hides a political constitution inside economic notation.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L6373)_
+- `L0358` The use of log utility gives the conclusion a false aura of inevitability.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L6377)_
+- `L0359` Anthropic’s safety rhetoric and growth economics may be complementary rather than contradictory.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L6381)_
+- `L0360` Hiring an economist can convert an ethical dispute into a problem of calibrated risk tolerance.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L6385)_
+- `L0361` The hiring of philosophers signals that AI laboratories are no longer merely building tools; they are constructing institutions that must define contested concepts.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L6448)_
+- `L0362` Philosophy becomes economically valuable when technical systems begin encountering specification failure.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L6452)_
+- `L0363` The reversal of “learn to code” contains a deeper labor-market irony.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L6456)_
+- `L0364` Corporate philosophy is likely to function as ontology engineering.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L6460)_
+- `L0365` Hiring philosophers may also provide legitimacy without transferring authority.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L6464)_
+- `L0366` Literary translation is not a transfer of meaning but a reconstruction of relations.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L6527)_
+- `L0367` The article identifies addressability as the hidden limit of statistical translation.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L6531)_
+- `L0368` Urdu metaphor here behaves like a persistent world model.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L6535)_
+- `L0369` “Lyrical” functions as a generic style prior that can actively damage fidelity.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L6539)_
+- `L0370` The translator’s crucial resource is accountable situated judgment.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L6543)_
+- `L0371` The list functions less as a reading guide than as an institutional self-portrait.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L6606)_
+- `L0372` The dominant intellectual pattern is the conversion of uncertainty into governable form.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L6610)_
+- `L0373` “How is that?” quietly unifies the collection more strongly than “What is that?”  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L6614)_
+- `L0374` The humanities titles repeatedly resist the fantasy that technical systems are politically neutral.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L6618)_
+- `L0375` The catalog reveals an institution increasingly organized around preparedness.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L6622)_
+- `L0376` The film’s real innovation is not visual generation but the collapse of production infrastructure.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L7138)_
+- `L0377` AI here operates as both an instrument of exile and a substitute for forbidden access.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L7142)_
+- `L0378` The film transforms documentary evidence into synthetic embodiment.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L7146)_
+- `L0379` The audience’s reactions reveal that technical realism and emotional credibility are separate systems.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L7150)_
+- `L0380` Festival acceptance converts a technical experiment into an institutional precedent.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L7154)_
+- `L0381` Claude Design does not merely generate layouts; it installs Anthropic’s taste as a default layer of the web.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L7217)_
+- `L0382` The new cliché spreads faster than earlier template aesthetics because the template is hidden.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L7221)_
+- `L0383` Prompting does not eliminate design labor; it moves labor into resistance against the default.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L7225)_
+- `L0384` The aesthetic signature is also a technical supply-chain signature.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L7229)_
+- `L0385` “Taste” is becoming the moral language used to explain structural automation.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L7233)_
+- `L0386` The company’s real asset is not video but recorded intention.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L7296)_
+- `L0387` Video games function here as compressed laboratories of causality.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L7300)_
+- `L0388` The claimed “self” emerges from control boundaries rather than introspection.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L7304)_
+- `L0389` The world model is valuable primarily because it manufactures experience.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L7308)_
+- `L0390` The proposed data flywheel turns customers into extensions of the research apparatus.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L7312)_
+- `L0391` Raise Us privatizes the first draft of national labor policy.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L7375)_
+- `L0392` The initiative frames AI disruption as a transition problem rather than a distribution problem.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L7379)_
+- `L0393` Wage insurance quietly normalizes downward mobility.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L7383)_
+- `L0394` Community colleges are being positioned as shock absorbers for corporate automation.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L7387)_
+- `L0395` The refusal of universal basic income reveals that employment is being treated as a moral institution, not merely an income mechanism.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L7391)_
+- `L0396` “AI native” is being constructed as a new form of executive legitimacy.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L7458)_
+- `L0397` The appointment turns generational difference into organizational infrastructure.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L7462)_
+- `L0398` The proposed application model transfers judgment from product designers to the AI system.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L7466)_
+- `L0399` AI competence is being inferred from habits of delegation.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L7470)_
+- `L0400` The chief AI officer role may function as institutional permission to violate inherited procedure.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L7474)_
+- `L0401` AI coding creates a throughput imbalance rather than a universal productivity gain.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L7541)_
+- `L0402` The real unit of AI-generated infrastructure is not code but blast radius.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L7545)_
+- `L0403` Confidence is being inferred from the absence of visible catastrophe.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L7549)_
+- `L0404` Pioneer organizations succeed not because they trust AI less but because they trust individual outputs less.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L7553)_
+- `L0405` Agentic infrastructure eliminates review as a discrete event.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L7557)_
+- `L0406` The real breakthrough is not code generation but the construction of an environment that prevents the model from lying to itself.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L7624)_
+- `L0407` “Disposable tooling” changes the economics of offensive software from preservation to regeneration.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L7628)_
+- `L0408` The clean-context QA agent functions as an artificial separation of powers.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L7632)_
+- `L0409` The model’s most dangerous defect is premature closure rather than bad syntax.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L7636)_
+- `L0410` Generative offensive tooling attacks the economics of detection more than the sophistication of exploitation.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L7640)_
+- `L0411` Americans are not primarily afraid of AI; they are afraid of falling through institutions that already fail.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L7707)_
+- `L0412` The same technology can appear emancipatory or predatory depending on a worker’s starting position.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L7711)_
+- `L0413` Social insurance functions as innovation infrastructure.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L7715)_
+- `L0414` American AI pessimism exposes the hidden design of employer power.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L7719)_
+- `L0415` The article recasts “AI communication” as a political decoy.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L7723)_
+- `L0416` The dispute shows that frontier-model governance is being negotiated through personal access rather than settled institutional procedure.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L7788)_
+- `L0417` Replacing Amodei with Brown is not merely a communications adjustment; it redistributes authority inside Anthropic.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L7792)_
+- `L0418` The White House’s demand for proof may be impossible to satisfy in absolute terms.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L7796)_
+- `L0419` Export controls are being used here as domestic product governance.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L7800)_
+- `L0420` The label “weirdo” performs political work.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L7804)_
+- `L0421` Patronus is not merely testing agents; it is building artificial institutions in which agent behavior becomes measurable.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L7871)_
+- `L0422` Agent evaluation is moving from static examinations to prolonged behavioral observation.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L7875)_
+- `L0423` The tendency of agents to “hack” evaluations reveals a fundamental specification problem.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L7879)_
+- `L0424` Simulation enables companies to industrialize rare failure.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L7883)_
+- `L0425` Patronus is creating an evaluation layer that may become more powerful than individual benchmarks.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L7887)_
+- `L0426` Codeplain is not eliminating maintenance; it is relocating maintenance into the specification and generator.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L7950)_
+- `L0427` The deepest inversion is that code stops being the authoritative description of the program.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L7954)_
+- `L0428` Regeneration converts software development from textual editing into model preservation.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L7958)_
+- `L0429` “The conversation is the commit” turns design history into executable provenance.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L7962)_
+- `L0430` The approach introduces a new compiler boundary between expensive judgment and cheap execution.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L7966)_
+- `L0431` Loop engineering moves the human from operator to constitutional designer.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L8043)_
+- `L0432` The decisive automation is not task execution but task continuation.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L8047)_
+- `L0433` Generator–evaluator separation is an organizational principle disguised as an agent pattern.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L8051)_
+- `L0434` Loop engineering makes judgment—not generation—the scarce production resource.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L8055)_
+- `L0435` The term’s simultaneous emergence suggests a capability threshold rather than an isolated invention.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L8059)_
+- `L0436` A24’s real asset under threat is not its production method but its accumulated symbolic contract with audiences.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L8126)_
+- `L0437` “A seat at the table” converts participation into a theory of control.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L8130)_
+- `L0438` The partnership recruits A24’s cultural legitimacy into AI’s institutional normalization.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L8134)_
+- `L0439` The “research, not production” distinction is strategically weak because research constructs future production capacity.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L8138)_
+- `L0440` The backlash reveals that audiences increasingly judge cultural firms through production ethics, not finished works alone.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L8142)_
+- `L0441` The report’s strongest claim is that machine intelligence is frequently an achievement of organizational concealment.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L8223)_
+- `L0442` “Integration” and “deployment” encode opposing theories of causation.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L8227)_
+- `L0443` AI does not simply perceive the world; it pressures the world to become machine-legible.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L8231)_
+- `L0444` Technological experimentation operates as a hidden transfer of risk.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L8235)_
+- `L0445` The obsession with whether jobs disappear conceals the deterioration of jobs that remain.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L8239)_
+- `L0446` The Declaration works because its central terms are semantically dense rather than precisely defined.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L8310)_
+- `L0447` The phrase “pursuit of happiness” transforms fortune into agency without promising success.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L8314)_
+- `L0448` The document’s “American” voice is built from linguistic conquest, migration, and mixture.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L8318)_
+- `L0449` “Government” retains a cybernetic theory of politics.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L8322)_
+- `L0450` The Declaration functions like constitutional source code whose abstractions invite later execution.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L8326)_
+- `L0451` The productivity gain does not eliminate organizational scarcity; it relocates scarcity from execution to judgment.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L8393)_
+- `L0452` The article quietly dissolves the traditional boundary between engineering and product management.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L8397)_
+- `L0453` Agentic productivity turns specifications into capital-allocation decisions.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L8401)_
+- `L0454` Review becomes a form of leverage only when reviewers retain causal understanding.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L8405)_
+- `L0455` The decline of the ticket-driven engineer changes the political structure of software work.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L8409)_
+- `L0456` Sweeney’s objection is not principally to regulation but to consumer legibility.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L8480)_
+- `L0457` The dispute concerns who gets to define the game as the product.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L8484)_
+- `L0458` Productivity is being framed as compulsory because distribution is competitive.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L8488)_
+- `L0459` The flower-pot example minimizes the controversy by selecting an apparently trivial asset.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L8492)_
+- `L0460` The disclosure label is a marketplace governance mechanism rather than a mere warning.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L8496)_
+- `L0461` The “AI penalty” appears to be a trust penalty, not merely a technology penalty.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L8563)_
+- `L0462` Established studios are punished more because AI violates a different implicit contract.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L8567)_
+- `L0463` The disclosure may not directly cause fewer sales; it may expose a larger bundle of production decisions.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L8571)_
+- `L0464` Review counts measure more than purchases.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L8575)_
+- `L0465` The economic value of AI differs sharply by market position.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L8579)_
+- `L0466` “Write me a better prompt” is not prompt optimization so much as delegated specification.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L8647)_
+- `L0467` The workflow turns prompting into a diagnostic instrument.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L8651)_
+- `L0468` On-demand generation replaces a prompt library with a prompt compiler.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L8655)_
+- `L0469` The approach shifts maintenance costs into conversation state.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L8659)_
+- `L0470` The most important psychological effect is permission to begin badly.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L8663)_
+- `L0471` The article is itself an example of the production regime it celebrates.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L8744)_
+- `L0472` “Reliability” is defined almost entirely as output specification rather than production dependability.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L8748)_
+- `L0473` The claimed democratization is simultaneously a supply shock.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L8752)_
+- `L0474` Multimodal control transforms directing into reference assembly.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L8756)_
+- `L0475` Unified audio-video generation may increase coherence while reducing editability.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L8760)_
+- `L0476` Video generation is being used as the commercial on-ramp to a much larger ambition: control over synthetic reality.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L8835)_
+- `L0477` The startup’s real competitive claim is not visual quality but architectural efficiency.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L8839)_
+- `L0478` “Physical accuracy” is becoming the new prestige vocabulary after photorealism.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L8843)_
+- `L0479` Enterprise controllability may matter more commercially than general world understanding.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L8847)_
+- `L0480` The investor coalition reveals the intended convergence of media and physical industry.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L8851)_
+- `L0481` The adoption debate confuses tool possession with organizational transformation.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L8926)_
+- `L0482` The enormous disagreement among surveys is itself substantive evidence.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L8930)_
+- `L0483` The intensive margin is probably more important than the extensive margin.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L8934)_
+- `L0484` Management quality may be a cause of AI adoption and a confounder in claims about AI productivity.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L8938)_
+- `L0485` Security and reliability barriers reveal that transformative AI requires deeper access than low-risk AI.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L8942)_
+- `L0486` The primary threat is not simply fewer junior jobs but the destruction of the apprenticeship system that produces senior expertise.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L9013)_
+- `L0487` Aggregate employment statistics conceal a redistribution across career stages.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L9017)_
+- `L0488` AI exposure interacts with organizational rank, not merely occupation.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L9021)_
+- `L0489` The automation–augmentation distinction is partly a management decision.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L9025)_
+- `L0490` The “canary” metaphor reveals a political asymmetry.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L9029)_
+- `L0491` The AI startup market is splitting value creation into two almost independent games: financing credibility and customer credibility.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L9100)_
+- `L0492` Tranched or differently priced rounds manufacture valuation as a sequence rather than discover it in a single market event.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L9104)_
+- `L0493` Founder reputation is functioning as synthetic revenue.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L9108)_
+- `L0494` AI makes product construction cheap while making legitimacy expensive.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L9112)_
+- `L0495` The startup’s moat increasingly lies outside the artifact it sells.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L9116)_
+- `L0496` Automation may remove cognitive relief rather than cognitive burden.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L9203)_
+- `L0497` AI can increase productivity by extracting more attention from the same worker.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L9207)_
+- `L0498` The remaining human work may become difficult precisely because it consists of machine failures and boundary cases.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L9211)_
+- `L0499` Surveillance and automation are mutually reinforcing forms of work redesign.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L9215)_
+- `L0500` The productivity question is ultimately about ownership of saved time.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L9219)_
+- `L0501` Taiwan’s “two swords” strategy assumes skills can be assembled independently and then combined at hiring.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L9308)_
+- `L0502` The real shortage may be trusted evidence rather than talent.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L9312)_
+- `L0503` Internships are being treated as experience when organizations benefit from the labor and as non-experience when workers seek employment.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L9316)_
+- `L0504` The demand for job-ready entrants externalizes training costs onto individuals and the state.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L9320)_
+- `L0505` The AI talent shortage and youth unemployment can coexist because they occupy different parts of the same broken pipeline.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L9324)_
+- `L0506` “Taste” is being reframed from a human capacity into a commercially extractable prediction problem.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L9409)_
+- `L0507` The failed dress search exposes that aesthetic judgment depends on logistics.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L9413)_
+- `L0508` Agentic shopping requires a model of the person richer than conventional recommendation systems.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L9417)_
+- `L0509` The race to develop taste is also a race to control the interface between intention and markets.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L9421)_
+- `L0510` Automated convenience may increase the commercial value of preference surveillance.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L9425)_
+- `L0511` The company is not proposing a better AI accelerator so much as a different physical theory of computation.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L9510)_
+- `L0512` Un-0 demonstrates model compatibility, not yet energy efficiency.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L9514)_
+- `L0513` The 1,000× claim depends on redesigning the entire inference stack.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L9518)_
+- `L0514` Energy scarcity is being converted from an infrastructure problem into an architectural opportunity.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L9522)_
+- `L0515` Radical efficiency could expand AI consumption rather than reduce total electricity use.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L9526)_
+- `L0516` The frontier-model market is becoming a licensing regime rather than a normal product market.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L9609)_
+- `L0517` Customer-by-customer approval converts model deployment into discretionary industrial policy.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L9613)_
+- `L0518` The central governance failure is not necessarily excessive caution but undefined proof.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L9617)_
+- `L0519` Release delays convert safety uncertainty into financial uncertainty.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L9621)_
+- `L0520` OpenAI and Anthropic’s shared exposure creates the beginnings of an industry-level political identity.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L9625)_
+- `L0521` The dispute is fundamentally over which hours the institution agrees to recognize as work.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L9712)_
+- `L0522` The “hourly wage” conceals a radically lower effective wage.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L9716)_
+- `L0523` Adjunct precarity is not temporary employment at the margins; it is a permanent staffing model.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L9720)_
+- `L0524` Repeated semester-by-semester rehiring allows colleges to consume continuity without granting security.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L9724)_
+- `L0525` Travel between campuses reveals that the system purchases fragments of a worker rather than a complete job.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L9728)_
+- `L0526` The conflict is not really about a command-line tool; it is about who is authorized to define the product’s future.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L9815)_
+- `L0527` The project’s success may have intensified rather than reduced organizational risk.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L9819)_
+- `L0528` The alleged firing reveals a boundary between innovation and insubordination that organizations rarely state clearly.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L9823)_
+- `L0529` The official product announcement creates a knowledge-appropriation problem.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L9827)_
+- `L0530` Open-source visibility functions as both protection and liability.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L9831)_
+- `L0531` Prompt-to-plugin systems turn instruments from finished products into temporary software states.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L9919)_
+- `L0532` The real innovation is not natural-language coding but the construction of a constrained compiler around the model.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L9923)_
+- `L0533` Software abstraction is moving into the creative act itself.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L9927)_
+- `L0534` Democratized creation is immediately being converted into platform dependency.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L9931)_
+- `L0535` The emerging marketplace collapses producer, developer, remixer, and distributor into one role.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L9935)_
+- `L0536` The architecture separates epistemic authority from editorial labor.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L10034)_
+- `L0537` Immutability turns disagreement into history rather than error correction.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L10038)_
+- `L0538` “Compile, don’t retrieve” changes the unit of accumulated intelligence.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L10042)_
+- `L0539` The wiki is less a database than a continuously generated theory of the archive.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L10046)_
+- `L0540` The insistence on one-source-at-a-time ingestion is a temporal theory of understanding.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L10050)_
+- `L0541` Knowledge linting imports software maintenance logic into epistemology.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L10054)_
+- `L0542` Loop engineering converts intelligence from a model property into a systems property.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L10153)_
+- `L0543` The verifier becomes more strategically important than the generator.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L10157)_
+- `L0544` A loop is an executable theory of the task.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L10161)_
+- `L0545` Context compaction is not neutral compression; it is delegated forgetting.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L10165)_
+- `L0546` Idempotent tools are a form of institutional memory.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L10169)_
+- `L0547` The shift from prompting to looping moves human labor upward but does not remove it.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L10173)_
+- `L0548` The repository’s real invention is constitutional prompt engineering.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L10290)_
+- `L0549` The “council members” are not independent intelligences; they are constrained interpretive lenses.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L10294)_
+- `L0550` Multi-provider routing is an attempt to separate persona diversity from model diversity.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L10298)_
+- `L0551` The chairman creates a second-order intelligence layer.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L10302)_
+- `L0552` The system formalizes dissent, but formal dissent can become theatrical dissent.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L10306)_
+- `L0553` The repository is mostly an executable social script rather than a deterministic orchestration program.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L10310)_
+- `L0554` Three.js is not fundamentally a graphics wrapper; it is a spatial object model.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L10489)_
+- `L0555` is the constitutional unit of the system.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L10493)_
+- `L0556` The scene graph turns relative space into organizational power.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L10497)_
+- `L0557` The library’s apparent simplicity is produced by hiding an enormous amount of state synchronization.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L10501)_
+- `L0558` The core/addons split functions as an evolutionary membrane.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L10505)_
+- `L0559` The examples are not merely demonstrations; they are the project’s executable cultural memory.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L10509)_
+- `L0560` WebGPU is forcing Three.js to become a compiler architecture.  _(NON_OBVIOUS_INSIGHTS/item_07; ai-prompting-and-description.md:L10513)_
+- `L0561` TSL shifts graphics programming from handwritten shader text toward a programmable intermediate representation.  _(NON_OBVIOUS_INSIGHTS/item_08; ai-prompting-and-description.md:L10517)_
+- `L0562` LocateAnything’s real intervention is to stop pretending geometry is language.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L10662)_
+- `L0563` The project demonstrates that better inductive structure can outperform more generic tokenization.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L10666)_
+- `L0564` Hybrid decoding is essentially speculative execution for perception.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L10670)_
+- `L0565` The model collapses several apparently distinct vision tasks into one spatial relation.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L10674)_
+- `L0566` For agents, the important gain is not merely faster vision but reduced action latency.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L10678)_
+- `L0567` The architecture quietly rejects the idea that a single decoding regime should govern every cognitive operation.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L10682)_
+- `L0568` The data engine may be as consequential as Parallel Box Decoding.  _(NON_OBVIOUS_INSIGHTS/item_07; ai-prompting-and-description.md:L10686)_
+- `L0569` The paper’s deepest challenge is not that chain-of-thought is fake, but that fluent explanation has been mistaken for causal access.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L10798)_
+- `L0570` The argument separates three claims that the industry frequently collapses:  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L10802)_
+- `L0571` Random or semantically unrelated traces may function as extra computation rather than reasoning.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L10814)_
+- `L0572` The strongest result is architectural rather than philosophical.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L10818)_
+- `L0573` Chain-of-thought has quietly served two incompatible audiences.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L10822)_
+- `L0574` The critique weakens process supervision more than ordinary prompting.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L10826)_
+- `L0575` The framework’s real object is not discovery but institutional memory.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L10959)_
+- `L0576` The long game requires calibration, not reflection alone.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L10963)_
+- `L0577` The framework relocates product advantage from production capacity to selection capacity.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L10967)_
+- `L0578` Discovery judgment is not only cognitive; it is political.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L10971)_
+- `L0579` Documenting rejected alternatives preserves the option space that final decisions erase.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L10975)_
+- `L0580` The proposed capability compounds only if learning survives the individual.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L10979)_
+- `L0581` The card treats taste as an operating system rather than a decorative layer.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L11090)_
+- `L0582` “AI slop” is defined as regression toward the visual mean.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L11094)_
+- `L0583` The skill converts tacit design judgment into an executable constitution.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L11098)_
+- `L0584` The central scarcity is no longer interface production but visual refusal.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L11102)_
+- `L0585` The audit list reveals that “frontend design” is being expanded into product judgment.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L11106)_
+- `L0586` The ranking requirement introduces an economic theory of design effort.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L11110)_
+- `L0587` The industry is not rediscovering regulation; it is rediscovering procedure.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L11217)_
+- `L0588` Silicon Valley’s political bargain confused deregulation with protection from discretionary power.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L11221)_
+- `L0589` The emerging regime is industrial policy disguised as model safety.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L11225)_
+- `L0590` National-security review is becoming a shadow product-licensing system.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L11229)_
+- `L0591` The threat of retaliation is already shaping policy before any formal rule exists.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L11233)_
+- `L0592` The administration’s earlier anti-regulatory posture may have produced the later overreaction.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L11237)_
+- `L0593` The frontier labs’ collective-action problem has become a national governance problem.  _(NON_OBVIOUS_INSIGHTS/item_07; ai-prompting-and-description.md:L11241)_
+- `L0594` The article’s real target is not AI dependence but higher education’s hidden theory of transfer.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L11348)_
+- `L0595` AI exposes that many assignments measured forced effort rather than critical thinking.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L11352)_
+- `L0596` The “by-product model” protects faculty autonomy by keeping reasoning instruction implicit.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L11356)_
+- `L0597` Making reasoning visible creates a new object of educational governance.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L11360)_
+- `L0598` Argument mapping is attractive because it turns cognition into inspectable infrastructure.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L11364)_
+- `L0599` The authors are proposing a curricular unbundling of knowledge and judgment.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L11368)_
+- `L0600` The AI crisis changes the evidentiary burden of a college degree.  _(NON_OBVIOUS_INSIGHTS/item_07; ai-prompting-and-description.md:L11372)_
+- `L0601` The unreliable narrator is compelling because it converts reading from reception into investigation.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L11493)_
+- `L0602` Unreliability is not simply lying; it is the distance between narration and reality.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L11497)_
+- `L0603` The narrator’s performance mirrors ordinary identity work.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L11501)_
+- `L0604` The unreliable narrator redistributes authority from speaker to audience.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L11505)_
+- `L0605` Multiple narrators expose disagreement as world construction.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L11509)_
+- `L0606` Interactive fiction extends unreliability from voice into interface.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L11513)_
+- `L0607` The reader’s pleasure depends on controlled betrayal.  _(NON_OBVIOUS_INSIGHTS/item_07; ai-prompting-and-description.md:L11517)_
+- `L0608` The proposal turns the classroom into a protected cognitive enclave.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L11634)_
+- `L0609` Socratic teaching is being repurposed from pedagogy into identity verification.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L11638)_
+- `L0610` The dean’s dual-track model separates cognitive formation from professional augmentation.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L11642)_
+- `L0611` The policy implicitly declares take-home work epistemically unreliable.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L11646)_
+- `L0612` “Doing the hard work first” expresses a theory of apprenticeship.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L11650)_
+- `L0613` The memo shifts the burden of AI adaptation from student policing to instructional redesign.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L11654)_
+- `L0614` The renewed value of oral performance may privilege forms of intelligence that law schools already reward.  _(NON_OBVIOUS_INSIGHTS/item_07; ai-prompting-and-description.md:L11658)_
+- `L0615` The central economic problem is not authorship displacement but discovery congestion.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L11775)_
+- `L0616` Generative AI expands the supply curve faster than demand or evaluation capacity can respond.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L11779)_
+- `L0617` The study’s “middle” is not necessarily mediocrity in a literary sense; it is statistical conformity.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L11783)_
+- `L0618` AI changes publishing from a scarcity market into an adversarial metadata market.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L11787)_
+- `L0619` Traditional publishers’ advantage shifts from production to authenticated provenance.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L11791)_
+- `L0620` Fodor’s chatbot converts threatened intellectual property into a controlled interface.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L11795)_
+- `L0621` The economic definition of “good” quietly privileges successful discovery.  _(NON_OBVIOUS_INSIGHTS/item_07; ai-prompting-and-description.md:L11799)_
+- `L0622` The article’s real argument is about preserving option value.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L11912)_
+- `L0623` Basic science depends on temporal solidarity.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L11916)_
+- `L0624` The demand for immediate social impact can quietly destroy the conditions that produce major impact.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L11920)_
+- `L0625` Scientific leadership is an ecosystem property, not a collection of exceptional individuals.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L11924)_
+- `L0626` Curiosity and mission are presented as opposites but function as a coupled system.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L11928)_
+- `L0627` Funding instability damages research before money actually disappears.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L11932)_
+- `L0628` The inclusion of literature, philosophy, history, and art is not ornamental.  _(NON_OBVIOUS_INSIGHTS/item_07; ai-prompting-and-description.md:L11936)_
+- `L0629` “Friction-maxxing” converts an infrastructural loss into an individual training problem.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L12045)_
+- `L0630` The article reframes inconvenience as apprenticeship.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L12049)_
+- `L0631` As AI automates technical entry-level work, interpersonal friction becomes part of the new credentialing regime.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L12053)_
+- `L0632` The durable-skill argument reveals a paradox of automation.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L12057)_
+- `L0633` Friction is being treated as progressive overload for social cognition.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L12061)_
+- `L0634` The Civic Gym does more than promote civility; it manufactures missing social infrastructure.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L12065)_
+- `L0635` The article’s most important workplace claim is that disagreement is productive labor.  _(NON_OBVIOUS_INSIGHTS/item_07; ai-prompting-and-description.md:L12069)_
+- `L0636` The merger is less an expansion strategy than a defensive response to the collapse of agency scarcity.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L12182)_
+- `L0637` Client retention is being used as a proxy for integration success because the deeper benefits remain difficult to prove.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L12186)_
+- `L0638` The deal converts uncertainty about AI into certainty about cost cutting.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L12190)_
+- `L0639` Scale allows the holding company to become an operating system for marketing rather than merely a collection of agencies.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L12194)_
+- `L0640` The merger strengthens Omnicom’s bargaining power against both clients and technology platforms.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L12198)_
+- `L0641` The market’s skepticism suggests investors expect AI to compress the value of coordination itself.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L12202)_
+- `L0642` The customer-win list performs political signaling as much as commercial reporting.  _(NON_OBVIOUS_INSIGHTS/item_07; ai-prompting-and-description.md:L12206)_
+- `L0643` The article quietly redefines enterprise AI as a database governance problem.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L12384)_
+- `L0644` “AI-ready data” is not merely clean data; it is institutionally adjudicated data.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L12388)_
+- `L0645` Data stewardship is being transformed from maintenance work into operational sovereignty.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L12392)_
+- `L0646` Agentic AI converts ambiguity from an analytical inconvenience into executable risk.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L12396)_
+- `L0647` The article’s “truth layer” is really a negotiated organizational constitution.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L12400)_
+- `L0648` MCP and interoperability increase the blast radius of bad governance.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L12404)_
+- `L0649` The economic value of stewardship comes largely from reuse.  _(NON_OBVIOUS_INSIGHTS/item_07; ai-prompting-and-description.md:L12408)_
+- `L0650` The quote distinguishes wrongdoing from the destruction of moral reality.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L12539)_
+- `L0651` The deeper vice is bad faith, not factual inaccuracy.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L12543)_
+- `L0652` Confession preserves the possibility of relationship.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L12547)_
+- `L0653` The quote opposes hypocrisy more directly than immorality.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L12551)_
+- `L0654` Lying creates a second injury layered over the first.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L12555)_
+- `L0655` The formulation rejects moral branding.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L12559)_
+- `L0656` The study’s strongest implication is not that laughter became language, but that speech may have inherited an older timing machine.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L12662)_
+- `L0657` Laughter offers evidence about communication because it sits between reflex and performance.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L12666)_
+- `L0658` The conserved feature is rhythm, not meaning.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L12670)_
+- `L0659` Human distinctiveness appears as plasticity layered over continuity.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L12674)_
+- `L0660` Play may have been a training ground for vocal flexibility.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L12678)_
+- `L0661` Laughter is not merely an emotional output; it is an interactional regulator.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L12682)_
+- `L0662` The research shifts the origin-of-language question from “When did speech appear?” to “Which capacities were gradually repurposed?”  _(NON_OBVIOUS_INSIGHTS/item_07; ai-prompting-and-description.md:L12686)_
+- `L0663` The article translates an organizational conflict problem into an individual attention problem.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L12811)_
+- `L0664` “Complaint” is treated as both perception and speech, but these are different mechanisms.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L12815)_
+- `L0665` The neuroscience language gives managerial preference the appearance of biological necessity.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L12819)_
+- `L0666` The real useful distinction is not positive versus negative thinking, but diagnosis versus rumination.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L12823)_
+- `L0667` Complaint can function as distributed sensing.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L12827)_
+- `L0668` Emotional contagion cuts both ways.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L12831)_
+- `L0669` The article’s practical insight is that attention is trainable, but it overstates the target.  _(NON_OBVIOUS_INSIGHTS/item_07; ai-prompting-and-description.md:L12835)_
+- `L0670` The real shift is from sequential commitment to iterative constraint satisfaction.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L13006)_
+- `L0671` DLM speed comes from exchanging temporal depth for computational width.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L13010)_
+- `L0672` The unmasking schedule becomes a hidden planning mechanism.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L13014)_
+- `L0673` Bidirectional generation removes the privileged status of the beginning.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L13018)_
+- `L0674` DLMs expose output length as part of the generative problem.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L13022)_
+- `L0675` The strongest natural use cases may be editing rather than blank-page generation.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L13026)_
+- `L0676` The likely endpoint is not diffusion replacing autoregression but representation routing.  _(NON_OBVIOUS_INSIGHTS/item_07; ai-prompting-and-description.md:L13030)_
+- `L0677` The shift from chatbots to world models is really a shift from representation to intervention.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L13163)_
+- `L0678` A world model is less a picture of reality than a machine for counterfactuals.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L13167)_
+- `L0679` The article identifies three separate businesses hiding under one label.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L13171)_
+- `L0680` Embodied AI reverses the informational advantage of the internet.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L13175)_
+- `L0681` Simulation becomes a labor substitute before robotics does.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L13179)_
+- `L0682` The move toward specialized world-model hardware suggests architecture fragmentation.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L13183)_
+- `L0683` Interaction is becoming a stronger benchmark than realism.  _(NON_OBVIOUS_INSIGHTS/item_07; ai-prompting-and-description.md:L13187)_
+- `L0684` The early experiments manipulated fatalism more than free-will scepticism.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L13320)_
+- `L0685` The debate depends on separating agency from ultimate authorship.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L13324)_
+- `L0686` Belief in free will may operate as a social attribution technology.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L13328)_
+- `L0687` The harmful experimental effect may come from narrative destabilization rather than philosophical content.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L13332)_
+- `L0688` The article exposes a category error between induced state and stable worldview.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L13336)_
+- `L0689` Free-will scepticism does not eliminate causation through reasons.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L13340)_
+- `L0690` The strongest social consequence may be a shift from retribution to prevention.  _(NON_OBVIOUS_INSIGHTS/item_07; ai-prompting-and-description.md:L13344)_
+- `L0691` The article suggests that meaning may depend more on participation than metaphysical authorship.  _(NON_OBVIOUS_INSIGHTS/item_08; ai-prompting-and-description.md:L13348)_
+- `L0692` The decisive inversion is from policy learning to environment learning.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L13502)_
+- `L0693` The world model becomes an executable curriculum designer.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L13506)_
+- `L0694` Controllability may matter more than realism.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L13510)_
+- `L0695` The result implies that agent competence begins before action training.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L13514)_
+- `L0696` Synthetic environments convert inaccessible experience into programmable experience.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L13518)_
+- `L0697` The fictional-search transfer result suggests that agents may learn operational invariants rather than memorized worlds.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L13522)_
+- `L0698` The seven-domain architecture treats software environments as variations of one general grammar.  _(NON_OBVIOUS_INSIGHTS/item_07; ai-prompting-and-description.md:L13526)_
+- `L0699` The largest long-term asset may be the simulator, not the agent.  _(NON_OBVIOUS_INSIGHTS/item_08; ai-prompting-and-description.md:L13540)_
+- `L0700` The dispute is not merely technical; it is about which research culture gets credit for progress.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L13677)_
+- `L0701` Scaling functions as both an empirical hypothesis and an industrial strategy.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L13681)_
+- `L0702` The argument quietly shifts the burden of proof.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L13685)_
+- `L0703` “Scaling” conceals a bundle of interventions.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L13689)_
+- `L0704` The mathematical example is being used to redefine knowledge production.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L13693)_
+- `L0705` Altman concedes the exact limitation that matters most for agency.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L13697)_
+- `L0706` The identity critique applies symmetrically.  _(NON_OBVIOUS_INSIGHTS/item_07; ai-prompting-and-description.md:L13701)_
+- `L0707` World models are acknowledged but subordinated.  _(NON_OBVIOUS_INSIGHTS/item_08; ai-prompting-and-description.md:L13705)_
+- `L0708` The paper relocates intelligence from the policy into the representation of the world.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L13862)_
+- `L0709` The world model is not primarily a simulator for conscious planning.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L13866)_
+- `L0710` The paper’s real innovation is architectural separation.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L13870)_
+- `L0711` A dream becomes useful when it preserves action-relevant invariants rather than visual truth.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L13882)_
+- `L0712` The simulator is both a training environment and an adversarial surface.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L13886)_
+- `L0713` Temperature functions as synthetic adversity.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L13890)_
+- `L0714` The paper anticipates a shift from collecting experience to designing experience.  _(NON_OBVIOUS_INSIGHTS/item_07; ai-prompting-and-description.md:L13894)_
+- `L0715` The iterative training proposal turns curiosity into model repair.  _(NON_OBVIOUS_INSIGHTS/item_08; ai-prompting-and-description.md:L13898)_
+- `L0716` The book’s true object is not the image but the social need to define the image.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L14063)_
+- `L0717` The image-text distinction is not discovered; it is policed.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L14067)_
+- `L0718` Mitchell’s method turns formal differences into political symptoms.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L14071)_
+- `L0719` “Natural resemblance” is one of ideology’s most efficient disguises.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L14075)_
+- `L0720` Hypericons are theories that picture their own theory of picturing.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L14079)_
+- `L0721` The supposed enemy of images can never escape imagery.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L14083)_
+- `L0722` The book converts iconology into political psychology.  _(NON_OBVIOUS_INSIGHTS/item_07; ai-prompting-and-description.md:L14087)_
+- `L0723` Ideology is itself trapped inside an image theory.  _(NON_OBVIOUS_INSIGHTS/item_08; ai-prompting-and-description.md:L14091)_
+- `L0724` The article’s real innovation is to redefine ekphrasis from a relation of resemblance into a relation of execution.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L14263)_
+- `L0725` The decisive divide is not analogue versus digital, but inscription versus learned translation.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L14267)_
+- `L0726` Multimodal AI relocates media difference rather than simply abolishing it.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L14271)_
+- `L0727` The shared latent space is a new kind of ekphrastic territory.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L14275)_
+- `L0728` The garbled poem is not merely an early technical failure; it reveals the model’s hierarchy of recognition.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L14279)_
+- `L0729` “Artificial semantics” is generated through alignment labor.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L14283)_
+- `L0730` The article gives prompts a performative status similar to commands, but without command-level determinacy.  _(NON_OBVIOUS_INSIGHTS/item_07; ai-prompting-and-description.md:L14287)_
+- `L0731` Bajohr technically realizes Mitchell’s “ekphrastic hope” while preserving its fear.  _(NON_OBVIOUS_INSIGHTS/item_08; ai-prompting-and-description.md:L14291)_
+- `L0732` The paper is less a proof of AGI than a phenomenology of encountering an unfamiliar machine.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L14474)_
+- `L0733` “Sparks” is a strategically powerful unit of evidence.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L14478)_
+- `L0734` The paper replaces specialization with compositional generality as the decisive intelligence test.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L14482)_
+- `L0735` The model’s apparent multimodality is produced through executable language.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L14486)_
+- `L0736` The paper’s most important finding may be the shape of failure rather than the level of success.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L14490)_
+- `L0737` The authors quietly redefine understanding as successful improvisation.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L14494)_
+- `L0738` Tool use changes the object being evaluated.  _(NON_OBVIOUS_INSIGHTS/item_07; ai-prompting-and-description.md:L14498)_
+- `L0739` The lack of planning reveals a conflict between local fluency and global construction.  _(NON_OBVIOUS_INSIGHTS/item_08; ai-prompting-and-description.md:L14514)_
+- `L0740` “Thick description” is not more detail; it is a different ontology of the event.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L14701)_
+- `L0741` Geertz relocates culture from possession to operation.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L14705)_
+- `L0742` The wink example is fundamentally about classification under context.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L14709)_
+- `L0743` Ethnographic data are already model outputs.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L14713)_
+- `L0744` Inscription is an act of preservation and transformation.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L14717)_
+- `L0745` Geertz’s strongest methodological rule is that coherence is not evidence.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L14721)_
+- `L0746` Microscopic inquiry is valuable because it de-capitalizes abstractions.  _(NON_OBVIOUS_INSIGHTS/item_07; ai-prompting-and-description.md:L14725)_
+- `L0747` The article proposes a non-cumulative model of knowledge.  _(NON_OBVIOUS_INSIGHTS/item_08; ai-prompting-and-description.md:L14729)_
+- `L0748` Interpretive anthropology is a science of disciplined incompleteness.  _(NON_OBVIOUS_INSIGHTS/item_09; ai-prompting-and-description.md:L14733)_
+- `L0749` The report’s central move is rhetorical as much as technical: it upgrades a video generator into a candidate world simulator.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L14920)_
+- `L0750` Spacetime patches are an attempt to create a universal alphabet for visual reality.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L14924)_
+- `L0751` “Images are videos with one frame” is not merely an engineering convenience.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L14928)_
+- `L0752` Native aspect-ratio training allows media conventions to enter the learned world model.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L14932)_
+- `L0753` The prompt does not directly become the video.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L14936)_
+- `L0754` Re-captioning makes language quality part of visual-model performance.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L14950)_
+- `L0755` Sora primarily learns the world as it appears through cameras.  _(NON_OBVIOUS_INSIGHTS/item_07; ai-prompting-and-description.md:L14954)_
+- `L0756` The strongest emerging capability is not physics but continuity under transformation.  _(NON_OBVIOUS_INSIGHTS/item_08; ai-prompting-and-description.md:L14958)_
+- `L0757` The system turns ekphrasis into temporal execution.  _(NON_OBVIOUS_INSIGHTS/item_09; ai-prompting-and-description.md:L14962)_
+- `L0758` NVIDIA defines the world model through an industrial stack rather than a single model.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L15159)_
+- `L0759` The central economic promise is not understanding the world but manufacturing experience at scale.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L15163)_
+- `L0760` Data curation becomes a form of world construction.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L15167)_
+- `L0761` The page treats tokenization as an ontological compression.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L15171)_
+- `L0762` NVIDIA’s taxonomy assigns temporal intelligence to autoregression and visual realism to diffusion.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L15175)_
+- `L0763` The page merges simulation, rendering, prediction, and reasoning into one commercial category.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L15179)_
+- `L0764` “Physics-aware” functions as a strategic middle term.  _(NON_OBVIOUS_INSIGHTS/item_07; ai-prompting-and-description.md:L15183)_
+- `L0765` The world foundation model becomes infrastructure for embodiment-specific policy production.  _(NON_OBVIOUS_INSIGHTS/item_08; ai-prompting-and-description.md:L15187)_
+- `L0766` Semantic search over video is positioned as a training technology, not merely a retrieval feature.  _(NON_OBVIOUS_INSIGHTS/item_09; ai-prompting-and-description.md:L15191)_
+- `L0767` Genie 3 crosses the crucial boundary from generated video to action-conditioned continuity.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L15372)_
+- `L0768` The world exists only as a continuously regenerated consequence of the trajectory.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L15376)_
+- `L0769` Real-time interaction converts visual coherence into computational memory.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L15380)_
+- `L0770` Promptable world events create a second level of agency above navigation.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L15384)_
+- `L0771` The platform merges simulator and improvisational stage.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L15392)_
+- `L0772` The integration with SIMA separates goal from world.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L15396)_
+- `L0773` Genie 3’s most important product may be curricula rather than worlds.  _(NON_OBVIOUS_INSIGHTS/item_07; ai-prompting-and-description.md:L15404)_
+- `L0774` The examples reveal that “world” includes cinematic genre as much as physical environment.  _(NON_OBVIOUS_INSIGHTS/item_08; ai-prompting-and-description.md:L15408)_
+- `L0775` Genie 3 is closer to an embodied dream than a conventional simulation.  _(NON_OBVIOUS_INSIGHTS/item_09; ai-prompting-and-description.md:L15412)_
+- `L0776` The survey’s most important move is to define a world model by what it enables a robot to do.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L15629)_
+- `L0777` World modeling is becoming an inductive bias inside the policy rather than a separate simulator.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L15633)_
+- `L0778` The survey reveals a convergence among prediction, policy, and inverse dynamics.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L15637)_
+- `L0779` The central scarce resource is shifting from demonstrations to counterfactual experience.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L15641)_
+- `L0780` The simulator is becoming both teacher and examiner.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L15645)_
+- `L0781` Policy-world-model co-evolution creates an endogenous reality loop.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L15649)_
+- `L0782` The field is discovering that explicit visual imagination may be unnecessary at deployment.  _(NON_OBVIOUS_INSIGHTS/item_07; ai-prompting-and-description.md:L15653)_
+- `L0783` The movement from pixels toward geometry, latent structure, and symbols is a search for action-relevant compression.  _(NON_OBVIOUS_INSIGHTS/item_08; ai-prompting-and-description.md:L15657)_
+- `L0784` The survey quietly transforms world models from models of environments into models of executability.  _(NON_OBVIOUS_INSIGHTS/item_09; ai-prompting-and-description.md:L15661)_
+- `L0785` WorldDreamer turns world modeling into a missing-data problem.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L15858)_
+- `L0786` The model’s world is fundamentally a vocabulary of visual tokens.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L15862)_
+- `L0787` Masked prediction weakens the privilege of chronological order.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L15866)_
+- `L0788` The model collapses generation and editing into one operation.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L15870)_
+- `L0789` The mask is a programmable boundary between evidence and imagination.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L15874)_
+- `L0790` The STPT architecture encodes a theory of locality.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L15878)_
+- `L0791` Language and action become formally equivalent conditioning signals.  _(NON_OBVIOUS_INSIGHTS/item_07; ai-prompting-and-description.md:L15882)_
+- `L0792` The paper’s strongest result is not general physics but generative unification.  _(NON_OBVIOUS_INSIGHTS/item_08; ai-prompting-and-description.md:L15886)_
+- `L0793` WorldDreamer converts LLM infrastructure into a visual production system.  _(NON_OBVIOUS_INSIGHTS/item_09; ai-prompting-and-description.md:L15890)_
+- `L0794` The real distinction is semantics-first versus dynamics-first pretraining.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L16124)_
+- `L0795` WAMs attempt to replace the language-to-action jump with two smaller translations.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L16128)_
+- `L0796` The video model is valuable less as an internal movie projector than as a pretrained theory of change.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L16140)_
+- `L0797` “Action as image” reveals that architecture is often constrained by what the pretrained model already knows how to emit.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L16144)_
+- `L0798` The current WAM boom depends on the industrial externalization of pretraining cost.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L16148)_
+- `L0799` The field is migrating from explicit plans to predictive representations.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L16152)_
+- `L0800` WAM and VLA are becoming complementary organs rather than competing species.  _(NON_OBVIOUS_INSIGHTS/item_07; ai-prompting-and-description.md:L16156)_
+- `L0801` The article implies that robot foundation models are becoming generative compilers.  _(NON_OBVIOUS_INSIGHTS/item_08; ai-prompting-and-description.md:L16160)_
+- `L0802` The fourth “robotics-first” path challenges both inherited paradigms.  _(NON_OBVIOUS_INSIGHTS/item_09; ai-prompting-and-description.md:L16172)_
+- `L0803` The system’s deepest invention is not computer animation but a programmable ontology of cinematic change.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L16367)_
+- `L0804` The frame is represented as data before it is represented as an image.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L16371)_
+- `L0805` The scanners function as embodied agents inside the image memory.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L16375)_
+- `L0806` The language separates visible operations from temporal operations.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L16379)_
+- `L0807` The camera is not an observer outside the program.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L16383)_
+- `L0808` Frame repetition is treated as duration rather than duplicated imagery.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L16387)_
+- `L0809` The language anticipates non-destructive compositing through surfaces and copying.  _(NON_OBVIOUS_INSIGHTS/item_07; ai-prompting-and-description.md:L16391)_
+- `L0810` The macro system makes the language generative rather than closed.  _(NON_OBVIOUS_INSIGHTS/item_08; ai-prompting-and-description.md:L16395)_
+- `L0811` The printed sample is an early form of low-cost preview rendering.  _(NON_OBVIOUS_INSIGHTS/item_09; ai-prompting-and-description.md:L16399)_
+- `L0812` “Cybernetic cinema” names a feedback relation, not merely films produced with computers.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L16633)_
+- `L0813` The chapter relocates cinema’s primary apparatus from the camera to the computational system.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L16651)_
+- `L0814` The “conceptual camera” converts accumulated film grammar into executable software.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L16655)_
+- `L0815` Whitney’s “program as piano” rejects both tool metaphors and autonomous-machine myths.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L16659)_
+- `L0816` The computer’s creative contribution is search rather than intention.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L16663)_
+- `L0817` The chapter anticipates affective computing as an aesthetic control system.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L16673)_
+- `L0818` Real time is defined relationally rather than as raw speed.  _(NON_OBVIOUS_INSIGHTS/item_07; ai-prompting-and-description.md:L16677)_
+- `L0819` Whitney treats motion graphics as a language whose primary units are temporal relations.  _(NON_OBVIOUS_INSIGHTS/item_08; ai-prompting-and-description.md:L16691)_
+- `L0820` Seriality provides the bridge between algorithm and cinematic form.  _(NON_OBVIOUS_INSIGHTS/item_09; ai-prompting-and-description.md:L16695)_
+- `L0821` The chapter correctly predicts that realistic synthetic cinema would eventually destabilize photography’s claim to reality.  _(NON_OBVIOUS_INSIGHTS/item_10; ai-prompting-and-description.md:L16699)_
+- `L0822` Whitney’s central problem is not how to move images, but how movement can become form.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L16926)_
+- `L0823` He replaces the stage model of animation with a field model.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L16930)_
+- `L0824` Differential motion is the visual equivalent of interval.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L16934)_
+- `L0825` Resonance functions as a visual event of recognition.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L16938)_
+- `L0826` The model is generative because simple ratios yield recurring complexity.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L16942)_
+- `L0827` Whitney defines emotion structurally rather than representationally.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L16946)_
+- `L0828` His critique of “video wallpaper” is a critique of activity without consequence.  _(NON_OBVIOUS_INSIGHTS/item_07; ai-prompting-and-description.md:L16950)_
+- `L0829` The frame is treated as an implementation artifact rather than the true unit of motion.  _(NON_OBVIOUS_INSIGHTS/item_08; ai-prompting-and-description.md:L16954)_
+- `L0830` His search for a visual alphabet concerns operations, not shapes.  _(NON_OBVIOUS_INSIGHTS/item_09; ai-prompting-and-description.md:L16958)_
+- `L0831` The viewer becomes a predictive participant.  _(NON_OBVIOUS_INSIGHTS/item_10; ai-prompting-and-description.md:L16962)_
+- `L0832` Geertz’s strongest claim is not that culture influences an already formed human being, but that culture helps constitute the kind of organism a human being is.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L17217)_
+- `L0833` The essay replaces the idea of a universal human hidden beneath culture with a human capacity completed through particular cultures.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L17221)_
+- `L0834` Culture is described as executable information.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L17225)_
+- `L0835` Human incompleteness is presented as an adaptive achievement rather than a defect.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L17229)_
+- `L0836` The deepest human universal is not a shared behavior but shared dependence on particularization.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L17233)_
+- `L0837` Difference is not noise around the human signal; it is where the signal becomes legible.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L17237)_
+- `L0838` The critique of stratification is also a critique of disciplinary architecture.  _(NON_OBVIOUS_INSIGHTS/item_07; ai-prompting-and-description.md:L17241)_
+- `L0839` Public symbols do not merely express private thought; they make complex thought possible.  _(NON_OBVIOUS_INSIGHTS/item_08; ai-prompting-and-description.md:L17245)_
+- `L0840` Geertz implicitly describes culture as a world model that trains its users.  _(NON_OBVIOUS_INSIGHTS/item_09; ai-prompting-and-description.md:L17249)_
+- `L0841` Sterrett replaces the “picture as resemblance” model with “picture as experimentally usable model.”  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L17494)_
+- `L0842` The courtroom accident model is dynamic rather than tableau-like.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L17498)_
+- `L0843` Logical form is presented as operational translatability, not shared appearance.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L17502)_
+- `L0844` The model’s “feelers” are measurement relations.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L17506)_
+- `L0845` Dimensional analysis supplies a theory of what must remain invariant across different material embodiments.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L17510)_
+- `L0846` The model does not represent the whole object equally.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L17514)_
+- `L0847` The 1914 model-making culture joined play, engineering, science, and public demonstration.  _(NON_OBVIOUS_INSIGHTS/item_07; ai-prompting-and-description.md:L17518)_
+- `L0848` The courtroom introduces normativity into the model relation.  _(NON_OBVIOUS_INSIGHTS/item_08; ai-prompting-and-description.md:L17522)_
+- `L0849` The proposition is closer to a simulation than to an illustration.  _(NON_OBVIOUS_INSIGHTS/item_09; ai-prompting-and-description.md:L17526)_
+- `L0850` Geertz does not reserve symbols for poetry, religion, or figurative expression.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L17730)_
+- `L0851` The important distinction is not symbolic versus nonsymbolic, but how a symbolic system claims authority.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L17734)_
+- `L0852` Geertz gives symbols a double function: they are both models of reality and models for reality.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L17738)_
+- `L0853` Meaning is not stored inside the symbol.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L17742)_
+- `L0854` Culture fills an information gap between biological capacity and determinate action.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L17754)_
+- `L0855` Religion does not merely attach beliefs to preexisting emotions.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L17758)_
+- `L0856` Ritual is the mechanism that converts a representation into experienced reality.  _(NON_OBVIOUS_INSIGHTS/item_07; ai-prompting-and-description.md:L17762)_
+- `L0857` The “aura of factuality” is an achieved effect, not an intrinsic property of sacred claims.  _(NON_OBVIOUS_INSIGHTS/item_08; ai-prompting-and-description.md:L17766)_
+- `L0858` Religious meaning is tested less by prediction than by existential orientation.  _(NON_OBVIOUS_INSIGHTS/item_09; ai-prompting-and-description.md:L17770)_
+- `L0859` Geertz’s scientific perspective is itself a disciplined symbolic attitude.  _(NON_OBVIOUS_INSIGHTS/item_10; ai-prompting-and-description.md:L17774)_
+- `L0860` The paper models an environment’s textual interface rather than the environment in its entirety.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L18010)_
+- `L0861` The shift from next-token prediction to next-state prediction is primarily a change in training organization.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L18024)_
+- `L0862` “Implicit latent state” is inferred from behavioral consistency rather than observed directly.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L18028)_
+- `L0863` Some world models receive epistemic privileges unavailable to the acting agent.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L18032)_
+- `L0864` The strongest results occur where the environment has already been converted into a symbolic machine.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L18036)_
+- `L0865` Behavioral coverage is as important as environmental coverage.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L18040)_
+- `L0866` The world model learns a joint ecology of environment and policy behavior.  _(NON_OBVIOUS_INSIGHTS/item_07; ai-prompting-and-description.md:L18044)_
+- `L0867` Utility does not require perfect simulation.  _(NON_OBVIOUS_INSIGHTS/item_08; ai-prompting-and-description.md:L18048)_
+- `L0868` Moderate verification outperforms unlimited verification because simulation changes behavior.  _(NON_OBVIOUS_INSIGHTS/item_09; ai-prompting-and-description.md:L18052)_
+- `L0869` The world model becomes a producer of experience rather than merely a predictor of it.  _(NON_OBVIOUS_INSIGHTS/item_10; ai-prompting-and-description.md:L18056)_
+- `L0870` Pragmatism does not define meaning by usefulness in the ordinary sense.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L18289)_
+- `L0871` Action is an intermediary between thought and reality, not the final value.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L18293)_
+- `L0872` Peirce and James locate meaning at different scales.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L18297)_
+- `L0873` Pragmatic meaning is prospective.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L18301)_
+- `L0874` James turns metaphysical systems into rival behavioral orientations.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L18305)_
+- `L0875` The “will to believe” is not permission to believe anything desirable.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L18309)_
+- `L0876` Truth is treated as a successful passage from conception to consequence.  _(NON_OBVIOUS_INSIGHTS/item_07; ai-prompting-and-description.md:L18313)_
+- `L0877` Instrumentalism gives thought a reconstructive rather than reproductive function.  _(NON_OBVIOUS_INSIGHTS/item_08; ai-prompting-and-description.md:L18317)_
+- `L0878` The judgment is an intervention architecture.  _(NON_OBVIOUS_INSIGHTS/item_09; ai-prompting-and-description.md:L18321)_
+- `L0879` Dewey’s ultimate object is not useful belief but distributed experimental intelligence.  _(NON_OBVIOUS_INSIGHTS/item_10; ai-prompting-and-description.md:L18335)_
+- `L0880` Deleuze does not treat cinema as a language that represents movement; he treats cinema as a material system in which images are themselves movements.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L18629)_
+- `L0881` The movement-image is an ontology before it is a film category.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L18643)_
+- `L0882` A living being appears when universal movement is interrupted.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L18647)_
+- `L0883` Perception is subtraction rather than addition.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L18657)_
+- `L0884` The subjective image is not simply an image from someone’s optical viewpoint.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L18661)_
+- `L0885` The affection-image occupies the suspended middle between perception and action.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L18665)_
+- `L0886` The close-up does not enlarge an object; it changes the object’s mode of existence.  _(NON_OBVIOUS_INSIGHTS/item_07; ai-prompting-and-description.md:L18669)_
+- `L0887` The action-image is the conversion of virtual qualities into determinate conduct.  _(NON_OBVIOUS_INSIGHTS/item_08; ai-prompting-and-description.md:L18673)_
+- `L0888` Classical narrative cinema is fundamentally a sensory-motor world model.  _(NON_OBVIOUS_INSIGHTS/item_09; ai-prompting-and-description.md:L18687)_
+- `L0889` Montage does not merely arrange shots; it constructs an indirect image of time.  _(NON_OBVIOUS_INSIGHTS/item_10; ai-prompting-and-description.md:L18691)_
+- `L0890` The crisis of the action-image is a crisis of confidence in the action-consequence loop.  _(NON_OBVIOUS_INSIGHTS/item_11; ai-prompting-and-description.md:L18695)_
+- `L0891` The cliché is the degraded world model of the action-image.  _(NON_OBVIOUS_INSIGHTS/item_12; ai-prompting-and-description.md:L18699)_
+- `L0892` The emerging system is not really about prompts becoming more detailed; it is about text becoming a manipulable interface to a generative state.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L19070)_
+- `L0893` “Thick prompting” correctly relocates prompt quality from visual abundance to semantic constraint.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L19074)_
+- `L0894` The twitch-wink distinction becomes a generative test.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L19078)_
+- `L0895` Operative description is most powerful when understood as a recoverable intervention surface, not as a caption.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L19082)_
+- `L0896` The file identifies a decisive transition from text about media to text inside the production system.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L19086)_
+- `L0897` The strongest connection to world models is temporal rather than visual.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L19090)_
+- `L0898` The concept becomes more consequential once prompts govern state transitions.  _(NON_OBVIOUS_INSIGHTS/item_07; ai-prompting-and-description.md:L19094)_
+- `L0899` Operative description can function as a debugging language for generative worlds.  _(NON_OBVIOUS_INSIGHTS/item_08; ai-prompting-and-description.md:L19106)_
+- `L0900` The draft’s real conceptual spine is not “image plus text” and “world plus model,” but a sequence of escalating operational commitments.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L19373)_
+- `L0901` The text correctly identifies a category error at the center of current generative-AI discourse.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L19387)_
+- `L0902` The distinction among image/text, image-text, and imagetext functions as a miniature theory of relation.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L19391)_
+- `L0903` The proposed “world-text” concept emerges from a missing middle layer between prompt and world model.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L19403)_
+- `L0904` The strongest analogy in the file is not representational but executable.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L19407)_
+- `L0905` The file begins to separate four things that are usually collapsed:  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L19421)_
+- `L0906` The Axis Inverter section discovers the strongest rhetorical opening available to the project.  _(NON_OBVIOUS_INSIGHTS/item_07; ai-prompting-and-description.md:L19439)_
+- `L0907` The file implicitly treats evaluation as ontological adjudication.  _(NON_OBVIOUS_INSIGHTS/item_08; ai-prompting-and-description.md:L19451)_
+- `L0908` The draft’s strongest claim is that “worldness” is defined by consequence, not duration.  _(NON_OBVIOUS_INSIGHTS/item_01; ai-prompting-and-description.md:L19775)_
+- `L0909` The central distinction is between a trace and the system that produces the trace.  _(NON_OBVIOUS_INSIGHTS/item_02; ai-prompting-and-description.md:L19785)_
+- `L0910` The proposed extension of Mitchell’s typography is more consequential than it initially appears.  _(NON_OBVIOUS_INSIGHTS/item_03; ai-prompting-and-description.md:L19799)_
+- `L0911` The file implicitly identifies a missing technical layer between the prompt and the world model.  _(NON_OBVIOUS_INSIGHTS/item_04; ai-prompting-and-description.md:L19811)_
+- `L0912` The decisive transition is not from description to generation, but from description to intervention.  _(NON_OBVIOUS_INSIGHTS/item_05; ai-prompting-and-description.md:L19815)_
+- `L0913` The argument converts “world model” from a product label into a falsifiable operational claim.  _(NON_OBVIOUS_INSIGHTS/item_06; ai-prompting-and-description.md:L19819)_
+- `L0914` The draft’s rhetorical attack reveals the project’s actual stakes.  _(NON_OBVIOUS_INSIGHTS/item_07; ai-prompting-and-description.md:L19835)_
+- `L0915` Worldtext is potentially the accountability surface that latent world models lack.  _(NON_OBVIOUS_INSIGHTS/item_08; ai-prompting-and-description.md:L19839)_
